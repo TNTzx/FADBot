@@ -7,7 +7,7 @@ import json
 import main
 
 apiLink = main.apiLink
-apiCookie = main.apiCookie
+
 
 class GetArtists(commands.Cog):
     def __init__(self, bot):
@@ -15,8 +15,7 @@ class GetArtists(commands.Cog):
 
     @commands.command(name="artistget")
     async def artistget(self, ctx, artistName):
-        response = requests.get(f"{apiLink}api/artist/{artistName}", headers=apiCookie)
-        await ctx.send(f"```{response.json()}```")
+        return
 
 def setup(bot):
     bot.add_cog(GetArtists(bot))
