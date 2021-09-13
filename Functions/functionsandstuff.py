@@ -1,11 +1,11 @@
 import discord
 import main
 import traceback
-from Cogs import ErrorHandler
+from Cogs import ErrorHandling
 
-errorPrefix = ErrorHandler.errorPrefix
+errorPrefix = ErrorHandling.errorPrefix
 async def sendError(ctx, suffix, exc="", sendToOwner=False, printToConsole=False):
-    ctx.send(f"{errorPrefix}{suffix}")
+    await ctx.channel.send(f"{errorPrefix}{suffix}")
     
     if sendToOwner:
         tntz = await main.bot.fetch_user(279803094722674693)

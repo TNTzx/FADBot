@@ -1,7 +1,5 @@
-import discord
 from discord.ext import commands
-import os
-import asyncio
+import main
 
 class Hello(commands.Cog):
     def __init__(self, bot):
@@ -18,6 +16,11 @@ class Hello(commands.Cog):
     @commands.command(name="ping")
     async def ping(self, ctx):
         await ctx.send(f"Pong! <@{ctx.author.id}>")
+
+    @commands.command(name="causeerror")
+    @commands.has_role(main.adminRole)
+    async def causeerror(self, ctx):
+        raise TypeError("caused error!")
 
 def setup(bot):
     bot.add_cog(Hello(bot))

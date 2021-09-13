@@ -1,11 +1,6 @@
-import discord
 from discord.ext import commands
-import os
-import asyncio
 import main
 from Functions import functionsandstuff as fas
-import sys
-import traceback
 import datetime
 
 commandPrefix = main.commandPrefix
@@ -24,11 +19,11 @@ class ErrorHandler(commands.Cog):
             timeSplit = timeConverted.split(":")
             timeFormatted = f"`{timeSplit[0]}h {timeSplit[1]}m {timeSplit[2]}s`"
 
-            await fas.sendError(ctx, f"The command is on cooldown for {timeFormatted} more!")
+            await fas.sendError(ctx, f"The command is on cooldown for `{timeFormatted}`` more!")
         elif isinstance(exc, commands.MissingRole):
             await fas.sendError(ctx, f"You don't have the `{exc.missing_role}` role!")
         elif isinstance(exc, commands.MissingRequiredArgument):
-            await fas.sendError(ctx, f"Make sure you have the correct parameters! Use {commandPrefix}help to get help!")
+            await fas.sendError(ctx, f"Make sure you have the correct parameters! Use `{commandPrefix}help` to get help!")
         elif isinstance(exc, commands.CommandNotFound):
             return
         else:
