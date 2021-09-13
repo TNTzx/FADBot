@@ -1,13 +1,11 @@
 import discord
 from discord.ext import commands
-import os
-import asyncio
-import requests
-import json
 import main
+from Cogs import ErrorHandling
 from Functions import requestnew
 
 apiLink = main.apiLink
+errorPrefix = ErrorHandling.errorPrefix
 
 class GetArtists(commands.Cog):
     def __init__(self, bot):
@@ -19,16 +17,22 @@ class GetArtists(commands.Cog):
         if artistStatus in artistStatusList:
             artistStatusIndex = artistStatusList.index(artistStatus)
         else:
-            await ctx.send(f"Error! `\"{artistStatus}\"` is not a valid option!")
+            await ctx.send(f"{errorPrefix}`\"{artistStatus}\"` is not a valid option!")
             return
-
+    
         datas = {
             "name" : artistName,
-            "status" : artistStatus,
+            "status" : artistStatusIndex,
             "availability" : artistAvail
         }
+
+        await ctx.send("Adding artist...")
         request = await requestnew.makeRequest("POST", "api/artist", datas)
-        await ctx.send(f"```{request}```")
+
+        if request["code"] == 201:
+            await ctx.send("Verification submitted. Please wait for a moderator to approve your submission.")
+        else:
+            await ctx.send(f"{errorPrefix}The request has failed. The output is shown below:```{request}```")
 
 def setup(bot):
     bot.add_cog(GetArtists(bot))
