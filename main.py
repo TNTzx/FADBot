@@ -17,6 +17,7 @@ slash = discord_slash.SlashCommand(bot, sync_commands=True)
 
 # guildIds = [734204348665692181]
 adminRole = "beans"
+verifyEmote = "\u2705"
 
 apiLink = "https://fadb.live/"
 apiAuthToken = os.environ["FadbAuthToken"]
@@ -42,8 +43,10 @@ async def restartswitch(ctx):
     for filename in allCogs():
         if filename.endswith(".py"):
             newName = f"Cogs.{filename[:-3]}"
-            bot.unload_extension(newName)
-            bot.load_extension(newName)
+            try:
+                bot.unload_extension(newName)
+            finally:
+                bot.load_extension(newName)
 
     await ctx.send("Restarted!")
 

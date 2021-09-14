@@ -2,10 +2,11 @@ import discord
 import main
 import traceback
 from Cogs import ErrorHandling
+import datetime
 
 errorPrefix = ErrorHandling.errorPrefix
-async def sendError(ctx, suffix, exc="", sendToOwner=False, printToConsole=False):
-    await ctx.channel.send(f"{errorPrefix}{suffix}")
+async def sendError(ctx, suffix, exc="", sendToAuthor=False, sendToOwner=False, printToConsole=False):
+    text = f"{errorPrefix}{ctx.author.mention}, {suffix}"
     
     if sendToOwner:
         tntz = await main.bot.fetch_user(279803094722674693)
@@ -14,4 +15,27 @@ async def sendError(ctx, suffix, exc="", sendToOwner=False, printToConsole=False
         error = getattr(exc, 'original', exc)
         print(f"Ignoring exception in command {ctx.command}:")
         traceback.print_exception(type(error), error, error.__traceback__)
+    if sendToAuthor:
+        await ctx.author.send(text)
+    else:
+        await ctx.channel.send(text)
     return
+
+async def subtractList(list1, list2):
+    return [x for x in list1 if x not in list2]
+
+async def formatTime(num):
+    numberOfSeconds = num
+    timeConverted = str(datetime.timedelta(seconds=numberOfSeconds))
+    timeSplit = timeConverted.split(":")
+    timeFormatted = f"`{timeSplit[0]}h {timeSplit[1]}m {timeSplit[2]}s`"
+    timeFormattedList = timeFormatted.split(" ")
+
+    timeFinalList = []
+    for i in timeFormattedList:
+        if not i.find("00"):
+            timeFinalList.append(i)
+
+    timeFinal = str(timeFinalList)
+    return timeFinal
+
