@@ -2,11 +2,16 @@ import discord
 from discord.ext import commands
 import asyncio
 
+from PIL import Image
+import requests
+
+
 import main
 
 from Functions import functionsandstuff as fas
 from Functions import customExceptions as cE
 from Functions import requestnew
+
 
 apiLink = main.apiLink
 timeoutDuration = 120
@@ -22,12 +27,11 @@ class GetArtists(commands.Cog):
 
         # check if user is already using the command
         if ctx.author.id in GetArtists.isUsingArtistAddCommand:
-            await fas.sendError(ctx, "You're already using this command!")
+            await fas.sendError(ctx, f"You're already using this command! The command has been cancelled for you. Try {main.commandPrefix}artistadd again.")
             return
         else:
             GetArtists.isUsingArtistAddCommand.append(ctx.author.id)
 
-        
 
         await ctx.author.send("> **The verified artist will now be set up here.**")
         await ctx.send("You have been DM'ed. Please follow the instructions there.")
@@ -51,8 +55,7 @@ class GetArtists(commands.Cog):
                     if not len(message.attachments) == 0:
                         for i in message.attachments:
                             for image in imageExts:
-                                print(i)
-                                if not i.url.endswith(image):
+                                if i.url.endswith(image):
                                     break
 
                                 if imageExts.index(image) == (len(imageExts) - 1):
@@ -62,7 +65,10 @@ class GetArtists(commands.Cog):
                     # if input is an attachment
                     else:
                         for image in imageExts:
-                            if not message.content.endswith(image):
+                            if message.content.endswith(image):
+                                break
+
+                            if imageExts.index(image) == (len(imageExts) - 1):
                                 await fas.sendError(ctx, f"You didn't send an __image__ or a __link to an image__!\nMake sure the image is in the following formats: `{', '.join(imageExts)}`. Try again.", sendToAuthor=True)
                                 return False
                         url.append(message.content)
@@ -98,8 +104,9 @@ class GetArtists(commands.Cog):
             
 
         # send stuff
-        await sendCreate("\n Please send an __image (or images)__ to prove that you have contacted the artist.", "image")
-        await sendCreate("\n Please send the name of the artist.", "text")
+        rpContactProof = await sendCreate("\n Please send an __image (or images)__ to prove that you have contacted the artist.", "image")
+        rpArtistName = await sendCreate("\n Please send the name of the artist.", "text")
+        
 
         # remove user from "using list"
         GetArtists.isUsingArtistAddCommand.remove(ctx.author.id)
