@@ -43,10 +43,11 @@ async def restartswitch(ctx):
     for filename in allCogs():
         if filename.endswith(".py"):
             newName = f"Cogs.{filename[:-3]}"
-            try:
-                bot.unload_extension(newName)
-            finally:
-                bot.load_extension(newName)
+            # try:
+            #     bot.unload_extension(newName)
+            # except commands.errors.ExtensionNotLoaded:
+            #     continue
+            bot.load_extension(newName)
 
     await ctx.send("Restarted!")
 

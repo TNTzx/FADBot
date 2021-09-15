@@ -28,14 +28,15 @@ async def formatTime(num):
     numberOfSeconds = num
     timeConverted = str(datetime.timedelta(seconds=numberOfSeconds))
     timeSplit = timeConverted.split(":")
-    timeFormatted = f"`{timeSplit[0]}h {timeSplit[1]}m {timeSplit[2]}s`"
-    timeFormattedList = timeFormatted.split(" ")
 
     timeFinalList = []
-    for i in timeFormattedList:
-        if not i.find("00"):
-            timeFinalList.append(i)
+    if not timeSplit[0] == "0":
+        timeFinalList.append(f"{int(timeSplit[0])}h")
+    if not timeSplit[1] == "00":
+        timeFinalList.append(f"{int(timeSplit[1])}m")
+    if not timeSplit[2] == "00":
+        timeFinalList.append(f"{int(timeSplit[2])}s")
 
-    timeFinal = str(timeFinalList)
+    timeFinal = ", ".join(timeFinalList)
     return timeFinal
 
