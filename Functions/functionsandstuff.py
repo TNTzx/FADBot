@@ -45,10 +45,3 @@ async def formatTime(num):
 
     timeFinal = ", ".join(timeFinalList)
     return timeFinal
-
-
-async def dbGet(table, col, colId, value):
-    db = sqlite3.connect(f"{main.databaseFile}")
-    cursor = db.cursor()
-    cursor.execute(f"SELECT {value} FROM {table} WHERE {col} = {colId}")
-    return dbGet

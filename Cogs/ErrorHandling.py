@@ -21,20 +21,25 @@ class ErrorHandler(commands.Cog):
     
         if checkexc(commands.CommandOnCooldown):
             time = fas.formatTime(int(str(round(exc.retry_after, 0))[:-2]))
-
             await fas.sendError(ctx, f"The command is on cooldown for `{time}`` more!")
+            return
 
         elif checkexc(commands.MissingRole):
             await fas.sendError(ctx, f"You don't have the `{exc.missing_role}` role!")
+            return
     
         elif checkexc(commands.MissingRequiredArgument):
             await fas.sendError(ctx, f"Make sure you have the correct parameters! Use `{commandPrefix}help` to get help!")
+            return
         
+        elif checkexc(commands.CommandInvokeError):
+            if (str(exc.__cause__) == "Exited Function."):
+                return
+
         elif checkexc(commands.CommandNotFound):
             return
 
-        else:
-            await fas.sendError(ctx, "Something went wrong. This error has been reported to the owner of the bot.", exc=exc, sendToOwner=True, printToConsole=True)
+        await fas.sendError(ctx, "Something went wrong. This error has been reported to the owner of the bot.", exc=exc, sendToOwner=True, printToConsole=True)
 
         
 
