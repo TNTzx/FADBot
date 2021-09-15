@@ -1,8 +1,12 @@
 import discord
 import main
 import traceback
-from Cogs import ErrorHandling
+from Cogs import ErrorHandling 
 import datetime
+
+import sqlite3
+
+
 
 errorPrefix = ErrorHandling.errorPrefix
 async def sendError(ctx, suffix, exc="", sendToAuthor=False, sendToOwner=False, printToConsole=False):
@@ -21,8 +25,10 @@ async def sendError(ctx, suffix, exc="", sendToAuthor=False, sendToOwner=False, 
         await ctx.channel.send(text)
     return
 
+
 async def subtractList(list1, list2):
     return [x for x in list1 if x not in list2]
+
 
 async def formatTime(num):
     numberOfSeconds = num
@@ -40,3 +46,9 @@ async def formatTime(num):
     timeFinal = ", ".join(timeFinalList)
     return timeFinal
 
+
+async def dbGet(table, col, colId, value):
+    db = sqlite3.connect(f"{main.databaseFile}")
+    cursor = db.cursor()
+    cursor.execute(f"SELECT {value} FROM {table} WHERE {col} = {colId}")
+    return dbGet

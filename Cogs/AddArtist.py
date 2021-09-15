@@ -15,55 +15,63 @@ class GetArtists(commands.Cog):
         self.bot = bot
 
     @commands.command(name="artistadd")
-    async def artistadd(self, ctx):
+    async def artistadd(self, ctx:commands.Context):
         await ctx.author.send("> **The verified artist will now be set up here.**")
         await ctx.send("You have been DM'ed. Please follow the instructions there.")
 
-        async def sendCreate(prefix, expectedTypes=["message"]):
+        async def sendCreate(prefix, expectedType="text"):
+            response = []
 
-            async def checkInput(message:discord.Message, expectedTypes):
-                errorMessage = ""
+            async def checkInput(message, expectedType):
+                if expectedType == "text":
+                    if message.content == "":
+                        await fas.sendError(ctx, "You didn't send a __text message__! Try again.", sendToAuthor=True)
+                        return False
+                    return True
+                if expectedType == "image":
+                    imageExts = ["png", "jpeg", "jpg"]
 
-                async def checks(message, type):
-                    nonlocal errorMessage
-
-                    if type == "message":
-                        if message.content == "":
-                            errorMessage = "You didn't send a __text message__! Try again."
-                            return False
-                    elif type == "image":
-                        if len(message.attachments) == 0:
-                            errorMessage = "You didn't send an __attachment__! Try again."
-                            return False
-                        for i in len(message.attachments):
-                            if not message.attachments[i].content_type == "image":
-                                errorMessage = "The attachment(s) you sent wasn't an image! Try again."
+                    url = []
+                    if not len(message.attachments) == 0:
+                        for i in message.attachments:
+                            for image in imageExts:
+                                print(i)
+                                if not i.url.endswith(image):
+                                    await fas.sendError(ctx, f"You didn't send an __image__ or a __link to an image__!\nMake sure the image is in the following formats: `{', '.join(imageExts)}`. Try again.", sendToAuthor=True)
+                                    return False
+                            url.append(i.url)
+                    else:
+                        for image in imageExts:
+                            if not message.content.endswith(image):
+                                await fas.sendError(ctx, f"You didn't send an __image__ or a __link to an image__!\nMake sure the image is in the following formats: `{', '.join(imageExts)}`. Try again.", sendToAuthor=True)
                                 return False
-                
-                print(expectedTypes)
+                        url.append(message.content)
+                    response.append(url)
+                    return True
 
-                checkDict = {}
-                for i in expectedTypes:
-                    checkDict[i] = await checks(message, i)
-                # fas.sendError(ctx, "You didn't send an __attachment__! Try again.", sendToAuthor=True)
-                
-                print(checkDict, errorMessage)
 
-                
             success = False
             while not success:
                 await ctx.author.send(f"{prefix}\nThis command will time out in `{await fas.formatTime(timeoutDuration)}`. Use `{main.commandPrefix}cancel` to cancel making a new verified artist.")
                 try:
-                    message : discord.Message = await main.bot.wait_for("message", timeout=timeoutDuration)
-                    success = await checkInput(message, expectedTypes)
+                    message : discord.Message = await main.bot.wait_for("message", check=lambda message: message.author == ctx.author, timeout=timeoutDuration)
                 except asyncio.TimeoutError:
                     await fas.sendError(ctx, f"Command timed out. Please use `{main.commandPrefix}artistadd` again.", sendToAuthor=True)
                     return
+                
+                if message.content == f"{main.commandPrefix}cancel":
+                    await ctx.author.send(f"Command cancelled.")
+                    return
+                
+                success = await checkInput(message, expectedType)
 
-            return message
+            if expectedType == "text":
+                return response[0]
+            elif expectedType == "image":
+                return response
             
 
-        await sendCreate("\n Please send an __image (or images)__ to prove that you have contacted the artist.", ["image"])
+        await sendCreate("\n Please send an __image (or images)__ to prove that you have contacted the artist.", "image")
 
 
 

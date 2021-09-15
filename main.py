@@ -15,9 +15,9 @@ bot = discord.Client()
 bot = discord.ext.commands.Bot(command_prefix=commandPrefix)
 slash = discord_slash.SlashCommand(bot, sync_commands=True)
 
-# guildIds = [734204348665692181]
 adminRole = "beans"
 verifyEmote = "\u2705"
+unverifyEmote = ""
 
 apiLink = "https://fadb.live/"
 apiAuthToken = os.environ["FadbAuthToken"]
@@ -25,6 +25,8 @@ apiHeaders = {
   "Authorization": f"Basic {apiAuthToken}",
   "Content-Type": "application/x-www-form-urlencoded"
 }
+
+databaseFile = "./Database/database.sqlite"
 
 #Cogs
 def allCogs():
@@ -43,10 +45,10 @@ async def restartswitch(ctx):
     for filename in allCogs():
         if filename.endswith(".py"):
             newName = f"Cogs.{filename[:-3]}"
-            # try:
-            #     bot.unload_extension(newName)
-            # except commands.errors.ExtensionNotLoaded:
-            #     continue
+            try:
+                bot.unload_extension(newName)
+            except commands.errors.ExtensionNotLoaded:
+                continue
             bot.load_extension(newName)
 
     await ctx.send("Restarted!")
