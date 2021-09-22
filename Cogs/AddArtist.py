@@ -12,11 +12,9 @@ from Functions import functionsandstuff as fas
 from Functions import customExceptions as cE
 from Functions import requestnew
 
+timeoutDuration = 60 * 2
 
-apiLink = main.apiLink
-timeoutDuration = 120
-
-class GetArtists(commands.Cog):
+class AddArtists(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -26,11 +24,11 @@ class GetArtists(commands.Cog):
     async def artistadd(self, ctx:commands.Context):
 
         # check if user is already using the command
-        if ctx.author.id in GetArtists.isUsingArtistAddCommand:
+        if ctx.author.id in self.isUsingArtistAddCommand:
             await fas.sendError(ctx, f"You're already using this command! The command has been cancelled for you. Try {main.commandPrefix}artistadd again.")
             return
         else:
-            GetArtists.isUsingArtistAddCommand.append(ctx.author.id)
+            self.isUsingArtistAddCommand.append(ctx.author.id)
 
 
         await ctx.author.send("> **The verified artist will now be set up here.**\nIf you mistyped something, you can edit it before the submission is sent, don't worry.")
@@ -117,20 +115,20 @@ class GetArtists(commands.Cog):
                 if not skippable:
                     await ctx.author.send(f"{prefix}\nThis command will time out in `{await fas.formatTime(timeoutDuration)}`. Use `{main.commandPrefix}cancel` to cancel making a new verified artist.")
                 else:
-                    await ctx.author.send(f"{prefix}\nThis command will time out in `{await fas.formatTime(timeoutDuration)}`. Use `{main.commandPrefix}cancel` to cancel making a new verified artist, or use {main.commandPrefix}skip to skip this command.")
+                    await ctx.author.send(f"{prefix}\nThis command will time out in `{await fas.formatTime(timeoutDuration)}`. Use `{main.commandPrefix}cancel` to cancel making a new verified artist. If you don't know what to do, use {main.commandPrefix}skip to skip this command.")
 
                 try:
                     message : discord.Message = await main.bot.wait_for("message", check=lambda message: message.author == ctx.author, timeout=timeoutDuration)
                 except asyncio.TimeoutError:
                     # timeout
                     await fas.sendError(ctx, f"Command timed out. Please use `{main.commandPrefix}artistadd` again.", sendToAuthor=True)
-                    GetArtists.isUsingArtistAddCommand.remove(ctx.author.id)
+                    self.isUsingArtistAddCommand.remove(ctx.author.id)
                     raise cE.ExitFunction("Exited Function.")
                 
                 # checks for skips or cancels
                 if message.content == f"{main.commandPrefix}cancel":
                     await ctx.author.send(f"Command cancelled.")
-                    GetArtists.isUsingArtistAddCommand.remove(ctx.author.id)
+                    self.isUsingArtistAddCommand.remove(ctx.author.id)
                     raise cE.ExitFunction("Exited Function.")
                 if skippable and message.content == f"{main.commandPrefix}skip":
                     await ctx.author.send(f"Command skipped, now using default values.")
@@ -145,12 +143,55 @@ class GetArtists(commands.Cog):
                 return response
             
 
+
         # send stuff
         arData = {}
 
-        # arContactProof = await sendCreate("Please send an image (or images) to __prove that you have contacted the artist__. Image links also work.", expectedType="image", singleInput=False)
-        # arData["avatar"] = await sendCreate("Please send an image of the __artist's profile picture__.", expectedType="image")
-        # arData["name"] = await sendCreate("Please send __the name of the artist__.", expectedType="text")
+        formatOfData = {
+            "name": "ArtistName",
+            "avatar": "AvatarLink",
+            "banner": "BannerLink, Optional",
+            "description": "Description",
+            "tracks": 1, #AmountOfTracks, int
+            "genre": "Genre",
+            "status": 0,
+                # 0: Completed
+                # 1: No contact
+                # 2: Pending
+                # 3: Requested
+                # 99: nil
+            "availability": 0,
+                # 0: Verified
+                # 1: Disallowed
+                # 2: Contact required
+                # 3: Varies
+                # 99: nil
+            "notes": "Notes, Optional",
+            "usageRights": [
+                {
+                    "name": "NameOfAllowedSong",
+                    "value": True
+                },
+                {
+                    "name": "NameOfDisallowedSong",
+                    "value": False
+                }
+            ],
+            "socials": [
+                { 
+                    "url": "funnyurl",
+                    "type": "type"
+                },
+                {
+                    "url": "anotherfunnyurl",
+                    "type": "type"
+                }
+            ]
+        }
+
+        arContactProof = await sendCreate("Please send an image (or images) to __prove that you have contacted the artist__. Image links also work.", expectedType="image", singleInput=False)
+        arData["avatar"] = await sendCreate("Please send an image of the __artist's profile picture__.", expectedType="image")
+        arData["name"] = await sendCreate("Please send __the name of the artist__.", expectedType="text")
         arData["usageRights"] = await sendCreate(
             """Please send __the usage rights for this artist__.
             The format is as follows:
@@ -173,7 +214,7 @@ class GetArtists(commands.Cog):
         
 
         # remove user from "using list"
-        GetArtists.isUsingArtistAddCommand.remove(ctx.author.id)
+        self.isUsingArtistAddCommand.remove(ctx.author.id)
 
 
 
@@ -207,7 +248,7 @@ class GetArtists(commands.Cog):
             
         if main.adminRole in userRoleList:
             if reaction.emoji == main.verifyEmote:
-                await GetArtists.verifyArtist(reaction.message)
+                await self.verifyArtist(reaction.message)
         else:
             print("beans")
 
@@ -217,4 +258,4 @@ class GetArtists(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(GetArtists(bot))
+    bot.add_cog(AddArtists(bot))

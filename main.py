@@ -52,6 +52,7 @@ async def restartswitch(ctx):
             bot.load_extension(newName)
 
     await ctx.send("Restarted!")
+    print("\n \n Restart break! -------------------------------------- \n \n")
 
 @bot.command()
 @commands.has_role(adminRole)
