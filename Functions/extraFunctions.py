@@ -2,15 +2,14 @@ import discord
 import discord.ext.commands as commands
 import main
 import traceback
-from Cogs import ErrorHandling 
+
 import datetime
 
-import sqlite3
+from Cogs import ErrorHandler as eh
 
 
 
 errorPrefix = "**Error!**\n"
-errorEmoji = "❌"
 
 async def sendError(ctx:commands.Context, suffix, exc="", sendToAuthor=False, sendToOwner=False, printToConsole=False, resetCooldown=False):
     text = f"{errorPrefix}{ctx.author.mention}, {suffix}"
@@ -29,7 +28,6 @@ async def sendError(ctx:commands.Context, suffix, exc="", sendToAuthor=False, se
 
     if sendToAuthor:
         await ctx.author.send(text)
-        await ctx.message.add_reaction(errorEmoji)
     else:
         if isinstance(ctx.message.channel, discord.DMChannel):
             channel = await main.bot.get_channel(ctx.message.channel.id)

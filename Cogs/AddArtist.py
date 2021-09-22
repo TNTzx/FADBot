@@ -8,9 +8,9 @@ import requests
 
 import main
 
-from Functions import functionsandstuff as fas
-from Functions import customExceptions as cE
-from Functions import requestnew
+from Functions import extraFunctions as ef
+from Functions import customExceptions as ce
+from Functions import requestNew as rn
 
 timeoutDuration = 60 * 2
 
@@ -18,15 +18,16 @@ class AddArtists(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    isUsingArtistAddCommand = []
+    isUsingCommand = []
 
     @commands.command(name="artistadd")
     async def artistadd(self, ctx:commands.Context):
 
         # check if user is already using the command
         if ctx.author.id in self.isUsingArtistAddCommand:
-            await fas.sendError(ctx, f"You're already using this command! The command has been cancelled for you. Try {main.commandPrefix}artistadd again.")
-            return
+            await ef.sendError(ctx, f"You're already using this command! Type `{main.commandPrefix}cancel` on your DMs to cancel it!")
+            self.isUsingArtistAddCommand.remove(ctx.author.id)
+            raise ce.ExitFunction("Exited Function.")
         else:
             self.isUsingArtistAddCommand.append(ctx.author.id)
 
@@ -50,7 +51,7 @@ class AddArtists(commands.Cog):
                 nonlocal response
                 if expectedType == "text":
                     if message.content == "":
-                        await fas.sendError(ctx, "You didn't send a __text message__! Try again.", sendToAuthor=True)
+                        await ef.sendError(ctx, "You didn't send a __text message__! Try again.", sendToAuthor=True)
                         return False
 
                     if outputAsDict:
@@ -66,7 +67,7 @@ class AddArtists(commands.Cog):
                             validResponses = ["Verified", "Unverified"]
                             for i in textMain[1::2]:
                                 if not (i in validResponses):
-                                    await fas.sendError(ctx, "You sent an invalid response! Make sure that \"Verified\" or \"Unverified\" is capitalized correctly. Try again.", sendToAuthor=True)
+                                    await ef.sendError(ctx, "You sent an invalid response! Make sure that \"Verified\" or \"Unverified\" is capitalized correctly. Try again.", sendToAuthor=True)
                                     return False
 
                         response = dict(zip(textMain[::2], textMain[1::2]))
@@ -83,7 +84,7 @@ class AddArtists(commands.Cog):
                     # if input is a link
                     if not len(message.attachments) == 0:
                         if singleInput and not len(message.attachments) == 1:
-                            await fas.sendError(ctx, "You sent more than one image! Please send only one. Try again.", sendToAuthor=True)
+                            await ef.sendError(ctx, "You sent more than one image! Please send only one. Try again.", sendToAuthor=True)
 
                         for i in message.attachments:
                             for image in imageExts:
@@ -91,7 +92,7 @@ class AddArtists(commands.Cog):
                                     break
 
                                 if imageExts.index(image) == (len(imageExts) - 1):
-                                    await fas.sendError(ctx, f"You didn't send an __image__ or a __link to an image__!\nMake sure the image is in the following formats: `{', '.join(imageExts)}`. Try again.", sendToAuthor=True)
+                                    await ef.sendError(ctx, f"You didn't send an __image__ or a __link to an image__!\nMake sure the image is in the following formats: `{', '.join(imageExts)}`. Try again.", sendToAuthor=True)
                                     return False
                             url.append(i.url)
                     # if input is an attachment
@@ -101,7 +102,7 @@ class AddArtists(commands.Cog):
                                 break
 
                             if imageExts.index(image) == (len(imageExts) - 1):
-                                await fas.sendError(ctx, f"You didn't send an __image__ or a __link to an image__!\nMake sure the image is in the following formats: `{', '.join(imageExts)}`. Try again.", sendToAuthor=True)
+                                await ef.sendError(ctx, f"You didn't send an __image__ or a __link to an image__!\nMake sure the image is in the following formats: `{', '.join(imageExts)}`. Try again.", sendToAuthor=True)
                                 return False
                         url.append(message.content)
                     response = url
@@ -113,23 +114,23 @@ class AddArtists(commands.Cog):
             success = False
             while not success:
                 if not skippable:
-                    await ctx.author.send(f"{prefix}\nThis command will time out in `{await fas.formatTime(timeoutDuration)}`. Use `{main.commandPrefix}cancel` to cancel making a new verified artist.")
+                    await ctx.author.send(f"{prefix}\nThis command will time out in `{await ef.formatTime(timeoutDuration)}`. Use `{main.commandPrefix}cancel` to cancel making a new verified artist.")
                 else:
-                    await ctx.author.send(f"{prefix}\nThis command will time out in `{await fas.formatTime(timeoutDuration)}`. Use `{main.commandPrefix}cancel` to cancel making a new verified artist. If you don't know what to do, use {main.commandPrefix}skip to skip this command.")
+                    await ctx.author.send(f"{prefix}\nThis command will time out in `{await ef.formatTime(timeoutDuration)}`. Use `{main.commandPrefix}cancel` to cancel making a new verified artist. If you don't know what to do, use {main.commandPrefix}skip to skip this command.")
 
                 try:
-                    message : discord.Message = await main.bot.wait_for("message", check=lambda message: message.author == ctx.author, timeout=timeoutDuration)
+                    message : discord.Message = await main.bot.wait_for("message", check=lambda message: message.author == ctx.author and isinstance(ctx.channel, discord.channel.DMChannel), timeout=timeoutDuration)
                 except asyncio.TimeoutError:
                     # timeout
-                    await fas.sendError(ctx, f"Command timed out. Please use `{main.commandPrefix}artistadd` again.", sendToAuthor=True)
+                    await ef.sendError(ctx, f"Command timed out. Please use `{main.commandPrefix}artistadd` again.", sendToAuthor=True)
                     self.isUsingArtistAddCommand.remove(ctx.author.id)
-                    raise cE.ExitFunction("Exited Function.")
+                    raise ce.ExitFunction("Exited Function.")
                 
                 # checks for skips or cancels
                 if message.content == f"{main.commandPrefix}cancel":
                     await ctx.author.send(f"Command cancelled.")
                     self.isUsingArtistAddCommand.remove(ctx.author.id)
-                    raise cE.ExitFunction("Exited Function.")
+                    raise ce.ExitFunction("Exited Function.")
                 if skippable and message.content == f"{main.commandPrefix}skip":
                     await ctx.author.send(f"Command skipped, now using default values.")
                     return defaultValue
@@ -202,7 +203,7 @@ class AddArtists(commands.Cog):
             > All other songs: Verified""",
             outputAsDict=True, skippable=True
         )
-        print(arData["usageRights"])
+        print(arData)
 
         # ar = discord.Embed(name="Example", thumbnail=arData["avatar"], colour=discord.Colour.gold())
         # ar.set_author(name=f"Artist data for {arData['name']}:", icon_url=arData["avatar"])
@@ -222,7 +223,7 @@ class AddArtists(commands.Cog):
         # if artistStatus in artistStatusList:
         #     artistStatusIndex = artistStatusList.index(artistStatus)
         # else:
-        #     await fas.sendError(ctx, f"`\"{artistStatus}\"` is not a valid option!")
+        #     await ef.sendError(ctx, f"`\"{artistStatus}\"` is not a valid option!")
         #     return
     
         # datas = {
@@ -237,7 +238,7 @@ class AddArtists(commands.Cog):
         # if request["code"] == 201:
         #     await ctx.send("Verification submitted. Please wait for a moderator to approve your submission.")
         # else:
-        #     await fas.sendError(ctx, f"The request has failed. The output is shown below:```{request}```", sendToOwner=True)
+        #     await ef.sendError(ctx, f"The request has failed. The output is shown below:```{request}```", sendToOwner=True)
     
 
     @commands.Cog.listener()
