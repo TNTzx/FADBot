@@ -32,7 +32,7 @@ class ErrorHandler(commands.Cog):
             await ef.sendError(ctx, f"Make sure you have the correct parameters! Use `{commandPrefix}help` to get help!", resetCooldown=True)
             return
         
-        elif checkexc(commands.ExpectedClosingQuoteError):
+        elif checkexc(commands.ExpectedClosingQuoteError) or checkexc(commands.InvalidEndOfQuotedStringError) or checkexc(commands.UnexpectedQuoteError):
             await ef.sendError(ctx, "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!", resetCooldown=True)
             return
         
