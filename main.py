@@ -1,6 +1,9 @@
 import discord
 import discord.ext.commands as commands
+import json
+import pyrebase
 import os
+import asyncio
 
 
 commandPrefix = "##"
@@ -9,6 +12,13 @@ bot = commands.Bot(command_prefix=commandPrefix)
 bot.remove_command("help")
 
 adminRole = "///Moderator"
+
+apiLink = "https://fadb.live/"
+apiAuthToken = os.environ["FadbAuthToken"]
+apiHeaders = {
+  "Authorization": f"Basic {apiAuthToken}",
+  "Content-Type": "application/x-www-form-urlencoded"
+}
 
 # Load all cogs
 print("Loading cogs...")
@@ -55,5 +65,5 @@ print("Loaded all important commands!")
 
 # Log in
 print("Logging into bot...")
-botToken = os.environ['CANITOKEN']
+botToken = os.environ['FadbToken']
 bot.run(botToken)

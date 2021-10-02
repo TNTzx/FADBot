@@ -1,9 +1,5 @@
 import discord
 from discord.ext import commands
-import os
-import asyncio
-import requests
-import json
 import main
 
 apiLink = main.apiLink
