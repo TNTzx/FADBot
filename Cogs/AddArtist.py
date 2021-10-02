@@ -20,12 +20,12 @@ class AddArtists(commands.Cog):
     async def artistadd(self, ctx:commands.Context):
 
         # check if user is already using the command
-        if ctx.author.id in self.isUsingArtistAddCommand:
+        if ctx.author.id in self.isUsingCommand:
             await ef.sendError(ctx, f"You're already using this command! Type `{main.commandPrefix}cancel` on your DMs to cancel it!")
-            self.isUsingArtistAddCommand.remove(ctx.author.id)
+            self.isUsingCommand.remove(ctx.author.id)
             raise ce.ExitFunction("Exited Function.")
         else:
-            self.isUsingArtistAddCommand.append(ctx.author.id)
+            self.isUsingCommand.append(ctx.author.id)
 
 
         await ctx.author.send("> **The verified artist will now be set up here.**\nIf you mistyped something, you can edit it before the submission is sent, don't worry.")
