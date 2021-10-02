@@ -1,45 +1,35 @@
 import discord
-from discord.ext import commands
-# import discord_slash.utils.manage_commands as dsumc
-# import discord_slash.model as dsm
-import discord.ext.commands
-import discord_slash
+import discord.ext.commands as commands
 import os
-import asyncio
 
 
 commandPrefix = "##"
-
-intents = discord.Intents.all()
 bot = discord.Client()
-bot = discord.ext.commands.Bot(command_prefix=commandPrefix)
-slash = discord_slash.SlashCommand(bot, sync_commands=True)
+bot = commands.Bot(command_prefix=commandPrefix)
+bot.remove_command("help")
 
-adminRole = "beans"
-verifyEmote = "\u2705"
-unverifyEmote = ""
+adminRole = "///Moderator"
 
-apiLink = "https://fadb.live/"
-apiAuthToken = os.environ["FadbAuthToken"]
-apiHeaders = {
-  "Authorization": f"Basic {apiAuthToken}",
-  "Content-Type": "application/x-www-form-urlencoded"
-}
-
-databaseFile = "./Database/database.sqlite"
-
-#Cogs
+# Load all cogs
+print("Loading cogs...")
 def allCogs():
-    return os.listdir(os.path.join(os.path.realpath(__file__), "..", "Cogs"))
+    return os.listdir(os.path.join(os.path.dirname(__file__), ".", "Cogs"))
 
 for filename in allCogs():
     if filename.endswith(".py"):
+        print(f"Loading cog '{filename}'...")
         bot.load_extension(f"Cogs.{filename[:-3]}")
 
+print("Loaded all cogs!")
 
-@bot.command()
+
+# Important commands
+print("Loading important commands...")
+
+@bot.command(aliases=["sr"])
+@commands.guild_only()
 @commands.has_role(adminRole)
-async def restartswitch(ctx):
+async def switchrestart(ctx):
     await ctx.send("Restarting bot...")
 
     for filename in allCogs():
@@ -54,11 +44,16 @@ async def restartswitch(ctx):
     await ctx.send("Restarted!")
     print("\n \n Restart break! -------------------------------------- \n \n")
 
-@bot.command()
+@bot.command(aliases=["sk"])
+@commands.guild_only()
 @commands.has_role(adminRole)
-async def killswitch(ctx):
-    await ctx.send("Terminated.")
+async def switchkill(ctx):
+    await ctx.send("Terminated bot.")
     await bot.logout()
 
-botToken = os.environ["FadbToken"]
+print("Loaded all important commands!")
+
+# Log in
+print("Logging into bot...")
+botToken = os.environ['CANITOKEN']
 bot.run(botToken)
