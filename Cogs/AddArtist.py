@@ -119,13 +119,13 @@ class AddArtists(commands.Cog):
                 except asyncio.TimeoutError:
                     # timeout
                     await ef.sendError(ctx, f"Command timed out. Please use `{main.commandPrefix}artistadd` again.", sendToAuthor=True)
-                    self.isUsingArtistAddCommand.remove(ctx.author.id)
+                    self.isUsingCommand.remove(ctx.author.id)
                     raise ce.ExitFunction("Exited Function.")
                 
                 # checks for skips or cancels
                 if message.content == f"{main.commandPrefix}cancel":
                     await ctx.author.send(f"Command cancelled.")
-                    self.isUsingArtistAddCommand.remove(ctx.author.id)
+                    self.isUsingCommand.remove(ctx.author.id)
                     raise ce.ExitFunction("Exited Function.")
                 if skippable and message.content == f"{main.commandPrefix}skip":
                     await ctx.author.send(f"Command skipped, now using default values.")
@@ -211,7 +211,7 @@ class AddArtists(commands.Cog):
         
 
         # remove user from "using list"
-        self.isUsingArtistAddCommand.remove(ctx.author.id)
+        self.isUsingCommand.remove(ctx.author.id)
 
 
 
