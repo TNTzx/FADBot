@@ -122,6 +122,8 @@ class AddArtists(commands.Cog):
                     self.isUsingCommand.remove(ctx.author.id)
                     raise ce.ExitFunction("Exited Function.")
                 
+                print(message.content)
+                
                 # checks for skips or cancels
                 if message.content == f"{main.commandPrefix}cancel":
                     await ctx.author.send(f"Command cancelled.")
