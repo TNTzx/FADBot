@@ -2,15 +2,11 @@ import discord
 from discord.ext import commands
 import asyncio
 
-from PIL import Image
-import requests
-
 
 import main
-
-from Functions import extraFunctions as ef
-from Functions import customExceptions as ce
-from Functions import requestNew as rn
+from Functions import ExtraFunctions as ef
+from Functions import CustomExceptions as ce
+from Functions import RequestAPI as rn
 
 timeoutDuration = 60 * 2
 

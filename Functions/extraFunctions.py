@@ -5,9 +5,6 @@ import traceback
 
 import datetime
 
-from Cogs import ErrorHandler as eh
-
-
 
 errorPrefix = "**Error!**\n"
 

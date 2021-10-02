@@ -1,6 +1,7 @@
 from discord.ext import commands
 import main
 
+
 class Hello(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

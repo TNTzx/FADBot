@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import main
-from Functions import extraFunctions as ef
+from Functions import ExtraFunctions as ef
 import datetime
 import asyncio
 
