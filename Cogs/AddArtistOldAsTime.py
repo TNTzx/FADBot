@@ -7,6 +7,7 @@ import main
 from Functions import ExtraFunctions as ef
 from Functions import CustomExceptions as ce
 from Functions import RequestAPI as rn
+from GlobalVariables import variables as vars
 
 timeoutDuration = 60 * 2
 

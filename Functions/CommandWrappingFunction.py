@@ -8,6 +8,8 @@ adminRole = "///Moderator"
 
 class Categories:
     artistManagement = "Artist Management"
+    basicCommands = "Basic Commands"
+    botControl = "Bot Control"
 
 
 helpData = {}
