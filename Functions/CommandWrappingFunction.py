@@ -2,8 +2,7 @@ import discord
 import discord.ext.commands as cmds
 import functools as fc
 
-
-adminRole = "///Moderator"
+from GlobalVariables import variables as vars
 
 
 class Categories:
@@ -49,7 +48,7 @@ def command(
             wrapper = cmds.cooldown(1, cooldown, cooldownType)(wrapper)
         
         if requireAdmin:
-            wrapper = cmds.has_role(adminRole)(wrapper)
+            wrapper = cmds.has_role(vars.adminRole)(wrapper)
 
 
         cdTypeGotten = cooldownType

@@ -11,8 +11,6 @@ bot = discord.Client()
 bot = commands.Bot(command_prefix=commandPrefix)
 bot.remove_command("help")
 
-adminRole = "///Moderator"
-
 # Load all cogs
 print("Loading cogs...")
 def allCogs():
@@ -29,30 +27,15 @@ print("Loaded all cogs!")
 # Important commands
 print("Loading important commands...")
 
-@bot.command(aliases=["sr"])
-@commands.guild_only()
-@commands.has_role(adminRole)
-async def switchrestart(ctx):
-    await ctx.send("Restarting bot...")
-
+def restartBot():
     for filename in allCogs():
-        if filename.endswith(".py"):
-            newName = f"Cogs.{filename[:-3]}"
-            try:
-                bot.unload_extension(newName)
-            except commands.errors.ExtensionNotLoaded:
-                continue
-            bot.load_extension(newName)
-
-    await ctx.send("Restarted!")
-    print("\n \n Restart break! -------------------------------------- \n \n")
-
-@bot.command(aliases=["sk"])
-@commands.guild_only()
-@commands.has_role(adminRole)
-async def switchkill(ctx):
-    await ctx.send("Terminated bot.")
-    await bot.logout()
+            if filename.endswith(".py"):
+                newName = f"Cogs.{filename[:-3]}"
+                try:
+                    bot.unload_extension(newName)
+                except commands.errors.ExtensionNotLoaded:
+                    continue
+                bot.load_extension(newName)
 
 print("Loaded all important commands!")
 

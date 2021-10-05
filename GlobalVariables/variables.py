@@ -1,6 +1,9 @@
 import json, os
 import pyrebase
 
+# Admin Role
+adminRole = "///Moderator"
+
 # Database
 env = os.environ["FadbDBToken"]
 envDict = json.loads(env)
