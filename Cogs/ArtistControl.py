@@ -10,7 +10,6 @@ class ArtistControl(cmds.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
     @cw.command(
         category=cw.Categories.artistManagement,
         description=f"Requests an artist to be added to the database. Times out after `{ef.formatTime(60 * 2)}``.",
