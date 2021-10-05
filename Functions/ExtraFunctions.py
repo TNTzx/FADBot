@@ -27,7 +27,7 @@ async def sendError(ctx:commands.Context, suffix, exc="", sendToAuthor=False, se
         await ctx.author.send(text)
     else:
         if isinstance(ctx.message.channel, discord.DMChannel):
-            channel = await main.bot.get_channel(ctx.message.channel.id)
+            channel = main.bot.get_channel(ctx.message.channel.id)
             await channel.send(text)
         else:
             await ctx.channel.send(text)
