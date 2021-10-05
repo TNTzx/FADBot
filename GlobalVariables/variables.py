@@ -1,8 +1,7 @@
 import json, os
 import pyrebase
 
-
-# Initialize database
+# Database
 env = os.environ["FadbDBToken"]
 envDict = json.loads(env)
 dbKey = envDict["databaseKey"]
@@ -17,3 +16,13 @@ fbUser = fbAuth.sign_in_with_email_and_password(envAuth["email"], envAuth["passw
 def getToken():
     fbToken = fbUser['idToken']
     return fbToken
+
+
+# API
+
+apiLink = "https://fadb.live/"
+apiAuthToken = os.environ["FadbAuthToken"]
+apiHeaders = {
+  "Authorization": f"Basic {apiAuthToken}",
+  "Content-Type": "application/x-www-form-urlencoded"
+}
