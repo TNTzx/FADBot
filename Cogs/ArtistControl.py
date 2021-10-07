@@ -24,14 +24,11 @@ class ArtistControl(cmds.Cog):
                 listing = {"type": "list", "prefix": "a", "example": "This is the first item on the list!\nThis is the second item on the list!"}
                 dictionary = {"type": "dictionary", "prefix": "a", "example": "All songs: Verified\nRemixes: Unverified"}
 
-        class Default():
-            pass
-
-        async def waitForResponse(message: discord.Message, outputType, skippable=False):
+        async def waitForResponse(message: discord.Message, outputType, skippable=False, skipDefault=""):
             async def sendError(suffix):
                 await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
 
-            async def checks(response: discord.Message):
+            async def reformat(response: discord.Message):
                 async def text():
                     if response.content == "":
                         await sendError("You didn't send anything!")
@@ -45,7 +42,7 @@ class ArtistControl(cmds.Cog):
                     async def link():
                         supportedFormats = ["png", "jpg", "jpeg"]
                         if not response.content.endswith(tuple(supportedFormats)):
-                            await sendError(f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}`.")
+                            await sendError(f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}` for links.")
                             return None
                         return [response.content]
 
@@ -62,9 +59,19 @@ class ArtistControl(cmds.Cog):
                     entries = response.content.split("\n")
                     entryDict = {}
                     for entry in entries:
-                        item = entry.split(": ")
-                        entryDict[item[0]] = item[1]
+                        item = entry.split(":")
+                        item = [x.lstrip(' ') for x in item]
+                        try:
+                            if not len(item) == 2:
+                                raise IndexError
+
+                            entryDict[item[0]] = item[1]
+
+                        except (KeyError, IndexError):
+                            await sendError("Your formatting is wrong!")
+                            return None
                     return entryDict
+
 
                 if outputType == OutputTypes.text:
                     return await text()
@@ -75,6 +82,7 @@ class ArtistControl(cmds.Cog):
                 elif outputType == OutputTypes.dictionary:
                     return await dictionary()
             
+
             success = True
             while success:
                 embed = discord.Embed(title=message, description="_ _")
@@ -83,10 +91,11 @@ class ArtistControl(cmds.Cog):
                 embedExample = f"__Here is an example of what you have to send:__\n\n`{outputType['example']}`"
                 embed.add_field(name=embedName, value=embedExample)
 
-                skipStr = f"Use {main.commandPrefix}cancel to cancel the current command" + (f", or use {main.commandPrefix} to skip this section if you don't know what this is." if skippable else ".")
+                skipStr = f"Use {main.commandPrefix}cancel to cancel the current command" + (f", or use {main.commandPrefix}skip to skip this section if you don't know what this is." if skippable else ".")
                 embed.set_footer(text=skipStr)
 
                 await ctx.author.send(embed=embed)
+
 
                 try:
                     response = await main.bot.wait_for("message", check=lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel), timeout=60 * 2)
@@ -94,27 +103,28 @@ class ArtistControl(cmds.Cog):
                     await sendError(f"Command timed out. Please use {main.commandPrefix}artistadd again.")
                     raise ce.ExitFunction("Exited Function.")
 
+
                 if response.content == f"{main.commandPrefix}cancel":
                     await ctx.author.send("Command cancelled.")
                     raise ce.ExitFunction("Exited Function.")
                 elif response.content == f"{main.commandPrefix}skip":
                     if skippable:
                         await ctx.author.send("Section skipped.")
-                        return Default
+                        return skipDefault
                     else:
                         await sendError("You can't skip this!")
                         continue
 
-                response = await checks(response)
+                response = await reformat(response)
                 success = (response == None)
             return response
 
 
-        response = await waitForResponse("Text test", OutputTypes.text)
-        await ctx.send(response)
-        response = await waitForResponse("Image test", OutputTypes.image)
-        await ctx.send(response)
-        response = await waitForResponse("List test", OutputTypes.listing)
+        # response = await waitForResponse("Text test", OutputTypes.text)
+        # await ctx.send(response)
+        # response = await waitForResponse("Image test", OutputTypes.image)
+        # await ctx.send(response)
+        response = await waitForResponse("List test", OutputTypes.listing, skippable=True, skipDefault=[])
         await ctx.send(response)
         response = await waitForResponse("Dictionary test", OutputTypes.dictionary)
         await ctx.send(response)

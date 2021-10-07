@@ -13,7 +13,7 @@ async def sendError(ctx:commands.Context, suffix, exc="", sendToAuthor=False, se
     tntz = await main.bot.fetch_user(279803094722674693)
     
     if sendToOwner:
-        await tntz.send(f"Error in `{ctx.guild.name}`!\nLink: {ctx.message.jump_url}\n```{exc}```")
+        await tntz.send(f"Error in `{ctx.guild.name}`!\nLink: {ctx.message.jump_url}\nCommand used: {ctx.message.content}\n```{exc}```")
 
     if printToConsole:
         error = getattr(exc, 'original', exc)
