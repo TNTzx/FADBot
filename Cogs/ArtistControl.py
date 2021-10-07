@@ -37,12 +37,13 @@ class ArtistControl(cmds.Cog):
 
 
         class OutputTypes():
+                number = {"type": "number", "prefix": "a", "example": "1234531"}
                 text = {"type": "text", "prefix": "some", "example": "This is a very cool string of text!"}
-                image = {"type": "image", "prefix": "an", "example": "https://cdn.discordapp.com/attachments/888419023237316609/894910496199827536/beanss.jpg`\n`OR you can upload your images as attachments like normal!"}
-                listing = {"type": "list", "prefix": "a", "example": "This is the first item on the list!\nThis is the second item on the list!"}
-                dictionary = {"type": "dictionary", "prefix": "a", "example": "All songs: Verified\nRemixes: Unverified"}
+                image = {"type": "image", "prefix": "an", "example": "https://cdn.discordapp.com/attachments/888419023237316609/894910496199827536/beanss.jpg`\n`(OR you can upload your images as attachments like normal!)"}
+                listing = {"type": "list", "prefix": "a", "example": "This is the first item on the list!\nThis is the second item on the list!\nThis is the third item on the list!"}
+                dictionary = {"type": "dictionary", "prefix": "a", "example": "All songs: Verified\nRemixes: Unverified, A song I'm not sure of: Unknown"}
 
-        async def waitForResponse(message: discord.Message, outputType, choices=[], skippable=False, skipDefault=""):
+        async def waitForResponse(title, description, outputType, choices=[], skippable=False, skipDefault=""):
             async def sendError(suffix):
                 await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
             async def checkIfHasRequired():
@@ -50,10 +51,18 @@ class ArtistControl(cmds.Cog):
 
 
             async def reformat(response: discord.Message):
-                async def text():
-                    if await checkIfHasRequired() and (not response.content.lower() in [x.lower() for x in choices]):
-                        await sendError("You didn't send a choice in the list of choices!")
+                async def number():
+                    if not response.content.isnumeric():
+                        await sendError("That's not a number!")
                         return None
+                    return int(response.content)
+
+                async def text():
+                    if await checkIfHasRequired():
+                        if not response.content.lower() in [x.lower() for x in choices]:
+                            await sendError("You didn't send a choice in the list of choices!")
+                            return None
+                        return response.content.lower()
                     if response.content == "":
                         await sendError("You didn't send anything!")
                         return None
@@ -107,8 +116,9 @@ class ArtistControl(cmds.Cog):
                             return None
                     return entryDict
 
-
-                if outputType == OutputTypes.text:
+                if outputType == OutputTypes.number:
+                    return await number()
+                elif outputType == OutputTypes.text:
                     return await text()
                 elif outputType == OutputTypes.image:
                     return await image()
@@ -120,17 +130,17 @@ class ArtistControl(cmds.Cog):
 
             success = True
             while success:
-                embed = discord.Embed(title=message, description="_ _")
+                embed = discord.Embed(title=title, description=description)
 
-                embedName = f"You have to send {outputType['prefix']} {outputType['type']}!"
+                fieldName = f"You have to send {outputType['prefix']} {outputType['type']}!"
 
                 if not await checkIfHasRequired():
-                    embedDescription = f"__Here is an example of what you have to send:__\n\n`{outputType['example']}`"
+                    fieldDesc = f"__Here is an example of what you have to send:__\n\n`{outputType['example']}`"
                 else:
-                    embedDescription = f"Choose from one of the following choices: \n`{'`, `'.join(choices)}`"
-                embed.add_field(name=embedName, value=embedDescription)
+                    fieldDesc = f"Choose from one of the following choices: \n`{'`, `'.join(choices)}`"
+                embed.add_field(name=fieldName, value=fieldDesc)
 
-                skipStr = f"Use {main.commandPrefix}cancel to cancel the current command" + (f", or use {main.commandPrefix}skip to skip this section if you don't know what this is." if skippable else ".")
+                skipStr = f"Use {main.commandPrefix}cancel to cancel the current command" + (f", or use {main.commandPrefix}skip to skip this section." if skippable else ".")
                 embed.set_footer(text=skipStr)
 
                 await ctx.author.send(embed=embed)
@@ -152,7 +162,7 @@ class ArtistControl(cmds.Cog):
                         await ctx.author.send("Section skipped.")
                         return skipDefault
                     else:
-                        await sendError("You can't skip this!")
+                        await sendError("You can't skip this section!")
                         continue
 
                 try:
@@ -167,7 +177,7 @@ class ArtistControl(cmds.Cog):
         submission = {
             "userInfo": {
                 "name": "UserName",
-                "id": "UserId",
+                "id": "UserId"
             },
             "artistInfo": {
                 "proof": "png",
@@ -185,19 +195,11 @@ class ArtistControl(cmds.Cog):
                         {
                             "name": "NameOfAllowedSong",
                             "value": True
-                        },
-                        {
-                            "name": "NameOfDisallowedSong",
-                            "value": False
                         }
                     ],
                     "socials": [
                         { 
                             "url": "funnyurl",
-                            "type": "type"
-                        },
-                        {
-                            "url": "anotherfunnyurl",
                             "type": "type"
                         }
                     ]
@@ -205,8 +207,65 @@ class ArtistControl(cmds.Cog):
             }
         }
 
-        submission["artistInfo"]["proof"] = await waitForResponse("Please send proof that you contacted the artist. You may only upload 1 image.", OutputTypes.image)
-        print(submission["artistInfo"]["proof"])
+        await ctx.send("The verification submission has been moved to your DMs. Please check it.")
+        await ctx.author.send("> The verification submission is now being set up. Please __follow the prompts as needed__.")
+
+        defaultImage = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
+
+        submission["userInfo"] = {
+            "id": ctx.author.id
+        }
+
+        submission["artistInfo"]["proof"] = await waitForResponse(
+            "Please send proof that you contacted the artist.",
+            "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
+            OutputTypes.image
+        )
+
+        availability = await waitForResponse(
+            "Is the artist verified, disallowed, or does it vary between songs?",
+            "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n\"Disallowed\" means that the artist's songs cannot be used.\n\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed.",
+            OutputTypes.text, choices=["Verified", "Disallowed", "Varies"]
+        )
+        if availability == "verified":
+            submission["artistInfo"]["data"]["availability"] = 0
+        elif availability == "disallowed":
+            submission["artistInfo"]["data"]["availability"] = 1
+        elif availability == "varies":
+            submission["artistInfo"]["data"]["availability"] = 3
+            
+
+
+        submission["artistInfo"]["data"]["name"] = await waitForResponse(
+            "Send the name of the artist.",
+            OutputTypes.text
+        )
+
+        submission["artistInfo"]["data"]["description"] = await waitForResponse(
+            "Send a small description about the artist.",
+            OutputTypes.text, skippable=True, skipDefault="I'm an artist!"
+        )
+        submission["artistInfo"]["data"]["avatar"] = await waitForResponse(
+            "Send an image to an avatar of the artist.",
+            OutputTypes.image, skippable=True, skipDefault=defaultImage
+        )
+        submission["artistInfo"]["data"]["banner"] = await waitForResponse(
+            "Send an image to the banner of the artist.",
+            OutputTypes.image, skippable=True, skipDefault=defaultImage
+        )
+        submission["artistInfo"]["data"]["tracks"] = await waitForResponse(
+            "How many tracks does the artist have?",
+            OutputTypes.number, skippable=True, skipDefault=0
+        )
+        submission["artistInfo"]["data"]["genre"] = await waitForResponse(
+            "What is the genre of the artist?",
+            OutputTypes.text, skippable=True, skipDefault="Mixed"
+        )
+
+        usageRights = await waitForResponse(
+            "What are the usage rights for the artist?",
+            OutputTypes.text, skippable=True, skipDefault={"All songs": "Unknown"}
+        )
 
 
         await deleteIsUsingCommand()
