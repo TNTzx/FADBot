@@ -27,48 +27,48 @@ class ArtistControl(cmds.Cog):
         fi.appendData(["artistData", "pending", "isUsingCommand"], [ctx.author.id])
 
 
-        # submission = {
-        #     "userInfo": {
-        #         "name": "UserName",
-        #         "id": "UserId"
-        #     },
-        #     "artistInfo": {
-        #         "proof": "png",
-        #         "vadbpage": "page",
-        #         "data": {
-        #             "name": "ArtistName",
-        #             "avatar": "AvatarLink",
-        #             "banner": "BannerLink, Optional",
-        #             "description": "Description",
-        #             "tracks": 1,
-        #             "genre": "Genre",
-        #             "status": 0,
-        #             "availability": 0,
-        #             "notes": "Notes, Optional",
-        #             "usageRights": [
-        #                 {
-        #                     "name": "NameOfAllowedSong",
-        #                     "value": True
-        #                 }
-        #             ],
-        #             "socials": [
-        #                 { 
-        #                     "url": "funnyurl",
-        #                     "type": "type"
-        #                 }
-        #             ]
-        #         }
-        #     }
-        # }
+        submission = {
+            "userInfo": {
+                "name": "UserName",
+                "id": "UserId"
+            },
+            "artistInfo": {
+                "proof": "png",
+                "vadbpage": "page",
+                "data": {
+                    "name": "ArtistName",
+                    "avatar": "AvatarLink",
+                    "banner": "BannerLink, Optional",
+                    "description": "Description",
+                    "tracks": 1,
+                    "genre": "Genre",
+                    "status": 0,
+                    "availability": 0,
+                    "notes": "Notes, Optional",
+                    "usageRights": [
+                        {
+                            "name": "NameOfAllowedSong",
+                            "value": True
+                        }
+                    ],
+                    "socials": [
+                        { 
+                            "url": "funnyurl",
+                            "type": "type"
+                        }
+                    ]
+                }
+            }
+        }
 
-        # await ctx.send("The verification submission has been moved to your DMs. Please check it.")
-        # await ctx.author.send("> The verification submission is now being set up. Please __follow the prompts as needed__.")
+        await ctx.send("The verification submission has been moved to your DMs. Please check it.")
+        await ctx.author.send("> The verification submission is now being set up. Please __follow the prompts as needed__.")
 
-        # defaultImage = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
+        defaultImage = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
 
-        # submission["userInfo"] = {
-        #     "id": ctx.author.id
-        # }
+        submission["userInfo"] = {
+            "id": ctx.author.id
+        }
 
         # submission["artistInfo"]["proof"] = await acf.waitForResponse(ctx, 
         #     "Please send proof that you contacted the artist.",
@@ -88,13 +88,11 @@ class ArtistControl(cmds.Cog):
         # elif availability == "varies":
         #     submission["artistInfo"]["data"]["availability"] = 3
             
-        # submission["artistInfo"]["data"]["name"] = await acf.waitForResponse(ctx,
-        #     "Send the name of the artist.",
-        #     "This is the name of the artist.",
-        #     acf.OutputTypes.text
-        # )
-
-
+        submission["artistInfo"]["data"]["name"] = await acf.waitForResponse(ctx,
+            "Send the name of the artist.",
+            "This is the name of the artist.",
+            acf.OutputTypes.text
+        )
         # submission["artistInfo"]["data"]["description"] = await acf.waitForResponse(ctx,
         #     "Send a small description about the artist.",
         #     "You can put information about the artist here.",
@@ -157,9 +155,9 @@ class ArtistControl(cmds.Cog):
             
         # print(submission)
 
-        data = {'userInfo': {'id': 279803094722674693}, 'artistInfo': {'proof': 'https://cdn.discordapp.com/attachments/890222271849963571/895618409046343700/logo.png', 'data': {'name': 'quack', 'avatar': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg', 'banner': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg', 'description': 'quakc', 'tracks': 0, 'genre': 'Mixed', 'status': 0, 'availability': 3, 'notes': 'Notes, Optional', 'usageRights': [{'name': 'All songs', 'value': False}, {'name': 'beans', 'value': True}], 'socials': [{'url': 'https://www.youtube.com/watch?v=dWjP99xjy_A&list=WL&index=37&ab_channel=Ludwig', 'type': 'youtube'}]}}}
+        data = {'userInfo': {'id': 279803094722674693}, 'artistInfo': {'proof': 'https://cdn.discordapp.com/attachments/890222271849963571/895618409046343700/logo.png', 'vadbpage': 'https://cdn.discordapp.com/attachments/890222271849963571/895618409046343700/logo.png', 'data': {'name': 'quack', 'avatar': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg', 'banner': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg', 'description': 'quakc', 'tracks': 0, 'genre': 'Mixed', 'status': 0, 'availability': 3, 'notes': 'Notes, Optional', 'usageRights': [{'name': 'All songs', 'value': False}, {'name': 'beans', 'value': True}], 'socials': [{'url': 'https://www.youtube.com/watch?v=dWjP99xjy_A&list=WL&index=37&ab_channel=Ludwig', 'type': 'youtube'}]}}}
 
-        await ctx.send(await acf.generateEmbed(data))
+        await ctx.send(embed=await acf.generateEmbed(data))
         await acf.deleteIsUsingCommand(ctx, ctx.author.id)
         
 

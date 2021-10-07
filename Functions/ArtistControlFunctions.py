@@ -15,20 +15,13 @@ async def checkIfUsingCommand(ctx, authorId):
         await ef.sendError(ctx, f"You're already using this command! Use {main.commandPrefix}cancel on your DMs with me to cancel the command.")
         raise ce.ExitFunction("Exited Function.")
 
-isBeingUsed = False
 async def deleteIsUsingCommand(ctx, authorId):
-    global isBeingUsed
-    if isBeingUsed: return
-    isBeingUsed = True
-
     data = fi.getData(["artistData", "pending", "isUsingCommand"])
     try:
         data.remove(authorId)
         await ctx.author.send("Command cancelled.")
     except ValueError: pass
     fi.editData(["artistData", "pending"], {"isUsingCommand": data})
-
-    isBeingUsed = False
 
 
 class OutputTypes():
@@ -182,7 +175,6 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
 
 
         if response.content == f"{main.commandPrefix}cancel":
-            await deleteIsUsingCommand(ctx, ctx.author.id)
             raise ce.ExitFunction("Exited Function.")
         elif response.content == f"{main.commandPrefix}skip":
             if skippable:
@@ -228,8 +220,12 @@ async def generateEmbed(data):
 
     artName = f"Data for {data['artistInfo']['data']['name']}:"
     artVadbPage = data['artistInfo']['vadbpage']
-    artAvatar = data['artistInfo']['data']['avatarLink']
+    artAvatar = data['artistInfo']['data']['avatar']
+    artBanner = data['artistInfo']['data']['banner']
 
+    user: discord.User = await main.bot.fetch_user(data['userInfo']['id'])
+    userName = user.name
+    userId = user.id
 
     status = statusKeys[data['artistInfo']['data']['status']]
     availability = availabilityKeys[data['artistInfo']['data']['availability']]
@@ -251,7 +247,7 @@ async def generateEmbed(data):
     for entry in usageRights:
         statusRights = entry["value"]
         usageList.append(f"{entry['name']}: {'Verified' if statusRights else 'Disallowed'}")
-    usageRights = "\n".join(usageRights)
+    usageRights = "\n".join(usageList)
 
     socials = data['artistInfo']['data']['socials']
     socialsList = []
@@ -260,9 +256,13 @@ async def generateEmbed(data):
         socialsList.append(f"[{domain}]({link})")
     socials = " ".join(socialsList)
     
+
+
     embed = discord.Embed(title=title, description=description, color=color)
     embed.set_author(name=artName, url=artVadbPage, icon_url=artAvatar)
     embed.set_thumbnail(url=artAvatar)
+    embed.set_image(url=artBanner)
+    embed.set_footer(text=f"Verification submitted by {userName} ({userId}).")
 
     embed.add_field(name="Status:", value=status)
     if status == "Completed":
