@@ -2,32 +2,19 @@ import discord
 import discord.ext.commands as cmds
 import asyncio
 import requests as req
+import tldextract as tld
 
 import main
 from Functions import CustomExceptions as ce
 from Functions import CommandWrappingFunction as cw
+from Functions import ArtistControlFunctions as acf
 from Functions import ExtraFunctions as ef
 from Functions import FirebaseInteraction as fi
 
 
 class ArtistControl(cmds.Cog):
     def __init__(self, bot):
-        self.bot = bot
-
-    
-    async def checkIfUsingCommand(self, ctx, authorId):
-        usersUsing = fi.getData(["artistData", "pending", "isUsingCommand"])
-        if authorId in list(usersUsing):
-            await ef.sendError(ctx, f"You're already using this command! Use {main.commandPrefix}cancel on your DMs with me to cancel the command.")
-            raise ce.ExitFunction("Exited Function.")
-        
-    async def deleteIsUsingCommand(self, ctx, authorId):
-        data = fi.getData(["artistData", "pending", "isUsingCommand"])
-        try:
-            data.remove(authorId)
-        except ValueError: pass
-        fi.editData(["artistData", "pending"], {"isUsingCommand": data})
-        await ctx.author.send("Command cancelled.")
+        self.bot = bot  
 
 
     @cw.command(
@@ -40,171 +27,6 @@ class ArtistControl(cmds.Cog):
         
         await self.checkIfUsingCommand(ctx, ctx.author.id)
         fi.appendData(["artistData", "pending", "isUsingCommand"], [ctx.author.id])
-
-
-        class OutputTypes():
-                number = {"type": "number", "prefix": "a", "example": "1234531"}
-                text = {"type": "text", "prefix": "some", "example": "This is a very cool string of text!"}
-                links = {"type": "links", "prefix": "a list of", "example": "https://www.youtube.com/FunnyArtistName\nhttps://open.spotify.com/AnotherFunnyArtistName"}
-                image = {"type": "image", "prefix": "an", "example": "https://cdn.discordapp.com/attachments/888419023237316609/894910496199827536/beanss.jpg`\n`(OR you can upload your images as attachments like normal!)"}
-                listing = {"type": "list", "prefix": "a", "example": "This is the first item on the list!\nThis is the second item on the list!\nThis is the third item on the list!"}
-                dictionary = {"type": "dictionary", "prefix": "a", "example": "All songs: Verified\nRemixes: Unverified, A song I'm not sure of: Unknown"}
-
-        async def waitForResponse(title, description, outputType, choices=[], choicesDict=[], skippable=False, skipDefault=""):
-            async def sendError(suffix):
-                await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
-            async def checkIfHasRequired():
-                return len(choices) > 0
-            async def checkIfHasRequiredDict():
-                return len(choicesDict) > 0
-
-            async def reformat(response: discord.Message):
-                async def number():
-                    if not response.content.isnumeric():
-                        await sendError("That's not a number!")
-                        return None
-                    return int(response.content)
-
-                async def text():
-                    if await checkIfHasRequired():
-                        if not response.content.lower() in [x.lower() for x in choices]:
-                            await sendError("You didn't send a choice in the list of choices!")
-                            return None
-                        return response.content.lower()
-                    if response.content == "":
-                        await sendError("You didn't send anything!")
-                        return None
-                    return response.content
-
-                async def links():
-                    async def checkLink(url):
-                        try:
-                            imageRequest = req.head(url)
-                        except Exception as exc:
-                            await sendError(f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
-                            return None
-                        return url
-                    
-                    links = response.content.split("\n")
-                    for link in links:
-                        link = await checkLink(link)
-                        if link == None:
-                            return None
-                    return links
-                    
-                async def image():
-                    async def checkImage(imageUrl):
-                        supportedFormats = ["png", "jpg", "jpeg"]
-
-                        try:
-                            imageRequest = req.head(imageUrl)
-                        except Exception as exc:
-                            await sendError(f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
-                            return None
-
-                        if not imageRequest.headers["Content-Type"] in [f"image/{x}" for x in supportedFormats]:
-                            await sendError(f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}`.")
-                            return None
-                        
-                        return imageUrl
-
-                    async def attachments():
-                        return await checkImage(response.attachments[0].url)
-                            
-                    async def link():
-                        return await checkImage(response.content)
-
-
-                    if not len(response.attachments) == 0:
-                        return await attachments()
-                    else:
-                        return await link()
-
-
-                async def listing():
-                    return response.content.split("\n")
-
-                async def dictionary():
-                    entries = response.content.split("\n")
-                    entryDict = {}
-                    for entry in entries:
-                        item = entry.split(":")
-                        item = [x.lstrip(' ') for x in item]
-                        try:
-                            if not len(item) == 2:
-                                raise IndexError
-
-                            if not await checkIfHasRequiredDict():
-                                entryDict[item[0]] = item[1]
-                            else:
-                                entryDict[item[0]] = item[1].lower()
-                        except (KeyError, IndexError):
-                            await sendError("Your formatting is wrong!")
-                            return None
-
-                        if not item[1].lower() in [x.lower() for x in choicesDict]:
-                            await sendError(f"Check if the right side of the colons contain these values: `{'`, `'.join([x for x in choicesDict])}`")
-                            return None
-                    return entryDict
-
-                if outputType == OutputTypes.number:
-                    return await number()
-                elif outputType == OutputTypes.text:
-                    return await text()
-                elif outputType == OutputTypes.links:
-                    return await links()
-                elif outputType == OutputTypes.image:
-                    return await image()
-                elif outputType == OutputTypes.listing:
-                    return await listing()
-                elif outputType == OutputTypes.dictionary:
-                    return await dictionary()
-            
-
-            success = True
-            while success:
-                embed = discord.Embed(title=title, description=description)
-
-                fieldName = f"You have to send {outputType['prefix']} {outputType['type']}!"
-
-                if not await checkIfHasRequired():
-                    fieldDesc = f"__Here is an example of what you have to send:__\n`{outputType['example']}`"
-                    embed.add_field(name=fieldName, value=fieldDesc)
-                else:
-                    fieldDesc = f"Choose from one of the following choices: \n`{'`, `'.join(choices)}`"
-                    embed.add_field(name=fieldName, value=fieldDesc)
-
-                skipStr = f"This command times out in {ef.formatTime(timeout)}. \nUse {main.commandPrefix}cancel to cancel the current command." + (f"\nUse {main.commandPrefix}skip to skip this section." if skippable else "")
-                embed.set_footer(text=skipStr)
-
-                await ctx.author.send(embed=embed)
-
-
-                try:
-                    response = await main.bot.wait_for("message", check=lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel), timeout=timeout)
-                except asyncio.TimeoutError:
-                    await sendError(f"Command timed out. Please use {main.commandPrefix}artistadd again.")
-                    raise ce.ExitFunction("Exited Function.")
-
-
-                if response.content == f"{main.commandPrefix}cancel":
-                    await self.deleteIsUsingCommand(ctx, ctx.author.id)
-                    raise ce.ExitFunction("Exited Function.")
-                elif response.content == f"{main.commandPrefix}skip":
-                    if skippable:
-                        await ctx.author.send("Section skipped.")
-                        return skipDefault
-                    else:
-                        await sendError("You can't skip this section!")
-                        continue
-
-                try:
-                    response = await reformat(response)
-                except Exception as exc:
-                    await self.deleteIsUsingCommand(ctx, ctx.author.id)
-                    raise exc
-                success = (response == None)
-            return response
 
 
         submission = {
@@ -249,16 +71,16 @@ class ArtistControl(cmds.Cog):
             "id": ctx.author.id
         }
 
-        submission["artistInfo"]["proof"] = await waitForResponse(
+        submission["artistInfo"]["proof"] = await acf.waitForResponse(
             "Please send proof that you contacted the artist.",
             "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
-            OutputTypes.image
+            acf.OutputTypes.image
         )
 
-        availability = await waitForResponse(
+        availability = await acf.waitForResponse(
             "Is the artist verified, disallowed, or does it vary between songs?",
             "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n\"Disallowed\" means that the artist's songs cannot be used.\n\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed.",
-            OutputTypes.text, choices=["Verified", "Disallowed", "Varies"]
+            acf.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"]
         )
         if availability == "verified":
             submission["artistInfo"]["data"]["availability"] = 0
@@ -267,49 +89,49 @@ class ArtistControl(cmds.Cog):
         elif availability == "varies":
             submission["artistInfo"]["data"]["availability"] = 3
             
-        submission["artistInfo"]["data"]["name"] = await waitForResponse(
+        submission["artistInfo"]["data"]["name"] = await acf.waitForResponse(
             "Send the name of the artist.",
             "This is the name of the artist.",
-            OutputTypes.text
+            acf.OutputTypes.text
         )
 
 
-        submission["artistInfo"]["data"]["description"] = await waitForResponse(
+        submission["artistInfo"]["data"]["description"] = await acf.waitForResponse(
             "Send a small description about the artist.",
             "You can put information about the artist here.",
-            OutputTypes.text, skippable=True, skipDefault="I'm an artist!"
+            acf.OutputTypes.text, skippable=True, skipDefault="I'm an artist!"
         )
-        submission["artistInfo"]["data"]["avatar"] = await waitForResponse(
+        submission["artistInfo"]["data"]["avatar"] = await acf.waitForResponse(
             "Send an image to an avatar of the artist.",
             "This is the profile picture that the artist uses.",
-            OutputTypes.image, skippable=True, skipDefault=defaultImage
+            acf.OutputTypes.image, skippable=True, skipDefault=defaultImage
         )
-        submission["artistInfo"]["data"]["banner"] = await waitForResponse(
+        submission["artistInfo"]["data"]["banner"] = await acf.waitForResponse(
             "Send an image to the banner of the artist.",
             "This is the banner that the artist uses.",
-            OutputTypes.image, skippable=True, skipDefault=defaultImage
+            acf.OutputTypes.image, skippable=True, skipDefault=defaultImage
         )
-        submission["artistInfo"]["data"]["tracks"] = await waitForResponse(
+        submission["artistInfo"]["data"]["tracks"] = await acf.waitForResponse(
             "How many tracks does the artist have?",
             "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
-            OutputTypes.number, skippable=True, skipDefault=0
+            acf.OutputTypes.number, skippable=True, skipDefault=0
         )
-        submission["artistInfo"]["data"]["genre"] = await waitForResponse(
+        submission["artistInfo"]["data"]["genre"] = await acf.waitForResponse(
             "What is the genre of the artist?",
             "This is the type of music that the artist makes.",
-            OutputTypes.text, skippable=True, skipDefault="Mixed"
+            acf.OutputTypes.text, skippable=True, skipDefault="Mixed"
         )
 
 
-        usageRights = await waitForResponse(
+        usageRights = await acf.waitForResponse(
             "What are the usage rights for the artist?",
             "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
-            OutputTypes.dictionary, choicesDict=["Verified", "Disallowed"], skippable=True, skipDefault={}
+            acf.OutputTypes.dictionary, choicesDict=["Verified", "Disallowed"], skippable=True, skipDefault={}
         )
         usageList = []
         usageList.append({
                 "name": "All songs",
-                "value": True if submission["artistInfo"]["data"]["availability"] == "verified" else False
+                "value": True if submission["artistInfo"]["data"]["availability"] == 0 else False
             })
         for right, state in usageRights.items():
             value = True if state == "verified" else False
@@ -319,15 +141,22 @@ class ArtistControl(cmds.Cog):
             })
         submission["artistInfo"]["data"]["usageRights"] = usageList
 
-
-        socials = await waitForResponse(
+        socials = await acf.waitForResponse(
             "Please put some links for the artist's social media here.",
             "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
-            OutputTypes.dictionary, choicesDict=["Verified", "Disallowed"], skippable=True, skipDefault={}
+            acf.OutputTypes.links, skippable=True, skipDefault=[]
         )
-
+        socialList = []
+        for link in socials:
+            typeLink = tld.extract(link).domain
+            typeLink.capitalize()
+            socialList.append({
+                "url": link,
+                "type": typeLink
+            })
+        submission["artistInfo"]["data"]["socials"] = socialList
+            
         print(submission)
-
 
         await self.deleteIsUsingCommand(ctx, ctx.author.id)
         
@@ -339,7 +168,8 @@ class ArtistControl(cmds.Cog):
         guildOnly=False
     )
     async def cancel(self, ctx: cmds.Context):
-        await self.deleteIsUsingCommand(ctx, ctx.author.id)
+        if isinstance(ctx.channel, discord.DMChannel):
+            await self.deleteIsUsingCommand(ctx, ctx.author.id)
 
 
 def setup(bot):
