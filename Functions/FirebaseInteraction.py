@@ -47,6 +47,12 @@ def createData(path, data):
     pathParse = getFromPath(path)
     pathParse.set(data, token=vars.getToken())
 
+# Append
+def appendData(path, data: list):
+    newData = getData(path)
+    newData += data
+    createData(path, newData)
+
 # Edit
 def editData(path, data):
     if not isDataExists(path):

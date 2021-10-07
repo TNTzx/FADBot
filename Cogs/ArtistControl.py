@@ -1,11 +1,16 @@
+from asyncio.tasks import wait
 import discord
 import discord.ext.commands as cmds
 import asyncio
+
+from discord.ext.commands.core import check
 
 import main
 from Functions import CustomExceptions as ce
 from Functions import CommandWrappingFunction as cw
 from Functions import ExtraFunctions as ef
+from Functions import FirebaseInteraction as fi
+
 
 class ArtistControl(cmds.Cog):
     def __init__(self, bot):
@@ -17,6 +22,21 @@ class ArtistControl(cmds.Cog):
         aliases=["aa"]
     )
     async def artistadd(self, ctx: cmds.Context):
+
+        async def checkIfUsingCommand(authorId):
+            usersUsing = fi.getData(["artistData", "pending", "isUsingCommand"])
+            if authorId in list(usersUsing):
+                await ef.sendError(ctx, f"You're already using this command! Use {main.commandPrefix}cancel on your DMs with me to cancel the command.")
+                raise ce.ExitFunction("Exited Function.")
+        
+        async def deleteIsUsingCommand():
+            data = fi.getData(["artistData", "pending", "isUsingCommand"])
+            data.remove(ctx.author.id)
+            fi.editData(["artistData", "pending"], {"isUsingCommand": data})
+        
+        await checkIfUsingCommand(ctx.author.id)
+        fi.appendData(["artistData", "pending", "isUsingCommand"], [ctx.author.id])
+
 
         class OutputTypes():
                 text = {"type": "text", "prefix": "some", "example": "This is a very cool string of text!"}
@@ -105,6 +125,7 @@ class ArtistControl(cmds.Cog):
 
 
                 if response.content == f"{main.commandPrefix}cancel":
+                    await deleteIsUsingCommand()
                     await ctx.author.send("Command cancelled.")
                     raise ce.ExitFunction("Exited Function.")
                 elif response.content == f"{main.commandPrefix}skip":
@@ -119,15 +140,11 @@ class ArtistControl(cmds.Cog):
                 success = (response == None)
             return response
 
-
-        # response = await waitForResponse("Text test", OutputTypes.text)
-        # await ctx.send(response)
-        # response = await waitForResponse("Image test", OutputTypes.image)
-        # await ctx.send(response)
-        response = await waitForResponse("List test", OutputTypes.listing, skippable=True, skipDefault=[])
-        await ctx.send(response)
-        response = await waitForResponse("Dictionary test", OutputTypes.dictionary)
-        await ctx.send(response)
+        
+        response = await waitForResponse("aaaaaaaa", OutputTypes.text)
+        
+        await deleteIsUsingCommand()
+        
 
 
 def setup(bot):
