@@ -201,3 +201,74 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
     return response
 
 
+statusKeys = {
+    0: "Completed",
+    1: "No Contact",
+    2: "Pending",
+    3: "Requested"
+}
+
+availabilityKeys = {
+    0: "Verified",
+    1: "Disallowed",
+    2: "Contact Required",
+    3: "Varies"
+}
+
+colorKeys = {
+    "Green": 0x00FF00,
+    "Red": 0xFF0000,
+    "Yellow": 0xFFFF00,
+    "Blue": 0x0000FF
+}
+
+async def generateEmbed(data):
+    title = data['artistInfo']['data']['description']
+    description = f"[VADB Page]({data['artistInfo']['vadbpage']})"
+
+    artName = f"Data for {data['artistInfo']['data']['name']}:"
+    artVadbPage = data['artistInfo']['vadbpage']
+    artAvatar = data['artistInfo']['data']['avatarLink']
+
+
+    status = statusKeys[data['artistInfo']['data']['status']]
+    availability = availabilityKeys[data['artistInfo']['data']['availability']]
+
+    if status == "Completed":
+        if availability == "Verified":
+            color = colorKeys["Green"]
+        elif availability == "Disallowed":
+            color = colorKeys["Red"]
+        elif availability == "Contact Required":
+            color = colorKeys["Yellow"]
+        elif availability == "Varies":
+            color = colorKeys["Blue"]
+    elif status == "No Contact":
+        color = colorKeys["Yellow"]
+
+    usageRights = data['artistInfo']['data']['usageRights']
+    usageList = []
+    for entry in usageRights:
+        statusRights = entry["value"]
+        usageList.append(f"{entry['name']}: {'Verified' if statusRights else 'Disallowed'}")
+    usageRights = "\n".join(usageRights)
+
+    socials = data['artistInfo']['data']['socials']
+    socialsList = []
+    for entry in socials:
+        link, domain = entry["url"], entry["type"]
+        socialsList.append(f"[{domain}]({link})")
+    socials = " ".join(socialsList)
+    
+    embed = discord.Embed(title=title, description=description, color=color)
+    embed.set_author(name=artName, url=artVadbPage, icon_url=artAvatar)
+    embed.set_thumbnail(url=artAvatar)
+
+    embed.add_field(name="Status:", value=status)
+    if status == "Completed":
+        embed.add_field(name="Availability:", value=f"**__{availability}__**")
+        embed.add_field(name="Specific usage rights:", value=f"`{usageRights}`")
+    
+    embed.add_field(name="Social links:", value=socials)
+
+    return embed
