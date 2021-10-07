@@ -170,6 +170,7 @@ class ArtistControl(cmds.Cog):
     async def cancel(self, ctx: cmds.Context):
         if isinstance(ctx.channel, discord.DMChannel):
             await acf.deleteIsUsingCommand(ctx, ctx.author.id)
+            await ctx.author.send("Command cancelled.")
 
 
 def setup(bot):

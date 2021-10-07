@@ -19,7 +19,6 @@ async def deleteIsUsingCommand(ctx, authorId):
     data = fi.getData(["artistData", "pending", "isUsingCommand"])
     try:
         data.remove(authorId)
-        await ctx.author.send("Command cancelled.")
     except ValueError: pass
     fi.editData(["artistData", "pending"], {"isUsingCommand": data})
 
