@@ -60,22 +60,26 @@ class ArtistControl(cmds.Cog):
                     return response.content
                 
                 async def image():
-                    async def attachments():
-                        return [attachment.url for attachment in response.attachments]
-                            
-                    async def link():
+                    async def checkImage(imageUrl):
                         supportedFormats = ["png", "jpg", "jpeg"]
 
                         try:
-                            imageRequest = req.head(response.content)
+                            imageRequest = req.head(imageUrl)
                         except Exception as exc:
                             await sendError(f"You didn't send a valid link! Here's the error:\n```{str(exc)}```")
                             return None
 
                         if not imageRequest.headers["Content-Type"] in [f"image/{x}" for x in supportedFormats]:
-                            await sendError(f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}` for links.")
+                            await sendError(f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}`.")
                             return None
-                        return [response.content]
+                        
+                        return imageUrl
+
+                    async def attachments():
+                        return await checkImage(response.attachments[0].url)
+                            
+                    async def link():
+                        return await checkImage(response.content)
 
 
                     if not len(response.attachments) == 0:
@@ -166,9 +170,7 @@ class ArtistControl(cmds.Cog):
                 "id": "UserId",
             },
             "artistInfo": {
-                "proof": [
-                    "png"
-                ],
+                "proof": "png",
                 "data": {
                     "name": "ArtistName",
                     "avatar": "AvatarLink",
@@ -203,8 +205,10 @@ class ArtistControl(cmds.Cog):
             }
         }
 
-        submission["artistInfo"]["proof"] = await waitForResponse("Please send proof that you contacted the artist.", OutputTypes.image)
-        
+        submission["artistInfo"]["proof"] = await waitForResponse("Please send proof that you contacted the artist. You may only upload 1 image.", OutputTypes.image)
+        print(submission["artistInfo"]["proof"])
+
+
         await deleteIsUsingCommand()
         
 
