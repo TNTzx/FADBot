@@ -44,12 +44,18 @@ class ArtistControl(cmds.Cog):
                 listing = {"type": "list", "prefix": "a", "example": "This is the first item on the list!\nThis is the second item on the list!"}
                 dictionary = {"type": "dictionary", "prefix": "a", "example": "All songs: Verified\nRemixes: Unverified"}
 
-        async def waitForResponse(message: discord.Message, outputType, skippable=False, skipDefault=""):
+        async def waitForResponse(message: discord.Message, outputType, choices=[], skippable=False, skipDefault=""):
             async def sendError(suffix):
                 await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
+            async def checkIfHasRequired():
+                return len(choices) > 0
+
 
             async def reformat(response: discord.Message):
                 async def text():
+                    if await checkIfHasRequired() and (not response.content.lower() in [x.lower() for x in choices]):
+                        await sendError("You didn't send a choice in the list of choices!")
+                        return None
                     if response.content == "":
                         await sendError("You didn't send anything!")
                         return None
@@ -108,8 +114,12 @@ class ArtistControl(cmds.Cog):
                 embed = discord.Embed(title=message, description="_ _")
 
                 embedName = f"You have to send {outputType['prefix']} {outputType['type']}!"
-                embedExample = f"__Here is an example of what you have to send:__\n\n`{outputType['example']}`"
-                embed.add_field(name=embedName, value=embedExample)
+
+                if not await checkIfHasRequired():
+                    embedDescription = f"__Here is an example of what you have to send:__\n\n`{outputType['example']}`"
+                else:
+                    embedDescription = f"Choose from one of the following choices: \n`{'`, `'.join(choices)}`"
+                embed.add_field(name=embedName, value=embedDescription)
 
                 skipStr = f"Use {main.commandPrefix}cancel to cancel the current command" + (f", or use {main.commandPrefix}skip to skip this section if you don't know what this is." if skippable else ".")
                 embed.set_footer(text=skipStr)
@@ -140,8 +150,51 @@ class ArtistControl(cmds.Cog):
                 success = (response == None)
             return response
 
-        
-        response = await waitForResponse("aaaaaaaa", OutputTypes.text)
+
+        submission = {
+            "userInfo": {
+                "name": "UserName",
+                "id": "UserId",
+            },
+            "artistInfo": {
+                "proof": [
+                    "png"
+                ],
+                "data": {
+                    "name": "ArtistName",
+                    "avatar": "AvatarLink",
+                    "banner": "BannerLink, Optional",
+                    "description": "Description",
+                    "tracks": 1,
+                    "genre": "Genre",
+                    "status": 0,
+                    "availability": 0,
+                    "notes": "Notes, Optional",
+                    "usageRights": [
+                        {
+                            "name": "NameOfAllowedSong",
+                            "value": True
+                        },
+                        {
+                            "name": "NameOfDisallowedSong",
+                            "value": False
+                        }
+                    ],
+                    "socials": [
+                        { 
+                            "url": "funnyurl",
+                            "type": "type"
+                        },
+                        {
+                            "url": "anotherfunnyurl",
+                            "type": "type"
+                        }
+                    ]
+                }
+            }
+        }
+
+        submission["artistInfo"]["proof"] = await waitForResponse("Please send proof that you contacted the artist.", OutputTypes.image)
         
         await deleteIsUsingCommand()
         
