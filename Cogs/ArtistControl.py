@@ -1,9 +1,7 @@
-from asyncio.tasks import wait
 import discord
 import discord.ext.commands as cmds
 import asyncio
-
-from discord.ext.commands.core import check
+import requests as req
 
 import main
 from Functions import CustomExceptions as ce
@@ -67,7 +65,14 @@ class ArtistControl(cmds.Cog):
                             
                     async def link():
                         supportedFormats = ["png", "jpg", "jpeg"]
-                        if not response.content.endswith(tuple(supportedFormats)):
+
+                        try:
+                            imageRequest = req.head(response.content)
+                        except Exception as exc:
+                            await sendError(f"You didn't send a valid link! Here's the error:\n```{str(exc)}```")
+                            return None
+
+                        if not imageRequest.headers["Content-Type"] in [f"image/{x}" for x in supportedFormats]:
                             await sendError(f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}` for links.")
                             return None
                         return [response.content]
@@ -146,7 +151,11 @@ class ArtistControl(cmds.Cog):
                         await sendError("You can't skip this!")
                         continue
 
-                response = await reformat(response)
+                try:
+                    response = await reformat(response)
+                except Exception as exc:
+                    await deleteIsUsingCommand()
+                    raise exc
                 success = (response == None)
             return response
 
