@@ -37,18 +37,21 @@ class ArtistControl(cmds.Cog):
         await ctx.author.send("> The verification submission is now being set up. Please __follow the prompts as needed__.")
 
         submission["userInfo"]["id"] = ctx.author.id
-        submission["artistInfo"]["proof"] = await ac.proof(ctx)
-        submission["artistInfo"]["data"]["availability"] = await ac.availability(ctx)
-        submission["artistInfo"]["data"]["name"] = await ac.name(ctx)
-        submission["artistInfo"]["data"]["aliases"] = await ac.aliases(ctx)
-        submission["artistInfo"]["data"]["description"] = await ac.description(ctx)
-        submission["artistInfo"]["data"]["avatar"] = await ac.avatar(ctx)
-        submission["artistInfo"]["data"]["banner"] = await ac.banner(ctx)
-        submission["artistInfo"]["data"]["tracks"] = await ac.tracks(ctx)
-        submission["artistInfo"]["data"]["genre"] = await ac.genre(ctx)
-        submission["artistInfo"]["data"]["usageRights"] = await ac.usageRights(ctx, submission["artistInfo"]["data"]["availability"])
-        submission["artistInfo"]["data"]["socials"] = await ac.socials(ctx)
-            
+        # submission["artistInfo"]["proof"] = await ac.proof(ctx)
+        # submission["artistInfo"]["data"]["availability"] = await ac.availability(ctx)
+        # submission["artistInfo"]["data"]["name"] = await ac.name(ctx)
+        # submission["artistInfo"]["data"]["aliases"] = await ac.aliases(ctx)
+        # submission["artistInfo"]["data"]["description"] = await ac.description(ctx)
+        # submission["artistInfo"]["data"]["avatar"] = await ac.avatar(ctx)
+        # submission["artistInfo"]["data"]["banner"] = await ac.banner(ctx)
+        # submission["artistInfo"]["data"]["tracks"] = await ac.tracks(ctx)
+        # submission["artistInfo"]["data"]["genre"] = await ac.genre(ctx)
+        # submission["artistInfo"]["data"]["usageRights"] = await ac.usageRights(ctx, submission["artistInfo"]["data"]["availability"])
+        # submission["artistInfo"]["data"]["socials"] = await ac.socials(ctx)
+        
+        submission = {'userInfo': {'id': 279803094722674693}, 'artistInfo': {'proof': 'https://cdn.discordapp.com/attachments/890222271849963571/895946184135434240/unknown.png', 'vadbpage': 'https://fadb.live/', 'data': {'id': None, 'name': 'text', 'aliases': [{'name': 'alias'}, {'name': 
+'alias'}], 'avatar': 'https://cdn.discordapp.com/attachments/890222271849963571/895946400515371038/2Pp9omj.png', 'banner': 'https://cdn.discordapp.com/attachments/890222271849963571/895946423558869043/beahjksd.png', 'description': 'aaaaaaaaaaa', 'tracks': 
+123, 'genre': 'q', 'status': 0, 'availability': 0, 'notes': 'text', 'usageRights': [{'name': 'All songs', 'value': True}, {'name': 'q', 'value': False}], 'socials': [{'url': 'https://stackoverflow.com/questions/1186789/what-is-the-best-way-to-call-a-script-from-another-script', 'type': 'Stackoverflow'}]}}}
         print(submission)
 
         await ctx.send(embed=await acf.generateEmbed(submission))

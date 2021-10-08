@@ -31,5 +31,6 @@ class RestartKill(cmds.Cog):
         await ctx.send("Terminated bot.")
         await main.bot.logout()
 
+
 def setup(bot):
     bot.add_cog(RestartKill(bot))

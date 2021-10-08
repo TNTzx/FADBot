@@ -216,8 +216,7 @@ colorKeys = {
 }
 
 async def generateEmbed(data):
-    title = data['artistInfo']['data']['description']
-    description = f"[VADB Page]({data['artistInfo']['vadbpage']})"
+    description = data['artistInfo']['data']['description']
 
     artName = data['artistInfo']['data']['name']
     artVadbPage = data['artistInfo']['vadbpage']
@@ -228,9 +227,12 @@ async def generateEmbed(data):
     aliasList = [alias["name"] for alias in artAliases]
     artAliases = f"`{'`, `'.join(aliasList)}`"
 
+    artId = data['artistInfo']['data']['id']
+    artId = artId if not artId == None else "Unknown"
+
     if not data['userInfo']['id'] == None:
         user: discord.User = await main.bot.fetch_user(data['userInfo']['id'])
-        userName = user.name
+        userName = f"{user.name}#{user.discriminator}"
         userId = user.id
     else:
         userName = "Unknown"
@@ -268,8 +270,8 @@ async def generateEmbed(data):
     notes = data['artistInfo']['data']['notes']
     
 
-    embed = discord.Embed(title=title, description="_ _", color=color)
-    embed.set_author(name=f"Data for {artName}:", url=artVadbPage, icon_url=artAvatar)
+    embed = discord.Embed(title=f"Artist data for {artName}:", description="_ _", color=color)
+    embed.set_author(name=f"{artName} (ID: {artId})", url=artVadbPage, icon_url=artAvatar)
     embed.set_thumbnail(url=artAvatar)
     embed.set_image(url=artBanner)
     embed.set_footer(text=f"Verification submitted by {userName} ({userId}).")
@@ -278,8 +280,9 @@ async def generateEmbed(data):
     embed.add_field(name="Aliases:", value=artAliases)
 
     embed.add_field(name="Description:", value=description, inline=False)
+    embed.add_field(name="VADB Page:", value=f"[Click here!]({artVadbPage})", inline=False)
 
-    embed.add_field(name="Status:", value=status, inline=False)
+    embed.add_field(name="Status:", value=status)
     if status == "Completed":
         embed.add_field(name="Availability:", value=f"**__{availability}__**")
         embed.add_field(name="Specific usage rights:", value=f"`{usageRights}`")
