@@ -5,7 +5,7 @@ import traceback
 
 import datetime
 
-
+otherData = ""
 errorPrefix = "**Error!**\n"
 
 async def sendError(ctx:commands.Context, suffix, exc="", sendToAuthor=False, sendToOwner=False, printToConsole=False, resetCooldown=False):
@@ -13,7 +13,8 @@ async def sendError(ctx:commands.Context, suffix, exc="", sendToAuthor=False, se
     tntz = await main.bot.fetch_user(279803094722674693)
     
     if sendToOwner:
-        await tntz.send(f"Error in `{ctx.guild.name}`!\nLink: {ctx.message.jump_url}\nCommand used: {ctx.message.content}\n```{exc}```")
+        extra = f", Other Data: `{otherData}`" if len(otherData) > 0 else ""
+        await tntz.send(f"Error in `{ctx.guild.name}`!\nLink: {ctx.message.jump_url}\nCommand used: `{ctx.message.content}`{extra} `\n```{exc}```")
 
     if printToConsole:
         error = getattr(exc, 'original', exc)

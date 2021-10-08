@@ -170,6 +170,7 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
 
         try:
             response = await main.bot.wait_for("message", check=lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel), timeout=timeout)
+            ef.otherData = response
         except asyncio.TimeoutError:
             await sendError(f"Command timed out. Please use {main.commandPrefix}artistadd again.")
             raise ce.ExitFunction("Exited Function.")
