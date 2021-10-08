@@ -23,7 +23,7 @@ def getToken():
 
 # API
 
-apiLink = "https://fadb.live/"
+apiLink = "https://fadb.live/api"
 apiAuthToken = os.environ["FadbAuthToken"]
 apiHeaders = {
   "Authorization": f"Basic {apiAuthToken}",

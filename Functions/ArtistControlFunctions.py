@@ -222,9 +222,13 @@ async def generateEmbed(data):
     artAvatar = data['artistInfo']['data']['avatar']
     artBanner = data['artistInfo']['data']['banner']
 
-    user: discord.User = await main.bot.fetch_user(data['userInfo']['id'])
-    userName = user.name
-    userId = user.id
+    if not data['userInfo']['id'] == None:
+        user: discord.User = await main.bot.fetch_user(data['userInfo']['id'])
+        userName = user.name
+        userId = user.id
+    else:
+        userName = "Unknown"
+        userId = "Unknown"
 
     status = statusKeys[data['artistInfo']['data']['status']]
     availability = availabilityKeys[data['artistInfo']['data']['availability']]
