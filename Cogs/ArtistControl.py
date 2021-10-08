@@ -29,7 +29,6 @@ class ArtistControl(cmds.Cog):
 
         submission = {
             "userInfo": {
-                "name": "UserName",
                 "id": "UserId"
             },
             "artistInfo": {
