@@ -1,4 +1,4 @@
-    dataFormat = {
+dataFormat = {
     "userInfo": {
         "id": "UserId",
     },
