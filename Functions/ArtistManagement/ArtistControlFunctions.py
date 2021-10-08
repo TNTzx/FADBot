@@ -9,13 +9,14 @@ from Functions import FirebaseInteraction as fi
 from Functions import CustomExceptions as ce
 
 
-async def checkIfUsingCommand(ctx, authorId):
+async def checkIfUsingCommand(authorId):
     usersUsing = fi.getData(["artistData", "pending", "isUsingCommand"])
-    if authorId in list(usersUsing):
-        await ef.sendError(ctx, f"You're already using this command! Use {main.commandPrefix}cancel on your DMs with me to cancel the command.")
-        raise ce.ExitFunction("Exited Function.")
+    return authorId in list(usersUsing)
+    
+async def addIsUsingCommand(authorId):
+    fi.appendData(["artistData", "pending", "isUsingCommand"], [authorId])
 
-async def deleteIsUsingCommand(ctx, authorId):
+async def deleteIsUsingCommand(authorId):
     data = fi.getData(["artistData", "pending", "isUsingCommand"])
     try:
         data.remove(authorId)
@@ -146,6 +147,7 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
 
     success = True
     while success:
+        title = title if not skippable else f"{title} (skippable)"
         embed = discord.Embed(title=title, description=description)
         embed.add_field(name="_ _", value="_ _", inline=False)
 

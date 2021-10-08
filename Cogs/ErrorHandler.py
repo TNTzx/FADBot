@@ -1,9 +1,12 @@
 import discord
 from discord.ext import commands
 import main
-from Functions import ExtraFunctions as ef
 import datetime
 import asyncio
+
+from Functions import ExtraFunctions as ef
+from Functions.ArtistManagement import ArtistControlFunctions as acf
+
 
 commandPrefix = main.commandPrefix
 
@@ -48,6 +51,7 @@ class ErrorHandler(commands.Cog):
         elif checkexc(commands.CommandNotFound):
             return
 
+        await acf.deleteIsUsingCommand(ctx.author.id)
         await ef.sendError(ctx, "Something went wrong. This error has been reported to the owner of the bot.", exc=exc, sendToOwner=True, printToConsole=True)
 
         

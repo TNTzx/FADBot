@@ -29,16 +29,31 @@ async def availability(ctx):
 
 async def name(ctx):
     return await acf.waitForResponse(ctx,
-        "Send the name of the artist.",
-        "This is the name of the artist.",
+        "Artist Name",
+        "Send the artist name.",
         acf.OutputTypes.text
     )
+
+async def aliases(ctx):
+    aliasNames = await acf.waitForResponse(ctx,
+        "Artist Aliases",
+        "Send other names that the artist goes by.",
+        acf.OutputTypes.listing, skippable=True, skipDefault=[]
+    )
+    return [{"name": alias} for alias in aliasNames]
 
 async def description(ctx):
     return await acf.waitForResponse(ctx,
         "Send a small description about the artist.",
         "You can put information about the artist here.",
         acf.OutputTypes.text, skippable=True, skipDefault="I'm an artist!"
+    )
+
+async def notes(ctx):
+    return await acf.waitForResponse(ctx,
+        "Notes",
+        "Send other notes you want to put in.",
+        acf.OutputTypes.text, skippable=True
     )
 
 async def avatar(ctx):
