@@ -217,10 +217,14 @@ async def generateEmbed(data):
     title = data['artistInfo']['data']['description']
     description = f"[VADB Page]({data['artistInfo']['vadbpage']})"
 
-    artName = f"Data for {data['artistInfo']['data']['name']}:"
+    artName = data['artistInfo']['data']['name']
     artVadbPage = data['artistInfo']['vadbpage']
     artAvatar = data['artistInfo']['data']['avatar']
     artBanner = data['artistInfo']['data']['banner']
+
+    artAliases = data['artistInfo']['data']['aliases']
+    aliasList = [alias["name"] for alias in artAliases]
+    artAliases = f"`{'`, `'.join(aliasList)}`"
 
     if not data['userInfo']['id'] == None:
         user: discord.User = await main.bot.fetch_user(data['userInfo']['id'])
@@ -258,20 +262,28 @@ async def generateEmbed(data):
         link, domain = entry["url"], entry["type"]
         socialsList.append(f"[{domain}]({link})")
     socials = " ".join(socialsList)
+
+    notes = data['artistInfo']['data']['notes']
     
 
-
-    embed = discord.Embed(title=title, description=description, color=color)
-    embed.set_author(name=artName, url=artVadbPage, icon_url=artAvatar)
+    embed = discord.Embed(title=title, description="_ _", color=color)
+    embed.set_author(name=f"Data for {artName}:", url=artVadbPage, icon_url=artAvatar)
     embed.set_thumbnail(url=artAvatar)
     embed.set_image(url=artBanner)
     embed.set_footer(text=f"Verification submitted by {userName} ({userId}).")
 
-    embed.add_field(name="Status:", value=status)
+    embed.add_field(name="Name:", value=f"**{artName}**")
+    embed.add_field(name="Aliases:", value=artAliases)
+
+    embed.add_field(name="Description:", value=description, inline=False)
+
+    embed.add_field(name="Status:", value=status, inline=False)
     if status == "Completed":
         embed.add_field(name="Availability:", value=f"**__{availability}__**")
         embed.add_field(name="Specific usage rights:", value=f"`{usageRights}`")
     
-    embed.add_field(name="Social links:", value=socials)
+    embed.add_field(name="Social links:", value=socials, inline=False)
+
+    embed.add_field(name="Other notes:", value=notes)
 
     return embed
