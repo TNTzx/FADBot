@@ -50,6 +50,7 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
             return int(response.content)
 
         async def text():
+            q
             if await checkIfHasRequired():
                 if not response.content.lower() in [x.lower() for x in choices]:
                     await sendError("You didn't send a choice in the list of choices!")

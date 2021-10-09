@@ -5,7 +5,7 @@ import traceback
 
 import datetime
 
-otherData = ""
+otherData: discord.Message = None
 errorPrefix = "**Error!**\n"
 
 async def sendError(ctx:commands.Context, suffix, exc="", sendToAuthor=False, sendToOwner=False, printToConsole=False, resetCooldown=False):
@@ -13,8 +13,12 @@ async def sendError(ctx:commands.Context, suffix, exc="", sendToAuthor=False, se
     tntz = await main.bot.fetch_user(279803094722674693)
     
     if sendToOwner:
-        extra = f", Other Data: `{otherData}`" if len(otherData) > 0 else ""
-        await tntz.send(f"Error in `{ctx.guild.name}`!\nLink: {ctx.message.jump_url}\nCommand used: `{ctx.message.content}`{extra} `\n```{exc}```")
+        global otherData
+        if not otherData == None:
+            if isinstance(otherData, discord.Message):
+                extra = f"\nOther Data: `{otherData}`\nMessage awaited: `{otherData.content}, Attachments: `{[attach.url for attach in otherData.attachments]}`"
+        otherData = None
+        await tntz.send(f"Error in `{ctx.guild.name}`!\nLink: {ctx.message.jump_url}\nCommand used: `{ctx.message.content}`{extra}\n```{exc}```")
 
     if printToConsole:
         error = getattr(exc, 'original', exc)

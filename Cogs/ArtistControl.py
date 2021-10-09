@@ -39,7 +39,7 @@ class ArtistControl(cmds.Cog):
         submission["userInfo"]["id"] = ctx.author.id
         # submission["artistInfo"]["proof"] = await ac.proof(ctx)
         # submission["artistInfo"]["data"]["availability"] = await ac.availability(ctx)
-        # submission["artistInfo"]["data"]["name"] = await ac.name(ctx)
+        submission["artistInfo"]["data"]["name"] = await ac.name(ctx)
         # submission["artistInfo"]["data"]["aliases"] = await ac.aliases(ctx)
         # submission["artistInfo"]["data"]["description"] = await ac.description(ctx)
         # submission["artistInfo"]["data"]["avatar"] = await ac.avatar(ctx)
@@ -52,9 +52,14 @@ class ArtistControl(cmds.Cog):
         submission = {'userInfo': {'id': 279803094722674693}, 'artistInfo': {'proof': 'https://cdn.discordapp.com/attachments/890222271849963571/895946184135434240/unknown.png', 'vadbpage': 'https://fadb.live/', 'data': {'id': None, 'name': 'text', 'aliases': [{'name': 'alias'}, {'name': 
 'alias'}], 'avatar': 'https://cdn.discordapp.com/attachments/890222271849963571/895946400515371038/2Pp9omj.png', 'banner': 'https://cdn.discordapp.com/attachments/890222271849963571/895946423558869043/beahjksd.png', 'description': 'aaaaaaaaaaa', 'tracks': 
 123, 'genre': 'q', 'status': 0, 'availability': 0, 'notes': 'text', 'usageRights': [{'name': 'All songs', 'value': True}, {'name': 'q', 'value': False}], 'socials': [{'url': 'https://stackoverflow.com/questions/1186789/what-is-the-best-way-to-call-a-script-from-another-script', 'type': 'Stackoverflow'}]}}}
-        print(submission)
 
-        await ctx.send(embed=await acf.generateEmbed(submission))
+        await ctx.author.send(embed=await acf.generateEmbed(submission))
+
+        while True:
+            ctx.author.send(f"This is the generated artist profile.\nUse `{main.commandPrefix}edit <property>` to edit a property, or use `{main.commandPrefix}submit` to submit this verification for approval.")
+            await main.bot.wait_for()
+
+
         await acf.deleteIsUsingCommand(ctx.author.id)
         
 
