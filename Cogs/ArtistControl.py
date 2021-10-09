@@ -53,12 +53,45 @@ class ArtistControl(cmds.Cog):
 'alias'}], 'avatar': 'https://cdn.discordapp.com/attachments/890222271849963571/895946400515371038/2Pp9omj.png', 'banner': 'https://cdn.discordapp.com/attachments/890222271849963571/895946423558869043/beahjksd.png', 'description': 'aaaaaaaaaaa', 'tracks': 
 123, 'genre': 'q', 'status': 0, 'availability': 0, 'notes': 'text', 'usageRights': [{'name': 'All songs', 'value': True}, {'name': 'q', 'value': False}], 'socials': [{'url': 'https://stackoverflow.com/questions/1186789/what-is-the-best-way-to-call-a-script-from-another-script', 'type': 'Stackoverflow'}]}}}
 
-        await ctx.author.send(embed=await acf.generateEmbed(submission))
+        commandDict = {
+            "proof": {"cmd": ac.proof, "path": '["artistInfo"]["data"]["aliases"]'},
+            "availability": {"cmd": ac.availability, "path": '["artistInfo"]["data"]["availability"]'},
+            "name": {"cmd": ac.name, "path": '["artistInfo"]["data"]["name"]'},
+            "aliases": {"cmd": ac.aliases, "path": '["artistInfo"]["data"]["aliases"]'},
+            "description": {"cmd": ac.description, "path": '["artistInfo"]["data"]["description"]'},
+            "avatar": {"cmd": ac.avatar, "path": '["artistInfo"]["data"]["avatar"]'},
+            "banner": {"cmd": ac.banner, "path": '["artistInfo"]["data"]["banner"]'},
+            "tracks": {"cmd": ac.tracks, "path": '["artistInfo"]["data"]["tracks"]'},
+            "genre": {"cmd": ac.genre, "path": '["artistInfo"]["data"]["genre"]'},
+            "usagerights": {"cmd": ac.usageRights, "path": '["artistInfo"]["data"]["usageRights"]'},
+            "socials": {"cmd": ac.socials, "path": '["artistInfo"]["data"]["socials"]'}
+        }
 
         while True:
-            ctx.author.send(f"This is the generated artist profile.\nUse `{main.commandPrefix}edit <property>` to edit a property, or use `{main.commandPrefix}submit` to submit this verification for approval.")
-            await main.bot.wait_for()
+            await ctx.author.send(f"This is the generated artist profile.\nUse `{main.commandPrefix}edit <property>` to edit a property, `{main.commandPrefix}submit` to submit this verification for approval, or `{main.commandPrefix}cancel` to cancel this command.")
+            
+            await ctx.author.send(embed=await acf.generateEmbed(submission))
+    
+            message: discord.Message = await acf.waitFor(ctx)
+            command = message.content.split(" ")
 
+            if command[0].startswith(f"{main.commandPrefix}edit"):
+                commandToGet = commandDict.get(command[1] if len(command) > 1 else None, None)
+
+                if command == None:
+                    await acf.sendError(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(commandDict.keys())}`")
+                
+                result = await commandToGet['cmd'](ctx)
+                exec(f"submission{commandToGet['path']} = {result}")
+            
+            elif command[0] == f"{main.commandPrefix}submit":
+                break
+                
+            elif command[0] == f"{main.commandPrefix}cancel":
+                raise ce.ExitFunction("Exited Function.")
+            
+            else:
+                await acf.sendError(ctx, "You didn't send a command!")
 
         await acf.deleteIsUsingCommand(ctx.author.id)
         

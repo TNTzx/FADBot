@@ -32,11 +32,21 @@ class OutputTypes():
         listing = {"type": "list", "prefix": "a", "example": "This is the first item on the list!\nThis is the second item on the list!\nThis is the third item on the list!"}
         dictionary = {"type": "dictionary", "prefix": "a", "example": "Remixes: Unverified\nAll other songs: Verified\nA song I'm not sure of: Unknown"}
 
+async def sendError(ctx, suffix):
+    await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
+
+async def waitFor(ctx):
+    try:
+        response: discord.Message = await main.bot.wait_for("message", check=lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel), timeout=timeout)
+        ef.otherData = response
+    except asyncio.TimeoutError:
+        await ef.sendError(f"Command timed out. Please use {main.commandPrefix}artistadd again.")
+        raise ce.ExitFunction("Exited Function.")
+    return response
+
 
 timeout = 60 * 10
 async def waitForResponse(ctx, title, description, outputType, choices=[], choicesDict=[], skippable=False, skipDefault=""):
-    async def sendError(suffix):
-        await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
     async def checkIfHasRequired():
         return len(choices) > 0
     async def checkIfHasRequiredDict():
@@ -45,19 +55,18 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
     async def reformat(response: discord.Message):
         async def number():
             if not response.content.isnumeric():
-                await sendError("That's not a number!")
+                await sendError(ctx, "That's not a number!")
                 return None
             return int(response.content)
 
         async def text():
-            q
             if await checkIfHasRequired():
                 if not response.content.lower() in [x.lower() for x in choices]:
-                    await sendError("You didn't send a choice in the list of choices!")
+                    await sendError(ctx, "You didn't send a choice in the list of choices!")
                     return None
                 return response.content.lower()
             if response.content == "":
-                await sendError("You didn't send anything!")
+                await sendError(ctx, "You didn't send anything!")
                 return None
             return response.content
 
@@ -66,7 +75,7 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
                 try:
                     imageRequest = req.head(url)
                 except Exception as exc:
-                    await sendError(f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
+                    await sendError(ctx, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
                     return None
                 return url
             
@@ -84,11 +93,11 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
                 try:
                     imageRequest = req.head(imageUrl)
                 except Exception as exc:
-                    await sendError(f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
+                    await sendError(ctx, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
                     return None
 
                 if not imageRequest.headers["Content-Type"] in [f"image/{x}" for x in supportedFormats]:
-                    await sendError(f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}`.")
+                    await sendError(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}`.")
                     return None
                 
                 return imageUrl
@@ -124,11 +133,11 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
                     else:
                         entryDict[item[0]] = item[1].lower()
                 except (KeyError, IndexError):
-                    await sendError("Your formatting is wrong!")
+                    await sendError(ctx, "Your formatting is wrong!")
                     return None
 
                 if not item[1].lower() in [x.lower() for x in choicesDict]:
-                    await sendError(f"Check if the right side of the colons contain these values: `{'`, `'.join([x for x in choicesDict])}`")
+                    await sendError(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join([x for x in choicesDict])}`")
                     return None
             return entryDict
 
@@ -168,14 +177,7 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
 
         await ctx.author.send(embed=embed)
 
-
-        try:
-            response = await main.bot.wait_for("message", check=lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel), timeout=timeout)
-            ef.otherData = response
-        except asyncio.TimeoutError:
-            await sendError(f"Command timed out. Please use {main.commandPrefix}artistadd again.")
-            raise ce.ExitFunction("Exited Function.")
-
+        response = await waitFor(ctx)
 
         if response.content == f"{main.commandPrefix}cancel":
             raise ce.ExitFunction("Exited Function.")
@@ -184,13 +186,13 @@ async def waitForResponse(ctx, title, description, outputType, choices=[], choic
                 await ctx.author.send("Section skipped.")
                 return skipDefault
             else:
-                await sendError("You can't skip this section!")
+                await sendError(ctx, "You can't skip this section!")
                 continue
 
         try:
             response = await reformat(response)
         except Exception as exc:
-            await deleteIsUsingCommand(ctx, ctx.author.id)
+            await deleteIsUsingCommand(ctx.author.id)
             raise exc
         success = (response == None)
     return response

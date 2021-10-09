@@ -14,6 +14,7 @@ async def sendError(ctx:commands.Context, suffix, exc="", sendToAuthor=False, se
     
     if sendToOwner:
         global otherData
+        extra = ""
         if not otherData == None:
             if isinstance(otherData, discord.Message):
                 extra = f"\nOther Data: `{otherData}`\nMessage awaited: `{otherData.content}, Attachments: `{[attach.url for attach in otherData.attachments]}`"
