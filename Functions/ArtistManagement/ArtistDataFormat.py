@@ -4,7 +4,7 @@ dataFormat = {
     },
     "artistInfo": {
         "proof": "png",
-        "vadbpage": "https://fadb.live/",
+        "vadbPage": "https://fadb.live/",
         "data": {
             "id": None,
             "name": "ArtistName",

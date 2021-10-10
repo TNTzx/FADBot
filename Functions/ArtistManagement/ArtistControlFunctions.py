@@ -7,6 +7,7 @@ import main
 from Functions import ExtraFunctions as ef
 from Functions import FirebaseInteraction as fi
 from Functions import CustomExceptions as ce
+from Functions.ArtistManagement import SubmissionClass as sc
 
 
 async def checkIfUsingCommand(authorId):
@@ -35,6 +36,7 @@ class OutputTypes():
 async def sendError(ctx, suffix):
     await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
 
+timeout = 60 * 10
 async def waitFor(ctx):
     try:
         response: discord.Message = await main.bot.wait_for("message", check=lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel), timeout=timeout)
@@ -44,158 +46,6 @@ async def waitFor(ctx):
         raise ce.ExitFunction("Exited Function.")
     return response
 
-
-timeout = 60 * 10
-async def waitForResponse(ctx, title, description, outputType, choices=[], choicesDict=[], skippable=False, skipDefault=""):
-    async def checkIfHasRequired():
-        return len(choices) > 0
-    async def checkIfHasRequiredDict():
-        return len(choicesDict) > 0
-
-    async def reformat(response: discord.Message):
-        async def number():
-            if not response.content.isnumeric():
-                await sendError(ctx, "That's not a number!")
-                return None
-            return int(response.content)
-
-        async def text():
-            if await checkIfHasRequired():
-                if not response.content.lower() in [x.lower() for x in choices]:
-                    await sendError(ctx, "You didn't send a choice in the list of choices!")
-                    return None
-                return response.content.lower()
-            if response.content == "":
-                await sendError(ctx, "You didn't send anything!")
-                return None
-            return response.content
-
-        async def links():
-            async def checkLink(url):
-                try:
-                    imageRequest = req.head(url)
-                except Exception as exc:
-                    await sendError(ctx, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
-                    return None
-                return url
-            
-            links = response.content.split("\n")
-            for link in links:
-                link = await checkLink(link)
-                if link == None:
-                    return None
-            return links
-            
-        async def image():
-            async def checkImage(imageUrl):
-                supportedFormats = ["png", "jpg", "jpeg"]
-
-                try:
-                    imageRequest = req.head(imageUrl)
-                except Exception as exc:
-                    await sendError(ctx, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
-                    return None
-
-                if not imageRequest.headers["Content-Type"] in [f"image/{x}" for x in supportedFormats]:
-                    await sendError(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}`.")
-                    return None
-                
-                return imageUrl
-
-            async def attachments():
-                return await checkImage(response.attachments[0].url)
-                    
-            async def link():
-                return await checkImage(response.content)
-
-
-            if not len(response.attachments) == 0:
-                return await attachments()
-            else:
-                return await link()
-
-
-        async def listing():
-            return response.content.split("\n")
-
-        async def dictionary():
-            entries = response.content.split("\n")
-            entryDict = {}
-            for entry in entries:
-                item = entry.split(":")
-                item = [x.lstrip(' ') for x in item]
-                try:
-                    if not len(item) == 2:
-                        raise IndexError
-
-                    if not await checkIfHasRequiredDict():
-                        entryDict[item[0]] = item[1]
-                    else:
-                        entryDict[item[0]] = item[1].lower()
-                except (KeyError, IndexError):
-                    await sendError(ctx, "Your formatting is wrong!")
-                    return None
-
-                if not item[1].lower() in [x.lower() for x in choicesDict]:
-                    await sendError(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join([x for x in choicesDict])}`")
-                    return None
-            return entryDict
-
-        if outputType == OutputTypes.number:
-            return await number()
-        elif outputType == OutputTypes.text:
-            return await text()
-        elif outputType == OutputTypes.links:
-            return await links()
-        elif outputType == OutputTypes.image:
-            return await image()
-        elif outputType == OutputTypes.listing:
-            return await listing()
-        elif outputType == OutputTypes.dictionary:
-            return await dictionary()
-    
-
-    success = True
-    while success:
-        title = title if not skippable else f"{title} (skippable)"
-        embed = discord.Embed(title=title, description=description)
-        embed.add_field(name="_ _", value="_ _", inline=False)
-
-        fieldName = f"You have to send {outputType['prefix']} {outputType['type']}!"
-
-        if not await checkIfHasRequired():
-            fieldDesc = f"__Here is an example of what you have to send:__\n`{outputType['example']}`"
-            embed.add_field(name=fieldName, value=fieldDesc, inline=False)
-        else:
-            fieldDesc = f"Choose from one of the following choices: \n`{'`, `'.join(choices)}`"
-            embed.add_field(name=fieldName, value=fieldDesc, inline=False)
-        
-        embed.add_field(name="_ _", value="_ _", inline=False)
-
-        skipStr = f"This command times out in {ef.formatTime(timeout)}. \nUse {main.commandPrefix}cancel to cancel the current command." + (f"\nUse {main.commandPrefix}skip to skip this section." if skippable else "")
-        embed.set_footer(text=skipStr)
-
-        await ctx.author.send(embed=embed)
-
-        response = await waitFor(ctx)
-
-        if response.content == f"{main.commandPrefix}cancel":
-            raise ce.ExitFunction("Exited Function.")
-        elif response.content == f"{main.commandPrefix}skip":
-            if skippable:
-                await ctx.author.send("Section skipped.")
-                return skipDefault
-            else:
-                await sendError(ctx, "You can't skip this section!")
-                continue
-
-        try:
-            response = await reformat(response)
-        except Exception as exc:
-            await deleteIsUsingCommand(ctx.author.id)
-            raise exc
-        success = (response == None)
-    return response
 
 
 statusKeys = {
@@ -219,31 +69,31 @@ colorKeys = {
     "Blue": 0x0000FF
 }
 
-async def generateEmbed(data):
-    description = data['artistInfo']['data']['description']
+async def generateEmbed(submission: sc.Submission):
+    description = submission.artist.artistData.description
 
-    artName = data['artistInfo']['data']['name']
-    artVadbPage = data['artistInfo']['vadbpage']
-    artAvatar = data['artistInfo']['data']['avatar']
-    artBanner = data['artistInfo']['data']['banner']
+    artName = submission.artist.artistData.name
+    artVadbPage = submission.artist.vadbPage
+    artAvatar = submission.artist.artistData.avatar
+    artBanner = submission.artist.artistData.banner
 
-    artAliases = data['artistInfo']['data']['aliases']
+    artAliases = submission.artist.artistData.aliases
     aliasList = [alias["name"] for alias in artAliases]
     artAliases = f"`{'`, `'.join(aliasList)}`"
 
-    artId = data['artistInfo']['data']['id']
+    artId = submission.artist.artistData.id
     artId = artId if not artId == None else "Unknown"
 
-    if not data['userInfo']['id'] == None:
-        user: discord.User = await main.bot.fetch_user(data['userInfo']['id'])
+    if not submission.user.id == None:
+        user: discord.User = await main.bot.fetch_user(submission['userInfo']['id'])
         userName = f"{user.name}#{user.discriminator}"
         userId = user.id
     else:
         userName = "Unknown"
         userId = "Unknown"
 
-    status = statusKeys[data['artistInfo']['data']['status']]
-    availability = availabilityKeys[data['artistInfo']['data']['availability']]
+    status = statusKeys[submission.artist.artistData.status]
+    availability = availabilityKeys[submission.artist.artistData.availability]
 
     if status == "Completed":
         if availability == "Verified":
@@ -257,21 +107,21 @@ async def generateEmbed(data):
     elif status == "No Contact":
         color = colorKeys["Yellow"]
 
-    usageRights = data['artistInfo']['data']['usageRights']
+    usageRights = submission.artist.artistData.usageRights
     usageList = []
     for entry in usageRights:
         statusRights = entry["value"]
         usageList.append(f"{entry['name']}: {'Verified' if statusRights else 'Disallowed'}")
     usageRights = "\n".join(usageList)
 
-    socials = data['artistInfo']['data']['socials']
+    socials = submission.artist.artistData.socials
     socialsList = []
     for entry in socials:
         link, domain = entry["url"], entry["type"]
         socialsList.append(f"[{domain}]({link})")
     socials = " ".join(socialsList)
 
-    notes = data['artistInfo']['data']['notes']
+    notes = submission.artist.artistData.notes
     
 
     embed = discord.Embed(title=f"Artist data for {artName}:", description="_ _", color=color)
