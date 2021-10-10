@@ -32,12 +32,5 @@ class RestartKill(cmds.Cog):
         await main.bot.logout()
 
 
-    @cw.command(
-        requirePAModerator=True
-    )
-    async def test(self, ctx):
-        await ctx.send("noice")
-
-
 def setup(bot):
     bot.add_cog(RestartKill(bot))
