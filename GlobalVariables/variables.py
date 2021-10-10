@@ -22,10 +22,17 @@ def getToken():
 
 
 # API
-
 apiLink = "https://fadb.live/api"
 apiAuthToken = os.environ["FadbAuthToken"]
 apiHeaders = {
   "Authorization": f"Basic {apiAuthToken}",
   "Content-Type": "application/x-www-form-urlencoded"
+}
+
+
+# Authorization
+canVerify = {
+  734204348665692181: [
+    886608688318656552
+  ]
 }

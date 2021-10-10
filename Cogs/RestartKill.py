@@ -12,7 +12,7 @@ class RestartKill(cmds.Cog):
         category=cw.Categories.botControl,
         description="Restarts the bot.",
         aliases=["sr"],
-        requireAdmin=True
+        requireGuildAdmin=True
     )
     async def switchrestart(self, ctx):
         await ctx.send("Restarting bot...")
@@ -25,11 +25,18 @@ class RestartKill(cmds.Cog):
         category=cw.Categories.botControl,
         description="Shuts down the bot.",
         aliases=["sk"],
-        requireAdmin=True
+        requireGuildAdmin=True
     )
     async def switchkill(self, ctx):
         await ctx.send("Terminated bot.")
         await main.bot.logout()
+
+
+    @cw.command(
+        requirePAModerator=True
+    )
+    async def test(self, ctx):
+        await ctx.send("noice")
 
 
 def setup(bot):

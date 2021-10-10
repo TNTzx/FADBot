@@ -33,7 +33,7 @@ class Hello(commands.Cog):
     @cw.command(
         category=cw.Categories.botControl,
         description="Cause an error...?",
-        requireAdmin=True
+        requireGuildAdmin=True
     )
     async def causeerror(self, ctx):
         raise TypeError("caused error!")

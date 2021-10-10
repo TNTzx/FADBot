@@ -330,7 +330,6 @@ class Submission(ArtistFunctions):
             skippable=skippable, skipDefault=self.artist.artistData.genre
         )
 
-
     async def setUsageRights(self, ctx, skippable=True):
         usageRights = await self.waitForResponse(ctx,
             "What are the usage rights for the artist?",
@@ -503,3 +502,45 @@ class Submission(ArtistFunctions):
         embed.add_field(name="Other notes:", value=notes)
 
         return embed
+
+
+    async def editLoop(self, ctx):
+        commandDict = {
+                "proof": self.setProof,
+                "availability": self.setAvailability,
+                "name": self.setName,
+                "aliases": self.setAliases,
+                "description": self.setDescription,
+                "avatar": self.setAvatar,
+                "banner": self.setBanner,
+                "tracks": self.setTracks,
+                "genre": self.setGenre,
+                "usagerights": self.setUsageRights,
+                "socials": self.setSocials
+            }
+
+        while True:
+            await ctx.author.send(f"This is the generated artist profile.\nUse `{main.commandPrefix}edit <property>` to edit a property, `{main.commandPrefix}submit` to submit this verification for approval, or `{main.commandPrefix}cancel` to cancel this command.")
+            
+            await ctx.author.send(embed=await self.generateEmbed())
+    
+            message: discord.Message = await self.waitFor(ctx)
+            command = message.content.split(" ")
+
+            if command[0].startswith(f"{main.commandPrefix}edit"):
+                commandToGet = commandDict.get(command[1] if len(command) > 1 else None, None)
+
+                if commandToGet == None:
+                    await self.sendError(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(commandDict.keys())}`")
+                    continue
+                
+                await commandToGet(ctx, skippable=True)
+            
+            elif command[0] == f"{main.commandPrefix}submit":
+                break
+                
+            elif command[0] == f"{main.commandPrefix}cancel":
+                raise ce.ExitFunction("Exited Function.")
+            
+            else:
+                await self.sendError(ctx, "You didn't send a command!")

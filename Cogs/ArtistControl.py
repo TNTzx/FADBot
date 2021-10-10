@@ -84,60 +84,21 @@ class ArtistControl(cmds.Cog):
 
         await subm.generateFromDict(testdata)
 
-
-        commandDict = {
-            "proof": subm.setProof,
-            "availability": subm.setAvailability,
-            "name": subm.setName,
-            "aliases": subm.setAliases,
-            "description": subm.setDescription,
-            "avatar": subm.setAvatar,
-            "banner": subm.setBanner,
-            "tracks": subm.setTracks,
-            "genre": subm.setGenre,
-            "usagerights": subm.setUsageRights,
-            "socials": subm.setSocials
-        }
-
-        while True:
-            await ctx.author.send(f"This is the generated artist profile.\nUse `{main.commandPrefix}edit <property>` to edit a property, `{main.commandPrefix}submit` to submit this verification for approval, or `{main.commandPrefix}cancel` to cancel this command.")
-            
-            await ctx.author.send(embed=await subm.generateEmbed())
-    
-            message: discord.Message = await subm.waitFor(ctx)
-            command = message.content.split(" ")
-
-            if command[0].startswith(f"{main.commandPrefix}edit"):
-                commandToGet = commandDict.get(command[1] if len(command) > 1 else None, None)
-
-                if commandToGet == None:
-                    await subm.sendError(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(commandDict.keys())}`")
-                    continue
-                
-                await commandToGet(ctx, skippable=True)
-            
-            elif command[0] == f"{main.commandPrefix}submit":
-                break
-                
-            elif command[0] == f"{main.commandPrefix}cancel":
-                raise ce.ExitFunction("Exited Function.")
-            
-            else:
-                await subm.sendError(ctx, "You didn't send a command!")
-
+        await subm.editLoop(ctx)
         await subm.deleteIsUsingCommand(ctx.author.id)
         
 
 
     @cw.command(
         category=cw.Categories.botControl,
-        description="Cancels the current command.",
+        description=f"Cancels the current command. Usually used for `{main.commandPrefix}artistadd`.",
         guildOnly=False
     )
     async def cancel(self, ctx: cmds.Context):
         if isinstance(ctx.channel, discord.DMChannel):
             await sc.ArtistFunctions.deleteIsUsingCommand(sc.ArtistFunctions(), ctx.author.id)
             await ctx.author.send("Command cancelled.")
+
 
 
 def setup(bot):
