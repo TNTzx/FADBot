@@ -16,14 +16,14 @@ timeout = 60 * 10
 defaultImage = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
 
 class ArtistFunctions:
-    async def checkIfUsingCommand(authorId):
+    async def checkIfUsingCommand(self, authorId):
         usersUsing = fi.getData(["artistData", "pending", "isUsingCommand"])
         return authorId in list(usersUsing)
         
-    async def addIsUsingCommand(authorId):
+    async def addIsUsingCommand(self, authorId):
         fi.appendData(["artistData", "pending", "isUsingCommand"], [authorId])
 
-    async def deleteIsUsingCommand(authorId):
+    async def deleteIsUsingCommand(self, authorId):
         data = fi.getData(["artistData", "pending", "isUsingCommand"])
         try:
             data.remove(authorId)
@@ -31,7 +31,7 @@ class ArtistFunctions:
         fi.editData(["artistData", "pending"], {"isUsingCommand": data})
     
 
-    async def sendError(ctx, suffix):
+    async def sendError(self, ctx, suffix):
         await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
     
     timeout = 60 * 10
@@ -384,6 +384,22 @@ class Submission(ArtistFunctions):
         data["artistInfo"]["data"]["socials"] = self.artist.artistData.socials
         return data
     
+    async def generateFromDict(self, data):
+        self.user.id = data["userInfo"]["id"]
+        self.artist.proof = data["artistInfo"]["proof"]
+        self.artist.vadbPage = data["artistInfo"]["vadbPage"]
+        self.artist.artistData.status = data["artistInfo"]["data"]["status"]
+        self.artist.artistData.availability = data["artistInfo"]["data"]["availability"]
+        self.artist.artistData.name = data["artistInfo"]["data"]["name"]
+        self.artist.artistData.aliases = data["artistInfo"]["data"]["aliases"]
+        self.artist.artistData.description = data["artistInfo"]["data"]["description"]
+        self.artist.artistData.avatar = data["artistInfo"]["data"]["avatar"]
+        self.artist.artistData.banner = data["artistInfo"]["data"]["banner"]
+        self.artist.artistData.tracks = data["artistInfo"]["data"]["tracks"]
+        self.artist.artistData.genre = data["artistInfo"]["data"]["genre"]
+        self.artist.artistData.usageRights = data["artistInfo"]["data"]["usageRights"]
+        self.artist.artistData.socials = data["artistInfo"]["data"]["socials"]
+    
 
     statusKeys = {
         0: "Completed",
@@ -422,7 +438,7 @@ class Submission(ArtistFunctions):
         artId = artId if not artId == None else "Unknown"
 
         if not self.user.id == None:
-            user: discord.User = await main.bot.fetch_user(self['userInfo']['id'])
+            user: discord.User = await main.bot.fetch_user(self.user.id)
             userName = f"{user.name}#{user.discriminator}"
             userId = user.id
         else:

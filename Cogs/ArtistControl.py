@@ -25,11 +25,11 @@ class ArtistControl(cmds.Cog):
         aliases=["aa"]
     )
     async def artistadd(self, ctx: cmds.Context):
-        if await sc.ArtistFunctions.checkIfUsingCommand(ctx.author.id):
+        if await sc.ArtistFunctions.checkIfUsingCommand(sc.ArtistFunctions(), ctx.author.id):
             await ef.sendError(ctx, f"You're already using this command! Use {main.commandPrefix}cancel on your DMs with me to cancel the command.")
             raise ce.ExitFunction("Exited Function.")
 
-        await sc.ArtistFunctions.addIsUsingCommand(ctx.author.id)
+        await sc.ArtistFunctions.addIsUsingCommand(sc.ArtistFunctions(), ctx.author.id)
 
         subm = sc.Submission()
 
@@ -102,7 +102,7 @@ class ArtistControl(cmds.Cog):
     )
     async def cancel(self, ctx: cmds.Context):
         if isinstance(ctx.channel, discord.DMChannel):
-            await sc.ArtistFunctions.deleteIsUsingCommand(ctx.author.id)
+            await sc.ArtistFunctions.deleteIsUsingCommand(sc.ArtistFunctions(), ctx.author.id)
             await ctx.author.send("Command cancelled.")
 
 
