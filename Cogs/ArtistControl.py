@@ -9,7 +9,7 @@ from Functions import CustomExceptions as ce
 from Functions import CommandWrappingFunction as cw
 from Functions import ExtraFunctions as ef
 from Functions import FirebaseInteraction as fi
-from Functions.ArtistManagement.SubmissionClass import Submission
+from Functions.ArtistManagement import SubmissionClass as sc
 from Functions.ArtistManagement import ArtistControlFunctions as acf
 from Functions.ArtistManagement import ArtistDataFormat as adf
 
@@ -25,33 +25,31 @@ class ArtistControl(cmds.Cog):
         aliases=["aa"]
     )
     async def artistadd(self, ctx: cmds.Context):
-        if await acf.checkIfUsingCommand(ctx.author.id):
+        if await sc.ArtistFunctions.checkIfUsingCommand(ctx.author.id):
             await ef.sendError(ctx, f"You're already using this command! Use {main.commandPrefix}cancel on your DMs with me to cancel the command.")
             raise ce.ExitFunction("Exited Function.")
 
-        await acf.addIsUsingCommand(ctx.author.id)
+        await sc.ArtistFunctions.addIsUsingCommand(ctx.author.id)
 
-        subm = Submission()
+        subm = sc.Submission()
 
         await ctx.send("The verification submission has been moved to your DMs. Please check it.")
         await ctx.author.send("> The verification submission is now being set up. Please __follow the prompts as needed__.")
 
         subm.user.id = ctx.author.id
-        subm.setProof(ctx)
-        subm.setAvailability(ctx)
-        subm.setName(ctx)
-        subm.setAliases(ctx)
-        subm.setDescription(ctx)
-        subm.setAvatar(ctx)
-        subm.setBanner(ctx)
-        subm.setTracks(ctx)
-        subm.setGenre(ctx)
-        subm.setUsageRights(ctx)
-        subm.setSocials(ctx)
+        await subm.setProof(ctx)
+        await subm.setAvailability(ctx)
+        await subm.setName(ctx)
+        await subm.setAliases(ctx)
+        await subm.setDescription(ctx)
+        await subm.setAvatar(ctx)
+        await subm.setBanner(ctx)
+        await subm.setTracks(ctx)
+        await subm.setGenre(ctx)
+        await subm.setUsageRights(ctx)
+        await subm.setSocials(ctx)
         
-        submission = {'userInfo': {'id': 279803094722674693}, 'artistInfo': {'proof': 'https://cdn.discordapp.com/attachments/890222271849963571/895946184135434240/unknown.png', 'vadbpage': 'https://fadb.live/', 'data': {'id': None, 'name': 'text', 'aliases': [{'name': 'alias'}, {'name': 
-'alias'}], 'avatar': 'https://cdn.discordapp.com/attachments/890222271849963571/895946400515371038/2Pp9omj.png', 'banner': 'https://cdn.discordapp.com/attachments/890222271849963571/895946423558869043/beahjksd.png', 'description': 'aaaaaaaaaaa', 'tracks': 
-123, 'genre': 'q', 'status': 0, 'availability': 0, 'notes': 'text', 'usageRights': [{'name': 'All songs', 'value': True}, {'name': 'q', 'value': False}], 'socials': [{'url': 'https://stackoverflow.com/questions/1186789/what-is-the-best-way-to-call-a-script-from-another-script', 'type': 'Stackoverflow'}]}}}
+
 
         commandDict = {
             "proof": subm.setProof,
@@ -70,16 +68,16 @@ class ArtistControl(cmds.Cog):
         while True:
             await ctx.author.send(f"This is the generated artist profile.\nUse `{main.commandPrefix}edit <property>` to edit a property, `{main.commandPrefix}submit` to submit this verification for approval, or `{main.commandPrefix}cancel` to cancel this command.")
             
-            await ctx.author.send(embed=await acf.generateEmbed(submission))
+            await ctx.author.send(embed=await subm.generateEmbed())
     
-            message: discord.Message = await acf.waitFor(ctx)
+            message: discord.Message = await subm.waitFor(ctx)
             command = message.content.split(" ")
 
             if command[0].startswith(f"{main.commandPrefix}edit"):
                 commandToGet = commandDict.get(command[1] if len(command) > 1 else None, None)
 
                 if command == None:
-                    await acf.sendError(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(commandDict.keys())}`")
+                    await subm.sendError(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(commandDict.keys())}`")
                 
                 result = await commandToGet(ctx, skippable=True)
                 exec(f"submission{commandToGet['path']} = {result}")
@@ -91,9 +89,9 @@ class ArtistControl(cmds.Cog):
                 raise ce.ExitFunction("Exited Function.")
             
             else:
-                await acf.sendError(ctx, "You didn't send a command!")
+                await subm.sendError(ctx, "You didn't send a command!")
 
-        await acf.deleteIsUsingCommand(ctx.author.id)
+        await subm.deleteIsUsingCommand(ctx.author.id)
         
 
 
@@ -104,7 +102,7 @@ class ArtistControl(cmds.Cog):
     )
     async def cancel(self, ctx: cmds.Context):
         if isinstance(ctx.channel, discord.DMChannel):
-            await acf.deleteIsUsingCommand(ctx.author.id)
+            await sc.ArtistFunctions.deleteIsUsingCommand(ctx.author.id)
             await ctx.author.send("Command cancelled.")
 
 

@@ -9,13 +9,41 @@ import main
 from Functions import CustomExceptions as ce
 from Functions import ExtraFunctions as ef
 from Functions.ArtistManagement import ArtistDataFormat as adf
-from Functions.ArtistManagement import ArtistControlFunctions as acf
+from Functions import FirebaseInteraction as fi
 
 
-timeout = 60 * 2
+timeout = 60 * 10
 defaultImage = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
 
-class WaitFor:
+class ArtistFunctions:
+    async def checkIfUsingCommand(authorId):
+        usersUsing = fi.getData(["artistData", "pending", "isUsingCommand"])
+        return authorId in list(usersUsing)
+        
+    async def addIsUsingCommand(authorId):
+        fi.appendData(["artistData", "pending", "isUsingCommand"], [authorId])
+
+    async def deleteIsUsingCommand(authorId):
+        data = fi.getData(["artistData", "pending", "isUsingCommand"])
+        try:
+            data.remove(authorId)
+        except ValueError: pass
+        fi.editData(["artistData", "pending"], {"isUsingCommand": data})
+    
+
+    async def sendError(ctx, suffix):
+        await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
+    
+    timeout = 60 * 10
+    async def waitFor(self, ctx):
+        try:
+            response: discord.Message = await main.bot.wait_for("message", check=lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel), timeout=timeout)
+            ef.otherData = response
+        except asyncio.TimeoutError:
+            await ef.sendError(f"Command timed out. Please use {main.commandPrefix}artistadd again.")
+            raise ce.ExitFunction("Exited Function.")
+        return response
+
     async def waitForResponse(self, ctx, title, description, outputType, choices=[], choicesDict=[], skippable=False, skipDefault=""):
         async def checkIfHasRequired():
             return len(choices) > 0
@@ -25,18 +53,18 @@ class WaitFor:
         async def reformat(response: discord.Message):
             async def number():
                 if not response.content.isnumeric():
-                    await acf.sendError(ctx, "That's not a number!")
+                    await self.sendError(ctx, "That's not a number!")
                     return None
                 return int(response.content)
 
             async def text():
                 if await checkIfHasRequired():
                     if not response.content.lower() in [x.lower() for x in choices]:
-                        await acf.sendError(ctx, "You didn't send a choice in the list of choices!")
+                        await self.sendError(ctx, "You didn't send a choice in the list of choices!")
                         return None
                     return response.content.lower()
                 if response.content == "":
-                    await acf.sendError(ctx, "You didn't send anything!")
+                    await self.sendError(ctx, "You didn't send anything!")
                     return None
                 return response.content
 
@@ -45,7 +73,7 @@ class WaitFor:
                     try:
                         imageRequest = req.head(url)
                     except Exception as exc:
-                        await acf.sendError(ctx, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
+                        await self.sendError(ctx, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
                         return None
                     return url
                 
@@ -63,11 +91,11 @@ class WaitFor:
                     try:
                         imageRequest = req.head(imageUrl)
                     except Exception as exc:
-                        await acf.sendError(ctx, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
+                        await self.sendError(ctx, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
                         return None
 
                     if not imageRequest.headers["Content-Type"] in [f"image/{x}" for x in supportedFormats]:
-                        await acf.sendError(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}`.")
+                        await self.sendError(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supportedFormats)}`.")
                         return None
                     
                     return imageUrl
@@ -103,11 +131,11 @@ class WaitFor:
                         else:
                             entryDict[item[0]] = item[1].lower()
                     except (KeyError, IndexError):
-                        await acf.sendError(ctx, "Your formatting is wrong!")
+                        await self.sendError(ctx, "Your formatting is wrong!")
                         return None
 
                     if not item[1].lower() in [x.lower() for x in choicesDict]:
-                        await acf.sendError(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join([x for x in choicesDict])}`")
+                        await self.sendError(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join([x for x in choicesDict])}`")
                         return None
                 return entryDict
 
@@ -146,7 +174,7 @@ class WaitFor:
 
             await ctx.author.send(embed=embed)
 
-            response = await acf.waitFor(ctx)
+            response = await self.waitFor(ctx)
 
             if response.content == f"{main.commandPrefix}cancel":
                 raise ce.ExitFunction("Exited Function.")
@@ -155,7 +183,7 @@ class WaitFor:
                     await ctx.author.send("Section skipped.")
                     return skipDefault
                 else:
-                    await acf.sendError(ctx, "You can't skip this section!")
+                    await self.sendError(ctx, "You can't skip this section!")
                     continue
 
             try:
@@ -205,7 +233,7 @@ class User:
         self.id = None
 
 
-class Submission(WaitFor):
+class Submission(ArtistFunctions):
     def __init__(self):
         self.user = User()
         self.artist = Artist()
@@ -215,7 +243,7 @@ class Submission(WaitFor):
         self.artist.proof = await self.waitForResponse(ctx, 
             "Please send proof that you contacted the artist.",
             "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
-            acf.OutputTypes.image,
+            OutputTypes.image,
             skippable=skippable, skipDefault=self.artist.proof
         )
     
@@ -223,7 +251,7 @@ class Submission(WaitFor):
         availability = await self.waitForResponse(ctx,
             "Is the artist verified, disallowed, or does it vary between songs?",
             "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n\"Disallowed\" means that the artist's songs cannot be used.\n\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed.",
-            acf.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
+            OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
             skippable=skippable, skipDefault=None
         )
         availabilityCorrespondence = {
@@ -238,7 +266,7 @@ class Submission(WaitFor):
         self.artist.artistData.name = await self.waitForResponse(ctx,
             "Artist Name",
             "Send the artist name.",
-            acf.OutputTypes.text,
+            OutputTypes.text,
             skippable=skippable, skipDefault=self.artist.artistData.name
         )
 
@@ -246,7 +274,7 @@ class Submission(WaitFor):
         aliasNames = await self.waitForResponse(ctx,
             "Artist Aliases",
             "Send other names that the artist goes by.",
-            acf.OutputTypes.listing,
+            OutputTypes.listing,
             skippable=skippable, skipDefault=None
         )
         self.artist.artistData.aliases = [{"name": alias} for alias in aliasNames] if aliasNames == None else self.artist.artistData.aliases
@@ -255,7 +283,7 @@ class Submission(WaitFor):
         self.artist.artistData.description = await self.waitForResponse(ctx,
             "Send a small description about the artist.",
             "You can put information about the artist here.",
-            acf.OutputTypes.text,
+            OutputTypes.text,
             skippable=skippable, skipDefault=self.artist.artistData.description
         )
 
@@ -263,7 +291,7 @@ class Submission(WaitFor):
         self.artist.artistData.notes = await self.waitForResponse(ctx,
             "Notes",
             "Send other notes you want to put in.",
-            acf.OutputTypes.text,
+            OutputTypes.text,
             skippable=skippable, skipDefault=self.artist.artistData.notes
         )
 
@@ -271,7 +299,7 @@ class Submission(WaitFor):
         self.artist.artistData.avatar = await self.waitForResponse(ctx,
             "Send an image to an avatar of the artist.",
             "This is the profile picture that the artist uses.",
-            acf.OutputTypes.image,
+            OutputTypes.image,
             skippable=skippable, skipDefault=self.artist.artistData.avatar
         )
 
@@ -279,7 +307,7 @@ class Submission(WaitFor):
         self.artist.artistData.banner = await self.waitForResponse(ctx,
             "Send an image to the banner of the artist.",
             "This is the banner that the artist uses.",
-            acf.OutputTypes.image,
+            OutputTypes.image,
             skippable=skippable, skipDefault=self.artist.artistData.banner
         )
 
@@ -287,7 +315,7 @@ class Submission(WaitFor):
         self.artist.artistData.tracks = await self.waitForResponse(ctx,
             "How many tracks does the artist have?",
             "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
-            acf.OutputTypes.number,
+            OutputTypes.number,
             skippable=skippable, skipDefault=self.artist.artistData.tracks
         )
 
@@ -295,7 +323,7 @@ class Submission(WaitFor):
         self.artist.artistData.genre = await self.waitForResponse(ctx,
             "What is the genre of the artist?",
             "This is the type of music that the artist makes.",
-            acf.OutputTypes.text,
+            OutputTypes.text,
             skippable=skippable, skipDefault=self.artist.artistData.genre
         )
 
@@ -304,7 +332,7 @@ class Submission(WaitFor):
         usageRights = await self.waitForResponse(ctx,
             "What are the usage rights for the artist?",
             "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
-            acf.OutputTypes.dictionary, choicesDict=["Verified", "Disallowed"],
+            OutputTypes.dictionary, choicesDict=["Verified", "Disallowed"],
             skippable=skippable, skipDefault={}
         )
         usageList = []
@@ -324,7 +352,7 @@ class Submission(WaitFor):
         socials = await self.waitForResponse(ctx,
             "Please put some links for the artist's social media here.",
             "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
-            acf.OutputTypes.links,
+            OutputTypes.links,
             skippable=True, skipDefault=[]
         )
         socialList = []
@@ -355,3 +383,103 @@ class Submission(WaitFor):
         data["artistInfo"]["data"]["usageRights"] = self.artist.artistData.usageRights
         data["artistInfo"]["data"]["socials"] = self.artist.artistData.socials
         return data
+    
+
+    statusKeys = {
+        0: "Completed",
+        1: "No Contact",
+        2: "Pending",
+        3: "Requested"
+    }
+
+    availabilityKeys = {
+        0: "Verified",
+        1: "Disallowed",
+        2: "Contact Required",
+        3: "Varies"
+    }
+
+    colorKeys = {
+        "Green": 0x00FF00,
+        "Red": 0xFF0000,
+        "Yellow": 0xFFFF00,
+        "Blue": 0x0000FF
+    }
+
+    async def generateEmbed(self):
+        description = self.artist.artistData.description
+
+        artName = self.artist.artistData.name
+        artVadbPage = self.artist.vadbPage
+        artAvatar = self.artist.artistData.avatar
+        artBanner = self.artist.artistData.banner
+
+        artAliases = self.artist.artistData.aliases
+        aliasList = [alias["name"] for alias in artAliases]
+        artAliases = f"`{'`, `'.join(aliasList)}`"
+
+        artId = self.artist.artistData.id
+        artId = artId if not artId == None else "Unknown"
+
+        if not self.user.id == None:
+            user: discord.User = await main.bot.fetch_user(self['userInfo']['id'])
+            userName = f"{user.name}#{user.discriminator}"
+            userId = user.id
+        else:
+            userName = "Unknown"
+            userId = "Unknown"
+
+        status = self.statusKeys[self.artist.artistData.status]
+        availability = self.availabilityKeys[self.artist.artistData.availability]
+
+        if status == "Completed":
+            if availability == "Verified":
+                color = self.colorKeys["Green"]
+            elif availability == "Disallowed":
+                color = self.colorKeys["Red"]
+            elif availability == "Contact Required":
+                color = self.colorKeys["Yellow"]
+            elif availability == "Varies":
+                color = self.colorKeys["Blue"]
+        elif status == "No Contact":
+            color = self.colorKeys["Yellow"]
+
+        usageRights = self.artist.artistData.usageRights
+        usageList = []
+        for entry in usageRights:
+            statusRights = entry["value"]
+            usageList.append(f"{entry['name']}: {'Verified' if statusRights else 'Disallowed'}")
+        usageRights = "\n".join(usageList)
+
+        socials = self.artist.artistData.socials
+        socialsList = []
+        for entry in socials:
+            link, domain = entry["url"], entry["type"]
+            socialsList.append(f"[{domain}]({link})")
+        socials = " ".join(socialsList)
+
+        notes = self.artist.artistData.notes
+        
+
+        embed = discord.Embed(title=f"Artist data for {artName}:", description="_ _", color=color)
+        embed.set_author(name=f"{artName} (ID: {artId})", url=artVadbPage, icon_url=artAvatar)
+        embed.set_thumbnail(url=artAvatar)
+        embed.set_image(url=artBanner)
+        embed.set_footer(text=f"Verification submitted by {userName} ({userId}).")
+
+        embed.add_field(name="Name:", value=f"**{artName}**")
+        embed.add_field(name="Aliases:", value=artAliases)
+
+        embed.add_field(name="Description:", value=description, inline=False)
+        embed.add_field(name="VADB Page:", value=f"[Click here!]({artVadbPage})", inline=False)
+
+        embed.add_field(name="Status:", value=status)
+        if status == "Completed":
+            embed.add_field(name="Availability:", value=f"**__{availability}__**")
+            embed.add_field(name="Specific usage rights:", value=f"`{usageRights}`")
+        
+        embed.add_field(name="Social links:", value=socials, inline=False)
+
+        embed.add_field(name="Other notes:", value=notes)
+
+        return embed
