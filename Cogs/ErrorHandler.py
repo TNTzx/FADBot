@@ -5,7 +5,6 @@ import datetime
 import asyncio
 
 from Functions import ExtraFunctions as ef
-from Functions.ArtistManagement import ArtistControlFunctions as acf
 from Functions.ArtistManagement import SubmissionClass as sc
 
 commandPrefix = main.commandPrefix

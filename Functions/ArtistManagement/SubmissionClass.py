@@ -216,11 +216,14 @@ class ArtistData:
         self.banner = defaultImage
         self.tracks = 0
         self.genre = "Mixed"
-        self.usageRights = {
+        self.usageRights = [{
                 "name": "All songs",
                 "value": True
-            }
-        self.socials = {}
+            }]
+        self.socials = [{
+            "url": "https://www.example.com",
+            "type": "No added links!"
+        }]
 
 class Artist:
     def __init__(self):
@@ -277,7 +280,7 @@ class Submission(ArtistFunctions):
             OutputTypes.listing,
             skippable=skippable, skipDefault=None
         )
-        self.artist.artistData.aliases = [{"name": alias} for alias in aliasNames] if aliasNames == None else self.artist.artistData.aliases
+        self.artist.artistData.aliases = [{"name": alias} for alias in aliasNames] if not aliasNames == None else self.artist.artistData.aliases
 
     async def setDescription(self, ctx, skippable=True):
         self.artist.artistData.description = await self.waitForResponse(ctx,
@@ -432,7 +435,7 @@ class Submission(ArtistFunctions):
 
         artAliases = self.artist.artistData.aliases
         aliasList = [alias["name"] for alias in artAliases]
-        artAliases = f"`{'`, `'.join(aliasList)}`"
+        artAliases = f"`{'`, `'.join(aliasList)}`" if len(aliasList) > 0 else None
 
         artId = self.artist.artistData.id
         artId = artId if not artId == None else "Unknown"
@@ -484,7 +487,8 @@ class Submission(ArtistFunctions):
         embed.set_footer(text=f"Verification submitted by {userName} ({userId}).")
 
         embed.add_field(name="Name:", value=f"**{artName}**")
-        embed.add_field(name="Aliases:", value=artAliases)
+        if not artAliases == None:
+            embed.add_field(name="Aliases:", value=artAliases)
 
         embed.add_field(name="Description:", value=description, inline=False)
         embed.add_field(name="VADB Page:", value=f"[Click here!]({artVadbPage})", inline=False)
