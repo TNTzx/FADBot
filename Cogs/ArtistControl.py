@@ -11,6 +11,7 @@ from Functions import ExtraFunctions as ef
 from Functions import FirebaseInteraction as fi
 from Functions.ArtistManagement import SubmissionClass as sc
 from Functions.ArtistManagement import ArtistDataFormat as adf
+from GlobalVariables import variables as varss
 
 
 class ArtistControl(cmds.Cog):
@@ -85,9 +86,15 @@ class ArtistControl(cmds.Cog):
         await subm.generateFromDict(testdata)
 
         await subm.editLoop(ctx)
+
+        async def submit(self: sc.Submission):
+            channels: list[discord.TextChannel] = [main.bot.get_channel(channelId["channel"]) for channelId in varss.sendLogs]
+            for channel in channels:
+                await channel.send(embed=await self.generateEmbed())
+        await submit(subm)
+
         await subm.deleteIsUsingCommand(ctx.author.id)
         
-
 
     @cw.command(
         category=cw.Categories.botControl,

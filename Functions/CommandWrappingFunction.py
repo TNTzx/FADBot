@@ -33,37 +33,30 @@ def command(
         ):
     
     def decorator(func):
-        async def conditionAdd(*args, **kwargs):
+        async def wrapper(*args, **kwargs):
+            self = args[0]
             ctx: cmds.Context = args[1]
             if requirePAModerator:
                 canVerify = vars.canVerify
-                serverId = ctx.guild.id
 
-                async def sendError():
+                async def check():
+                    if ctx.author.id in canVerify["users"]:
+                        return True
+                    if ctx.guild.id in canVerify["servers"]:
+                        for role in ctx.author.roles:
+                            if role.id in canVerify["servers"][ctx.guild.id]:
+                                return True
+
+                if not await check():
                     await ef.sendError(ctx, "You don't have proper moderation permissions! Only moderators from official servers may do this command!")
                     return
 
-                if not serverId in canVerify.keys():
-                    await sendError()
-                    return
-
-                memberRoles = canVerify[serverId]
-
-                hasCorrectRole = False
-                for role in ctx.author.roles:
-                    if role.id in memberRoles:
-                        hasCorrectRole = True
-                        break
-                if not hasCorrectRole:
-                    await sendError()
-                    return
-
-            if not showCondition(args[1]):
+            if not showCondition(ctx):
                 ctx.command.reset_cooldown(ctx)
                 return
             return await func(*args, **kwargs)
 
-        wrapped = cmds.command(name=func.__name__, aliases=aliases)(conditionAdd)
+        wrapped = cmds.command(name=func.__name__, aliases=aliases)(wrapper)
 
 
 

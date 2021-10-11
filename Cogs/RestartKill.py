@@ -31,6 +31,11 @@ class RestartKill(cmds.Cog):
         await ctx.send("Terminated bot.")
         await main.bot.logout()
 
+    @cw.command(
+        requirePAModerator=True
+    )
+    async def test(self, ctx):
+        await ctx.send("win")
 
 def setup(bot):
     bot.add_cog(RestartKill(bot))
