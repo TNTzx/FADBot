@@ -1,9 +1,6 @@
 import discord
 import discord.ext.commands as commands
-import json
-import pyrebase
 import os
-import asyncio
 
 
 commandPrefix = "##"

@@ -42,6 +42,10 @@ canVerify = {
   ]
 }
 
+devs = [
+  279803094722674693
+]
+
 # Where to send
 sendLogs = [
     {
