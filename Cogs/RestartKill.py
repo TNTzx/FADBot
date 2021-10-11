@@ -41,7 +41,7 @@ class RestartKill(cmds.Cog):
     )
     async def switchrestarthard(self, ctx):
         await ctx.send("Restart initiated!")
-        print(sys.executable, sys.argv)
+        print("\n \n Restart break! Hard! -------------------------------------- \n \n")
         args = ['python'] + [f"\"{sys.argv[0]}\""]
         os.execv(sys.executable, args)
 

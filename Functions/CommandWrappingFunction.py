@@ -70,8 +70,10 @@ def command(
                     return
 
             if requireGuildOwner:
-                if not ctx.author == ctx.guild.owner:
+                print(ctx.guild.id)
+                if not ctx.author.id == ctx.guild.owner.id:
                     await sendError("Only the server owner can do this command!")
+                    return
             
             if requireGuildAdmin:
                 async def checkAdmin():

@@ -5,8 +5,13 @@ import os
 
 commandPrefix = "##"
 bot = discord.Client()
-bot = commands.Bot(command_prefix=commandPrefix)
+
+intents = discord.Intents.default()
+intents.members = True
+
+bot = commands.Bot(command_prefix=commandPrefix, intents=intents)
 bot.remove_command("help")
+
 
 # Load all cogs
 print("Loading cogs...")
@@ -22,8 +27,6 @@ print("Loaded all cogs!")
 
 
 # Important commands
-print("Loading important commands...")
-
 def restartBot():
     for filename in allCogs():
             if filename.endswith(".py"):
@@ -34,7 +37,10 @@ def restartBot():
                     continue
                 bot.load_extension(newName)
 
-print("Loaded all important commands!")
+def testForCommands(command):
+    print(bot.all_commands.keys(), command in bot.all_commands.keys())
+
+# testForCommands("test")
 
 # Log in
 print("Logging into bot...")
