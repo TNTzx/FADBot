@@ -40,6 +40,7 @@ def command(
         ):
     
     def decorator(func):
+        @fc.wraps(func)
         async def wrapper(*args, **kwargs):
             self = args[0]
             ctx: cmds.Context = args[1]
@@ -70,7 +71,6 @@ def command(
                     return
 
             if requireGuildOwner:
-                print(ctx.guild.id)
                 if not ctx.author.id == ctx.guild.owner.id:
                     await sendError("Only the server owner can do this command!")
                     return
@@ -96,15 +96,15 @@ def command(
                 return
             return await func(*args, **kwargs)
 
-        wrapped = cmds.command(name=func.__name__, aliases=aliases)(wrapper)
+        wrapper = cmds.command(name=func.__name__, aliases=aliases)(wrapper)
 
 
 
         if guildOnly:
-            wrapped = cmds.guild_only()(wrapped)
+            wrapper = cmds.guild_only()(wrapper)
 
         if cooldown > 0:
-            wrapped = cmds.cooldown(1, cooldown, cooldownType)(wrapped)
+            wrapper = cmds.cooldown(1, cooldown, cooldownType)(wrapper)
 
 
         cdTypeGotten = cooldownType
@@ -132,7 +132,7 @@ def command(
         helpData[category][func.__name__] = cmdData
 
 
-        return wrapped
+        return wrapper
 
     return decorator
 

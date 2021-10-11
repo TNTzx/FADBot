@@ -17,7 +17,6 @@ class ErrorHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc):
-
         def checkexc(type):
             return isinstance(exc, type)
     
@@ -38,10 +37,13 @@ class ErrorHandler(commands.Cog):
             await ef.sendError(ctx, "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!", resetCooldown=True)
             return
         
+        elif checkexc(commands.MissingRequiredArgument):
+            await ef.sendError(ctx, f"Make sure you have the correct parameters! Use `{main.commandPrefix}help` to get help!")
+            return
+        
         elif checkexc(commands.NoPrivateMessage):
             await ef.sendError(ctx, "This command is disabled in DMs!", resetCooldown=True)
             return
-
         
         elif checkexc(commands.CommandInvokeError):
             if (str(exc.__cause__) == "Exited Function."):

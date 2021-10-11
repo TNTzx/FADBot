@@ -46,10 +46,8 @@ class RestartKill(cmds.Cog):
         os.execv(sys.executable, args)
 
 
-    @cw.command(
-        requirePAModerator=True
-    )
-    async def test(self, ctx):
+    @cw.command()
+    async def test(self, ctx, a):
         await ctx.send("win")
 
 def setup(bot):
