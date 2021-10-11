@@ -1,5 +1,6 @@
 import discord
 import discord.ext.commands as cmds
+import os, sys
 
 import main
 from Functions import CommandWrappingFunction as cw
@@ -12,7 +13,7 @@ class RestartKill(cmds.Cog):
         category=cw.Categories.botControl,
         description="Restarts the bot.",
         aliases=["sr"],
-        requireGuildAdmin=True
+        requireDev=True
     )
     async def switchrestart(self, ctx):
         await ctx.send("Restarting bot...")
@@ -25,11 +26,25 @@ class RestartKill(cmds.Cog):
         category=cw.Categories.botControl,
         description="Shuts down the bot.",
         aliases=["sk"],
-        requireGuildAdmin=True
+        requireDev=True
     )
     async def switchkill(self, ctx):
         await ctx.send("Terminated bot.")
         await main.bot.logout()
+
+
+    @cw.command(
+        category=cw.Categories.botControl,
+        description=f"Like {main.commandPrefix}restart, but hard.",
+        aliases=["srh"],
+        requireDev=True
+    )
+    async def switchrestarthard(self, ctx):
+        await ctx.send("Restart initiated!")
+        print(sys.executable, sys.argv)
+        args = ['python'] + [f"\"{sys.argv[0]}\""]
+        os.execv(sys.executable, args)
+
 
     @cw.command(
         requirePAModerator=True

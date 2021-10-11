@@ -11,7 +11,7 @@ class InitializeOnJoin(cmds.Cog):
 
     @cmds.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
-        if not guild.id in fi.getData(['guildData']):
+        if not guild.id in fi.getData(['guildData']).keys():
             fi.createData(['guildData', guild.id], defaults.default["guildData"]["guildId"])
 
 

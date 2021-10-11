@@ -5,12 +5,14 @@ import functools as fc
 from Functions import FirebaseInteraction as fi
 from GlobalVariables import variables as varss
 from Functions import ExtraFunctions as ef
+from Functions import CustomExceptions as ce
 
 
 class Categories:
     artistManagement = "Artist Management"
     basicCommands = "Basic Commands"
     botControl = "Bot Control"
+    moderation = "Moderation"
 
 
 helpData = {}
@@ -73,7 +75,11 @@ def command(
             
             if requireGuildAdmin:
                 async def checkAdmin():
-                    adminRoles = fi.getData(['guildData', ctx.guild.id, 'adminRole'])
+                    try:
+                        adminRoles = fi.getData(['guildData', ctx.guild.id, 'adminRole'])
+                    except ce.FirebaseNoEntry:
+                        return False
+
                     for role in ctx.author.roles:
                         if role in adminRoles:
                             return True
