@@ -40,6 +40,7 @@ class RestartKill(cmds.Cog):
         category=cw.Categories.botControl,
         description=f"Like {main.commandPrefix}restart, but hard.",
         aliases=["srh"],
+        guildOnly=False,
         requireDev=True
     )
     async def switchrestarthard(self, ctx):

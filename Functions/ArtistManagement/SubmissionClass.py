@@ -205,7 +205,7 @@ class OutputTypes():
 
 class ArtistData:
     def __init__(self):
-        self.status = 0
+        self.status = 2
         self.availability = 0
         self.id = None
         self.name = ""
@@ -424,7 +424,7 @@ class Submission(ArtistFunctions):
         "Blue": 0x0000FF
     }
 
-    async def generateEmbed(self):
+    async def generateEmbed(self, editing=False):
         description = self.artist.artistData.description
 
         artName = self.artist.artistData.name
@@ -459,7 +459,7 @@ class Submission(ArtistFunctions):
                 color = self.colorKeys["Yellow"]
             elif availability == "Varies":
                 color = self.colorKeys["Blue"]
-        elif status == "No Contact":
+        elif status in ["No Contact", "Pending"]:
             color = self.colorKeys["Yellow"]
 
         usageRights = self.artist.artistData.usageRights
@@ -479,21 +479,25 @@ class Submission(ArtistFunctions):
         notes = self.artist.artistData.notes
         
 
+        def editFormat(prefix):
+            return f" (`{main.commandPrefix}edit {prefix}`)" if editing else ""
+
+
         embed = discord.Embed(title=f"Artist data for {artName}:", description="_ _", color=color)
         embed.set_author(name=f"{artName} (ID: {artId})", url=artVadbPage, icon_url=artAvatar)
         embed.set_thumbnail(url=artAvatar)
         embed.set_image(url=artBanner)
         embed.set_footer(text=f"Verification submitted by {userName} ({userId}).")
 
-        embed.add_field(name="Name:", value=f"**{artName}**")
+        embed.add_field(name=f"Name{editFormat('name')}:", value=f"**{artName}**")
         if not artAliases == None:
-            embed.add_field(name="Aliases:", value=artAliases)
+            embed.add_field(name=f"Aliases{editFormat('aliases')}:", value=artAliases)
 
         embed.add_field(name="Description:", value=description, inline=False)
         embed.add_field(name="VADB Page:", value=f"[Click here!]({artVadbPage})", inline=False)
 
         embed.add_field(name="Status:", value=status)
-        if status == "Completed":
+        if status == "Completed" or editing:
             embed.add_field(name="Availability:", value=f"**__{availability}__**")
             embed.add_field(name="Specific usage rights:", value=f"`{usageRights}`")
         

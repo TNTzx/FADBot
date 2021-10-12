@@ -51,6 +51,7 @@ class ArtistControl(cmds.Cog):
         # await subm.setGenre(ctx)
         # await subm.setUsageRights(ctx)
         # await subm.setSocials(ctx)
+        # await subm.setNotes(ctx)
 
         testdata = {
             'userInfo': {
@@ -68,7 +69,7 @@ class ArtistControl(cmds.Cog):
                     'description': 'I am a contacted artist! :D', 
                     'tracks': 0, 
                     'genre': 'Mixed', 
-                    'status': 0, 
+                    'status': 2, 
                     'availability': 0, 
                     'notes': 'text', 
                     'usageRights': [{
@@ -89,7 +90,6 @@ class ArtistControl(cmds.Cog):
 
         async def submit(self: sc.Submission):
             canLog = fi.getData(['mainData', 'canLog'])
-            print(canLog)
             channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
             for channel in channels:
                 await channel.send(embed=await self.generateEmbed())
