@@ -47,7 +47,7 @@ class RestartKill(cmds.Cog):
 
 
     @cw.command(
-        requireGuildAdmin=True
+        requireDev=True
     )
     async def test(self, ctx):
         await ctx.send("win")

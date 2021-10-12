@@ -45,20 +45,22 @@ def command(
             self = args[0]
             ctx: cmds.Context = args[1]
 
+            devs = fi.getData(['mainData', 'devs'])
+
             async def sendError(suffix):
                 await ef.sendError(ctx, f"You don't have proper permissions! {suffix}")
                 return
 
             if requireDev:
-                if not ctx.author.id in varss.devs:
+                if not ctx.author.id in devs:
                     await sendError("Only developers of this bot may do this command!")
                     return
 
             if requirePAModerator:
-                canVerify = varss.canVerify
+                canVerify = fi.getData(['mainData', 'canVerify'])
 
                 async def checkVerify():
-                    if ctx.author.id in canVerify["users"]:
+                    if ctx.author.id in canVerify["users"] + devs:
                         return True
                     if ctx.guild.id in canVerify["servers"]:
                         for role in ctx.author.roles:
