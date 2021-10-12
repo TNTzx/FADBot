@@ -88,7 +88,9 @@ class ArtistControl(cmds.Cog):
         await subm.editLoop(ctx)
 
         async def submit(self: sc.Submission):
-            channels: list[discord.TextChannel] = [main.bot.get_channel(channelId["channel"]) for channelId in varss.sendLogs]
+            canLog = fi.getData(['mainData', 'canLog'])
+            print(canLog)
+            channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
             for channel in channels:
                 await channel.send(embed=await self.generateEmbed())
         await submit(subm)

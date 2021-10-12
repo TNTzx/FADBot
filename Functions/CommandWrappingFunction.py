@@ -52,7 +52,7 @@ def command(
                 return
 
             if requireDev:
-                if not ctx.author.id in devs:
+                if not str(ctx.author.id) in devs:
                     await sendError("Only developers of this bot may do this command!")
                     return
 
@@ -60,11 +60,11 @@ def command(
                 canVerify = fi.getData(['mainData', 'canVerify'])
 
                 async def checkVerify():
-                    if ctx.author.id in canVerify["users"] + devs:
+                    if str(ctx.author.id) in canVerify["users"] + devs:
                         return True
-                    if ctx.guild.id in canVerify["servers"]:
+                    if str(ctx.guild.id) in canVerify["servers"]:
                         for role in ctx.author.roles:
-                            if role.id in canVerify["servers"][ctx.guild.id]:
+                            if str(role.id) in canVerify["servers"][str(ctx.guild.id)]:
                                 return True
                     return False
 

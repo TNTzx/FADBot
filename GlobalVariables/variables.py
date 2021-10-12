@@ -30,17 +30,17 @@ apiHeaders = {
 }
 
 
-# Authorization
-canVerify = {
-  "servers": {
-    734204348665692181: [
-      886608688318656552
-    ]
-  },
-  "users": [
-    279803094722674693
-  ]
-}
+# # Authorization
+# canVerify = {
+#   "servers": {
+#     734204348665692181: [
+#       886608688318656552
+#     ]
+#   },
+#   "users": [
+#     279803094722674693
+#   ]
+# }
 
 
 # Where to send

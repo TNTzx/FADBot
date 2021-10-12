@@ -1,4 +1,5 @@
 import discord
+from discord import guild
 import discord.ext.commands as cmds
 import os, sys
 
@@ -13,7 +14,8 @@ class RestartKill(cmds.Cog):
         category=cw.Categories.botControl,
         description="Restarts the bot.",
         aliases=["sr"],
-        requireDev=True
+        guildOnly=False,
+        requireDev=True,
     )
     async def switchrestart(self, ctx):
         await ctx.send("Restarting bot...")
@@ -26,6 +28,7 @@ class RestartKill(cmds.Cog):
         category=cw.Categories.botControl,
         description="Shuts down the bot.",
         aliases=["sk"],
+        guildOnly=False,
         requireDev=True
     )
     async def switchkill(self, ctx):
@@ -47,7 +50,7 @@ class RestartKill(cmds.Cog):
 
 
     @cw.command(
-        requireDev=True
+        requirePAModerator=True
     )
     async def test(self, ctx):
         await ctx.send("win")
