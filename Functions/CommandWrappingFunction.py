@@ -78,12 +78,13 @@ def command(
             if requireGuildAdmin:
                 async def checkAdmin():
                     try:
-                        adminRoles = fi.getData(['guildData', ctx.guild.id, 'adminRole'])
+                        adminRole = fi.getData(['guildData', ctx.guild.id, 'adminRole'])
+                        adminRole = int(adminRole)
                     except ce.FirebaseNoEntry:
                         return False
 
                     for role in ctx.author.roles:
-                        if role in adminRoles:
+                        if role.id == adminRole:
                             return True
                     return False
                 
@@ -97,8 +98,6 @@ def command(
             return await func(*args, **kwargs)
 
         wrapper = cmds.command(name=func.__name__, aliases=aliases)(wrapper)
-
-
 
         if guildOnly:
             wrapper = cmds.guild_only()(wrapper)

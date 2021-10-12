@@ -6,10 +6,11 @@ from Functions import CommandWrappingFunction as cw
 from Functions import FirebaseInteraction as fi
 from GlobalVariables import defaults
 
-def updateDatabase():
+async def updateDatabase():
+    guildData: dict = fi.getData(['guildData'])
     for guildClient in main.bot.guilds:
-            if not guildClient.id in fi.getData(['guildData']).keys():
-                fi.createData(['guildData', guildClient.id], defaults.default["guildData"]["guildId"])
+        if not str(guildClient.id) in guildData.keys():
+            fi.createData(['guildData', guildClient.id], defaults.default["guildData"]["guildId"])
 
 class Hello(cmds.Cog):
     def __init__(self, bot):
@@ -18,11 +19,22 @@ class Hello(cmds.Cog):
     @cmds.Cog.listener()
     async def on_ready(self):
         print(f"Logged in as {self.bot.user}.")
-        updateDatabase()
+        await updateDatabase()
     
     @cmds.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
-        updateDatabase()
+        await updateDatabase()
+
+    @cw.command(
+        category=cw.Categories.basicCommands,
+        description="Updates the database manually.",
+        aliases=['ud'],
+        requireDev=True
+    )
+    async def updatedatabase(self, ctx: cmds.Context):
+        await updateDatabase()
+        await ctx.send("Database updated.")
+
 
     @cw.command(
         category=cw.Categories.basicCommands,

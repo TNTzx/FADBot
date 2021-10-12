@@ -46,8 +46,10 @@ class RestartKill(cmds.Cog):
         os.execv(sys.executable, args)
 
 
-    @cw.command()
-    async def test(self, ctx, a):
+    @cw.command(
+        requireGuildAdmin=True
+    )
+    async def test(self, ctx):
         await ctx.send("win")
 
 def setup(bot):
