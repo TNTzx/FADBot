@@ -34,13 +34,13 @@ class ArtistFunctions:
     async def sendError(self, ctx, suffix):
         await ef.sendError(ctx, f"{suffix} Try again.", sendToAuthor=True)
     
-    timeout = 60 * 10
     async def waitFor(self, ctx):
         try:
             response: discord.Message = await main.bot.wait_for("message", check=lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel), timeout=timeout)
             ef.otherData = response
         except asyncio.TimeoutError:
-            await ef.sendError(f"Command timed out. Please use {main.commandPrefix}artistadd again.")
+            await self.deleteIsUsingCommand(ctx.author.id)
+            await ef.sendError(ctx, f"Command timed out. Please use the command again.")
             raise ce.ExitFunction("Exited Function.")
         return response
 
