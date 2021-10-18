@@ -14,12 +14,41 @@ class Categories:
     botControl = "Bot Control"
     moderation = "Moderation"
 
+class Cooldown:
+    length: int = 0
+    typeOfCooldown: str = cmds.BucketType.channel
 
-helpData = {}
+class Require:
+    def __init__(self):
+        self.guildOwner: bool = False
+        self.guildAdmin: bool = False
+        self.dev: bool = False
+
+class Helps:
+    def __init__(self):
+        self.category: str = ""
+        self.description: str = ""
+        self.parameters = {}
+        self.aliases = []
+        self.guildOnly: bool = True
+        self.cooldown: Cooldown = Cooldown()
+        self.require: Require = Require()
+        self.showCondition: function = lambda ctx: True
+        self.exampleUsage = []
+    
+class CustomCommandClass:
+    def __init__(self):
+        self.name: str = ""
+        self.help: Helps = Helps()
+
+class ListOfCommands:
+    commandsAll = {}
+    commands = {}
+
 
 for attribute in dir(Categories):
     if not attribute.startswith("__"):
-        helpData[getattr(Categories, attribute)] = {}
+        ListOfCommands.commandsAll[getattr(Categories, attribute)] = []
 
 
 def command(
@@ -51,48 +80,57 @@ def command(
                 await ef.sendError(ctx, f"You don't have proper permissions! {suffix}")
                 return
 
+
+            async def checkPAMod():
+                if str(ctx.author.id) in canVerify["users"] + devs:
+                    return True
+                if str(ctx.guild.id) in canVerify["servers"]:
+                    for role in ctx.author.roles:
+                        if str(role.id) in canVerify["servers"][str(ctx.guild.id)]:
+                            return True
+                return False
+
+            async def checkAdmin():
+                try:
+                    adminRole = fi.getData(['guildData', str(ctx.guild.id), 'adminRole'])
+                    adminRole = int(adminRole)
+                except ce.FirebaseNoEntry:
+                    return False
+
+                for role in ctx.author.roles:
+                    if role.id == adminRole:
+                        return True
+                return False
+            
+            async def checkOwner():
+                return ctx.author.id == ctx.guild.owner.id
+            
+            async def checkDev():
+                return str(ctx.author.id) in devs
+                
+
             if requireDev:
-                if not str(ctx.author.id) in devs:
+                if not await checkDev():
                     await sendError("Only developers of this bot may do this command!")
                     return
 
             if requirePAModerator:
                 canVerify = fi.getData(['mainData', 'canVerify'])
 
-                async def checkVerify():
-                    if str(ctx.author.id) in canVerify["users"] + devs:
-                        return True
-                    if str(ctx.guild.id) in canVerify["servers"]:
-                        for role in ctx.author.roles:
-                            if str(role.id) in canVerify["servers"][str(ctx.guild.id)]:
-                                return True
-                    return False
-
-                if not await checkVerify():
+                if not await checkPAMod():
                     await sendError("Only moderators from official servers may do this command!")
                     return
 
             if requireGuildOwner:
-                if not ctx.author.id == ctx.guild.owner.id:
+                if not await checkOwner():
                     await sendError("Only the server owner can do this command!")
                     return
             
             if requireGuildAdmin:
-                async def checkAdmin():
-                    try:
-                        adminRole = fi.getData(['guildData', ctx.guild.id, 'adminRole'])
-                        adminRole = int(adminRole)
-                    except ce.FirebaseNoEntry:
-                        return False
-
-                    for role in ctx.author.roles:
-                        if role.id == adminRole:
-                            return True
-                    return False
-                
                 if not await checkAdmin():
                     await sendError("Only admins of this server may do this command!")
                     return
+
 
             if not showCondition(ctx):
                 ctx.command.reset_cooldown(ctx)
@@ -108,30 +146,38 @@ def command(
             wrapper = cmds.cooldown(1, cooldown, cooldownType)(wrapper)
 
 
-        cdTypeGotten = cooldownType
-        if cdTypeGotten == cmds.BucketType.user:
-            cdTypeGot = "User"
-        elif cdTypeGotten == cmds.BucketType.guild:
-            cdTypeGot = "Entire Server"
-        else:
-            cdTypeGot = "Not Defined"
+        cmd = CustomCommandClass()
+        
+        cmd.name = func.__name__
+        help = cmd.help
 
+        help.category = category
+        help.description = description
+        help.parameters = parameters
+        help.aliases = aliases
+        help.cooldown.length = cooldown
+        help.cooldown.typeOfCooldown = cooldownType
+        help.guildOnly = guildOnly
 
-        cmdData = {
-            "description": description,
-            "parameters": parameters,
-            "aliases": aliases,
-            "guildOnly": guildOnly,
-            "cooldown": {
-                "length": cooldown,
-                "type": cdTypeGot
-            },
-            "requireAdmin": requireGuildAdmin,
-            "showCondition": showCondition,
-            "exampleUsage": exampleUsage
-        }
-        helpData[category][func.__name__] = cmdData
+        require = help.require
+        require.dev = requireDev
+        require.guildAdmin = requireGuildAdmin
+        require.guildOwner = requireGuildOwner
+        help.require = require
 
+        help.showCondition = showCondition
+        help.exampleUsage = exampleUsage
+
+        cmd.help = help
+
+        if not cmd.name in ListOfCommands.commandsAll[category]:
+            ListOfCommands.commandsAll[category].append(cmd.name)
+
+        if not cmd.name in ListOfCommands.commands.keys():
+            ListOfCommands.commands[cmd.name] = cmd
+        for alias in aliases:
+            if not alias in ListOfCommands.commands.keys():
+                ListOfCommands.commands[alias] = cmd
 
         return wrapper
 

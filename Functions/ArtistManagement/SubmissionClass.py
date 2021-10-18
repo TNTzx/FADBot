@@ -548,3 +548,5 @@ class Submission(ArtistFunctions):
             
             else:
                 await self.sendError(ctx, "You didn't send a command!")
+
+    

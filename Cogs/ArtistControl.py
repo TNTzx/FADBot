@@ -90,9 +90,10 @@ class ArtistControl(cmds.Cog):
 
         async def submit(self: sc.Submission):
             canLog = fi.getData(['mainData', 'canLog'])
-            channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
+            channels = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
             for channel in channels:
                 await channel.send(embed=await self.generateEmbed())
+            
         await submit(subm)
 
         await subm.deleteIsUsingCommand(ctx.author.id)
