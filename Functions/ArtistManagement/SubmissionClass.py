@@ -1,6 +1,7 @@
 import discord
 import discord.ext.commands as cmds
 import asyncio
+import json
 
 import requests as req
 import tldextract as tld
@@ -10,6 +11,7 @@ from Functions import CustomExceptions as ce
 from Functions import ExtraFunctions as ef
 from Functions.ArtistManagement import ArtistDataFormat as adf
 from Functions import FirebaseInteraction as fi
+from Functions import RequestAPI as rqapi
 
 
 timeout = 60 * 10
@@ -154,8 +156,8 @@ class ArtistFunctions:
 
         success = True
         while success:
-            title = title if not skippable else f"{title} (skippable)"
-            embed = discord.Embed(title=title, description=description)
+            titleForm = title if not skippable else f"{title} (skippable)"
+            embed = discord.Embed(title=titleForm, description=description)
             embed.add_field(name="_ _", value="_ _", inline=False)
 
             fieldName = f"You have to send {outputType['prefix']} {outputType['type']}!"
@@ -224,6 +226,28 @@ class ArtistData:
             "url": "https://www.example.com",
             "type": "No added links!"
         }]
+    
+    def dictInitial(self):
+        return {
+            "name": self.name,
+            "status": self.status,
+            "availability": self.availability
+        }
+    
+    def dictEdit(self):
+        return {
+            "name": self.name,
+            "avatar": self.avatar,
+            "banner": self.banner,
+            "description": self.description,
+            "tracks": self.tracks,
+            "genre": self.genre,
+            "status": self.status,
+            "availability": self.availability,
+            "notes": self.notes,
+            "usageRights": self.usageRights,
+            "socials": self.socials
+        }
 
 class Artist:
     def __init__(self):
@@ -493,17 +517,16 @@ class Submission(ArtistFunctions):
         if not artAliases == None:
             embed.add_field(name=f"Aliases{editFormat('aliases')}:", value=artAliases)
 
-        embed.add_field(name="Description:", value=description, inline=False)
+        embed.add_field(name=f"Description{editFormat('description')}:", value=description, inline=False)
         embed.add_field(name="VADB Page:", value=f"[Click here!]({artVadbPage})", inline=False)
 
         embed.add_field(name="Status:", value=status)
-        if status == "Completed" or editing:
-            embed.add_field(name="Availability:", value=f"**__{availability}__**")
-            embed.add_field(name="Specific usage rights:", value=f"`{usageRights}`")
+        embed.add_field(name=f"Availability{editFormat('availability')}:", value=f"**__{availability}__**", inline=False)
+        embed.add_field(name=f"Specific usage rights{editFormat('usageRights')}:", value=f"`{usageRights}`")
         
-        embed.add_field(name="Social links:", value=socials, inline=False)
+        embed.add_field(name=f"Social links{editFormat('socials')}:", value=socials, inline=False)
 
-        embed.add_field(name="Other notes:", value=notes)
+        embed.add_field(name=f"Other notes{editFormat('notes')}:", value=notes)
 
         return embed
 
@@ -526,7 +549,7 @@ class Submission(ArtistFunctions):
         while True:
             await ctx.author.send(f"This is the generated artist profile.\nUse `{main.commandPrefix}edit <property>` to edit a property, `{main.commandPrefix}submit` to submit this verification for approval, or `{main.commandPrefix}cancel` to cancel this command.")
             
-            await ctx.author.send(embed=await self.generateEmbed())
+            await ctx.author.send(embed=await self.generateEmbed(editing=True))
     
             message: discord.Message = await self.waitFor(ctx)
             command = message.content.split(" ")
@@ -550,3 +573,21 @@ class Submission(ArtistFunctions):
                 await self.sendError(ctx, "You didn't send a command!")
 
     
+    async def submitInitial(self):
+        print(self.artist.artistData.dictInitial())
+        rqapi.makeRequest("POST", "/artist", json=self.artist.artistData.dictInitial())
+    
+    async def submitEdit(self):
+        rqapi.makeRequest("PATCH", f"/artist/{self.artist.artistData.name}", json=self.artist.artistData.dictEdit())
+
+    async def submit(self):
+        canLog = fi.getData(['mainData', 'canLog'])
+        channels = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
+        for channel in channels:
+            await channel.send("A new artist has been submitted and is now waiting approval from PA moderators.")
+            await channel.send(embed=await self.generateEmbed())
+
+        print(self.artist.artistData.dictInitial())
+        print(self.artist.artistData.dictEdit())
+        await self.submitInitial()
+        await self.submitEdit()

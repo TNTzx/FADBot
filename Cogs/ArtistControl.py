@@ -88,15 +88,13 @@ class ArtistControl(cmds.Cog):
 
         await subm.editLoop(ctx)
 
-        async def submit(self: sc.Submission):
-            canLog = fi.getData(['mainData', 'canLog'])
-            channels = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
-            for channel in channels:
-                await channel.send(embed=await self.generateEmbed())
-            
-        await submit(subm)
+        
+        
+        await ctx.send("Submitting...")
+        await subm.submit()
+        await ctx.send("The verification form has been submitted. Please wait for the moderators to verify your submission.")
 
-        await subm.deleteIsUsingCommand(ctx.author.id)
+        await sc.Submission.deleteIsUsingCommand(sc.Submission(), ctx.author.id)
         
 
     @cw.command(
