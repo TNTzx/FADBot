@@ -272,7 +272,7 @@ class Submission(ArtistFunctions):
         self.user = User()
         self.artist = Artist()
     
-    
+
     async def setProof(self, ctx, skippable=False):
         self.artist.proof = await self.waitForResponse(ctx, 
             "Please send proof that you contacted the artist.",
@@ -589,11 +589,11 @@ class Submission(ArtistFunctions):
         return rqapi.makeRequest("PATCH", f"/artist/{self.artist.artistData.name}", data=self.artist.artistData.dictEdit())
 
     async def create(self):
-        # canLog = fi.getData(['mainData', 'canLog'])
-        # channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
-        # for channel in channels:
-        #     await channel.send("A new artist has been submitted and is now waiting approval from PA moderators.")
-        #     await channel.send(embed=await self.generateEmbed())
+        canLog = fi.getData(['mainData', 'canLog'])
+        channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
+        for channel in channels:
+            await channel.send("A new artist has been submitted and is now waiting approval from PA moderators.")
+            await channel.send(embed=await self.generateEmbed())
 
         submitInitial = await self.submitInitial()
         submitEdit = await self.submitEdit()
