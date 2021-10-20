@@ -78,7 +78,7 @@ class ArtistControl(cmds.Cog):
                         'avatarUrl': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg', 
                         'bannerUrl': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg',
                         'socials': [{
-                            "url": "https://www.example.com",
+                            "link": "https://www.example.com",
                             "type": "No added links!"
                         }]
                     }

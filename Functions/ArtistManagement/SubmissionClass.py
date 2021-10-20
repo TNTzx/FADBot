@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import discord
 import discord.ext.commands as cmds
 import asyncio
@@ -241,6 +243,7 @@ class ArtistData:
     def dictEdit(self):
         return {
             "name": self.name,
+            "aliases": self.aliases,
             "description": self.description,
             "tracks": self.tracks,
             "genre": self.genre,
@@ -248,11 +251,9 @@ class ArtistData:
             "availability": self.availability,
             "notes": self.notes,
             "usageRights": self.usageRights,
-            "details": {
-                "avatarUrl": self.details.avatar,
-                "bannerUrl": self.details.banner,
-                "socials": self.details.socials
-            }
+            "avatarUrl": self.details.avatar,
+            "bannerUrl": self.details.banner,
+            "socials": self.details.socials
         }
 
 class Artist:
@@ -271,7 +272,7 @@ class Submission(ArtistFunctions):
         self.user = User()
         self.artist = Artist()
     
-
+    
     async def setProof(self, ctx, skippable=False):
         self.artist.proof = await self.waitForResponse(ctx, 
             "Please send proof that you contacted the artist.",
@@ -503,7 +504,7 @@ class Submission(ArtistFunctions):
         socials = self.artist.artistData.details.socials
         socialsList = []
         for entry in socials:
-            link, domain = entry["url"], entry["type"]
+            link, domain = entry["link"], entry["type"]
             socialsList.append(f"[{domain}]({link})")
         socials = " ".join(socialsList)
 
@@ -588,13 +589,14 @@ class Submission(ArtistFunctions):
         return rqapi.makeRequest("PATCH", f"/artist/{self.artist.artistData.name}", data=self.artist.artistData.dictEdit())
 
     async def create(self):
-        canLog = fi.getData(['mainData', 'canLog'])
-        channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
-        for channel in channels:
-            await channel.send("A new artist has been submitted and is now waiting approval from PA moderators.")
-            await channel.send(embed=await self.generateEmbed())
+        # canLog = fi.getData(['mainData', 'canLog'])
+        # channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
+        # for channel in channels:
+        #     await channel.send("A new artist has been submitted and is now waiting approval from PA moderators.")
+        #     await channel.send(embed=await self.generateEmbed())
 
         submitInitial = await self.submitInitial()
         submitEdit = await self.submitEdit()
-
+        pprint(self.artist.artistData.dictInitial())
+        pprint(self.artist.artistData.dictEdit())
         print(submitEdit)
