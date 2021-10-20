@@ -13,8 +13,6 @@ dataFormat = {
                     "name": "Alias"
                 }
             ],
-            "avatar": "AvatarLink",
-            "banner": "BannerLink, Optional",
             "description": "Description",
             "tracks": 1, #AmountOfTracks, int
             "genre": "Genre",
@@ -41,17 +39,47 @@ dataFormat = {
                     "value": False
                 }
             ],
-            "socials": [
-                { 
-                    "url": "funnyurl",
-                    "type": "type"
-                },
-                {
-                    "url": "anotherfunnyurl",
-                    "type": "type"
-                }
-            ],
+            "details": {
+                "avatarUrl": "AvatarLink",
+                "bannerUrl": "BannerLink, Optional",
+                "socials": [
+                    { 
+                        "link": "funnyurl",
+                        "type": "type"
+                    },
+                    {
+                        "link": "anotherfunnyurl",
+                        "type": "type"
+                    }
+                ],
+            },
             "notes": "text"
         }
     }
 }
+
+# beans = {
+#     "data": {
+#         "id":18,
+#         "name":"TheFatRat",
+#         "aliases":[{"name":"ThisIsTheFatRat"}],
+#         "description":"rat fat",
+#         "tracks":72,
+#         "genre":"EDM",
+#         "status":0,
+#         "availability":3,
+#         "notes":"",
+#         "usageRights":[
+#             {"name":"All songs","value":true},
+#             {"name":"Remixes","value":false}
+#         ],
+#         "details":{
+#             "avatarUrl":"https://yt3.ggpht.com/ytc/AKedOLT6GLh1dxDmW0xOlox2a_wbxA7YPA0AGuXk6F3YHQ=s88-c-k-c0x00ffffff-no-rj",
+#             "bannerUrl":"",
+#             "socials":[
+#                 {"link":"https://www.youtube.com/channel/UCa_UMppcMsHIzb5LDx1u9zQ","type":"youtube"},
+#                 {"link":"https://www.facebook.com/thisisthefatrat","type":"facebook"},
+#                 {"link":"https://open.spotify.com/artist/3OKg7YbOIatODzkRIbLJR4","type":"spotify"},
+#                 {"link":"https://music.apple.com/artist/thefatrat/395664545","type":"itunes"},
+#                 {"link":"https://twitter.com/ThisIsTheFatRat","type":"twitter"}
+#             ]}}}

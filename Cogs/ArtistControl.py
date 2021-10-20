@@ -63,9 +63,7 @@ class ArtistControl(cmds.Cog):
                 'data': {
                     'id': None, 
                     'name': 'quack', 
-                    'aliases': [], 
-                    'avatar': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg', 
-                    'banner': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg', 
+                    'aliases': [],  
                     'description': 'I am a contacted artist! :D', 
                     'tracks': 0, 
                     'genre': 'Mixed', 
@@ -76,10 +74,14 @@ class ArtistControl(cmds.Cog):
                         'name': 'All songs', 
                         'value': True
                     }], 
-                    'socials': [{
-                        "url": "https://www.example.com",
-                        "type": "No added links!"
-                    }]
+                    'details': {
+                        'avatarUrl': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg', 
+                        'bannerUrl': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg',
+                        'socials': [{
+                            "url": "https://www.example.com",
+                            "type": "No added links!"
+                        }]
+                    }
                 }
             }
         }
@@ -87,11 +89,10 @@ class ArtistControl(cmds.Cog):
         await subm.generateFromDict(testdata)
 
         await subm.editLoop(ctx)
-
-        
         
         await ctx.send("Submitting...")
-        await subm.submit()
+        print(await subm.generateDict())
+        await subm.create()
         await ctx.send("The verification form has been submitted. Please wait for the moderators to verify your submission.")
 
         await sc.Submission.deleteIsUsingCommand(sc.Submission(), ctx.author.id)

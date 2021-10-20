@@ -202,7 +202,16 @@ class OutputTypes():
         links = {"type": "links", "prefix": "a list of", "example": "https://www.youtube.com/FunnyArtistName\nhttps://open.spotify.com/AnotherFunnyArtistName"}
         image = {"type": "image", "prefix": "an", "example": "https://cdn.discordapp.com/attachments/888419023237316609/894910496199827536/beanss.jpg`\n`(OR you can upload your images as attachments like normal!)"}
         listing = {"type": "list", "prefix": "a", "example": "This is the first item on the list!\nThis is the second item on the list!\nThis is the third item on the list!"}
-        dictionary = {"type": "dictionary", "prefix": "a", "example": "Remixes: Unverified\nAll other songs: Verified\nA song I'm not sure of: Unknown"}
+        dictionary = {"type": "dictionary", "prefix": "a", "example": "Remixes: Disallowed\nAll other songs: Verified"}
+
+class Details:
+    def __init__(self):
+        self.avatar = defaultImage
+        self.banner = defaultImage
+        self.socials = [{
+            "link": "https://www.example.com",
+            "type": "No added links!"
+        }]
 
 
 class ArtistData:
@@ -213,19 +222,14 @@ class ArtistData:
         self.name = ""
         self.aliases = []
         self.description = "I am a contacted artist! :D"
-        self.notes = "None"
-        self.avatar = defaultImage
-        self.banner = defaultImage
         self.tracks = 0
         self.genre = "Mixed"
         self.usageRights = [{
-                "name": "All songs",
-                "value": True
-            }]
-        self.socials = [{
-            "url": "https://www.example.com",
-            "type": "No added links!"
+            "name": "All songs",
+            "value": True
         }]
+        self.details = Details()
+        self.notes = "None"
     
     def dictInitial(self):
         return {
@@ -237,8 +241,6 @@ class ArtistData:
     def dictEdit(self):
         return {
             "name": self.name,
-            "avatar": self.avatar,
-            "banner": self.banner,
             "description": self.description,
             "tracks": self.tracks,
             "genre": self.genre,
@@ -246,7 +248,11 @@ class ArtistData:
             "availability": self.availability,
             "notes": self.notes,
             "usageRights": self.usageRights,
-            "socials": self.socials
+            "details": {
+                "avatarUrl": self.details.avatar,
+                "bannerUrl": self.details.banner,
+                "socials": self.details.socials
+            }
         }
 
 class Artist:
@@ -323,19 +329,19 @@ class Submission(ArtistFunctions):
         )
 
     async def setAvatar(self, ctx, skippable=True):
-        self.artist.artistData.avatar = await self.waitForResponse(ctx,
+        self.artist.artistData.details.avatar = await self.waitForResponse(ctx,
             "Send an image to an avatar of the artist.",
             "This is the profile picture that the artist uses.",
             OutputTypes.image,
-            skippable=skippable, skipDefault=self.artist.artistData.avatar
+            skippable=skippable, skipDefault=self.artist.artistData.details.avatar
         )
 
     async def setBanner(self, ctx, skippable=True):
-        self.artist.artistData.banner = await self.waitForResponse(ctx,
+        self.artist.artistData.details.banner = await self.waitForResponse(ctx,
             "Send an image to the banner of the artist.",
             "This is the banner that the artist uses.",
             OutputTypes.image,
-            skippable=skippable, skipDefault=self.artist.artistData.banner
+            skippable=skippable, skipDefault=self.artist.artistData.details.banner
         )
 
     async def setTracks(self, ctx, skippable=True):
@@ -363,7 +369,7 @@ class Submission(ArtistFunctions):
         )
         usageList = []
         usageList.append({
-                "name": "All songs",
+                "name": "Some songs" if self.artist.artistData.availability == 2 else "All songs",
                 "value": True if self.artist.artistData.availability == 0 else False
             })
         for right, state in usageRights.items():
@@ -379,17 +385,17 @@ class Submission(ArtistFunctions):
             "Please put some links for the artist's social media here.",
             "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
             OutputTypes.links,
-            skippable=True, skipDefault=[]
+            skippable=skippable, skipDefault=[]
         )
         socialList = []
         for link in socials:
             typeLink = tld.extract(link).domain
             typeLink = typeLink.capitalize()
             socialList.append({
-                "url": link,
+                "link": link,
                 "type": typeLink
             })
-        self.artist.artistData.socials = socialList if len(socialList) > 0 else self.artist.artistData.socials
+        self.artist.artistData.socials = socialList if len(socialList) > 0 else self.artist.artistData.details.socials
 
     
     async def generateDict(self):
@@ -402,12 +408,13 @@ class Submission(ArtistFunctions):
         data["artistInfo"]["data"]["name"] = self.artist.artistData.name
         data["artistInfo"]["data"]["aliases"] = self.artist.artistData.aliases
         data["artistInfo"]["data"]["description"] = self.artist.artistData.description
-        data["artistInfo"]["data"]["avatar"] = self.artist.artistData.avatar
-        data["artistInfo"]["data"]["banner"] = self.artist.artistData.banner
         data["artistInfo"]["data"]["tracks"] = self.artist.artistData.tracks
         data["artistInfo"]["data"]["genre"] = self.artist.artistData.genre
         data["artistInfo"]["data"]["usageRights"] = self.artist.artistData.usageRights
-        data["artistInfo"]["data"]["socials"] = self.artist.artistData.socials
+        data["artistInfo"]["data"]["notes"] = self.artist.artistData.notes
+        data["artistInfo"]["data"]["details"]["avatarUrl"] = self.artist.artistData.details.avatar
+        data["artistInfo"]["data"]["details"]["bannerUrl"] = self.artist.artistData.details.banner
+        data["artistInfo"]["data"]["details"]["socials"] = self.artist.artistData.details.socials
         return data
     
     async def generateFromDict(self, data):
@@ -419,12 +426,12 @@ class Submission(ArtistFunctions):
         self.artist.artistData.name = data["artistInfo"]["data"]["name"]
         self.artist.artistData.aliases = data["artistInfo"]["data"]["aliases"]
         self.artist.artistData.description = data["artistInfo"]["data"]["description"]
-        self.artist.artistData.avatar = data["artistInfo"]["data"]["avatar"]
-        self.artist.artistData.banner = data["artistInfo"]["data"]["banner"]
         self.artist.artistData.tracks = data["artistInfo"]["data"]["tracks"]
         self.artist.artistData.genre = data["artistInfo"]["data"]["genre"]
         self.artist.artistData.usageRights = data["artistInfo"]["data"]["usageRights"]
-        self.artist.artistData.socials = data["artistInfo"]["data"]["socials"]
+        self.artist.artistData.details.avatar = data["artistInfo"]["data"]["details"]["avatarUrl"]
+        self.artist.artistData.details.banner = data["artistInfo"]["data"]["details"]["bannerUrl"]
+        self.artist.artistData.details.socials = data["artistInfo"]["data"]["details"]["socials"]
     
 
     statusKeys = {
@@ -453,8 +460,8 @@ class Submission(ArtistFunctions):
 
         artName = self.artist.artistData.name
         artVadbPage = self.artist.vadbPage
-        artAvatar = self.artist.artistData.avatar
-        artBanner = self.artist.artistData.banner
+        artAvatar = self.artist.artistData.details.avatar
+        artBanner = self.artist.artistData.details.banner
 
         artAliases = self.artist.artistData.aliases
         aliasList = [alias["name"] for alias in artAliases]
@@ -493,7 +500,7 @@ class Submission(ArtistFunctions):
             usageList.append(f"{entry['name']}: {'Verified' if statusRights else 'Disallowed'}")
         usageRights = "\n".join(usageList)
 
-        socials = self.artist.artistData.socials
+        socials = self.artist.artistData.details.socials
         socialsList = []
         for entry in socials:
             link, domain = entry["url"], entry["type"]
@@ -514,7 +521,7 @@ class Submission(ArtistFunctions):
         embed.set_footer(text=f"Verification submitted by {userName} ({userId}).")
 
         embed.add_field(name=f"Name{editFormat('name')}:", value=f"**{artName}**")
-        if not artAliases == None:
+        if (not artAliases == None) or editing:
             embed.add_field(name=f"Aliases{editFormat('aliases')}:", value=artAliases)
 
         embed.add_field(name=f"Description{editFormat('description')}:", value=description, inline=False)
@@ -543,7 +550,8 @@ class Submission(ArtistFunctions):
                 "tracks": self.setTracks,
                 "genre": self.setGenre,
                 "usagerights": self.setUsageRights,
-                "socials": self.setSocials
+                "socials": self.setSocials,
+                "notes": self.setNotes
             }
 
         while True:
@@ -574,20 +582,19 @@ class Submission(ArtistFunctions):
 
     
     async def submitInitial(self):
-        print(self.artist.artistData.dictInitial())
-        rqapi.makeRequest("POST", "/artist", json=self.artist.artistData.dictInitial())
+        return rqapi.makeRequest("POST", "/artist", data=self.artist.artistData.dictInitial())
     
     async def submitEdit(self):
-        rqapi.makeRequest("PATCH", f"/artist/{self.artist.artistData.name}", json=self.artist.artistData.dictEdit())
+        return rqapi.makeRequest("PATCH", f"/artist/{self.artist.artistData.name}", data=self.artist.artistData.dictEdit())
 
-    async def submit(self):
+    async def create(self):
         canLog = fi.getData(['mainData', 'canLog'])
-        channels = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
+        channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in canLog]
         for channel in channels:
             await channel.send("A new artist has been submitted and is now waiting approval from PA moderators.")
             await channel.send(embed=await self.generateEmbed())
 
-        print(self.artist.artistData.dictInitial())
-        print(self.artist.artistData.dictEdit())
-        await self.submitInitial()
-        await self.submitEdit()
+        submitInitial = await self.submitInitial()
+        submitEdit = await self.submitEdit()
+
+        print(submitEdit)

@@ -5,14 +5,17 @@ import urllib
 from GlobalVariables import variables as varss
 
 
-def makeRequest(requestType, path, data={}, json={}, apiLink=varss.apiLink, apiHeaders=varss.apiHeaders):
+def makeRequest(requestType, path, data: dict ={}, apiLink=varss.apiLink, apiHeaders=varss.apiHeaders):
     newUrl = f"{apiLink}{path}"
 
-    if len(data) > 0:
-        response = requests.request(requestType, newUrl, headers=apiHeaders, data=data)
-    
-    if len(json) > 0:
-        response = requests.request(requestType, newUrl, headers=apiHeaders, json=json)
+    newData = {}
+    for key, value in data.items():
+        if isinstance(value, (list, dict)):
+            newData[key] = json.dumps(value)
+        else:
+            newData[key] = value
+
+    response = requests.request(requestType, newUrl, headers=apiHeaders, data=newData)
 
     response.raise_for_status()
     return response.json()
