@@ -1,4 +1,11 @@
-import discord
+# pylint: disable=missing-module-docstring
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-class-docstring
+# pylint: disable=line-too-long
+# pylint: disable=unused-argument
+
+
+# import discord
 import discord.ext.commands as cmds
 
 from Functions import FirebaseInteraction as fi
@@ -13,16 +20,16 @@ class Moderation(cmds.Cog):
         category=cw.Categories.moderation,
         description="Sets the admin for the server.",
         parameters={"id": "The ID of the role you want to add. If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."},
-        requireGuildOwner=True
+        req_guild_owner=True
     )
-    async def setadmin(self, ctx: cmds.Context, id):
+    async def setadmin(self, ctx: cmds.Context, role_id):
         try:
-            int(id)
+            int(role_id)
         except ValueError:
-            await ef.sendError(ctx, "You didn't send a valid role ID!")
+            await ef.send_error(ctx, "You didn't send a valid role ID!")
             return
 
-        fi.editData(['guildData', ctx.guild.id], {'adminRole': id})
+        fi.edit_data(['guildData', ctx.guild.id], {'adminRole': role_id})
         await ctx.send("The admin role for this server has been set.")
 
 

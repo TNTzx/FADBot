@@ -1,8 +1,7 @@
+"""Custom exceptions!"""
+
 class ExitFunction(Exception):
-    pass
+    """Exited Function."""
 
 class FirebaseNoEntry(Exception):
-    pass
-
-class SqlNoEntry(Exception):
-    pass
+    """There's no entry in the Firebase Database."""

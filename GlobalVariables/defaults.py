@@ -1,3 +1,5 @@
+"""Where defaults for the Firebase Database reside."""
+
 default = {
     "artistData": {
         "pending": {
@@ -11,5 +13,4 @@ default = {
             "adminRole": 0
         }
     }
-        
 }

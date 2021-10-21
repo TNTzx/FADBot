@@ -23,6 +23,8 @@ def all_cogs():
 
 for filename in all_cogs():
     if filename.endswith(".py"):
+        if filename == "__init__.py":
+            continue
         print(f"Loading cog '{filename}'...")
         bot.load_extension(f"Cogs.{filename[:-3]}")
 
@@ -34,7 +36,10 @@ def restart_bot():
     """Restarts the bot by reloading all cogs."""
     for file in all_cogs():
         if file.endswith(".py"):
+            if file == "__init__.py":
+                continue
             new_file = f"Cogs.{file[:-3]}"
+
             try:
                 bot.unload_extension(new_file)
             except cmds.errors.ExtensionNotLoaded:

@@ -1,4 +1,6 @@
-dataFormat = {
+"""Module that contains the data format."""
+
+data_format = {
     "userInfo": {
         "id": "UserId",
     },
@@ -43,7 +45,7 @@ dataFormat = {
                 "avatarUrl": "AvatarLink",
                 "bannerUrl": "BannerLink, Optional",
                 "socials": [
-                    { 
+                    {
                         "link": "funnyurl",
                         "type": "type"
                     },
@@ -53,10 +55,11 @@ dataFormat = {
                     }
                 ],
             },
-            "notes": "text"
         }
     }
 }
+
+# pylint: disable=line-too-long
 
 # beans = {
 #     "data": {

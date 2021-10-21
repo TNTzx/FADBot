@@ -1,22 +1,21 @@
+"""Module that contains the function to reset the token."""
+
 import time
 import datetime
 import pytz
-from GlobalVariables import variables as vars
 
-loop = True
+from GlobalVariables import variables as varss
 
-def stopLoop():
-    loop = False
 
-def startLoop():
-    loop = True
-    while loop:
+def start_loop():
+    """Starts the loop to reset the token periodically."""
+    while True:
         time.sleep(60 * 30)
-        vars.fbUser = vars.fbAuth.refresh(vars.fbUser['refreshToken'])
-    
-        tz = pytz.timezone('Asia/Manila') 
-        timeObj = datetime.datetime.now(tz)
-        timeStr = timeObj.strftime("%I:%M:%S %p | %a, %d/%m/%Y")
+        varss.fb_user = varss.fbAuth.refresh(varss.fb_user['refreshToken'])
 
-        print(f"Token refreshed at {timeStr}.")
+        timezone = pytz.timezone('Asia/Manila')
+        time_obj = datetime.datetime.now(timezone)
+        time_str = time_obj.strftime("%I:%M:%S %p | %a, %d/%m/%Y")
+
+        print(f"Token refreshed at {time_str}.")
         

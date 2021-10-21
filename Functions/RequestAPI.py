@@ -1,21 +1,26 @@
+"""Interacts with the VADB API."""
+
 import json
 import requests
-import urllib
 
 from GlobalVariables import variables as varss
 
 
-def makeRequest(requestType, path, data: dict ={}, apiLink=varss.apiLink, apiHeaders=varss.apiHeaders):
-    newUrl = f"{apiLink}{path}"
+def make_request(request_type, path, data: dict):
+    """Interacts with the VADB API."""
+    api_link=varss.API_LINK
+    api_headers=varss.API_HEADERS
 
-    newData = {}
+    url = f"{api_link}{path}"
+
+    new_data = {}
     for key, value in data.items():
         if isinstance(value, (list, dict)):
-            newData[key] = json.dumps(value)
+            new_data[key] = json.dumps(value)
         else:
-            newData[key] = value
+            new_data[key] = value
 
-    response = requests.request(requestType, newUrl, headers=apiHeaders, data=newData)
+    response = requests.request(request_type, url, headers=api_headers, data=new_data)
 
     response.raise_for_status()
     return response.json()

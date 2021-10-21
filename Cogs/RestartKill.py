@@ -1,21 +1,30 @@
-import discord
-from discord import guild
+# pylint: disable=missing-module-docstring
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-class-docstring
+# pylint: disable=line-too-long
+# pylint: disable=unused-argument
+
+
+import os
+import sys
+
+# import discord
 import discord.ext.commands as cmds
-import os, sys
 
 import main
 from Functions import CommandWrappingFunction as cw
 
+
 class RestartKill(cmds.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+
     @cw.command(
-        category=cw.Categories.botControl,
+        category=cw.Categories.bot_control,
         description="Restarts the bot.",
         aliases=["sr"],
-        guildOnly=False,
-        requireDev=True,
+        guild_only=False,
+        req_dev=True,
     )
     async def switchrestart(self, ctx):
         await ctx.send("Restarting bot...")
@@ -25,11 +34,11 @@ class RestartKill(cmds.Cog):
 
 
     @cw.command(
-        category=cw.Categories.botControl,
+        category=cw.Categories.bot_control,
         description="Shuts down the bot.",
         aliases=["sk"],
-        guildOnly=False,
-        requireDev=True
+        guild_only=False,
+        req_dev=True
     )
     async def switchkill(self, ctx):
         await ctx.send("Terminated bot.")
@@ -37,11 +46,11 @@ class RestartKill(cmds.Cog):
 
 
     @cw.command(
-        category=cw.Categories.botControl,
+        category=cw.Categories.bot_control,
         description=f"Like {main.CMD_PREFIX}restart, but hard.",
         aliases=["srh"],
-        guildOnly=False,
-        requireDev=True
+        guild_only=False,
+        req_dev=True
     )
     async def switchrestarthard(self, ctx):
         await ctx.send("Restart initiated!")
@@ -51,10 +60,12 @@ class RestartKill(cmds.Cog):
 
 
     @cw.command(
-        requirePAModerator=True
+        req_pa_mod=True
     )
     async def test(self, ctx):
+        # ...hey, uhm, man, you doing alright? Make sure to take some breaks okay? You need it! - past you
         await ctx.send("win")
 
 def setup(bot):
+    """Sets the bot up."""
     bot.add_cog(RestartKill(bot))
