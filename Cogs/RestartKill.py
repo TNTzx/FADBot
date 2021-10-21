@@ -19,7 +19,7 @@ class RestartKill(cmds.Cog):
     )
     async def switchrestart(self, ctx):
         await ctx.send("Restarting bot...")
-        main.restartBot()
+        main.restart_bot()
         await ctx.send("Restarted!")
         print("\n \n Restart break! -------------------------------------- \n \n")
 
@@ -38,7 +38,7 @@ class RestartKill(cmds.Cog):
 
     @cw.command(
         category=cw.Categories.botControl,
-        description=f"Like {main.commandPrefix}restart, but hard.",
+        description=f"Like {main.CMD_PREFIX}restart, but hard.",
         aliases=["srh"],
         guildOnly=False,
         requireDev=True

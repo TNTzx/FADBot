@@ -7,7 +7,7 @@ import asyncio
 from Functions import ExtraFunctions as ef
 from Functions.ArtistManagement import SubmissionClass as sc
 
-commandPrefix = main.commandPrefix
+commandPrefix = main.CMD_PREFIX
 
 errorPrefix = "**Error!**\n"
 
@@ -38,7 +38,7 @@ class ErrorHandler(commands.Cog):
             return
         
         elif checkexc(commands.MissingRequiredArgument):
-            await ef.sendError(ctx, f"Make sure you have the correct parameters! Use `{main.commandPrefix}help` to get help!")
+            await ef.sendError(ctx, f"Make sure you have the correct parameters! Use `{main.CMD_PREFIX}help` to get help!")
             return
         
         elif checkexc(commands.NoPrivateMessage):

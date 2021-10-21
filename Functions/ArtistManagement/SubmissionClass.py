@@ -173,16 +173,16 @@ class ArtistFunctions:
             
             embed.add_field(name="_ _", value="_ _", inline=False)
 
-            skipStr = f"This command times out in {ef.formatTime(timeout)}. \nUse {main.commandPrefix}cancel to cancel the current command." + (f"\nUse {main.commandPrefix}skip to skip this section." if skippable else "")
+            skipStr = f"This command times out in {ef.formatTime(timeout)}. \nUse {main.CMD_PREFIX}cancel to cancel the current command." + (f"\nUse {main.CMD_PREFIX}skip to skip this section." if skippable else "")
             embed.set_footer(text=skipStr)
 
             await ctx.author.send(embed=embed)
 
             response = await self.waitFor(ctx)
 
-            if response.content == f"{main.commandPrefix}cancel":
+            if response.content == f"{main.CMD_PREFIX}cancel":
                 raise ce.ExitFunction("Exited Function.")
-            elif response.content == f"{main.commandPrefix}skip":
+            elif response.content == f"{main.CMD_PREFIX}skip":
                 if skippable:
                     await ctx.author.send("Section skipped.")
                     return skipDefault
@@ -512,7 +512,7 @@ class Submission(ArtistFunctions):
         
 
         def editFormat(prefix):
-            return f" (`{main.commandPrefix}edit {prefix}`)" if editing else ""
+            return f" (`{main.CMD_PREFIX}edit {prefix}`)" if editing else ""
 
 
         embed = discord.Embed(title=f"Artist data for {artName}:", description="_ _", color=color)
@@ -556,14 +556,14 @@ class Submission(ArtistFunctions):
             }
 
         while True:
-            await ctx.author.send(f"This is the generated artist profile.\nUse `{main.commandPrefix}edit <property>` to edit a property, `{main.commandPrefix}submit` to submit this verification for approval, or `{main.commandPrefix}cancel` to cancel this command.")
+            await ctx.author.send(f"This is the generated artist profile.\nUse `{main.CMD_PREFIX}edit <property>` to edit a property, `{main.CMD_PREFIX}submit` to submit this verification for approval, or `{main.CMD_PREFIX}cancel` to cancel this command.")
             
             await ctx.author.send(embed=await self.generateEmbed(editing=True))
     
             message: discord.Message = await self.waitFor(ctx)
             command = message.content.split(" ")
 
-            if command[0].startswith(f"{main.commandPrefix}edit"):
+            if command[0].startswith(f"{main.CMD_PREFIX}edit"):
                 commandToGet = commandDict.get(command[1] if len(command) > 1 else None, None)
 
                 if commandToGet == None:
@@ -572,10 +572,10 @@ class Submission(ArtistFunctions):
                 
                 await commandToGet(ctx, skippable=True)
             
-            elif command[0] == f"{main.commandPrefix}submit":
+            elif command[0] == f"{main.CMD_PREFIX}submit":
                 break
                 
-            elif command[0] == f"{main.commandPrefix}cancel":
+            elif command[0] == f"{main.CMD_PREFIX}cancel":
                 raise ce.ExitFunction("Exited Function.")
             
             else:

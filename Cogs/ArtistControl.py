@@ -27,7 +27,7 @@ class ArtistControl(cmds.Cog):
     )
     async def artistadd(self, ctx: cmds.Context):
         if await sc.ArtistFunctions.checkIfUsingCommand(sc.ArtistFunctions(), ctx.author.id):
-            await ef.sendError(ctx, f"You're already using this command! Use {main.commandPrefix}cancel on your DMs with me to cancel the command.")
+            await ef.sendError(ctx, f"You're already using this command! Use {main.CMD_PREFIX}cancel on your DMs with me to cancel the command.")
             raise ce.ExitFunction("Exited Function.")
 
         await sc.ArtistFunctions.addIsUsingCommand(sc.ArtistFunctions(), ctx.author.id)
@@ -100,7 +100,7 @@ class ArtistControl(cmds.Cog):
 
     @cw.command(
         category=cw.Categories.botControl,
-        description=f"Cancels the current command. Usually used for `{main.commandPrefix}artistadd`.",
+        description=f"Cancels the current command. Usually used for `{main.CMD_PREFIX}artistadd`.",
         guildOnly=False
     )
     async def cancel(self, ctx: cmds.Context):
