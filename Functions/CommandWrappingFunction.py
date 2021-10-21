@@ -1,5 +1,12 @@
 """Contains functions to wrap the command function."""
 
+# pylint: disable=too-few-public-methods
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-statements
+# pylint: disable=line-too-long
+# pylint: disable=unused-argument
+
+
 import functools as fc
 # import discord
 import discord.ext.commands as cmds
@@ -50,7 +57,7 @@ class CustomCommandClass:
 
 class ListOfCommands:
     """Lists all commands."""
-    commands_all: dict[str, CustomCommandClass] = {}
+    commands_all: dict[Categories, list[str]] = {}
     commands: dict[str, CustomCommandClass] = {}
 
 
@@ -146,7 +153,11 @@ def command(
                 return
             return await func(*args, **kwargs)
 
-        wrapper = cmds.command(name=func.__name__, aliases=aliases)(wrapper)
+
+        if aliases is None:
+            wrapper = cmds.command(name=func.__name__)(wrapper)
+        else:
+            wrapper = cmds.command(name=func.__name__, aliases=aliases)(wrapper)
 
         if guild_only:
             wrapper = cmds.guild_only()(wrapper)
@@ -184,9 +195,10 @@ def command(
 
         if cmd.name not in ListOfCommands.commands.keys():
             ListOfCommands.commands[cmd.name] = cmd
-        for alias in aliases:
-            if alias not in ListOfCommands.commands.keys():
-                ListOfCommands.commands[alias] = cmd
+        if aliases is not None:
+            for alias in aliases:
+                if alias not in ListOfCommands.commands.keys():
+                    ListOfCommands.commands[alias] = cmd
 
         return wrapper
 

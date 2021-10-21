@@ -39,59 +39,58 @@ class ArtistControl(cmds.Cog):
 
         await ctx.author.send("> The verification submission is now being set up. Please __follow the prompts as needed__.")
 
-        subm.user.user_id = ctx.author.id
-        await subm.set_proof(ctx)
-        await subm.set_availability(ctx)
-        await subm.set_name(ctx)
-        await subm.set_aliases(ctx)
-        await subm.set_desc(ctx)
-        await subm.set_avatar(ctx)
-        await subm.set_banner(ctx)
-        await subm.set_tracks(ctx)
-        await subm.set_genre(ctx)
-        await subm.set_usage_rights(ctx)
-        await subm.set_socials(ctx)
-        await subm.set_notes(ctx)
+        # subm.user.user_id = ctx.author.id
+        # await subm.set_proof(ctx)
+        # await subm.set_availability(ctx)
+        # await subm.set_name(ctx)
+        # await subm.set_aliases(ctx)
+        # await subm.set_desc(ctx)
+        # await subm.set_avatar(ctx)
+        # await subm.set_banner(ctx)
+        # await subm.set_tracks(ctx)
+        # await subm.set_genre(ctx)
+        # await subm.set_usage_rights(ctx)
+        # await subm.set_socials(ctx)
+        # await subm.set_notes(ctx)
 
-        # testdata = {
-        #     'userInfo': {
-        #         'id': 279803094722674693
-        #         },
-        #     'artistInfo': {
-        #         'proof': 'https://cdn.discordapp.com/attachments/890222271849963571/896719549536292914/236-2368062_24-mar-2009-quarter-circle-black-and-white_1.png',
-        #         'vadbPage': 'https://fadb.live/',
-        #         'data': {
-        #             'id': None,
-        #             'name': 'quack',
-        #             'aliases': [],
-        #             'description': 'I am a contacted artist! :D',
-        #             'tracks': 0,
-        #             'genre': 'Mixed',
-        #             'status': 2,
-        #             'availability': 0,
-        #             'notes': 'text',
-        #             'usageRights': [{
-        #                 'name': 'All songs',
-        #                 'value': True
-        #             }],
-        #             'details': {
-        #                 'avatarUrl': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg',
-        #                 'bannerUrl': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg',
-        #                 'socials': [{
-        #                     "link": "https://www.example.com",
-        #                     "type": "No added links!"
-        #                 }]
-        #             }
-        #         }
-        #     }
-        # }
+        testdata = {
+            'userInfo': {
+                'id': 279803094722674693
+                },
+            'artistInfo': {
+                'proof': 'https://cdn.discordapp.com/attachments/890222271849963571/896719549536292914/236-2368062_24-mar-2009-quarter-circle-black-and-white_1.png',
+                'vadbPage': 'https://fadb.live/',
+                'data': {
+                    'id': None,
+                    'name': 'quack',
+                    'aliases': [],
+                    'description': 'I am a contacted artist! :D',
+                    'tracks': 0,
+                    'genre': 'Mixed',
+                    'status': 2,
+                    'availability': 0,
+                    'notes': 'text',
+                    'usageRights': [{
+                        'name': 'All songs',
+                        'value': True
+                    }],
+                    'details': {
+                        'avatarUrl': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg',
+                        'bannerUrl': 'https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg',
+                        'socials': [{
+                            "link": "https://www.example.com",
+                            "type": "No added links!"
+                        }]
+                    }
+                }
+            }
+        }
 
-        # await subm.generateFromDict(testdata)
+        await subm.generate_from_dict(testdata)
 
         await subm.edit_loop(ctx)
 
         await ctx.send("Submitting...")
-        print(await subm.generate_dict())
         await subm.create()
         await ctx.send("The verification form has been submitted. Please wait for the moderators to verify your submission.")
 

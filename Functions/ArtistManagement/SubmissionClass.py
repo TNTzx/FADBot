@@ -1,6 +1,12 @@
 """Module that contains the classes for artist control."""
 
+# pylint: disable=line-too-long
+# pylint: disable=unused-argument
+# pylint: disable=too-few-public-methods
+
+
 import asyncio
+import urllib.parse as ul
 # from pprint import pprint
 import discord
 # import discord.ext.commands as cmds
@@ -13,8 +19,6 @@ from Functions import ExtraFunctions as ef
 from Functions.ArtistManagement import ArtistDataFormat as adf
 from Functions import FirebaseInteraction as fi
 from Functions import RequestAPI as rqapi
-
-# pylint: disable=line-too-long
 
 
 TIMEOUT = 60 * 10
@@ -64,9 +68,13 @@ class ArtistFunctions:
         """Returns the response, but with checks."""
 
         async def check_has_required():
-            return len(choices) > 0
+            if choices is not None:
+                return len(choices) > 0
+            return False
         async def check_has_dict():
-            return len(choices_dict) > 0
+            if choices is not None:
+                return len(choices_dict) > 0
+            return False
 
         async def reformat(response: discord.Message):
             async def number():
@@ -483,21 +491,21 @@ class Submission(ArtistFunctions):
         self.artist.artist_data.details.socials = data["artistInfo"]["data"]["details"]["socials"]
 
 
-    statusKeys = {
+    status_keys = {
         0: "Completed",
         1: "No Contact",
         2: "Pending",
         3: "Requested"
     }
 
-    availabilityKeys = {
+    availability_keys = {
         0: "Verified",
         1: "Disallowed",
         2: "Contact Required",
         3: "Varies"
     }
 
-    colorKeys = {
+    color_keys = {
         "Green": 0x00FF00,
         "Red": 0xFF0000,
         "Yellow": 0xFFFF00,
@@ -528,20 +536,20 @@ class Submission(ArtistFunctions):
             username = "Unknown"
             user_id = "Unknown"
 
-        status = self.statusKeys[self.artist.artist_data.status]
-        availability = self.availabilityKeys[self.artist.artist_data.availability]
+        status = self.status_keys[self.artist.artist_data.status]
+        availability = self.availability_keys[self.artist.artist_data.availability]
 
         if status == "Completed":
             if availability == "Verified":
-                color = self.colorKeys["Green"]
+                color = self.color_keys["Green"]
             elif availability == "Disallowed":
-                color = self.colorKeys["Red"]
+                color = self.color_keys["Red"]
             elif availability == "Contact Required":
-                color = self.colorKeys["Yellow"]
+                color = self.color_keys["Yellow"]
             elif availability == "Varies":
-                color = self.colorKeys["Blue"]
+                color = self.color_keys["Blue"]
         elif status in ["No Contact", "Pending"]:
-            color = self.colorKeys["Yellow"]
+            color = self.color_keys["Yellow"]
 
         usage_rights = self.artist.artist_data.usage_rights
         usage_list = []
@@ -638,15 +646,26 @@ class Submission(ArtistFunctions):
 
     async def submit_edit(self):
         """Submits a request to VADB to edit an artist."""
-        return rqapi.make_request("PATCH", f"/artist/{self.artist.artist_data.name}", data=self.artist.artist_data.dict_edit())
+        def format_url_name(name):
+            name_new = ul.quote(name)
+            name_new = name_new.replace("/", "%2f")
+            name_new = name_new.replace("%20", "_")
+            return name_new
+
+        name_new = format_url_name(self.artist.artist_data.name)
+        return rqapi.make_request("PATCH", f"/artist/{name_new}", data=self.artist.artist_data.dict_edit())
+
 
     async def create(self):
         """Creates a new artist to VADB."""
+        await self.submit_init()
+        await self.submit_edit()
+    
+    async def send_logs(self):
+        """Sends the logs to servers."""
         can_log = fi.get_data(['mainData', 'canLog'])
         channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in can_log]
+        channels = [x for x in channels if x is not None]
         for channel in channels:
             await channel.send("A new artist has been submitted and is now waiting approval from PA moderators.")
             await channel.send(embed=await self.generate_embed())
-
-        await self.submit_init()
-        await self.submit_edit()
