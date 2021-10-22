@@ -9,7 +9,7 @@ import asyncio
 import urllib.parse as ul
 # from pprint import pprint
 import discord
-# import discord.ext.commands as cmds
+import discord.ext.commands as cmds
 import requests as req
 import tldextract as tld
 
@@ -50,7 +50,7 @@ class ArtistFunctions:
         """Sends an error, but with a syntax."""
         await ef.send_error(ctx, f"{suffix} Try again.", send_author=True)
 
-    async def waiting(self, ctx):
+    async def waiting(self, ctx: cmds.Context):
         """Wait for a message then return the response."""
         try:
             check = lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel)
@@ -254,15 +254,12 @@ class Artist:
             self.status = 2
             self.availability = 0
             self.artist_id = None
-            self.name = ""
+            self.name = "default name"
             self.aliases = []
             self.description = "I am a contacted artist! :D"
             self.tracks = 0
             self.genre = "Mixed"
-            self.usage_rights = [{
-                "name": "All songs",
-                "value": True
-            }]
+            self.usage_rights = []
             self.details = self.Details()
             self.notes = "None"
 
@@ -271,10 +268,7 @@ class Artist:
             def __init__(self):
                 self.avatar = DEFAULT_IMAGE
                 self.banner = DEFAULT_IMAGE
-                self.socials = [{
-                    "link": "https://www.example.com",
-                    "type": "No added links!"
-                }]
+                self.socials = []
 
 
         def dict_init(self):
@@ -362,8 +356,8 @@ class Submission(ArtistFunctions):
     async def set_desc(self, ctx, skippable=True):
         """Sets the description."""
         self.artist.artist_data.description = await self.wait_for_response(ctx,
-            "Send a small description about the artist.",
-            "You can put information about the artist here.",
+            "Send a description about the artist.",
+            "You can put information about the artist here. Their bio, how their music is created, etc. could work.",
             OutputTypes.text,
             skippable=skippable, skip_default=self.artist.artist_data.description
         )
@@ -552,18 +546,24 @@ class Submission(ArtistFunctions):
             color = self.color_keys["Yellow"]
 
         usage_rights = self.artist.artist_data.usage_rights
-        usage_list = []
-        for entry in usage_rights:
-            status_rights = entry["value"]
-            usage_list.append(f"{entry['name']}: {'Verified' if status_rights else 'Disallowed'}")
-        usage_rights = "\n".join(usage_list)
+        if len(usage_rights) > 0:
+            usage_list = []
+            for entry in usage_rights:
+                status_rights = entry["value"]
+                usage_list.append(f"{entry['name']}: {'Verified' if status_rights else 'Disallowed'}")
+            usage_rights = "\n".join(usage_list)
+        else:
+            usage_rights = f"All songs: {availability}"
 
         socials = self.artist.artist_data.details.socials
-        socials_list = []
-        for entry in socials:
-            link, domain = entry["link"], entry["type"]
-            socials_list.append(f"[{domain}]({link})")
-        socials = " ".join(socials_list)
+        if len(socials) > 0:
+            socials_list = []
+            for entry in socials:
+                link, domain = entry["link"], entry["type"]
+                socials_list.append(f"[{domain}]({link})")
+            socials = " ".join(socials_list)
+        else:
+            socials = "No socials links!"
 
         notes = self.artist.artist_data.notes
 
@@ -640,27 +640,21 @@ class Submission(ArtistFunctions):
                 await self.send_error(ctx, "You didn't send a command!")
 
 
+    async def format_url_name(self, name: str):
+        """Formats the string to be used in VADB requests."""
+        name_new = ul.quote(name)
+        name_new = name_new.replace("/", "%2f")
+        name_new = name_new.replace("%20", "_")
+        return name_new
+
     async def submit_init(self):
         """Submits a request to VADB to make an artist."""
         return rqapi.make_request("POST", "/artist", data=self.artist.artist_data.dict_init())
 
-    async def submit_edit(self):
+    async def submit_edit(self, artist_id):
         """Submits a request to VADB to edit an artist."""
-        def format_url_name(name):
-            name_new = ul.quote(name)
-            name_new = name_new.replace("/", "%2f")
-            name_new = name_new.replace("%20", "_")
-            return name_new
+        return rqapi.make_request("PATCH", f"/artist/{artist_id}", data=self.artist.artist_data.dict_edit())
 
-        name_new = format_url_name(self.artist.artist_data.name)
-        return rqapi.make_request("PATCH", f"/artist/{name_new}", data=self.artist.artist_data.dict_edit())
-
-
-    async def create(self):
-        """Creates a new artist to VADB."""
-        await self.submit_init()
-        await self.submit_edit()
-    
     async def send_logs(self):
         """Sends the logs to servers."""
         can_log = fi.get_data(['mainData', 'canLog'])
@@ -669,3 +663,10 @@ class Submission(ArtistFunctions):
         for channel in channels:
             await channel.send("A new artist has been submitted and is now waiting approval from PA moderators.")
             await channel.send(embed=await self.generate_embed())
+
+
+    async def create_vadb_artist(self):
+        """Creates a new artist to VADB."""
+        await self.send_logs()
+        post_data = await self.submit_init()
+        await self.submit_edit(post_data["data"]["id"])
