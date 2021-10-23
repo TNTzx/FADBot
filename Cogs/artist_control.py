@@ -8,10 +8,11 @@ import discord
 import discord.ext.commands as cmds
 
 import main
-from Functions import CustomExceptions as ce
-from Functions import CommandWrappingFunction as cw
-from Functions import ExtraFunctions as ef
-from Functions.ArtistManagement import SubmissionClass as sc
+from functions.exceptions import custom_exc as c_exc
+from functions.exceptions import send_error as s_e
+from functions import command_wrapper as c_w
+from functions import other_functions as o_f
+from functions.artist_related import submission as ss
 
 
 class ArtistControl(cmds.Cog):
@@ -19,20 +20,20 @@ class ArtistControl(cmds.Cog):
         self.bot = bot
 
 
-    @cw.command(
-        category=cw.Categories.artist_management,
-        description=f"Requests an artist to be added to the database. Times out after `{ef.format_time(60 * 2)}``.",
+    @c_w.command(
+        category=c_w.Categories.artist_management,
+        description=f"Requests an artist to be added to the database. Times out after `{o_f.format_time(60 * 2)}``.",
         aliases=["aa"],
         guild_only=False
     )
     async def artistadd(self, ctx: cmds.Context, devbranch=""):
-        if await sc.ArtistFunctions.check_if_using_command(sc.ArtistFunctions(), ctx.author.id):
-            await ef.send_error(ctx, f"You're already using this command! Use {main.CMD_PREFIX}cancel on your DMs with me to cancel the command.")
-            raise ce.ExitFunction("Exited Function.")
+        if await ss.ArtistFunctions.check_if_using_command(ss.ArtistFunctions(), ctx.author.id):
+            await s_e.send_error(ctx, f"You're already using this command! Use {main.CMD_PREFIX}cancel on your DMs with me to cancel the command.")
+            raise c_exc.ExitFunction("Exited Function.")
 
-        await sc.ArtistFunctions.add_is_using_command(sc.ArtistFunctions(), ctx.author.id)
+        await ss.ArtistFunctions.add_is_using_command(ss.ArtistFunctions(), ctx.author.id)
 
-        subm = sc.Submission()
+        subm = ss.Submission()
 
         if isinstance(ctx.channel, discord.TextChannel):
             await ctx.send("The verification submission has been moved to your DMs. Please check it.")
@@ -64,17 +65,17 @@ class ArtistControl(cmds.Cog):
         await subm.create_vadb_artist()
         await ctx.send("The verification form has been submitted. Please wait for the moderators to verify your submission.")
 
-        await sc.Submission.delete_is_using_command(sc.Submission(), ctx.author.id)
+        await ss.Submission.delete_is_using_command(ss.Submission(), ctx.author.id)
 
 
-    @cw.command(
-        category=cw.Categories.bot_control,
+    @c_w.command(
+        category=c_w.Categories.bot_control,
         description=f"Cancels the current command. Usually used for `{main.CMD_PREFIX}artistadd`.",
         guild_only=False
     )
     async def cancel(self, ctx: cmds.Context):
         if isinstance(ctx.channel, discord.DMChannel):
-            await sc.ArtistFunctions.delete_is_using_command(sc.ArtistFunctions(), ctx.author.id)
+            await ss.ArtistFunctions.delete_is_using_command(ss.ArtistFunctions(), ctx.author.id)
             await ctx.author.send("Command cancelled.")
 
 
