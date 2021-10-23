@@ -4,14 +4,14 @@ import time
 import datetime
 import pytz
 
-from GlobalVariables import variables as varss
+from global_vars import variables as vrs
 
 
 def start_loop():
     """Starts the loop to reset the token periodically."""
     while True:
         time.sleep(60 * 30)
-        varss.fb_user = varss.fbAuth.refresh(varss.fb_user['refreshToken'])
+        vrs.fb_user = vrs.fbAuth.refresh(vrs.fb_user['refreshToken'])
 
         timezone = pytz.timezone('Asia/Manila')
         time_obj = datetime.datetime.now(timezone)

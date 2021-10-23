@@ -8,16 +8,16 @@
 # import discord
 import discord.ext.commands as cmds
 
-from Functions import FirebaseInteraction as fi
-from Functions import CommandWrappingFunction as cw
-from Functions import ExtraFunctions as ef
+from functions.databases.firebase import firebase_interaction as f_i
+from functions import command_wrapper as c_w
+from functions.exceptions import send_error as s_e
 
 class Moderation(cmds.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @cw.command(
-        category=cw.Categories.moderation,
+    @c_w.command(
+        category=c_w.Categories.moderation,
         description="Sets the admin for the server.",
         parameters={"id": "The ID of the role you want to add. If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."},
         req_guild_owner=True
@@ -26,10 +26,10 @@ class Moderation(cmds.Cog):
         try:
             int(role_id)
         except ValueError:
-            await ef.send_error(ctx, "You didn't send a valid role ID!")
+            await s_e.send_error(ctx, "You didn't send a valid role ID!")
             return
 
-        fi.edit_data(['guildData', ctx.guild.id], {'adminRole': role_id})
+        f_i.edit_data(['guildData', ctx.guild.id], {'adminRole': role_id})
         await ctx.send("The admin role for this server has been set.")
 
 

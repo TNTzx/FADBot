@@ -4,6 +4,7 @@ import datetime
 
 import main
 
+
 def format_time(num: int):
     """Formats the time from seconds to '#h #m #s'."""
     seconds = num

@@ -12,15 +12,15 @@ import sys
 import discord.ext.commands as cmds
 
 import main
-from Functions import CommandWrappingFunction as cw
+from functions import command_wrapper as c_w
 
 
 class RestartKill(cmds.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @cw.command(
-        category=cw.Categories.bot_control,
+    @c_w.command(
+        category=c_w.Categories.bot_control,
         description="Restarts the bot.",
         aliases=["sr"],
         guild_only=False,
@@ -33,8 +33,8 @@ class RestartKill(cmds.Cog):
         print("\n \n Restart break! -------------------------------------- \n \n")
 
 
-    @cw.command(
-        category=cw.Categories.bot_control,
+    @c_w.command(
+        category=c_w.Categories.bot_control,
         description="Shuts down the bot.",
         aliases=["sk"],
         guild_only=False,
@@ -45,8 +45,8 @@ class RestartKill(cmds.Cog):
         await main.bot.logout()
 
 
-    @cw.command(
-        category=cw.Categories.bot_control,
+    @c_w.command(
+        category=c_w.Categories.bot_control,
         description=f"Like {main.CMD_PREFIX}restart, but hard.",
         aliases=["srh"],
         guild_only=False,
@@ -59,7 +59,7 @@ class RestartKill(cmds.Cog):
         os.execv(sys.executable, args)
 
 
-    @cw.command(
+    @c_w.command(
         req_pa_mod=True
     )
     async def test(self, ctx):

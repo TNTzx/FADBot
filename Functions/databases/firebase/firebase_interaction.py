@@ -3,14 +3,14 @@
 import collections as cl
 import threading as thread
 
-from Functions import CustomExceptions as ce
-from Functions import FirebaseResetToken as frt
-from GlobalVariables import variables as varss
+from functions.exceptions import custom_exc as c_exc
+from functions.databases.firebase import firebase_reset_token as f_r_t
+from global_vars import variables as vrs
 
 
 def get_from_path(path: list[str]):
     """Returns the database child of a path."""
-    final = varss.db
+    final = vrs.db
     for key in path:
         if not isinstance(key, str):
             key = str(key)
@@ -20,7 +20,7 @@ def get_from_path(path: list[str]):
 
 def get_data(path: list[str]):
     """Gets the data."""
-    result = get_from_path(path).get(token=varss.get_token()).val()
+    result = get_from_path(path).get(token=vrs.get_token()).val()
 
     if not result is None:
         value = result
@@ -28,7 +28,7 @@ def get_data(path: list[str]):
             value = dict(result)
         return value
     else:
-        raise ce.FirebaseNoEntry(f"Data doesn't exist for '{path}'.")
+        raise c_exc.FirebaseNoEntry(f"Data doesn't exist for '{path}'.")
 
 
 # Check if data already exists
@@ -37,7 +37,7 @@ def is_data_exists(path: list[str]):
     try:
         get_data(path)
         return True
-    except ce.FirebaseNoEntry:
+    except c_exc.FirebaseNoEntry:
         return False
 
 
@@ -45,7 +45,7 @@ def is_data_exists(path: list[str]):
 def create_data(path: list[str], data):
     """Overrides the data at a specific path."""
     path_parse = get_from_path(path)
-    path_parse.set(data, token=varss.get_token())
+    path_parse.set(data, token=vrs.get_token())
 
 # Append
 def append_data(path: list[str], data: list):
@@ -58,22 +58,22 @@ def append_data(path: list[str], data: list):
 def edit_data(path: list[str], data):
     """Changes / overrides data in a path."""
     if not is_data_exists(path):
-        raise ce.FirebaseNoEntry(f"Data can't be found for '{path}'.")
+        raise c_exc.FirebaseNoEntry(f"Data can't be found for '{path}'.")
 
     path_parse = get_from_path(path)
-    path_parse.update(data, token=varss.get_token())
+    path_parse.update(data, token=vrs.get_token())
 
 
 # Delete
 def delete_data(path):
     """Deletes the path."""
     if not is_data_exists(path):
-        raise ce.FirebaseNoEntry(f"Data being deleted doesn't exist for '{path}'.")
+        raise c_exc.FirebaseNoEntry(f"Data being deleted doesn't exist for '{path}'.")
 
     path_parse = get_from_path(path)
-    path_parse.remove(token=varss.get_token())
+    path_parse.remove(token=vrs.get_token())
 
 
-new_token = thread.Thread(target=frt.start_loop)
+new_token = thread.Thread(target=f_r_t.start_loop)
 new_token.daemon = True
 new_token.start()

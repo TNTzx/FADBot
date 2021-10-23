@@ -6,6 +6,7 @@ import discord.ext.commands as commands
 
 import main
 
+
 ERROR_PREFIX = "**Error!**\n"
 
 async def send_error(ctx: commands.Context, suffix, exc="", other_data: discord.Message = None,

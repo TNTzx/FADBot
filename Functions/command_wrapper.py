@@ -11,10 +11,9 @@ import functools as fc
 # import discord
 import discord.ext.commands as cmds
 
-from Functions import FirebaseInteraction as fi
-
-from Functions import ExtraFunctions as ef
-from Functions import CustomExceptions as ce
+from functions.databases.firebase import firebase_interaction as f_i
+from functions.exceptions import send_error as s_e
+from functions.exceptions import custom_exc as c_exc
 
 
 class Categories:
@@ -24,36 +23,36 @@ class Categories:
     bot_control = "Bot Control"
     moderation = "Moderation"
 
-class Cooldown:
-    """Cooldown."""
-    length: int = 0
-    type: str = cmds.BucketType.channel
-
-class Require:
-    """What the command requires to be executed."""
-    def __init__(self):
-        self.guild_owner: bool = False
-        self.guild_admin: bool = False
-        self.dev: bool = False
-
-class Helps:
-    """All help parameters."""
-    def __init__(self):
-        self.category: str = ""
-        self.description: str = ""
-        self.parameters: dict[str, str] = {}
-        self.aliases: list[str] = []
-        self.guild_only: bool = True
-        self.cooldown: Cooldown = Cooldown()
-        self.require: Require = Require()
-        self.show_condition = lambda ctx: True
-        self.example_usage: list[str] = []
-
 class CustomCommandClass:
     """Stored command."""
     def __init__(self):
         self.name: str = ""
-        self.help: Helps = Helps()
+        self.help: self.Helps = self.Helps()
+
+    class Helps:
+        """All help parameters."""
+        def __init__(self):
+            self.category: str = ""
+            self.description: str = ""
+            self.parameters: dict[str, str] = {}
+            self.aliases: list[str] = []
+            self.guild_only: bool = True
+            self.cooldown: self.Cooldown = self.Cooldown()
+            self.require: self.Require = self.Require()
+            self.show_condition = lambda ctx: True
+            self.example_usage: list[str] = []
+
+        class Require:
+            """What the command requires to be executed."""
+            def __init__(self):
+                self.guild_owner: bool = False
+                self.guild_admin: bool = False
+                self.dev: bool = False
+
+        class Cooldown:
+            """Cooldown."""
+            length: int = 0
+            type: str = cmds.BucketType.channel
 
 class ListOfCommands:
     """Lists all commands."""
@@ -91,13 +90,13 @@ def command(
             ctx: cmds.Context = args[1]
 
             async def send_error(suffix):
-                await ef.send_error(ctx, f"You don't have proper permissions! {suffix}")
+                await s_e.send_error(ctx, f"You don't have proper permissions! {suffix}")
                 return
 
 
             async def check_pa_mod():
-                can_verify = fi.get_data(['mainData', 'canVerify'])
-                devs = fi.get_data(['mainData', 'devs'])
+                can_verify = f_i.get_data(['mainData', 'canVerify'])
+                devs = f_i.get_data(['mainData', 'devs'])
 
                 if str(ctx.author.id) in can_verify["users"] + devs:
                     return True
@@ -109,9 +108,9 @@ def command(
 
             async def check_admin():
                 try:
-                    admin_role = fi.get_data(['guildData', str(ctx.guild.id), 'adminRole'])
+                    admin_role = f_i.get_data(['guildData', str(ctx.guild.id), 'adminRole'])
                     admin_role = int(admin_role)
-                except ce.FirebaseNoEntry:
+                except c_exc.FirebaseNoEntry:
                     return False
 
                 for role in ctx.author.roles:
@@ -123,7 +122,7 @@ def command(
                 return ctx.author.id == ctx.guild.owner.id
 
             async def check_dev():
-                devs = fi.get_data(['mainData', 'devs'])
+                devs = f_i.get_data(['mainData', 'devs'])
                 return str(ctx.author.id) in devs
 
 

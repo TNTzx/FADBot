@@ -3,13 +3,13 @@
 import json
 import requests
 
-from GlobalVariables import variables as varss
+from global_vars import variables as vrs
 
 
 def make_request(request_type, path, data: dict):
     """Interacts with the VADB API."""
-    api_link=varss.API_LINK
-    api_headers=varss.API_HEADERS
+    api_link=vrs.API_LINK
+    api_headers=vrs.API_HEADERS
 
     url = f"{api_link}{path}"
 

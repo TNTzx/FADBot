@@ -3,243 +3,27 @@
 # pylint: disable=line-too-long
 # pylint: disable=unused-argument
 # pylint: disable=too-few-public-methods
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-public-methods
 
 
-import asyncio
+
 import urllib.parse as ul
 # from pprint import pprint
 import discord
-import discord.ext.commands as cmds
-import requests as req
+# import discord.ext.commands as cmds
+
 import tldextract as tld
 
 import main
-from Functions import CustomExceptions as ce
-from Functions import ExtraFunctions as ef
-from Functions.ArtistManagement import ArtistDataFormat as adf
-from Functions import FirebaseInteraction as fi
-from Functions import RequestAPI as rqapi
+from functions.exceptions import custom_exc as c_exc
+from functions.artist_related import data_format as d_f
+from functions.artist_related import asking as ask
+from functions.databases.firebase import firebase_interaction as f_i
+from functions.databases.vadb import vadb_interact as vadb_i
 
 
-TIMEOUT = 60 * 10
 DEFAULT_IMAGE = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
-
-class ArtistFunctions:
-    """Functions for artist management."""
-
-    async def check_if_using_command(self, author_id):
-        """Returns true if the user is using the command."""
-        users_using = fi.get_data(["artistData", "pending", "isUsingCommand"])
-        return author_id in list(users_using)
-
-    async def add_is_using_command(self, author_id):
-        """Adds the user as one that is using the command."""
-        fi.append_data(["artistData", "pending", "isUsingCommand"], [author_id])
-
-    async def delete_is_using_command(self, author_id):
-        """Deletes the user as one that is using the command."""
-        data = fi.get_data(["artistData", "pending", "isUsingCommand"])
-        try:
-            data.remove(author_id)
-        except ValueError:
-            pass
-        fi.edit_data(["artistData", "pending"], {"isUsingCommand": data})
-
-
-    async def send_error(self, ctx, suffix):
-        """Sends an error, but with a syntax."""
-        await ef.send_error(ctx, f"{suffix} Try again.", send_author=True)
-
-    async def waiting(self, ctx: cmds.Context):
-        """Wait for a message then return the response."""
-        try:
-            check = lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel)
-            response: discord.Message = await main.bot.wait_for("message", check=check, timeout=TIMEOUT)
-        except asyncio.TimeoutError as exc:
-            await self.delete_is_using_command(ctx.author.id)
-            await ef.send_error(ctx, "Command timed out. Please use the command again.")
-            raise ce.ExitFunction("Exited Function.") from exc
-        return response
-
-    async def wait_for_response(self, ctx,
-            title, description, output_type,
-            choices: list[str] = None, choices_dict: list[str] = None,
-            skippable=False, skip_default=""):
-        """Returns the response, but with checks."""
-
-        async def check_has_required():
-            if choices is not None:
-                return len(choices) > 0
-            return False
-        async def check_has_dict():
-            if choices is not None:
-                return len(choices_dict) > 0
-            return False
-
-        async def reformat(response: discord.Message):
-            async def number():
-                if not response.content.isnumeric():
-                    await self.send_error(ctx, "That's not a number!")
-                    return None
-                return int(response.content)
-
-            async def text():
-                if await check_has_required():
-                    if not response.content.lower() in [x.lower() for x in choices]:
-                        await self.send_error(ctx, "You didn't send a choice in the list of choices!")
-                        return None
-                    return response.content.lower()
-                if response.content == "":
-                    await self.send_error(ctx, "You didn't send anything!")
-                    return None
-                return response.content
-
-            async def links():
-                async def check_link(url):
-                    try:
-                        req.head(url)
-                    except req.exceptions.RequestException as exc:
-                        await self.send_error(ctx, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
-                        return None
-                    return url
-
-                links = response.content.split("\n")
-                for link in links:
-                    link = await check_link(link)
-                    if link is None:
-                        return None
-                return links
-
-            async def image():
-                async def check_image(image_url):
-                    supported_formats = ["png", "jpg", "jpeg"]
-
-                    try:
-                        image_request = req.head(image_url)
-                    except req.exceptions.RequestException as exc:
-                        await self.send_error(ctx, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
-                        return None
-
-                    if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
-                        await self.send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
-                        return None
-
-                    return image_url
-
-                async def attachments():
-                    return await check_image(response.attachments[0].url)
-
-                async def link():
-                    return await check_image(response.content)
-
-
-                if not len(response.attachments) == 0:
-                    return await attachments()
-                else:
-                    return await link()
-
-
-            async def listing():
-                return response.content.split("\n")
-
-            async def dictionary():
-                entries = response.content.split("\n")
-                entry_dict = {}
-                for entry in entries:
-                    item = entry.split(":")
-                    item = [x.lstrip(' ') for x in item]
-                    try:
-                        if not len(item) == 2:
-                            raise IndexError
-
-                        if not await check_has_dict():
-                            entry_dict[item[0]] = item[1]
-                        else:
-                            entry_dict[item[0]] = item[1].lower()
-                    except (KeyError, IndexError):
-                        await self.send_error(ctx, "Your formatting is wrong!")
-                        return None
-
-                    if not item[1].lower() in [x.lower() for x in choices_dict]:
-                        await self.send_error(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join([x for x in choices_dict])}`")
-                        return None
-                return entry_dict
-
-            if output_type == OutputTypes.number:
-                return await number()
-            elif output_type == OutputTypes.text:
-                return await text()
-            elif output_type == OutputTypes.links:
-                return await links()
-            elif output_type == OutputTypes.image:
-                return await image()
-            elif output_type == OutputTypes.listing:
-                return await listing()
-            elif output_type == OutputTypes.dictionary:
-                return await dictionary()
-
-        success = True
-        while success:
-            title_form = title if not skippable else f"{title} (skippable)"
-            embed = discord.Embed(title=title_form, description=description)
-            embed.add_field(name="_ _", value="_ _", inline=False)
-
-            field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
-
-            if not await check_has_required():
-                field_desc = f"__Here is an example of what you have to send:__\n`{output_type['example']}`"
-                embed.add_field(name=field_name, value=field_desc, inline=False)
-            else:
-                field_desc = f"Choose from one of the following choices: \n`{'`, `'.join(choices)}`"
-                embed.add_field(name=field_name, value=field_desc, inline=False)
-
-            embed.add_field(name="_ _", value="_ _", inline=False)
-
-            skip_str = f"This command times out in {ef.format_time(TIMEOUT)}. \nUse {main.CMD_PREFIX}cancel to cancel the current command." + (f"\nUse {main.CMD_PREFIX}skip to skip this section." if skippable else "")
-            embed.set_footer(text=skip_str)
-
-            await ctx.author.send(embed=embed)
-
-            response = await self.waiting(ctx)
-
-            if response.content == f"{main.CMD_PREFIX}cancel":
-                raise ce.ExitFunction("Exited Function.")
-            elif response.content == f"{main.CMD_PREFIX}skip":
-                if skippable:
-                    await ctx.author.send("Section skipped.")
-                    return skip_default
-                else:
-                    await self.send_error(ctx, "You can't skip this section!")
-                    continue
-
-            try:
-                response = await reformat(response)
-            except Exception as exc:
-                await self.delete_is_using_command(ctx.author.id)
-                raise exc
-            success = (response is None)
-        return response
-
-class OutputTypes():
-    """Available output types for the wait_for_response() function."""
-    number = {"type": "number",
-        "prefix": "a",
-        "example": "1234531"}
-    text = {"type": "text",
-        "prefix": "some",
-        "example": "This is a very cool string of text!"}
-    links = {"type": "links",
-        "prefix": "a list of",
-        "example": "https://www.youtube.com/FunnyArtistName\nhttps://open.spotify.com/AnotherFunnyArtistName"}
-    image = {"type": "image",
-        "prefix": "an",
-        "example": "https://cdn.discordapp.com/attachments/888419023237316609/894910496199827536/beanss.jpg`\n`(OR you can upload your images as attachments like normal!)"}
-    listing = {"type": "list",
-        "prefix": "a", "example":
-        "This is the first item on the list!\nThis is the second item on the list!\nThis is the third item on the list!"}
-    dictionary = {"type": "dictionary",
-        "prefix": "a",
-        "example": "Remixes: Disallowed\nA very specific song: Verified"}
 
 class Artist:
     """Class for artist."""
@@ -302,7 +86,7 @@ class User:
         self.user_id = None
 
 
-class Submission(ArtistFunctions):
+class Submission:
     """Main submission class."""
     def __init__(self):
         self.user = User()
@@ -311,19 +95,19 @@ class Submission(ArtistFunctions):
 
     async def set_proof(self, ctx, skippable=False):
         """Sets the proof."""
-        self.artist.proof = await self.wait_for_response(ctx,
+        self.artist.proof = await ask.wait_for_response(ctx,
             "Please send proof that you contacted the artist.",
             "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
-            OutputTypes.image,
+            ask.OutputTypes.image,
             skippable=skippable, skip_default=self.artist.proof
         )
 
     async def set_availability(self, ctx, skippable=False):
         """Sets the availability."""
-        availability = await self.wait_for_response(ctx,
+        availability = await ask.wait_for_response(ctx,
             "Is the artist verified, disallowed, or does it vary between songs?",
             "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n\"Disallowed\" means that the artist's songs cannot be used.\n\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed.",
-            OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
+            ask.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
             skippable=skippable, skip_default=None
         )
         availability_dict = {
@@ -336,83 +120,83 @@ class Submission(ArtistFunctions):
 
     async def set_name(self, ctx, skippable=False):
         """Sets the name of the artist."""
-        self.artist.artist_data.name = await self.wait_for_response(ctx,
+        self.artist.artist_data.name = await ask.wait_for_response(ctx,
             "Artist Name",
             "Send the artist name.",
-            OutputTypes.text,
+            ask.OutputTypes.text,
             skippable=skippable, skip_default=self.artist.artist_data.name
         )
 
     async def set_aliases(self, ctx, skippable=True):
         """Sets the aliases of the artist."""
-        alias_names = await self.wait_for_response(ctx,
+        alias_names = await ask.wait_for_response(ctx,
             "Artist Aliases",
             "Send other names that the artist goes by.",
-            OutputTypes.listing,
+            ask.OutputTypes.listing,
             skippable=skippable, skip_default=None
         )
         self.artist.artist_data.aliases = [{"name": alias} for alias in alias_names] if not alias_names is None else self.artist.artist_data.aliases
 
     async def set_desc(self, ctx, skippable=True):
         """Sets the description."""
-        self.artist.artist_data.description = await self.wait_for_response(ctx,
+        self.artist.artist_data.description = await ask.wait_for_response(ctx,
             "Send a description about the artist.",
             "You can put information about the artist here. Their bio, how their music is created, etc. could work.",
-            OutputTypes.text,
+            ask.OutputTypes.text,
             skippable=skippable, skip_default=self.artist.artist_data.description
         )
 
     async def set_notes(self, ctx, skippable=True):
         """Sets the notes."""
-        self.artist.artist_data.notes = await self.wait_for_response(ctx,
+        self.artist.artist_data.notes = await ask.wait_for_response(ctx,
             "Notes",
             "Send other notes you want to put in.",
-            OutputTypes.text,
+            ask.OutputTypes.text,
             skippable=skippable, skip_default=self.artist.artist_data.notes
         )
 
     async def set_avatar(self, ctx, skippable=True):
         """Sets the avatar of the artist."""
-        self.artist.artist_data.details.avatar = await self.wait_for_response(ctx,
+        self.artist.artist_data.details.avatar = await ask.wait_for_response(ctx,
             "Send an image to an avatar of the artist.",
             "This is the profile picture that the artist uses.",
-            OutputTypes.image,
+            ask.OutputTypes.image,
             skippable=skippable, skip_default=self.artist.artist_data.details.avatar
         )
 
     async def set_banner(self, ctx, skippable=True):
         """Sets the banner of the artist."""
-        self.artist.artist_data.details.banner = await self.wait_for_response(ctx,
+        self.artist.artist_data.details.banner = await ask.wait_for_response(ctx,
             "Send an image to the banner of the artist.",
             "This is the banner that the artist uses.",
-            OutputTypes.image,
+            ask.OutputTypes.image,
             skippable=skippable, skip_default=self.artist.artist_data.details.banner
         )
 
     async def set_tracks(self, ctx, skippable=True):
         """Sets the number of tracks."""
-        self.artist.artist_data.tracks = await self.wait_for_response(ctx,
+        self.artist.artist_data.tracks = await ask.wait_for_response(ctx,
             "How many tracks does the artist have?",
             "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
-            OutputTypes.number,
+            ask.OutputTypes.number,
             skippable=skippable, skip_default=self.artist.artist_data.tracks
         )
 
     async def set_genre(self, ctx, skippable=True):
         """Sets the genre."""
-        self.artist.artist_data.genre = await self.wait_for_response(ctx,
+        self.artist.artist_data.genre = await ask.wait_for_response(ctx,
             "What is the genre of the artist?",
             "This is the type of music that the artist makes.",
-            OutputTypes.text,
+            ask.OutputTypes.text,
             skippable=skippable, skip_default=self.artist.artist_data.genre
         )
 
     async def set_usage_rights(self, ctx, skippable=True):
         """Sets the usage rights of the artist."""
-        usage_rights = await self.wait_for_response(ctx,
+        usage_rights = await ask.wait_for_response(ctx,
             "What are the usage rights for the artist?",
             "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
-            OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
+            ask.OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
             skippable=skippable, skip_default={}
         )
         usage_list = []
@@ -430,10 +214,10 @@ class Submission(ArtistFunctions):
 
     async def set_socials(self, ctx, skippable=True):
         """Sets the socials of the artist."""
-        socials = await self.wait_for_response(ctx,
+        socials = await ask.wait_for_response(ctx,
             "Please put some links for the artist's social media here.",
             "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
-            OutputTypes.links,
+            ask.OutputTypes.links,
             skippable=skippable, skip_default=[]
         )
         social_list = []
@@ -449,7 +233,7 @@ class Submission(ArtistFunctions):
 
     async def generate_dict(self):
         """Generates a dictionary of the attributes."""
-        data = adf.data_format
+        data = d_f.data_format
         data["userInfo"]["id"] = self.user.user_id
         data["artistInfo"]["proof"] = self.artist.proof
         data["artistInfo"]["vadbPage"] = self.artist.vadb_page
@@ -571,7 +355,6 @@ class Submission(ArtistFunctions):
         def edit_format(prefix):
             return f" (`{main.CMD_PREFIX}edit {prefix}`)" if editing else ""
 
-
         embed = discord.Embed(title=f"Artist data for {artist_name}:", description="_ _", color=color)
         embed.set_author(name=f"{artist_name} (ID: {artist_id})", url=artist_vadb_page, icon_url=artist_avatar)
         embed.set_thumbnail(url=artist_avatar)
@@ -618,14 +401,14 @@ class Submission(ArtistFunctions):
 
             await ctx.author.send(embed=await self.generate_embed(editing=True))
 
-            message: discord.Message = await self.waiting(ctx)
+            message: discord.Message = await ask.waiting(ctx)
             command = message.content.split(" ")
 
             if command[0].startswith(f"{main.CMD_PREFIX}edit"):
                 command_to_get = command_dict.get(command[1] if len(command) > 1 else None, None)
 
                 if command_to_get is None:
-                    await self.send_error(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
+                    await ask.send_error(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
                     continue
 
                 await command_to_get(ctx, skippable=True)
@@ -634,10 +417,10 @@ class Submission(ArtistFunctions):
                 break
 
             elif command[0] == f"{main.CMD_PREFIX}cancel":
-                raise ce.ExitFunction("Exited Function.")
+                raise c_exc.ExitFunction("Exited Function.")
 
             else:
-                await self.send_error(ctx, "You didn't send a command!")
+                await ask.send_error(ctx, "You didn't send a command!")
 
 
     async def format_url_name(self, name: str):
@@ -649,15 +432,15 @@ class Submission(ArtistFunctions):
 
     async def submit_init(self):
         """Submits a request to VADB to make an artist."""
-        return rqapi.make_request("POST", "/artist", data=self.artist.artist_data.dict_init())
+        return vadb_i.make_request("POST", "/artist", data=self.artist.artist_data.dict_init())
 
     async def submit_edit(self, artist_id):
         """Submits a request to VADB to edit an artist."""
-        return rqapi.make_request("PATCH", f"/artist/{artist_id}", data=self.artist.artist_data.dict_edit())
+        return vadb_i.make_request("PATCH", f"/artist/{artist_id}", data=self.artist.artist_data.dict_edit())
 
     async def send_logs(self):
         """Sends the logs to servers."""
-        can_log = fi.get_data(['mainData', 'canLog'])
+        can_log = f_i.get_data(['mainData', 'canLog'])
         channels: list[discord.TextChannel] = [main.bot.get_channel(int(channelId["channel"])) for channelId in can_log]
         channels = [x for x in channels if x is not None]
         for channel in channels:
