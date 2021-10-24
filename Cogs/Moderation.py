@@ -3,6 +3,7 @@
 # pylint: disable=missing-class-docstring
 # pylint: disable=line-too-long
 # pylint: disable=unused-argument
+# pylint: disable=no-self-use
 
 
 # import discord

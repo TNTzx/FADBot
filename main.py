@@ -1,5 +1,7 @@
 """Where the bot starts its life."""
 
+# pylint: disable=assigning-non-slot
+
 import os
 import discord
 import discord.ext.commands as cmds
