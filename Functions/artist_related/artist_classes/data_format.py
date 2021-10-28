@@ -5,19 +5,16 @@ data_format = {
         "id": "UserId",
     },
     "artistInfo": {
+        "name": "ArtistName",
         "proof": "png",
-        "vadbPage": "https://fadb.live/",
-        "data": {
-            "id": None,
-            "name": "ArtistName",
-            "aliases": [
-                {
-                    "name": "Alias"
-                }
-            ],
-            "description": "Description",
-            "tracks": 1, #AmountOfTracks, int
-            "genre": "Genre",
+
+        "vadb_info": {
+            "artist_id": None,
+            "page": "https://fadb.live/"
+        },
+
+
+        "states": {
             "status": 0,
                 # 0: Completed
                 # 1: No contact
@@ -30,8 +27,7 @@ data_format = {
                 # 2: Contact required
                 # 3: Varies
                 # 99: nil
-            "notes": "Notes, Optional",
-            "usageRights": [
+            "usage_rights": [
                 {
                     "name": "NameOfAllowedSong",
                     "value": True
@@ -41,20 +37,34 @@ data_format = {
                     "value": False
                 }
             ],
-            "details": {
-                "avatarUrl": "AvatarLink",
-                "bannerUrl": "BannerLink, Optional",
-                "socials": [
-                    {
-                        "link": "funnyurl",
-                        "type": "type"
-                    },
-                    {
-                        "link": "anotherfunnyurl",
-                        "type": "type"
-                    }
-                ],
+        },
+        
+        "details": {
+            "description": "Description",
+            "notes": "Notes, Optional",
+
+            "aliases": [{"name": "Alias"}],
+
+            "images": {
+                "avatar_url": "AvatarLink",
+                "banner_url": "BannerLink, Optional"
             },
+
+            "music_info": {
+                "tracks": 1, #AmountOfTracks, int
+                "genre": "Genre",
+            },
+            
+            "socials": [
+                {
+                    "link": "funnyurl",
+                    "type": "type"
+                },
+                {
+                    "link": "anotherfunnyurl",
+                    "type": "type"
+                }
+            ],
         }
     }
 }
