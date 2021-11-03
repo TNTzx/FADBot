@@ -12,6 +12,7 @@ import sys
 import discord.ext.commands as cmds
 
 import main
+from global_vars import variables as vrs
 from functions import command_wrapper as c_w
 
 
@@ -47,7 +48,7 @@ class RestartKill(cmds.Cog):
 
     @c_w.command(
         category=c_w.Categories.bot_control,
-        description=f"Like {main.CMD_PREFIX}restart, but hard.",
+        description=f"Like {vrs.CMD_PREFIX}restart, but hard.",
         aliases=["srh"],
         guild_only=False,
         req_dev=True

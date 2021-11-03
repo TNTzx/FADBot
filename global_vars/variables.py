@@ -4,17 +4,19 @@ import json
 import os
 import pyrebase
 
+# Command Prefix
+CMD_PREFIX = "##"
 
 # Database
 env = os.environ["FadbDBToken"]
-envDict = json.loads(env)
-db_key = envDict["databaseKey"]
+env_dict = json.loads(env)
+db_key = env_dict["databaseKey"]
 fb = pyrebase.initialize_app(db_key)
 
 db = fb.database()
 fbAuth = fb.auth()
 
-envAuth = envDict["auth"]
+envAuth = env_dict["auth"]
 fb_user = fbAuth.sign_in_with_email_and_password(envAuth["email"], envAuth["password"])
 
 def get_token():

@@ -9,11 +9,12 @@
 import discord.ext.commands as cmds
 
 import main
+from global_vars import variables as vrs
 from functions import other_functions as o_f
 from functions.exceptions import send_error as s_e
 from functions.artist_related import is_using as i_u
 
-CMD_PREFIX = main.CMD_PREFIX
+CMD_PREFIX = vrs.CMD_PREFIX
 
 class ErrorHandler(cmds.Cog):
     def __init__(self, bot):
@@ -42,7 +43,7 @@ class ErrorHandler(cmds.Cog):
             return
 
         elif checkexc(cmds.MissingRequiredArgument):
-            await s_e.send_error(ctx, f"Make sure you have the correct parameters! Use `{main.CMD_PREFIX}help` to get help!")
+            await s_e.send_error(ctx, f"Make sure you have the correct parameters! Use `{vrs.CMD_PREFIX}help` to get help!")
             return
 
         elif checkexc(cmds.NoPrivateMessage):

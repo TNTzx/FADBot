@@ -23,6 +23,11 @@ class Match:
         """Gets the name of the value."""
         return self.data_dict[self.value]
 
+class Unique():
+    """Unique variable!"""
+    def __init__(self):
+        pass
+
 
 def format_time(num: int):
     """Formats the time from seconds to '#h #m #s'."""

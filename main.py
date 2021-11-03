@@ -6,14 +6,15 @@ import os
 import discord
 import discord.ext.commands as cmds
 
+from global_vars import variables as vrs
 
-CMD_PREFIX = "##"
+
 bot = discord.Client()
 
 intents = discord.Intents.default()
 intents.members = True
 
-bot = cmds.Bot(command_prefix=CMD_PREFIX, intents=intents)
+bot = cmds.Bot(command_prefix=vrs.CMD_PREFIX, intents=intents)
 bot.remove_command("help")
 
 

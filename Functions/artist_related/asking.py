@@ -13,6 +13,7 @@ import discord
 import discord.ext.commands as cmds
 
 import main
+from global_vars import variables as vrs
 from functions.exceptions import custom_exc as c_e
 from functions.exceptions import send_error as s_e
 from functions.artist_related import is_using as i_u
@@ -39,7 +40,7 @@ async def waiting(ctx: cmds.Context):
 async def wait_for_response(ctx,
         title, description, output_type,
         choices: list[str] = None, choices_dict: list[str] = None,
-        skippable=False, skip_default=""):
+        skippable=False, skip_default=None):
     """Returns the response, but with checks."""
 
     async def check_has_required():
@@ -170,16 +171,16 @@ async def wait_for_response(ctx,
 
         embed.add_field(name="_ _", value="_ _", inline=False)
 
-        skip_str = f"This command times out in {o_f.format_time(TIMEOUT)}. \nUse {main.CMD_PREFIX}cancel to cancel the current command." + (f"\nUse {main.CMD_PREFIX}skip to skip this section." if skippable else "")
+        skip_str = f"This command times out in {o_f.format_time(TIMEOUT)}. \nUse {vrs.CMD_PREFIX}cancel to cancel the current command." + (f"\nUse {vrs.CMD_PREFIX}skip to skip this section." if skippable else "")
         embed.set_footer(text=skip_str)
 
         await ctx.author.send(embed=embed)
 
         response = await waiting(ctx)
 
-        if response.content == f"{main.CMD_PREFIX}cancel":
+        if response.content == f"{vrs.CMD_PREFIX}cancel":
             raise c_e.ExitFunction("Exited Function.")
-        elif response.content == f"{main.CMD_PREFIX}skip":
+        elif response.content == f"{vrs.CMD_PREFIX}skip":
             if skippable:
                 await ctx.author.send("Section skipped.")
                 return skip_default
