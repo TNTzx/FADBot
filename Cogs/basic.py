@@ -8,16 +8,15 @@
 import discord
 import discord.ext.commands as cmds
 
-import main
 from functions import command_wrapper as c_w
 from functions.databases.firebase import firebase_interaction as f_i
 from global_vars import defaults
 
 
-async def add_new_to_database():
+async def add_new_to_database(bot):
     """Updates the database for joined servers."""
     guild_data: dict = f_i.get_data(['guildData'])
-    for guild_client in main.bot.guilds:
+    for guild_client in bot.guilds:
         if not str(guild_client.id) in guild_data.keys():
             f_i.create_data(['guildData', guild_client.id], defaults.default["guildData"]["guildId"])
 
@@ -29,11 +28,11 @@ class Hello(cmds.Cog):
     @cmds.Cog.listener()
     async def on_ready(self):
         print(f"Logged in as {self.bot.user}.")
-        await add_new_to_database()
+        await add_new_to_database(self.bot)
 
     @cmds.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
-        await add_new_to_database()
+        await add_new_to_database(self.bot)
 
     @c_w.command(
         category=c_w.Categories.basic_commands,
@@ -42,7 +41,7 @@ class Hello(cmds.Cog):
         req_dev=True
     )
     async def updatedatabase(self, ctx: cmds.Context):
-        await add_new_to_database()
+        await add_new_to_database(self.bot)
         await ctx.send("Database updated.")
 
 

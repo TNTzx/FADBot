@@ -13,7 +13,6 @@ from __future__ import annotations
 from typing import Union
 import urllib.parse as ul
 import discord
-from discord.enums import DefaultAvatar
 import discord.ext.commands as cmds
 
 import tldextract as tld
@@ -250,7 +249,7 @@ class Structures:
             genre = o_f.Unique()
             socials = o_f.Unique()
 
-        async def set_attribute(self, attr: o_f.Unique, ctx, skippable):
+        async def set_attribute(self, ctx, bot, attr: o_f.Unique, skippable):
             """Sets an attribute in this class."""
             functions = self.Functions
 
@@ -258,7 +257,7 @@ class Structures:
                 return attr == attrib
 
             if check(functions.name):
-                name = await ask.wait_for_response(ctx,
+                name = await ask.wait_for_response(ctx, bot,
                     "Artist Name",
                     "Send the artist name.",
                     ask.OutputTypes.text,
@@ -267,7 +266,7 @@ class Structures:
                 if name is not None:
                     self.name = name
             elif check(functions.proof):
-                proof = await ask.wait_for_response(ctx,
+                proof = await ask.wait_for_response(ctx, bot,
                     "Please send proof that you contacted the artist.",
                     "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
                     ask.OutputTypes.image,
@@ -276,7 +275,7 @@ class Structures:
                 if proof is not None:
                     self.proof = proof
             elif check(functions.availability):
-                availability = await ask.wait_for_response(ctx,
+                availability = await ask.wait_for_response(ctx, bot,
                     "Is the artist verified, disallowed, or does it vary between songs?",
                     "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n\"Disallowed\" means that the artist's songs cannot be used.\n\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed.",
                     ask.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
@@ -290,7 +289,7 @@ class Structures:
                     }
                     self.states.availability.value = dictionary[availability]
             elif check(functions.usage_rights):
-                usage_rights = await ask.wait_for_response(ctx,
+                usage_rights = await ask.wait_for_response(ctx, bot,
                     "What are the usage rights for the artist?",
                     "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
                     ask.OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
@@ -306,7 +305,7 @@ class Structures:
                         })
                     self.states.usage_rights = usage_list
             elif check(functions.description):
-                description = await ask.wait_for_response(ctx,
+                description = await ask.wait_for_response(ctx, bot,
                     "Send a description about the artist.",
                     "You can put information about the artist here. Their bio, how their music is created, etc. could work.",
                     ask.OutputTypes.text,
@@ -315,7 +314,7 @@ class Structures:
                 if description is not None:
                     self.details.description = description
             elif check(functions.notes):
-                notes = await ask.wait_for_response(ctx,
+                notes = await ask.wait_for_response(ctx, bot,
                     "Notes",
                     "Send other notes you want to put in.",
                     ask.OutputTypes.text,
@@ -324,7 +323,7 @@ class Structures:
                 if notes is not None:
                     self.details.notes = notes
             elif check(functions.aliases):
-                aliases = await ask.wait_for_response(ctx,
+                aliases = await ask.wait_for_response(ctx, bot,
                     "Artist Aliases",
                     "Send other names that the artist goes by.",
                     ask.OutputTypes.listing,
@@ -333,7 +332,7 @@ class Structures:
                 if aliases is not None:
                     self.details.aliases = [{"name": alias} for alias in aliases]
             elif check(functions.avatar_url):
-                avatar_url = await ask.wait_for_response(ctx,
+                avatar_url = await ask.wait_for_response(ctx, bot,
                     "Send an image to an avatar of the artist.",
                     "This is the profile picture that the artist uses.",
                     ask.OutputTypes.image,
@@ -342,7 +341,7 @@ class Structures:
                 if avatar_url is not None:
                     self.details.images.avatar_url = avatar_url
             elif check(functions.banner_url):
-                banner = await ask.wait_for_response(ctx,
+                banner = await ask.wait_for_response(ctx, bot,
                     "Send an image to the banner of the artist.",
                     "This is the banner that the artist uses.",
                     ask.OutputTypes.image,
@@ -351,7 +350,7 @@ class Structures:
                 if banner is not None:
                     self.details.images.banner_url = banner
             elif check(functions.tracks):
-                tracks = await ask.wait_for_response(ctx,
+                tracks = await ask.wait_for_response(ctx, bot,
                     "How many tracks does the artist have?",
                     "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
                     ask.OutputTypes.number,
@@ -360,7 +359,7 @@ class Structures:
                 if tracks is not None:
                     self.details.music_info.tracks = tracks
             elif check(functions.genre):
-                genre = await ask.wait_for_response(ctx,
+                genre = await ask.wait_for_response(ctx, bot,
                     "What is the genre of the artist?",
                     "This is the type of music that the artist makes.",
                     ask.OutputTypes.text,
@@ -369,7 +368,7 @@ class Structures:
                 if genre is not None:
                     self.details.music_info.genre = genre
             elif check(functions.socials):
-                socials = await ask.wait_for_response(ctx,
+                socials = await ask.wait_for_response(ctx, bot,
                     "Put some links for the artist's social media here.",
                     "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
                     ask.OutputTypes.links,
@@ -386,7 +385,7 @@ class Structures:
                         })
                     self.details.socials = social_list
 
-        async def edit_loop(self, ctx: cmds.Context):
+        async def edit_loop(self, ctx: cmds.Context, bot):
             """Initiates an edit loop to edit the attributes."""
             functions = self.Functions
             command_dict = {
@@ -409,14 +408,14 @@ class Structures:
 
                 await ctx.author.send(embed=await self.generate_embed(editing=True))
 
-                message: discord.Message = await ask.waiting(ctx)
+                message: discord.Message = await ask.waiting(ctx, bot)
                 command = message.content.split(" ")
 
                 if command[0].startswith(f"{vrs.CMD_PREFIX}edit"):
                     command_to_get = command_dict.get(command[1] if len(command) > 1 else None, None)
 
                     if command_to_get is None:
-                        await ask.send_error(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
+                        await ask.send_error(ctx, bot, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
                         continue
 
                     await command_to_get(ctx, skippable=True)
@@ -428,7 +427,7 @@ class Structures:
                     raise c_exc.ExitFunction("Exited Function.")
 
                 else:
-                    await ask.send_error(ctx, "You didn't send a command!")
+                    await ask.send_error(ctx, bot, "You didn't send a command!")
 
         async def generate_embed(self, editing=False):
             """Generates an embed."""

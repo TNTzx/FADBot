@@ -9,7 +9,6 @@
 
 import datetime
 
-import main
 from functions.exceptions import custom_exc as c_exc
 
 
@@ -49,10 +48,10 @@ def format_time(num: int):
     return time_final
 
 
-async def get_channel_from_mention(mention: str):
+async def get_channel_from_mention(bot, mention: str):
     """Gets channel from a mention."""
     get_id = mention[2:-1]
-    obj = main.bot.get_channel(int(get_id))
+    obj = bot.get_channel(int(get_id))
     return obj
 
 
@@ -78,5 +77,5 @@ def override_dicts_recursive(default: dict, override: dict):
                 new[key] = override[key]
         else:
             raise c_exc.DictOverrideError(f"Key '{key}' on override dict doesn't have an entry in default dict.")
-    
+
     return new

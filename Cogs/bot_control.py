@@ -11,7 +11,6 @@ import sys
 # import discord
 import discord.ext.commands as cmds
 
-import main
 from global_vars import variables as vrs
 from functions import command_wrapper as c_w
 
@@ -29,7 +28,17 @@ class RestartKill(cmds.Cog):
     )
     async def switchrestart(self, ctx):
         await ctx.send("Restarting bot...")
-        main.restart_bot()
+        for file in os.listdir(os.path.dirname(__file__)):
+            if file.endswith(".py"):
+                if file == "__init__.py":
+                    continue
+                new_file = f"{file[:-3]}"
+
+                try:
+                    self.bot.unload_extension(new_file)
+                except cmds.errors.ExtensionNotLoaded:
+                    continue
+                self.bot.load_extension(new_file)
         await ctx.send("Restarted!")
         print("\n \n Restart break! -------------------------------------- \n \n")
 
@@ -43,7 +52,7 @@ class RestartKill(cmds.Cog):
     )
     async def switchkill(self, ctx):
         await ctx.send("Terminated bot.")
-        await main.bot.logout()
+        await self.bot.logout()
 
 
     @c_w.command(

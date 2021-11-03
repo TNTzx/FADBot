@@ -4,17 +4,15 @@ import traceback
 import discord
 import discord.ext.commands as commands
 
-import main
-
 
 ERROR_PREFIX = "**Error!**\n"
 
-async def send_error(ctx: commands.Context, suffix, exc="", other_data: discord.Message = None,
+async def send_error(ctx: commands.Context, bot: discord.Client, suffix, exc="", other_data: discord.Message = None,
         send_author=False, send_owner=False, send_console=False, cooldown_reset=False):
     """Sends an error to a context."""
 
     text = f"{ERROR_PREFIX}{ctx.author.mention}, {suffix}"
-    tntz = await main.bot.fetch_user(279803094722674693)
+    tntz = await bot.fetch_user(279803094722674693)
 
 
     if send_owner:
@@ -36,7 +34,7 @@ async def send_error(ctx: commands.Context, suffix, exc="", other_data: discord.
         await ctx.author.send(text)
     else:
         if isinstance(ctx.message.channel, discord.DMChannel):
-            channel = main.bot.get_channel(ctx.message.channel.id)
+            channel = bot.get_channel(ctx.message.channel.id)
             await channel.send(text)
         else:
             await ctx.channel.send(text)
