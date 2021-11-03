@@ -6,10 +6,13 @@ import requests
 from global_vars import variables as vrs
 
 
-def make_request(request_type, path, data: dict):
+def make_request(request_type, path, data: dict = None):
     """Interacts with the VADB API."""
-    api_link=vrs.API_LINK
-    api_headers=vrs.API_HEADERS
+    if data is None:
+        data = {}
+    
+    api_link = vrs.API_LINK
+    api_headers = vrs.API_HEADERS
 
     url = f"{api_link}{path}"
 

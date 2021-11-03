@@ -13,7 +13,7 @@ from global_vars import variables as vrs
 from functions import command_wrapper as c_w
 from functions.artist_related.artist_classes import artist_data as a_d
 from functions.artist_related import is_using as i_u
-# from functions.databases.vadb import vadb_interact as v_i
+from functions.databases.vadb import vadb_interact as v_i
 from functions.exceptions import custom_exc as c_exc
 from functions.exceptions import send_error as s_e
 from functions import other_functions as o_f
@@ -32,12 +32,14 @@ class ArtistControl(cmds.Cog):
     )
     async def artistadd(self, ctx: cmds.Context, devbranch=""):
         if await i_u.check_if_using_command(ctx.author.id):
-            await s_e.send_error(ctx, f"You're already using this command! Use {vrs.CMD_PREFIX}cancel on your DMs with me to cancel the command.")
+            await s_e.send_error(ctx, self.bot, f"You're already using this command! Use {vrs.CMD_PREFIX}cancel on your DMs with me to cancel the command.")
             raise c_exc.ExitFunction("Exited Function.")
 
         await i_u.add_is_using_command(ctx.author.id)
 
-        print(o_f.get_dict_attr(a_d.Structures.Default()))
+        response = v_i.make_request("GET", "/artist/18/")["data"]
+        data = a_d.Structures.Default(a_d.Structures.VADB.Receive(response))
+        await ctx.send(embed = await data.generate_embed())
 
         await i_u.delete_is_using_command(ctx.author.id)
 

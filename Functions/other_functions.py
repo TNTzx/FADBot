@@ -7,6 +7,7 @@
 # pylint: disable=too-many-public-methods
 
 
+from typing import Union
 import datetime
 
 from functions.exceptions import custom_exc as c_exc
@@ -68,7 +69,7 @@ def get_dict_attr(obj):
 
 def override_dicts_recursive(default: dict, override: dict):
     """Override values of a dict with another dict."""
-    new = default
+    new = default.copy()
     for key in override.keys():
         if key in default:
             if isinstance(default[key], dict) and isinstance(override[key], dict):
@@ -79,3 +80,11 @@ def override_dicts_recursive(default: dict, override: dict):
             raise c_exc.DictOverrideError(f"Key '{key}' on override dict doesn't have an entry in default dict.")
 
     return new
+
+def is_not_blank_str(string: Union[str, None]):
+    """Checks if a string is blank or None."""
+    if string is None:
+        return False
+    if string.strip() == "":
+        return False
+    return True

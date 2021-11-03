@@ -8,7 +8,7 @@
 import os
 import sys
 
-# import discord
+import discord
 import discord.ext.commands as cmds
 
 from global_vars import variables as vrs
@@ -16,7 +16,7 @@ from functions import command_wrapper as c_w
 
 
 class RestartKill(cmds.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Client):
         self.bot = bot
 
     @c_w.command(
@@ -72,7 +72,7 @@ class RestartKill(cmds.Cog):
     @c_w.command(
         req_pa_mod=True
     )
-    async def test(self, ctx):
+    async def test(self, ctx: cmds.Context):
         # ...hey, uhm, man, you doing alright? Make sure to take some breaks okay? You need it! - past you
         await ctx.send("win")
 

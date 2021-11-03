@@ -58,8 +58,8 @@ class Structures:
         details: Details
         """
 
-        default = {
-            "name": "",
+        DEFAULT = {
+            "name": "default name",
             "proof": None,
             "vadb_info": {
                 "artist_id": None,
@@ -68,21 +68,21 @@ class Structures:
             "states": {
                 "status": 2,
                 "availability": 2,
-                "usage_rights": [{}]
+                "usage_rights": None
             },
             "details": {
-                "description": "",
-                "notes": "",
-                "aliases": [{}],
+                "description": None,
+                "notes": None,
+                "aliases": None,
                 "images": {
-                    "avatar_url": None,
-                    "banner_url": None
+                    "avatar_url": DEFAULT_IMAGE,
+                    "banner_url": DEFAULT_IMAGE
                 },
                 "music_info": {
                     "tracks": 0,
-                    "genre": "Mixed"
+                    "genre": None
                 },
-                "socials": [{}]
+                "socials": None
             }
         }
 
@@ -95,9 +95,9 @@ class Structures:
                 ] = None):
 
             if isinstance(datas, dict):
-                datas = o_f.override_dicts_recursive(Structures.Default.default, datas)
+                datas = o_f.override_dicts_recursive(Structures.Default.DEFAULT, datas)
             elif datas is None:
-                datas = Structures.Default.default
+                datas = Structures.Default.DEFAULT
             else:
                 if isinstance(datas, Structures.VADB.Send.Create):
                     datas = {
@@ -132,9 +132,10 @@ class Structures:
                     }
                 elif isinstance(datas, Structures.VADB.Receive):
                     datas = {
+                        "name": datas.name,
                         "vadb_info": {
                             "artist_id": datas.id,
-                            "page": datas.name
+                            "page": f"https://fadb.live/artist/{datas.id}"
                         },
                         "states": {
                             "status": datas.status,
@@ -156,7 +157,7 @@ class Structures:
                             "socials": datas.details.socials
                         }
                     }
-                datas = o_f.override_dicts_recursive(Structures.Default.default, datas)
+                datas = o_f.override_dicts_recursive(Structures.Default.DEFAULT, datas)
 
 
             self.name = datas["name"]
@@ -454,53 +455,58 @@ class Structures:
 
 
             aliases = self.details.aliases
-            alias_list = [alias['name'] for alias in aliases]
-            aliases = f"`{'`, `'.join(alias_list)}`" if len(alias_list) > 0 else "No aliases!"
-            embed.add_field(name=f"Aliases{edit_format('aliases')}:", value=self.details.aliases)
+            if aliases is not None:
+                alias_list = [alias['name'] for alias in aliases]
+                aliases = f"`{'`, `'.join(alias_list)}`"
+            else:
+                aliases = "No aliases!"
+            embed.add_field(name=f"Aliases{edit_format('aliases')}:", value=aliases)
 
 
             description = self.details.description
-            description = description if description is not None else "No description!"
+            description = description if o_f.is_not_blank_str(description) else "No description!"
             embed.add_field(name=f"Description{edit_format('description')}:", value=description, inline=False)
 
             vadb_page = self.vadb_info.page
-            vadb_page = f"[Click here!]({vadb_page})" if vadb_page is not None else "Not submitted yet!"
+            vadb_page = f"[Click here!]({vadb_page})" if (not (vadb_page == Structures.Default.DEFAULT["vadb_info"]["page"])) and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
             embed.add_field(name="VADB Page:", value=vadb_page, inline=False)
 
 
             status = self.states.status.get_name()
             status = f"**__{status}__**"
-            embed.add_field(name="Status:", value=status)
+            embed.add_field(name="Status:", value=status, inline=False)
 
             availability = self.states.availability.get_name()
             availability = f"**__{availability}__**"
-            embed.add_field(name=f"Availability{edit_format('availability')}:", value=availability, inline=False)
+            embed.add_field(name=f"Availability{edit_format('availability')}:", value=availability)
 
             usage_rights = self.states.usage_rights
-            if len(usage_rights) > 0:
+            if usage_rights is not None:
                 usage_list = []
                 for entry in usage_rights:
                     status_rights = entry["value"]
                     usage_list.append(f"{entry['name']}: {'Verified' if status_rights else 'Disallowed'}")
                 usage_rights = "\n".join(usage_list)
             else:
-                usage_rights = f"All songs: {availability}"
+                usage_rights = "No other specific usage rights!"
             embed.add_field(name=f"Specific usage rights{edit_format('usageRights')}:", value=f"`{usage_rights}`")
 
 
             socials = self.details.socials
-            if len(socials) > 0:
+            if socials is not None:
                 socials_list = []
                 for entry in socials:
-                    link, domain = entry["link"], entry["type"]
-                    socials_list.append(f"[{domain}]({link})")
+                    link_type: str = entry["type"]
+                    link_type = link_type.capitalize()
+                    link = entry["link"]
+                    socials_list.append(f"[{link_type}]({link})")
                 socials = " ".join(socials_list)
             else:
                 socials = "No socials links!"
             embed.add_field(name=f"Social links{edit_format('socials')}:", value=socials, inline=False)
 
             notes = self.details.notes
-            notes = notes if notes is not None else "No other notes!"
+            notes = notes if o_f.is_not_blank_str(notes) else "No other notes!"
             embed.add_field(name=f"Other notes{edit_format('notes')}:", value=notes)
 
 
@@ -512,16 +518,16 @@ class Structures:
             }
             color_match = o_f.Match(color_keys, "green")
 
-            if status == "Completed":
-                if availability == "Verified":
+            if self.states.status.value == 0: # completed
+                if self.states.availability.value == 0: # verified
                     color_match.value = "green"
-                elif availability == "Disallowed":
+                elif self.states.availability.value == 1: # disallowed
                     color_match.value = "red"
-                elif availability == "Contact Required":
+                elif self.states.availability.value == 2: # contact required
                     color_match.value = "yellow"
-                elif availability == "Varies":
+                elif self.states.availability.value == 3: # varies
                     color_match.value = "blue"
-            elif status in ["No Contact", "Pending"]:
+            elif self.states.status.value in (1, 2): # no contact / pending
                 color_match.value = "yellow"
 
             embed.colour = color_match.get_name()
@@ -549,7 +555,6 @@ class Structures:
                             "availability": datas.states.availability.value
                         }
                     elif isinstance(datas, dict):
-                        print(self.get_default_dict())
                         datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
                     else:
                         datas = self.get_default_dict()
