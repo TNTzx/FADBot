@@ -156,7 +156,7 @@ async def wait_for_response(ctx, bot,
     success = True
     while success:
         title_form = title if not skippable else f"{title} (skippable)"
-        embed = discord.Embed(title=title_form, description=description)
+        embed = discord.Embed(title=title_form, description=description, colour=0xFFAEAE)
         embed.add_field(name="_ _", value="_ _", inline=False)
 
         field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
