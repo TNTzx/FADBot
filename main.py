@@ -31,7 +31,7 @@ def main():
             if filename == "__init__.py":
                 continue
             print(f"Loading cog '{filename}'...")
-            bot.load_extension(f"Cogs.{filename[:-3]}")
+            bot.load_extension(f"cogs.{filename[:-3]}")
 
     print("Loaded all cogs!")
 
