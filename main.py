@@ -24,7 +24,7 @@ def main():
 
     def all_cogs():
         """Returns all cogs."""
-        return os.listdir(os.path.join(os.path.dirname(__file__), ".", "Cogs"))
+        return os.listdir(os.path.join(os.path.dirname(__file__), ".", "cogs"))
 
     for filename in all_cogs():
         if filename.endswith(".py"):
