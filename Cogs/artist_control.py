@@ -13,7 +13,7 @@ from global_vars import variables as vrs
 from functions import command_wrapper as c_w
 from functions.artist_related.artist_classes import artist_data as a_d
 from functions.artist_related import is_using as i_u
-from functions.databases.vadb import vadb_interact as v_i
+# from functions.databases.vadb import vadb_interact as v_i
 from functions.exceptions import custom_exc as c_exc
 from functions.exceptions import send_error as s_e
 from functions import other_functions as o_f
@@ -37,9 +37,12 @@ class ArtistControl(cmds.Cog):
 
         await i_u.add_is_using_command(ctx.author.id)
 
-        response = v_i.make_request("GET", "/artist/18/")["data"]
-        data = a_d.Structures.Default(a_d.Structures.VADB.Receive(response))
-        await ctx.send(embed = await data.generate_embed())
+        data = a_d.Structures.Default()
+        if devbranch != "devbranch":
+            await data.trigger_all_set_attributes(ctx, self.bot)
+
+        await data.edit_loop(ctx, self.bot)
+        print(data.get_json_dict())
 
         await i_u.delete_is_using_command(ctx.author.id)
 

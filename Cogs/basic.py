@@ -8,9 +8,10 @@
 import discord
 import discord.ext.commands as cmds
 
+from global_vars import defaults
 from functions import command_wrapper as c_w
 from functions.databases.firebase import firebase_interaction as f_i
-from global_vars import defaults
+from functions import other_functions as o_f
 
 
 async def add_new_to_database(bot):
@@ -28,6 +29,8 @@ class Hello(cmds.Cog):
     @cmds.Cog.listener()
     async def on_ready(self):
         print(f"Logged in as {self.bot.user}.")
+        tntz = await o_f.get_tntz(self.bot)
+        await tntz.send("Logged in!")
         await add_new_to_database(self.bot)
 
     @cmds.Cog.listener()

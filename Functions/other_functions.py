@@ -9,6 +9,7 @@
 
 from typing import Union
 import datetime
+import discord
 
 from functions.exceptions import custom_exc as c_exc
 
@@ -27,6 +28,10 @@ class Unique():
     """Unique variable!"""
     def __init__(self):
         pass
+
+async def get_tntz(bot: discord.Client):
+    """Gets TNTz."""
+    return await bot.fetch_user(279803094722674693)
 
 
 def format_time(num: int):

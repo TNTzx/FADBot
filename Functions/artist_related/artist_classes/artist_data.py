@@ -250,7 +250,7 @@ class Structures:
             genre = o_f.Unique()
             socials = o_f.Unique()
 
-        async def set_attribute(self, ctx, bot, attr: o_f.Unique, skippable):
+        async def set_attribute(self, ctx, bot, attr: o_f.Unique, skippable=False):
             """Sets an attribute in this class."""
             functions = self.Functions
 
@@ -294,7 +294,7 @@ class Structures:
                     "What are the usage rights for the artist?",
                     "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
                     ask.OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
-                    skippable=skippable
+                    skippable=True
                 )
                 usage_list = []
                 if usage_rights is not None:
@@ -310,7 +310,7 @@ class Structures:
                     "Send a description about the artist.",
                     "You can put information about the artist here. Their bio, how their music is created, etc. could work.",
                     ask.OutputTypes.text,
-                    skippable=skippable
+                    skippable=True
                 )
                 if description is not None:
                     self.details.description = description
@@ -319,7 +319,7 @@ class Structures:
                     "Notes",
                     "Send other notes you want to put in.",
                     ask.OutputTypes.text,
-                    skippable=skippable
+                    skippable=True
                 )
                 if notes is not None:
                     self.details.notes = notes
@@ -328,7 +328,7 @@ class Structures:
                     "Artist Aliases",
                     "Send other names that the artist goes by.",
                     ask.OutputTypes.listing,
-                    skippable=skippable
+                    skippable=True
                 )
                 if aliases is not None:
                     self.details.aliases = [{"name": alias} for alias in aliases]
@@ -337,7 +337,7 @@ class Structures:
                     "Send an image to an avatar of the artist.",
                     "This is the profile picture that the artist uses.",
                     ask.OutputTypes.image,
-                    skippable=skippable
+                    skippable=True
                 )
                 if avatar_url is not None:
                     self.details.images.avatar_url = avatar_url
@@ -346,7 +346,7 @@ class Structures:
                     "Send an image to the banner of the artist.",
                     "This is the banner that the artist uses.",
                     ask.OutputTypes.image,
-                    skippable=skippable
+                    skippable=True
                 )
                 if banner is not None:
                     self.details.images.banner_url = banner
@@ -355,7 +355,7 @@ class Structures:
                     "How many tracks does the artist have?",
                     "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
                     ask.OutputTypes.number,
-                    skippable=skippable
+                    skippable=True
                 )
                 if tracks is not None:
                     self.details.music_info.tracks = tracks
@@ -364,7 +364,7 @@ class Structures:
                     "What is the genre of the artist?",
                     "This is the type of music that the artist makes.",
                     ask.OutputTypes.text,
-                    skippable=skippable
+                    skippable=True
                 )
                 if genre is not None:
                     self.details.music_info.genre = genre
@@ -373,7 +373,7 @@ class Structures:
                     "Put some links for the artist's social media here.",
                     "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
                     ask.OutputTypes.links,
-                    skippable=skippable
+                    skippable=True
                 )
                 social_list = []
                 if socials is not None:
@@ -395,8 +395,8 @@ class Structures:
                     "name": functions.name,
                     "aliases": functions.aliases,
                     "description": functions.description,
-                    "avatar": functions.avatar_url,
-                    "banner": functions.banner_url,
+                    "avatar_url": functions.avatar_url,
+                    "banner_url": functions.banner_url,
                     "tracks": functions.tracks,
                     "genre": functions.genre,
                     "usagerights": functions.usage_rights,
@@ -419,7 +419,7 @@ class Structures:
                         await ask.send_error(ctx, bot, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
                         continue
 
-                    await command_to_get(ctx, skippable=True)
+                    await self.set_attribute(ctx, bot, command_to_get, skippable=True)
 
                 elif command[0] == f"{vrs.CMD_PREFIX}submit":
                     break
@@ -429,6 +429,25 @@ class Structures:
 
                 else:
                     await ask.send_error(ctx, bot, "You didn't send a command!")
+
+        async def trigger_all_set_attributes(self, ctx, bot):
+            """Triggers all attributes."""
+            async def trigger(cmd):
+                await self.set_attribute(ctx, bot, cmd)
+
+            await trigger(self.Functions.name)
+            # add check for existing artist here
+            await trigger(self.Functions.proof)
+            await trigger(self.Functions.availability)
+            await trigger(self.Functions.usage_rights)
+            await trigger(self.Functions.aliases)
+            await trigger(self.Functions.description)
+            await trigger(self.Functions.avatar_url)
+            await trigger(self.Functions.banner_url)
+            await trigger(self.Functions.tracks)
+            await trigger(self.Functions.genre)
+            await trigger(self.Functions.socials)
+            await trigger(self.Functions.notes)
 
         async def generate_embed(self, editing=False):
             """Generates an embed."""
@@ -468,7 +487,7 @@ class Structures:
             embed.add_field(name=f"Description{edit_format('description')}:", value=description, inline=False)
 
             vadb_page = self.vadb_info.page
-            vadb_page = f"[Click here!]({vadb_page})" if (not (vadb_page == Structures.Default.DEFAULT["vadb_info"]["page"])) and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
+            vadb_page = f"[Click here!]({vadb_page})" if not (vadb_page == Structures.Default.DEFAULT["vadb_info"]["page"]) and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
             embed.add_field(name="VADB Page:", value=vadb_page, inline=False)
 
 
@@ -508,6 +527,9 @@ class Structures:
             notes = self.details.notes
             notes = notes if o_f.is_not_blank_str(notes) else "No other notes!"
             embed.add_field(name=f"Other notes{edit_format('notes')}:", value=notes)
+
+            if editing:
+                embed.add_field(name=f"{edit_format('avatar_url')} for editing the avatar\n{edit_format('banner_url')} for editing the banner", value="_ _", inline=False)
 
 
             color_keys = {

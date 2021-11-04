@@ -7,6 +7,9 @@ import pyrebase
 # Command Prefix
 CMD_PREFIX = "##"
 
+# us!
+
+
 # Database
 env = os.environ["FadbDBToken"]
 env_dict = json.loads(env)
