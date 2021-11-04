@@ -37,7 +37,10 @@ class ArtistControl(cmds.Cog):
 
         await i_u.add_is_using_command(ctx.author.id)
 
-        await ctx.send("> The artist verification form is now being set up. Please __follow all instructions as necessary.__")
+        if not isinstance(ctx.channel, discord.channel.DMChannel):
+            await ctx.send("The form is being set up on your DMs. Please check it.")
+        
+        await ctx.author.send("> The artist verification form is now being set up. Please __follow all instructions as necessary.__")
 
         data = a_d.Structures.Default()
         if devbranch != "devbranch":
@@ -47,7 +50,7 @@ class ArtistControl(cmds.Cog):
         response = v_i.make_request("POST", "/artist/", a_d.Structures.VADB.Send.Create(data).get_json_dict())
         v_i.make_request("PATCH", f"/artist/{response['data']['id']}", a_d.Structures.VADB.Send.Edit(data).get_json_dict())
 
-        await ctx.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
+        await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
 
         await i_u.delete_is_using_command(ctx.author.id)
 
