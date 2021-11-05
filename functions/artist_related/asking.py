@@ -36,122 +36,126 @@ async def waiting(ctx: cmds.Context, bot):
         raise c_e.ExitFunction("Exited Function.") from exc
     return response
 
+
+async def check_has_required(choices):
+    """Checks if there is a required choice."""
+    if choices is not None:
+        return len(choices) > 0
+    return False
+async def check_has_dict(choices, choices_dict):
+    """Checks if there is a required choice for dicts.."""
+    if choices is not None:
+        return len(choices_dict) > 0
+    return False
+
+async def reformat(ctx: cmds.Context, bot: discord.Client, output_type: dict, response: discord.Message, choices: list[str] = None, choices_dict: list[str] = None,):
+    """Reformats the response."""
+    async def number():
+        if not response.content.isnumeric():
+            await send_error(ctx, bot, "That's not a number!")
+            return None
+        return int(response.content)
+
+    async def text():
+        if await check_has_required(choices):
+            if not response.content.lower() in [x.lower() for x in choices]:
+                await send_error(ctx, bot, "You didn't send a choice in the list of choices!")
+                return None
+            return response.content.lower()
+        if response.content == "":
+            await send_error(ctx, bot, "You didn't send anything!")
+            return None
+        return response.content
+
+    async def links():
+        async def check_link(url):
+            try:
+                req.head(url)
+            except req.exceptions.RequestException as exc:
+                await send_error(ctx, bot, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
+                return None
+            return url
+
+        links = response.content.split("\n")
+        for link in links:
+            link = await check_link(link)
+            if link is None:
+                return None
+        return links
+
+    async def image():
+        async def check_image(image_url):
+            supported_formats = ["png", "jpg", "jpeg"]
+
+            try:
+                image_request = req.head(image_url)
+            except req.exceptions.RequestException as exc:
+                await send_error(ctx, bot, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
+                return None
+
+            if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
+                await send_error(ctx, bot, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
+                return None
+
+            return image_url
+
+        async def attachments():
+            return await check_image(response.attachments[0].url)
+
+        async def link():
+            return await check_image(response.content)
+
+
+        if not len(response.attachments) == 0:
+            return await attachments()
+        else:
+            return await link()
+
+
+    async def listing():
+        return response.content.split("\n")
+
+    async def dictionary():
+        entries = response.content.split("\n")
+        entry_dict = {}
+        for entry in entries:
+            item = entry.split(":")
+            item = [x.lstrip(' ') for x in item]
+            try:
+                if not len(item) == 2:
+                    raise IndexError
+
+                if not await check_has_dict(choices, choices_dict):
+                    entry_dict[item[0]] = item[1]
+                else:
+                    entry_dict[item[0]] = item[1].lower()
+            except (KeyError, IndexError):
+                await send_error(ctx, bot, "Your formatting is wrong!")
+                return None
+
+            if not item[1].lower() in [x.lower() for x in choices_dict]:
+                await send_error(ctx, bot, f"Check if the right side of the colons contain these values: `{'`, `'.join(choices_dict)}`")
+                return None
+        return entry_dict
+
+    if output_type == OutputTypes.number:
+        return await number()
+    elif output_type == OutputTypes.text:
+        return await text()
+    elif output_type == OutputTypes.links:
+        return await links()
+    elif output_type == OutputTypes.image:
+        return await image()
+    elif output_type == OutputTypes.listing:
+        return await listing()
+    elif output_type == OutputTypes.dictionary:
+        return await dictionary()
+
 async def wait_for_response(ctx, bot,
         title, description, output_type,
         choices: list[str] = None, choices_dict: list[str] = None,
         skippable=False, skip_default=None):
     """Returns the response, but with checks."""
-
-    async def check_has_required():
-        if choices is not None:
-            return len(choices) > 0
-        return False
-    async def check_has_dict():
-        if choices is not None:
-            return len(choices_dict) > 0
-        return False
-
-    async def reformat(response: discord.Message):
-        async def number():
-            if not response.content.isnumeric():
-                await send_error(ctx, bot, "That's not a number!")
-                return None
-            return int(response.content)
-
-        async def text():
-            if await check_has_required():
-                if not response.content.lower() in [x.lower() for x in choices]:
-                    await send_error(ctx, bot, "You didn't send a choice in the list of choices!")
-                    return None
-                return response.content.lower()
-            if response.content == "":
-                await send_error(ctx, bot, "You didn't send anything!")
-                return None
-            return response.content
-
-        async def links():
-            async def check_link(url):
-                try:
-                    req.head(url)
-                except req.exceptions.RequestException as exc:
-                    await send_error(ctx, bot, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
-                    return None
-                return url
-
-            links = response.content.split("\n")
-            for link in links:
-                link = await check_link(link)
-                if link is None:
-                    return None
-            return links
-
-        async def image():
-            async def check_image(image_url):
-                supported_formats = ["png", "jpg", "jpeg"]
-
-                try:
-                    image_request = req.head(image_url)
-                except req.exceptions.RequestException as exc:
-                    await send_error(ctx, bot, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
-                    return None
-
-                if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
-                    await send_error(ctx, bot, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
-                    return None
-
-                return image_url
-
-            async def attachments():
-                return await check_image(response.attachments[0].url)
-
-            async def link():
-                return await check_image(response.content)
-
-
-            if not len(response.attachments) == 0:
-                return await attachments()
-            else:
-                return await link()
-
-
-        async def listing():
-            return response.content.split("\n")
-
-        async def dictionary():
-            entries = response.content.split("\n")
-            entry_dict = {}
-            for entry in entries:
-                item = entry.split(":")
-                item = [x.lstrip(' ') for x in item]
-                try:
-                    if not len(item) == 2:
-                        raise IndexError
-
-                    if not await check_has_dict():
-                        entry_dict[item[0]] = item[1]
-                    else:
-                        entry_dict[item[0]] = item[1].lower()
-                except (KeyError, IndexError):
-                    await send_error(ctx, bot, "Your formatting is wrong!")
-                    return None
-
-                if not item[1].lower() in [x.lower() for x in choices_dict]:
-                    await send_error(ctx, bot, f"Check if the right side of the colons contain these values: `{'`, `'.join(choices_dict)}`")
-                    return None
-            return entry_dict
-
-        if output_type == OutputTypes.number:
-            return await number()
-        elif output_type == OutputTypes.text:
-            return await text()
-        elif output_type == OutputTypes.links:
-            return await links()
-        elif output_type == OutputTypes.image:
-            return await image()
-        elif output_type == OutputTypes.listing:
-            return await listing()
-        elif output_type == OutputTypes.dictionary:
-            return await dictionary()
 
     success = True
     while success:
@@ -161,7 +165,7 @@ async def wait_for_response(ctx, bot,
 
         field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
 
-        if not await check_has_required():
+        if not await check_has_required(choices):
             field_desc = f"__Here is an example of what you have to send:__\n`{output_type['example']}`"
             embed.add_field(name=field_name, value=field_desc, inline=False)
         else:
@@ -188,7 +192,7 @@ async def wait_for_response(ctx, bot,
                 continue
 
         try:
-            response = await reformat(response)
+            response = await reformat(ctx, bot, output_type, response, choices=choices, choices_dict=choices_dict)
         except Exception as exc:
             await i_u.delete_is_using_command(ctx.author.id)
             raise exc

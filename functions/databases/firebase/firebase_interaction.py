@@ -42,7 +42,7 @@ def is_data_exists(path: list[str]):
 
 
 # Create
-def create_data(path: list[str], data):
+def override_data(path: list[str], data: dict):
     """Overrides the data at a specific path."""
     path_parse = get_from_path(path)
     path_parse.set(data, token=vrs.get_token())
@@ -52,11 +52,11 @@ def append_data(path: list[str], data: list):
     """Adds data to a specific path. Only works with lists."""
     new_data = get_data(path)
     new_data += data
-    create_data(path, new_data)
+    override_data(path, new_data)
 
 # Edit
-def edit_data(path: list[str], data):
-    """Changes / overrides data in a path."""
+def edit_data(path: list[str], data: dict):
+    """Edits data in a path. Use key-value pairs."""
     if not is_data_exists(path):
         raise c_exc.FirebaseNoEntry(f"Data can't be found for '{path}'.")
 
@@ -65,7 +65,7 @@ def edit_data(path: list[str], data):
 
 
 # Delete
-def delete_data(path):
+def delete_data(path: list[str]):
     """Deletes the path."""
     if not is_data_exists(path):
         raise c_exc.FirebaseNoEntry(f"Data being deleted doesn't exist for '{path}'.")

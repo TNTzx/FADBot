@@ -19,7 +19,7 @@ async def add_new_to_database(bot):
     guild_data: dict = f_i.get_data(['guildData'])
     for guild_client in bot.guilds:
         if not str(guild_client.id) in guild_data.keys():
-            f_i.create_data(['guildData', guild_client.id], defaults.default["guildData"]["guildId"])
+            f_i.edit_data(['guildData'], {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
 
 class Hello(cmds.Cog):

@@ -8,13 +8,12 @@
 from typing import Union
 import discord
 import discord.ext.commands as cmds
+import requests as req
 
 from global_vars import variables as vrs
 from functions import command_wrapper as c_w
-from functions.artist_related.artist_classes import artist_data as a_d
+from functions.artist_related.classes import artist_library as a_l
 from functions.artist_related import is_using as i_u
-from functions.databases.vadb import vadb_interact as v_i
-from functions.exceptions import custom_exc as c_exc
 from functions.exceptions import send_error as s_e
 from functions import other_functions as o_f
 
@@ -33,26 +32,29 @@ class ArtistControl(cmds.Cog):
     async def artistadd(self, ctx: cmds.Context, devbranch=""):
         if await i_u.check_if_using_command(ctx.author.id):
             await s_e.send_error(ctx, self.bot, f"You're already using this command! Use {vrs.CMD_PREFIX}cancel on your DMs with me to cancel the command.")
-            raise c_exc.ExitFunction("Exited Function.")
+            return
 
         await i_u.add_is_using_command(ctx.author.id)
 
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.send("The form is being set up on your DMs. Please check it.")
-        
+
         await ctx.author.send("> The artist verification form is now being set up. Please __follow all instructions as necessary.__")
 
-        data = a_d.Structures.Default()
+        data = a_l.Structures.Default()
         if devbranch != "devbranch":
             await data.trigger_all_set_attributes(ctx, self.bot)
 
         await data.edit_loop(ctx, self.bot)
-        response = v_i.make_request("POST", "/artist/", a_d.Structures.VADB.Send.Create(data).get_json_dict())
-        v_i.make_request("PATCH", f"/artist/{response['data']['id']}", a_d.Structures.VADB.Send.Edit(data).get_json_dict())
+        response = a_l.Structures.VADB.Send.Create(data).send_data()
+        a_l.Structures.VADB.Send.Edit(data).send_data(response["data"]["id"])
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
 
         await i_u.delete_is_using_command(ctx.author.id)
+
+        await data.post_log(self.bot)
+        a_l.Structures.Firebase.Pending(data).send_data()
 
 
     @c_w.command(
@@ -70,16 +72,27 @@ class ArtistControl(cmds.Cog):
         ]
     )
     async def artistsearch(self, ctx: cmds.Context, term: Union[str, int]):
-        pass
-        # try:
-        #     term = int(term)
-        # except ValueError:
-        #     pass
+        search_result = a_l.search_for_artist(term)
+        try:
+            term = int(term)
+        except (ValueError, TypeError):
+            pass
 
-        # if isinstance(term, str):
-        #     artists = v_i.make_request("GET", "/search/{")
-        # else:
-        #     pass
+        if isinstance(term, int):
+            try:
+                await ctx.send(embed=await a_l.get_artist_by_id(term).generate_embed())
+            except req.exceptions.HTTPError:
+                await ctx.send("Your search term has no results or an error occured. Try again?")
+            return
+
+        if search_result is None:
+            await ctx.send("Your search term has no results. Try again?")
+            return
+
+        if len(search_result) == 1:
+            await ctx.send(embed=await search_result[0].generate_embed())
+        elif len(search_result) > 1:
+            await ctx.send("Multiple artists found! Use `##artistsearch <id>` to search for a specific artist.\nUnknown IDs mean that the artist is still pending.", embed=a_l.generate_search_embed(search_result))
 
 
     @c_w.command(

@@ -12,6 +12,8 @@
 from __future__ import annotations
 from typing import Union
 import urllib.parse as ul
+import abc
+import requests as req
 import discord
 import discord.ext.commands as cmds
 
@@ -19,6 +21,8 @@ import tldextract as tld
 
 from global_vars import variables as vrs
 from functions.artist_related import asking as ask
+from functions.databases.firebase import firebase_interaction as f_i
+from functions.databases.vadb import vadb_interact as v_i
 from functions.exceptions import custom_exc as c_exc
 from functions import other_functions as o_f
 
@@ -235,6 +239,114 @@ class Structures:
                     self.tracks = datas["tracks"]
                     self.genre = datas["genre"]
 
+        async def generate_embed(self, editing=False):
+            """Generates an embed."""
+
+            embed = discord.Embed()
+            embed.title = f"Artist data for {self.name}:"
+            embed.description = "_ _"
+
+            def edit_format(prefix):
+                return f" (`{vrs.CMD_PREFIX}edit {prefix}`)" if editing else ""
+
+            id_format = self.vadb_info.artist_id if self.vadb_info.artist_id is not None else "Not submitted yet!"
+
+            embed.set_author(
+                name=f"{self.name} (ID: {id_format})",
+                url=self.vadb_info.page,
+                icon_url=self.details.images.avatar_url
+            )
+
+            embed.set_thumbnail(url=self.details.images.avatar_url)
+            embed.set_image(url=self.details.images.banner_url)
+
+            embed.add_field(name=f"Name{edit_format('name')}:", value=f"**{self.name}**")
+
+
+            aliases = self.details.aliases
+            if aliases is not None:
+                alias_list = [alias['name'] for alias in aliases]
+                aliases = f"`{'`, `'.join(alias_list)}`"
+            else:
+                aliases = "No aliases!"
+            embed.add_field(name=f"Aliases{edit_format('aliases')}:", value=aliases)
+
+
+            description = self.details.description
+            description = description if o_f.is_not_blank_str(description) else "No description!"
+            embed.add_field(name=f"Description{edit_format('description')}:", value=description, inline=False)
+
+            vadb_page = self.vadb_info.page
+            vadb_page = f"[Click here!]({vadb_page})" if not (vadb_page == Structures.Default.DEFAULT["vadb_info"]["page"]) and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
+            embed.add_field(name="VADB Page:", value=vadb_page, inline=False)
+
+
+            status = self.states.status.get_name()
+            status = f"**__{status}__**"
+            embed.add_field(name="Status:", value=status, inline=False)
+
+            availability = self.states.availability.get_name()
+            availability = f"**__{availability}__**"
+            embed.add_field(name=f"Availability{edit_format('availability')}:", value=availability)
+
+            usage_rights = self.states.usage_rights
+            if usage_rights is not None:
+                usage_list = []
+                for entry in usage_rights:
+                    status_rights = entry["value"]
+                    usage_list.append(f"{entry['name']}: {'Verified' if status_rights else 'Disallowed'}")
+                usage_rights = "\n".join(usage_list)
+            else:
+                usage_rights = "No other specific usage rights!"
+            embed.add_field(name=f"Specific usage rights{edit_format('usageRights')}:", value=f"`{usage_rights}`")
+
+
+            socials = self.details.socials
+            if socials is not None:
+                socials_list = []
+                for entry in socials:
+                    link_type: str = entry["type"]
+                    link_type = link_type.capitalize()
+                    link = entry["link"]
+                    socials_list.append(f"[{link_type}]({link})")
+                socials = " ".join(socials_list)
+            else:
+                socials = "No socials links!"
+            embed.add_field(name=f"Social links{edit_format('socials')}:", value=socials, inline=False)
+
+            notes = self.details.notes
+            notes = notes if o_f.is_not_blank_str(notes) else "No other notes!"
+            embed.add_field(name=f"Other notes{edit_format('notes')}:", value=notes)
+
+            if editing:
+                embed.add_field(name=f"{edit_format('avatar_url')} for editing the avatar\n{edit_format('banner_url')} for editing the banner", value="_ _", inline=False)
+
+
+            color_keys = {
+                "green": 0x00FF00,
+                "red": 0xFF0000,
+                "yellow": 0xFFFF00,
+                "blue": 0x0000FF
+            }
+            color_match = o_f.Match(color_keys, "green")
+
+            if self.states.status.value == 0: # completed
+                if self.states.availability.value == 0: # verified
+                    color_match.value = "green"
+                elif self.states.availability.value == 1: # disallowed
+                    color_match.value = "red"
+                elif self.states.availability.value == 2: # contact required
+                    color_match.value = "yellow"
+                elif self.states.availability.value == 3: # varies
+                    color_match.value = "blue"
+            elif self.states.status.value in (1, 2): # no contact / pending
+                color_match.value = "yellow"
+
+            embed.colour = color_match.get_name()
+
+            return embed
+
+
         class Functions:
             """Contains identifiers for the set_attribute() function."""
             name = o_f.Unique()
@@ -250,7 +362,7 @@ class Structures:
             genre = o_f.Unique()
             socials = o_f.Unique()
 
-        async def set_attribute(self, ctx, bot, attr: o_f.Unique, skippable=False):
+        async def set_attribute(self, ctx: cmds.Context, bot: discord.Client, attr: o_f.Unique, skippable=False):
             """Sets an attribute in this class."""
             functions = self.Functions
 
@@ -264,8 +376,19 @@ class Structures:
                     ask.OutputTypes.text,
                     skippable=skippable
                 )
+
+                search_result = search_for_artist(name)
+                if search_result is not None:
+                    await ctx.author.send("Other artist(s) found. Please check if you have a duplicate submission.\nUse `##cancel` if you think you have a different artist, or type anything to continue.", embed=generate_search_embed(search_result))
+                    response = await ask.waiting(ctx, bot)
+                    response = await ask.reformat(ctx, bot, ask.OutputTypes.text, response)
+
+                    if response == "##cancel":
+                        return
+
                 if name is not None:
                     self.name = name
+
             elif check(functions.proof):
                 proof = await ask.wait_for_response(ctx, bot,
                     "Please send proof that you contacted the artist.",
@@ -386,7 +509,7 @@ class Structures:
                         })
                     self.details.socials = social_list
 
-        async def edit_loop(self, ctx: cmds.Context, bot):
+        async def edit_loop(self, ctx: cmds.Context, bot: discord.Client):
             """Initiates an edit loop to edit the attributes."""
             functions = self.Functions
             command_dict = {
@@ -430,7 +553,7 @@ class Structures:
                 else:
                     await ask.send_error(ctx, bot, "You didn't send a command!")
 
-        async def trigger_all_set_attributes(self, ctx, bot):
+        async def trigger_all_set_attributes(self, ctx: cmds.Context, bot: discord.Client):
             """Triggers all attributes."""
             async def trigger(cmd):
                 await self.set_attribute(ctx, bot, cmd)
@@ -449,112 +572,21 @@ class Structures:
             await trigger(self.Functions.socials)
             await trigger(self.Functions.notes)
 
-        async def generate_embed(self, editing=False):
-            """Generates an embed."""
 
-            embed = discord.Embed()
-            embed.title = f"Artist data for {self.name}:"
-            embed.description = "_ _"
+        async def post_log(self, bot: discord.Client):
+            """Posts logs to everyone."""
+            can_log = f_i.get_data(["mainData", "canLog"])
+            channels: list[discord.TextChannel] = [bot.get_channel(int(entry["channel"])) for entry in can_log]
 
-            def edit_format(prefix):
-                return f" (`{vrs.CMD_PREFIX}edit {prefix}`)" if editing else ""
+            channel_list = []
+            for channel in channels:
+                if channel is None:
+                    continue
+                channel_list.append(channel)
+            channels = channel_list
 
-            id_format = self.vadb_info.artist_id if self.vadb_info.artist_id is not None else "Not submitted yet!"
-
-            embed.set_author(
-                name=f"{self.name} (ID: {id_format})",
-                url=self.vadb_info.page,
-                icon_url=self.details.images.avatar_url
-            )
-
-            embed.set_thumbnail(url=self.details.images.avatar_url)
-            embed.set_image(url=self.details.images.banner_url)
-
-            embed.add_field(name=f"Name{edit_format('name')}:", value=f"**{self.name}**")
-
-
-            aliases = self.details.aliases
-            if aliases is not None:
-                alias_list = [alias['name'] for alias in aliases]
-                aliases = f"`{'`, `'.join(alias_list)}`"
-            else:
-                aliases = "No aliases!"
-            embed.add_field(name=f"Aliases{edit_format('aliases')}:", value=aliases)
-
-
-            description = self.details.description
-            description = description if o_f.is_not_blank_str(description) else "No description!"
-            embed.add_field(name=f"Description{edit_format('description')}:", value=description, inline=False)
-
-            vadb_page = self.vadb_info.page
-            vadb_page = f"[Click here!]({vadb_page})" if not (vadb_page == Structures.Default.DEFAULT["vadb_info"]["page"]) and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
-            embed.add_field(name="VADB Page:", value=vadb_page, inline=False)
-
-
-            status = self.states.status.get_name()
-            status = f"**__{status}__**"
-            embed.add_field(name="Status:", value=status, inline=False)
-
-            availability = self.states.availability.get_name()
-            availability = f"**__{availability}__**"
-            embed.add_field(name=f"Availability{edit_format('availability')}:", value=availability)
-
-            usage_rights = self.states.usage_rights
-            if usage_rights is not None:
-                usage_list = []
-                for entry in usage_rights:
-                    status_rights = entry["value"]
-                    usage_list.append(f"{entry['name']}: {'Verified' if status_rights else 'Disallowed'}")
-                usage_rights = "\n".join(usage_list)
-            else:
-                usage_rights = "No other specific usage rights!"
-            embed.add_field(name=f"Specific usage rights{edit_format('usageRights')}:", value=f"`{usage_rights}`")
-
-
-            socials = self.details.socials
-            if socials is not None:
-                socials_list = []
-                for entry in socials:
-                    link_type: str = entry["type"]
-                    link_type = link_type.capitalize()
-                    link = entry["link"]
-                    socials_list.append(f"[{link_type}]({link})")
-                socials = " ".join(socials_list)
-            else:
-                socials = "No socials links!"
-            embed.add_field(name=f"Social links{edit_format('socials')}:", value=socials, inline=False)
-
-            notes = self.details.notes
-            notes = notes if o_f.is_not_blank_str(notes) else "No other notes!"
-            embed.add_field(name=f"Other notes{edit_format('notes')}:", value=notes)
-
-            if editing:
-                embed.add_field(name=f"{edit_format('avatar_url')} for editing the avatar\n{edit_format('banner_url')} for editing the banner", value="_ _", inline=False)
-
-
-            color_keys = {
-                "green": 0x00FF00,
-                "red": 0xFF0000,
-                "yellow": 0xFFFF00,
-                "blue": 0x0000FF
-            }
-            color_match = o_f.Match(color_keys, "green")
-
-            if self.states.status.value == 0: # completed
-                if self.states.availability.value == 0: # verified
-                    color_match.value = "green"
-                elif self.states.availability.value == 1: # disallowed
-                    color_match.value = "red"
-                elif self.states.availability.value == 2: # contact required
-                    color_match.value = "yellow"
-                elif self.states.availability.value == 3: # varies
-                    color_match.value = "blue"
-            elif self.states.status.value in (1, 2): # no contact / pending
-                color_match.value = "yellow"
-
-            embed.colour = color_match.get_name()
-
-            return embed
+            for channel in channels:
+                await channel.send(embed=await self.generate_embed())
 
 
     class VADB:
@@ -584,6 +616,10 @@ class Structures:
                     self.name = datas["name"]
                     self.status = datas["status"]
                     self.availability = datas["availability"]
+
+                def send_data(self):
+                    """Creates the artist using the current instance."""
+                    return v_i.make_request("POST", "/artist/", self.get_json_dict())
 
             class Edit(ArtistDataStructure):
                 """Data structure for sending the "edit artist" request."""
@@ -624,6 +660,9 @@ class Structures:
                     self.bannerUrl = datas["bannerUrl"]
                     self.socials = datas["socials"]
 
+                def send_data(self, artist_id):
+                    """Edits the artist using the current instance."""
+                    return v_i.make_request("PATCH", f"/artist/{artist_id}", self.get_json_dict())
 
 
         class Receive(ArtistDataStructure):
@@ -675,3 +714,103 @@ class Structures:
                     self.avatarUrl = datas["avatarUrl"]
                     self.bannerUrl = datas["bannerUrl"]
                     self.socials = datas["socials"]
+
+
+    class Firebase:
+        """Contains classes for Firebase Interaction."""
+
+        class Pending(ArtistDataStructure):
+            """Class for pending artists."""
+            def __init__(self, datas: Union[dict, Structures.Default] = None):
+                if isinstance(datas, Structures.Default):
+                    datas = {
+                        "name": datas.name,
+                        "data": datas.to_dict()
+                    }
+                elif isinstance(datas, dict):
+                    datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
+                else:
+                    datas = self.get_default_dict()
+
+                self.name = datas["name"]
+                self.data = datas["data"]
+
+            def send_data(self):
+                """Sends the data to Firebase."""
+                f_i.edit_data(["artistData", "pending", "artists"], {self.name: self.data})
+
+def search_vadb(search_term: str):
+    """Searches for artists on VADB."""
+
+    search_term_url = ul.quote_plus(search_term)
+    search_term_url = search_term_url.replace("+", "%20")
+    try:
+        response = v_i.make_request("GET", f"/search/{search_term_url}")
+    except req.exceptions.HTTPError:
+        return None
+
+    artists_data = response["data"]
+    final_list = [Structures.Default(Structures.VADB.Receive(artist_data)) for artist_data in artists_data]
+    return final_list
+
+def search_firebase(search_term: str):
+    """Searches for artists on Firebase."""
+    artists_data: dict = f_i.get_data(["artistData", "pending", "artists"])
+    artists: tuple[str] = tuple(artists_data.keys())
+    valid_artist_list = []
+    for artist in artists:
+        if search_term.lower() in artist.lower():
+            valid_artist_list.append(artist)
+
+    if len(valid_artist_list) == 0:
+        return None
+
+    final_list = [artists_data[artist] for artist in valid_artist_list]
+    final_list = [Structures.Default(artist_data) for artist_data in final_list]
+    return final_list
+
+
+def search_for_artist(search_term: str) -> Union[list[Structures.Default], None]:
+    """Searches for artists."""
+    vadb_result = search_vadb(search_term)
+    firebase_result = search_firebase(search_term)
+
+    final = []
+    if vadb_result is not None and firebase_result is not None:
+        firebase_names = [artist.name for artist in firebase_result]
+        for artist in vadb_result:
+            if artist.name not in firebase_names:
+                final.append(artist)
+
+        final = final + firebase_result
+    else:
+        if vadb_result is not None:
+            final = vadb_result
+        elif firebase_result is not None:
+            final = firebase_result
+        else:
+            return None
+
+    return final
+
+def generate_search_embed(result: list[Structures.Default]):
+    """Returns an embed for searches with multiple results."""
+
+    embed = discord.Embed(color=0xFF0000)
+
+    str_list = []
+    for artist in result:
+        artist_id = artist.vadb_info.artist_id
+        if artist_id is None:
+            artist_id = "(Unknown ID)"
+        str_list.append(f"**{artist_id}**: {artist.name}")
+
+    value_string = "\n".join(str_list)
+
+    embed.add_field(name="Multiple artists found!\n`<ID>: <Artist Name>`", value=value_string)
+
+    return embed
+
+def get_artist_by_id(artist_id: int):
+    """Gets an artist from VADB by ID."""
+    return Structures.Default(Structures.VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))
