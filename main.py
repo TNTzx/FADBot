@@ -18,6 +18,8 @@ def main():
     bot = cmds.Bot(command_prefix=vrs.CMD_PREFIX, intents=intents)
     bot.remove_command("help")
 
+    vrs.global_bot = bot
+
 
     # Load all cogs
     print("Loading cogs...")

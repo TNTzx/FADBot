@@ -67,10 +67,34 @@ class ArtistControl(cmds.Cog):
             "[accept / decline]": "Accepts or declines the verification submission. `accept` to mark the artist as completed, or `decline` to delete the submission.",
             "id": "Artist ID to verify."
         },
+        aliases=["av"],
+        guild_only=False,
         req_pa_mod=True
     )
-    async def artistverify(self, ctx: cmds.Context, action: str, artist_id: int):
-        pass
+    async def artistverify(self, ctx: cmds.Context, artist_id: int, action: str):
+        try:
+            artist: a_l.Structures.Default = a_l.get_artist_by_id(artist_id)
+        except req.exceptions.HTTPError:
+            await s_e.send_error(ctx, self.bot, "The artist doesn't exist. Try again?")
+            return
+
+        if artist.states.status.value != 2:
+            await s_e.send_error(ctx, self.bot, f"The artist `{artist.name}` is not pending! You must have an artist that is pending!")
+            return
+
+        action = action.lower()
+        if action not in ("accept", "decline"):
+            await s_e.send_error(ctx, self.bot, f"Make sure you have the correct parameters! `{action}` is not a valid parameter.")
+            return
+
+
+        if action == "accept":
+            artist.states.status.value = 0
+            a_l.Structures.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
+            await ctx.send(f"Success! The verification submission is now complete for `{artist.name}`!")
+        if action == "decline":
+            a_l.Structures.VADB.Send.Delete(artist).send_data()
+            await ctx.send(f"Success! The verification submission is now deleted for `{artist.name}`!")
 
 
     @c_w.command(
@@ -99,11 +123,11 @@ class ArtistControl(cmds.Cog):
                 artist: a_l.Structures.Default = a_l.get_artist_by_id(term)
                 await ctx.send(embed=await artist.generate_embed())
             except req.exceptions.HTTPError:
-                await ctx.send("Either the artist you're looking for is currently pending, or the artist doesn't exist. Try again?")
+                await s_e.send_error(ctx, self.bot, "The artist doesn't exist. Try again?")
             return
 
         if search_result is None:
-            await ctx.send("Your search term has no results. Try again?")
+            await s_e.send_error(ctx, self.bot, "Your search term has no results. The artist might also be pending, in which case you can try `##artistsearch <id>` instead. Try again?")
             return
 
         if len(search_result) == 1:

@@ -3,11 +3,13 @@
 import json
 import os
 import pyrebase
+import discord
 
 # Command Prefix
 CMD_PREFIX = "##"
 
-# us!
+# Bot
+global_bot: discord.Client = ""
 
 
 # Database

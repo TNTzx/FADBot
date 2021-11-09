@@ -49,6 +49,17 @@ class ArtistDataStructure():
 
         return data
 
+class ArtistDataSubStructure():
+    """Defines a structure for nested classes inside an ArtistDataStructure."""
+
+
+def check_if_empty(variable):
+    """Returns the variable if it is not None or not an empty iterable."""
+    if variable is not None:
+        if len(variable) == 0:
+            return None
+    return variable
+
 
 class Structures:
     """Contains classes for artist data structures."""
@@ -170,7 +181,7 @@ class Structures:
             self.states = self.States(datas["states"])
             self.details = self.Details(datas["details"])
 
-        class VADBInfo:
+        class VADBInfo(ArtistDataSubStructure):
             """Stores VADB-Related info.
             artist_id: int
             page: str
@@ -179,7 +190,7 @@ class Structures:
                 self.artist_id = datas["artist_id"]
                 self.page = datas["page"]
 
-        class States:
+        class States(ArtistDataSubStructure):
             """Stores the state of the artist in the verification process.\n
             status: int
             availability: int
@@ -203,8 +214,9 @@ class Structures:
                 self.availability: o_f.Match = o_f.Match(availability_dict, datas["availability"])
 
                 self.usage_rights: list[dict[str, str]] = datas["usage_rights"]
+                self.usage_rights = check_if_empty(self.usage_rights)
 
-        class Details:
+        class Details(ArtistDataSubStructure):
             """Stores details of the artist.
             description: str
             notes: str
@@ -217,11 +229,13 @@ class Structures:
                 self.description = datas["description"]
                 self.notes = datas["notes"]
                 self.aliases = datas["aliases"]
+                self.aliases = check_if_empty(self.aliases)
                 self.images = self.Images(datas["images"])
                 self.music_info = self.MusicInfo(datas["music_info"])
                 self.socials = datas["socials"]
+                self.socials = check_if_empty(self.socials)
 
-            class Images:
+            class Images(ArtistDataSubStructure):
                 """Stores the images of the artist.
                 avatar_url: str
                 banner_url: str
@@ -230,7 +244,7 @@ class Structures:
                     self.avatar_url = datas["avatar_url"]
                     self.banner_url = datas["banner_url"]
 
-            class MusicInfo:
+            class MusicInfo(ArtistDataSubStructure):
                 """Stores the information about the artist's music.
                 tracks: int
                 genre: str
@@ -587,6 +601,7 @@ class Structures:
 
             for channel in channels:
                 await channel.send(embed=await self.generate_embed())
+                await channel.send(self.proof)
 
 
     class VADB:
@@ -664,6 +679,25 @@ class Structures:
                     """Edits the artist using the current instance."""
                     return v_i.make_request("PATCH", f"/artist/{artist_id}", self.get_json_dict())
 
+            class Delete(ArtistDataStructure):
+                """Data structure for requesting to completely obliterate the artist from the database.
+                id: int"""
+
+                def __init__(self, datas: Union[dict, Structures.Default] = None):
+                    if isinstance(datas, Structures.Default):
+                        datas = {
+                            "id": datas.vadb_info.artist_id
+                        }
+                    elif isinstance(datas, dict):
+                        datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
+                    else:
+                        datas = self.get_default_dict()
+
+                    self.artist_id = datas["id"]
+
+                def send_data(self):
+                    """Completely obliterates the artist from the database."""
+                    return v_i.make_request("DELETE", f"/artist/{self.artist_id}")
 
         class Receive(ArtistDataStructure):
             """Data structure for a received response from VADB's API.
@@ -708,7 +742,7 @@ class Structures:
                 self.usageRights = datas["usageRights"]
                 self.details = self.Details(datas["details"])
 
-            class Details:
+            class Details(ArtistDataSubStructure):
                 """Contains details."""
                 def __init__(self, datas: dict = None):
                     self.avatarUrl = datas["avatarUrl"]
