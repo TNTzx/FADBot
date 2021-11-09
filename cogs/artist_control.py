@@ -46,15 +46,31 @@ class ArtistControl(cmds.Cog):
             await data.trigger_all_set_attributes(ctx, self.bot)
 
         await data.edit_loop(ctx, self.bot)
+
         response = a_l.Structures.VADB.Send.Create(data).send_data()
-        a_l.Structures.VADB.Send.Edit(data).send_data(response["data"]["id"])
+
+        artist_id = response["data"]["id"]
+        a_l.Structures.VADB.Send.Edit(data).send_data(artist_id)
+        data.vadb_info.artist_id = artist_id
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
-
         await i_u.delete_is_using_command(ctx.author.id)
 
         await data.post_log(self.bot)
         a_l.Structures.Firebase.Pending(data).send_data()
+
+
+    @c_w.command(
+        category=c_w.Categories.artist_management,
+        description="Accepts / declines the verification submission.",
+        parameters={
+            "[accept / decline]": "Accepts or declines the verification submission. `accept` to mark the artist as completed, or `decline` to delete the submission.",
+            "id": "Artist ID to verify."
+        },
+        req_pa_mod=True
+    )
+    async def artistverify(self, ctx: cmds.Context, action: str, artist_id: int):
+        pass
 
 
     @c_w.command(
@@ -80,9 +96,10 @@ class ArtistControl(cmds.Cog):
 
         if isinstance(term, int):
             try:
-                await ctx.send(embed=await a_l.get_artist_by_id(term).generate_embed())
+                artist: a_l.Structures.Default = a_l.get_artist_by_id(term)
+                await ctx.send(embed=await artist.generate_embed())
             except req.exceptions.HTTPError:
-                await ctx.send("Your search term has no results or an error occured. Try again?")
+                await ctx.send("Either the artist you're looking for is currently pending, or the artist doesn't exist. Try again?")
             return
 
         if search_result is None:
@@ -92,7 +109,7 @@ class ArtistControl(cmds.Cog):
         if len(search_result) == 1:
             await ctx.send(embed=await search_result[0].generate_embed())
         elif len(search_result) > 1:
-            await ctx.send("Multiple artists found! Use `##artistsearch <id>` to search for a specific artist.\nUnknown IDs mean that the artist is still pending.", embed=a_l.generate_search_embed(search_result))
+            await ctx.send("Multiple artists found! Use `##artistsearch <id>` to search for a specific artist.", embed=a_l.generate_search_embed(search_result))
 
 
     @c_w.command(

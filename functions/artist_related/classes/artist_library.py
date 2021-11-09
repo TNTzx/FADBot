@@ -753,45 +753,45 @@ def search_vadb(search_term: str):
     final_list = [Structures.Default(Structures.VADB.Receive(artist_data)) for artist_data in artists_data]
     return final_list
 
-def search_firebase(search_term: str):
-    """Searches for artists on Firebase."""
-    artists_data: dict = f_i.get_data(["artistData", "pending", "artists"])
-    artists: tuple[str] = tuple(artists_data.keys())
-    valid_artist_list = []
-    for artist in artists:
-        if search_term.lower() in artist.lower():
-            valid_artist_list.append(artist)
+# def search_firebase(search_term: str):
+#     """Searches for artists on Firebase."""
+#     artists_data: dict = f_i.get_data(["artistData", "pending", "artists"])
+#     artists: tuple[str] = tuple(artists_data.keys())
+#     valid_artist_list = []
+#     for artist in artists:
+#         if search_term.lower() in artist.lower():
+#             valid_artist_list.append(artist)
 
-    if len(valid_artist_list) == 0:
-        return None
+#     if len(valid_artist_list) == 0:
+#         return None
 
-    final_list = [artists_data[artist] for artist in valid_artist_list]
-    final_list = [Structures.Default(artist_data) for artist_data in final_list]
-    return final_list
+#     final_list = [artists_data[artist] for artist in valid_artist_list]
+#     final_list = [Structures.Default(artist_data) for artist_data in final_list]
+#     return final_list
 
 
 def search_for_artist(search_term: str) -> Union[list[Structures.Default], None]:
     """Searches for artists."""
     vadb_result = search_vadb(search_term)
-    firebase_result = search_firebase(search_term)
+    # firebase_result = search_firebase(search_term)
 
-    final = []
-    if vadb_result is not None and firebase_result is not None:
-        firebase_names = [artist.name for artist in firebase_result]
-        for artist in vadb_result:
-            if artist.name not in firebase_names:
-                final.append(artist)
+    # final = []
+    # if vadb_result is not None and firebase_result is not None:
+    #     firebase_names = [artist.name for artist in firebase_result]
+    #     for artist in vadb_result:
+    #         if artist.name not in firebase_names:
+    #             final.append(artist)
 
-        final = final + firebase_result
-    else:
-        if vadb_result is not None:
-            final = vadb_result
-        elif firebase_result is not None:
-            final = firebase_result
-        else:
-            return None
+    #     final = final + firebase_result
+    # else:
+    #     if vadb_result is not None:
+    #         final = vadb_result
+    #     elif firebase_result is not None:
+    #         final = firebase_result
+    #     else:
+    #         return None
 
-    return final
+    return vadb_result
 
 def generate_search_embed(result: list[Structures.Default]):
     """Returns an embed for searches with multiple results."""
