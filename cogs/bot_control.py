@@ -4,6 +4,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
+# pylint: disable=too-many-branches
 
 import os
 import sys

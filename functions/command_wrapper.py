@@ -27,33 +27,34 @@ class Categories:
 class CustomCommandClass:
     """Stored command."""
     def __init__(self):
-        self.name: str = ""
-        self.help: self.Helps = self.Helps()
+        self.name = ""
+        self.help = self.Helps()
 
     class Helps:
         """All help parameters."""
         def __init__(self):
-            self.category: str = ""
-            self.description: str = ""
+            self.category = ""
+            self.description = ""
             self.parameters: dict[str, str] = {}
             self.aliases: list[str] = []
-            self.guild_only: bool = True
-            self.cooldown: self.Cooldown = self.Cooldown()
-            self.require: self.Require = self.Require()
+            self.guild_only = True
+            self.cooldown = self.Cooldown()
+            self.require = self.Require()
             self.show_condition = lambda ctx: True
             self.example_usage: list[str] = []
 
         class Require:
             """What the command requires to be executed."""
             def __init__(self):
-                self.guild_owner: bool = False
-                self.guild_admin: bool = False
-                self.dev: bool = False
+                self.pa_mod = False
+                self.guild_owner = False
+                self.guild_admin= False
+                self.dev = False
 
         class Cooldown:
             """Cooldown."""
-            length: int = 0
-            type: str = cmds.BucketType.channel
+            length = 0
+            type = cmds.BucketType.channel
 
 class ListOfCommands:
     """Lists all commands."""
@@ -170,24 +171,25 @@ def command(
         cmd = CustomCommandClass()
 
         cmd.name = func.__name__
-        helps = cmd.help
+        helps: CustomCommandClass.Helps = cmd.help
 
         helps.category = category
         helps.description = description
-        helps.parameters = parameters
-        helps.aliases = aliases
+        helps.parameters = parameters if parameters is not None else {}
+        helps.aliases = aliases if aliases is not None else []
         helps.cooldown.length = cooldown
         helps.cooldown.type = cooldown_type
         helps.guild_only = guild_only
 
-        require = helps.require
+        require: CustomCommandClass.Helps.Require = helps.require
+        require.pa_mod = req_pa_mod
         require.dev = req_dev
         require.guild_admin = req_guild_admin
         require.guild_owner = req_guild_owner
         helps.require = require
 
         helps.show_condition = show_condition
-        helps.example_usage = example_usage
+        helps.example_usage = example_usage if example_usage is not None else []
 
         cmd.help = helps
 

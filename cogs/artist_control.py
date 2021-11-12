@@ -25,7 +25,7 @@ class ArtistControl(cmds.Cog):
 
     @c_w.command(
         category=c_w.Categories.artist_management,
-        description=f"Requests an artist to be added to the database. Times out after `{o_f.format_time(60 * 2)}``.",
+        description=f"Requests an artist to be added to the database. Times out after `{o_f.format_time(60 * 2)}`.",
         aliases=["aa"],
         guild_only=False
     )
