@@ -32,7 +32,7 @@ class Help(cmds.Cog):
             embed = discord.Embed(
                 title="Help!",
                 description=f"**__Command Prefix: {vrs.CMD_PREFIX}__**",
-                color=0x4e5d94
+                color=0xFFAEAE
             )
             for category, names in c_w.ListOfCommands.commands_all.items():
 
@@ -61,7 +61,7 @@ class Help(cmds.Cog):
 
             embed = discord.Embed(
                 title=f"Help: {help_docs.category} // {vrs.CMD_PREFIX}{cmd.name}",
-                color=0x4e5d94
+                color=0xFFAEAE
             )
 
             async def create_separator():
