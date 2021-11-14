@@ -29,31 +29,31 @@ class ErrorHandler(cmds.Cog):
             await s_e.send_error(ctx, self.bot, f"The command is on cooldown for `{time}` more!", cooldown_reset=True)
             return
 
-        elif checkexc(cmds.MissingRole):
+        if checkexc(cmds.MissingRole):
             await s_e.send_error(ctx, self.bot, f"You don't have the `{exc.missing_role}` role!", cooldown_reset=True)
             return
 
-        elif checkexc(cmds.MissingRequiredArgument):
+        if checkexc(cmds.MissingRequiredArgument) or checkexc(cmds.BadArgument):
             await s_e.send_error(ctx, self.bot, f"Make sure you have the correct parameters! Use `{CMD_PREFIX}help` to get help!", cooldown_reset=True)
             return
 
-        elif checkexc(cmds.ExpectedClosingQuoteError) or checkexc(cmds.InvalidEndOfQuotedStringError) or checkexc(cmds.UnexpectedQuoteError):
+        if checkexc(cmds.ExpectedClosingQuoteError) or checkexc(cmds.InvalidEndOfQuotedStringError) or checkexc(cmds.UnexpectedQuoteError):
             await s_e.send_error(ctx, self.bot, "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!", cooldown_reset=True)
             return
 
-        elif checkexc(cmds.MissingRequiredArgument):
+        if checkexc(cmds.MissingRequiredArgument):
             await s_e.send_error(ctx, self.bot, f"Make sure you have the correct parameters! Use `{vrs.CMD_PREFIX}help` to get help!")
             return
 
-        elif checkexc(cmds.NoPrivateMessage):
+        if checkexc(cmds.NoPrivateMessage):
             await s_e.send_error(ctx, self.bot, "This command is disabled in DMs!", cooldown_reset=True)
             return
 
-        elif checkexc(cmds.CommandInvokeError):
+        if checkexc(cmds.CommandInvokeError):
             if str(exc.__cause__) == "Exited Function.":
                 return
 
-        elif checkexc(cmds.CommandNotFound):
+        if checkexc(cmds.CommandNotFound):
             return
 
         await i_u.delete_is_using_command(ctx.author.id)
