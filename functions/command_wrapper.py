@@ -8,10 +8,9 @@
 
 
 import functools as fc
-import discord
-import discord.ext.commands as cmds
+import nextcord as nx
+import nextcord.ext.commands as cmds
 
-from global_vars import variables as vrs
 from functions.databases.firebase import firebase_interaction as f_i
 from functions.exceptions import send_error as s_e
 from functions.exceptions import custom_exc as c_exc
@@ -92,7 +91,7 @@ def command(
             ctx: cmds.Context = args[1]
 
             async def send_error(suffix):
-                await s_e.send_error(ctx, vrs.global_bot, f"You don't have proper permissions! {suffix}")
+                await s_e.send_error(ctx, f"You don't have proper permissions! {suffix}")
                 return
 
 
@@ -102,7 +101,7 @@ def command(
 
                 if str(ctx.author.id) in can_verify["users"] + devs:
                     return True
-                if isinstance(ctx.channel, discord.channel.TextChannel):
+                if isinstance(ctx.channel, nx.channel.TextChannel):
                     if str(ctx.guild.id) in can_verify["servers"]:
                         for role in ctx.author.roles:
                             if str(role.id) in can_verify["servers"][str(ctx.guild.id)]:

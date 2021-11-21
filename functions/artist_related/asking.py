@@ -9,8 +9,8 @@
 
 import asyncio
 import requests as req
-import discord
-import discord.ext.commands as cmds
+import nextcord as nx
+import nextcord.ext.commands as cmds
 
 from global_vars import variables as vrs
 from functions.exceptions import custom_exc as c_e
@@ -21,18 +21,18 @@ from functions import other_functions as o_f
 
 TIMEOUT = 60 * 10
 
-async def send_error(ctx, bot, suffix):
+async def send_error(ctx, suffix):
     """Sends an error, but with a syntax."""
-    await s_e.send_error(ctx, bot, f"{suffix} Try again.", send_author=True)
+    await s_e.send_error(ctx, f"{suffix} Try again.", send_author=True)
 
 async def waiting(ctx: cmds.Context, bot):
     """Wait for a message then return the response."""
     try:
-        check = lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, discord.channel.DMChannel)
-        response: discord.Message = await bot.wait_for("message", check=check, timeout=TIMEOUT)
+        check = lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, nx.channel.DMChannel)
+        response: nx.Message = await bot.wait_for("message", check=check, timeout=TIMEOUT)
     except asyncio.TimeoutError as exc:
         await i_u.delete_is_using_command(ctx.author.id)
-        await s_e.send_error(ctx, bot, "Command timed out. Please use the command again.")
+        await s_e.send_error(ctx, "Command timed out. Please use the command again.")
         raise c_e.ExitFunction("Exited Function.") from exc
     return response
 
@@ -48,22 +48,22 @@ async def check_has_dict(choices, choices_dict):
         return len(choices_dict) > 0
     return False
 
-async def reformat(ctx: cmds.Context, bot: discord.Client, output_type: dict, response: discord.Message, choices: list[str] = None, choices_dict: list[str] = None,):
+async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, choices: list[str] = None, choices_dict: list[str] = None,):
     """Reformats the response."""
     async def number():
         if not response.content.isnumeric():
-            await send_error(ctx, bot, "That's not a number!")
+            await send_error(ctx, "That's not a number!")
             return None
         return int(response.content)
 
     async def text():
         if await check_has_required(choices):
             if not response.content.lower() in [x.lower() for x in choices]:
-                await send_error(ctx, bot, "You didn't send a choice in the list of choices!")
+                await send_error(ctx, "You didn't send a choice in the list of choices!")
                 return None
             return response.content.lower()
         if response.content == "":
-            await send_error(ctx, bot, "You didn't send anything!")
+            await send_error(ctx, "You didn't send anything!")
             return None
         return response.content
 
@@ -72,7 +72,7 @@ async def reformat(ctx: cmds.Context, bot: discord.Client, output_type: dict, re
             try:
                 req.head(url)
             except req.exceptions.RequestException as exc:
-                await send_error(ctx, bot, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
+                await send_error(ctx, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
                 return None
             return url
 
@@ -90,11 +90,11 @@ async def reformat(ctx: cmds.Context, bot: discord.Client, output_type: dict, re
             try:
                 image_request = req.head(image_url)
             except req.exceptions.RequestException as exc:
-                await send_error(ctx, bot, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
+                await send_error(ctx, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
                 return None
 
             if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
-                await send_error(ctx, bot, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
+                await send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
                 return None
 
             return image_url
@@ -130,11 +130,11 @@ async def reformat(ctx: cmds.Context, bot: discord.Client, output_type: dict, re
                 else:
                     entry_dict[item[0]] = item[1].lower()
             except (KeyError, IndexError):
-                await send_error(ctx, bot, "Your formatting is wrong!")
+                await send_error(ctx, "Your formatting is wrong!")
                 return None
 
             if not item[1].lower() in [x.lower() for x in choices_dict]:
-                await send_error(ctx, bot, f"Check if the right side of the colons contain these values: `{'`, `'.join(choices_dict)}`")
+                await send_error(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join(choices_dict)}`")
                 return None
         return entry_dict
 
@@ -151,16 +151,17 @@ async def reformat(ctx: cmds.Context, bot: discord.Client, output_type: dict, re
     elif output_type == OutputTypes.dictionary:
         return await dictionary()
 
-async def wait_for_response(ctx, bot,
+async def wait_for_response(ctx: cmds.Context,
         title, description, output_type,
         choices: list[str] = None, choices_dict: list[str] = None,
         skippable=False, skip_default=None):
     """Returns the response, but with checks."""
+    bot = vrs.global_bot
 
     success = True
     while success:
         title_form = title if not skippable else f"{title} (skippable)"
-        embed = discord.Embed(title=title_form, description=description, colour=0xFFAEAE)
+        embed = nx.Embed(title=title_form, description=description, colour=0xFFAEAE)
         embed.add_field(name="_ _", value="_ _", inline=False)
 
         field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
@@ -188,11 +189,11 @@ async def wait_for_response(ctx, bot,
                 await ctx.author.send("Section skipped.")
                 return skip_default
             else:
-                await send_error(ctx, bot, "You can't skip this section!")
+                await send_error(ctx, "You can't skip this section!")
                 continue
 
         try:
-            response = await reformat(ctx, bot, output_type, response, choices=choices, choices_dict=choices_dict)
+            response = await reformat(ctx, output_type, response, choices=choices, choices_dict=choices_dict)
         except Exception as exc:
             await i_u.delete_is_using_command(ctx.author.id)
             raise exc

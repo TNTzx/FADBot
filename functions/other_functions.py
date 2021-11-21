@@ -7,9 +7,8 @@
 # pylint: disable=too-many-public-methods
 
 
-from typing import Union
 import datetime
-import discord
+import nextcord as nx
 
 from functions.exceptions import custom_exc as c_exc
 
@@ -29,7 +28,7 @@ class Unique():
     def __init__(self):
         pass
 
-async def get_tntz(bot: discord.Client):
+async def get_tntz(bot: nx.Client):
     """Gets TNTz."""
     return await bot.fetch_user(279803094722674693)
 
@@ -86,7 +85,7 @@ def override_dicts_recursive(default: dict, override: dict):
 
     return new
 
-def is_not_blank_str(string: Union[str, None]):
+def is_not_blank_str(string: str | None):
     """Checks if a string is blank or None."""
     if string is None:
         return False

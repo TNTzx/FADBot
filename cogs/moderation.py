@@ -6,8 +6,8 @@
 # pylint: disable=no-self-use
 
 
-# import discord
-import discord.ext.commands as cmds
+# import nextcord as nx
+import nextcord.ext.commands as cmds
 
 from functions.databases.firebase import firebase_interaction as f_i
 from functions import command_wrapper as c_w
@@ -27,7 +27,7 @@ class Moderation(cmds.Cog):
         try:
             int(role_id)
         except ValueError:
-            await s_e.send_error(ctx, self.bot, "You didn't send a valid role ID!")
+            await s_e.send_error(ctx, "You didn't send a valid role ID!")
             return
 
         f_i.edit_data(['guildData', ctx.guild.id], {'adminRole': role_id})

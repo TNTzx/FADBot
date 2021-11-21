@@ -3,13 +3,13 @@
 import json
 import os
 import pyrebase
-import discord
+import nextcord as nx
 
 # Command Prefix
 CMD_PREFIX = "##"
 
 # Bot
-global_bot: discord.Client = ""
+global_bot = nx.Client()
 
 
 # Database

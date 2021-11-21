@@ -6,8 +6,8 @@
 # pylint: disable=no-self-use
 # pylint: disable=too-many-branches
 
-import discord
-import discord.ext.commands as cmds
+import nextcord as nx
+import nextcord.ext.commands as cmds
 
 from global_vars import variables as vrs
 from functions import command_wrapper as c_w
@@ -29,7 +29,7 @@ class Help(cmds.Cog):
     )
     async def help(self, ctx: cmds.Context, command=None):
         async def show_all():
-            embed = discord.Embed(
+            embed = nx.Embed(
                 title="Help!",
                 description=f"**__Command Prefix: {vrs.CMD_PREFIX}__**",
                 color=0xFFAEAE
@@ -48,18 +48,18 @@ class Help(cmds.Cog):
 
         async def specific():
             if not command in c_w.ListOfCommands.commands:
-                await s_e.send_error(ctx, self.bot, "*This command doesn't exist! Make sure you typed it correctly!*")
+                await s_e.send_error(ctx, "*This command doesn't exist! Make sure you typed it correctly!*")
                 return
 
             cmd: c_w.CustomCommandClass = c_w.ListOfCommands.commands[command]
 
             if not cmd.help.show_condition(ctx):
-                await s_e.send_error(ctx, self.bot, "*This command doesn't exist! Make sure you typed it correctly!*")
+                await s_e.send_error(ctx, "*This command doesn't exist! Make sure you typed it correctly!*")
                 return
 
             help_docs = cmd.help
 
-            embed = discord.Embed(
+            embed = nx.Embed(
                 title=f"Help: {help_docs.category} // {vrs.CMD_PREFIX}{cmd.name}",
                 color=0xFFAEAE
             )
@@ -137,5 +137,5 @@ class Help(cmds.Cog):
         else:
             await specific()
 
-def setup(bot: discord.Client):
+def setup(bot: nx.Client):
     bot.add_cog(Help(bot))

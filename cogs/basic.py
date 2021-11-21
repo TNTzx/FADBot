@@ -5,8 +5,8 @@
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
-import discord
-import discord.ext.commands as cmds
+import nextcord as nx
+import nextcord.ext.commands as cmds
 
 from global_vars import defaults
 from functions import command_wrapper as c_w
@@ -34,7 +34,7 @@ class Hello(cmds.Cog):
         await add_new_to_database(self.bot)
 
     @cmds.Cog.listener()
-    async def on_guild_join(self, guild: discord.Guild):
+    async def on_guild_join(self, guild: nx.Guild):
         await add_new_to_database(self.bot)
 
     @c_w.command(
