@@ -14,6 +14,7 @@ from __future__ import annotations
 from os import path
 import urllib.parse as ul
 import abc
+from nextcord.message import Message
 import requests as req
 import nextcord as nx
 import nextcord.ext.commands as cmds
@@ -35,7 +36,7 @@ class ArtistDataStructure():
 
     def get_default_dict(self):
         """Gets the default dictionary."""
-        return self.__class__(Structures.Default()).to_dict()
+        return self.__class__(ArtistStructures.Default()).to_dict()
 
     def to_dict(self):
         """Turns the data into a dictionary."""
@@ -62,7 +63,7 @@ def check_if_empty(variable):
     return variable
 
 
-class Structures:
+class ArtistStructures:
     """Contains classes for artist data structures."""
 
     class Default(ArtistDataStructure):
@@ -106,14 +107,14 @@ class Structures:
         }
 
         def __init__(self,
-                datas: dict | Structures.VADB.Send.Create | Structures.VADB.Send.Edit | Structures.VADB.Receive | Structures.Firebase.Send = None):
+                datas: dict | ArtistStructures.VADB.Send.Create | ArtistStructures.VADB.Send.Edit | ArtistStructures.VADB.Receive | ArtistStructures.Firebase.Send = None):
 
             if isinstance(datas, dict):
-                datas = o_f.override_dicts_recursive(Structures.Default.DEFAULT, datas)
+                datas = o_f.override_dicts_recursive(ArtistStructures.Default.DEFAULT, datas)
             elif datas is None:
-                datas = Structures.Default.DEFAULT
+                datas = ArtistStructures.Default.DEFAULT
             else:
-                if isinstance(datas, Structures.VADB.Send.Create):
+                if isinstance(datas, ArtistStructures.VADB.Send.Create):
                     datas = {
                         "name": datas.name,
                         "states": {
@@ -121,7 +122,7 @@ class Structures:
                             "availability": datas.availability
                         }
                     }
-                elif isinstance(datas, Structures.VADB.Send.Edit):
+                elif isinstance(datas, ArtistStructures.VADB.Send.Edit):
                     datas = {
                         "name": datas.name,
                         "states": {
@@ -144,7 +145,7 @@ class Structures:
                             "socials": datas.socials
                         }
                     }
-                elif isinstance(datas, Structures.VADB.Receive):
+                elif isinstance(datas, ArtistStructures.VADB.Receive):
                     datas = {
                         "name": datas.name,
                         "vadb_info": {
@@ -171,7 +172,7 @@ class Structures:
                             "socials": datas.details.socials
                         }
                     }
-                elif isinstance(datas, Structures.Firebase.Send):
+                elif isinstance(datas, ArtistStructures.Firebase.Send):
                     datas = {
                         "name": datas.name,
                         "vadb_info": {
@@ -181,7 +182,7 @@ class Structures:
                             "logs": datas.logs
                         }
                     }
-                datas = o_f.override_dicts_recursive(Structures.Default.DEFAULT, datas)
+                datas = o_f.override_dicts_recursive(ArtistStructures.Default.DEFAULT, datas)
 
 
             self.name = datas["name"]
@@ -308,7 +309,7 @@ class Structures:
             embed.add_field(name=f"Description{edit_format('description')}:", value=description, inline=False)
 
             vadb_page = self.vadb_info.page
-            vadb_page = f"[Click here!]({vadb_page})" if not (vadb_page == Structures.Default.DEFAULT["vadb_info"]["page"]) and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
+            vadb_page = f"[Click here!]({vadb_page})" if not (vadb_page == ArtistStructures.Default.DEFAULT["vadb_info"]["page"]) and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
             embed.add_field(name="VADB Page:", value=vadb_page, inline=False)
 
 
@@ -395,7 +396,6 @@ class Structures:
 
         async def set_attribute(self, ctx: cmds.Context, attr: o_f.Unique, skippable=False):
             """Sets an attribute in this class."""
-            bot = vrs.global_bot
             functions = self.Functions
 
             def check(attrib):
@@ -412,8 +412,8 @@ class Structures:
                 search_result = search_for_artist(name)
                 if search_result is not None:
                     await ctx.author.send("Other artist(s) found. Please check if you have a duplicate submission.\nUse `##cancel` if you think you have a different artist, or type anything to continue.", embed=generate_search_embed(search_result))
-                    response = await ask.waiting(ctx, bot)
-                    response = await ask.reformat(ctx, bot, ask.OutputTypes.text, response)
+                    response = await ask.waiting(ctx)
+                    response = await ask.reformat(ctx, ask.OutputTypes.text, response)
 
                     if response == "##cancel":
                         return
@@ -541,7 +541,7 @@ class Structures:
                         })
                     self.details.socials = social_list
 
-        async def edit_loop(self, ctx: cmds.Context, bot: nx.Client):
+        async def edit_loop(self, ctx: cmds.Context):
             """Initiates an edit loop to edit the attributes."""
             functions = self.Functions
             command_dict = {
@@ -564,7 +564,7 @@ class Structures:
 
                 await ctx.author.send(embed=await self.generate_embed(editing=True))
 
-                message: nx.Message = await ask.waiting(ctx, bot)
+                message: nx.Message = await ask.waiting(ctx)
                 command = message.content.split(" ")
 
                 if command[0].startswith(f"{vrs.CMD_PREFIX}edit"):
@@ -605,19 +605,10 @@ class Structures:
             await trigger(self.Functions.notes)
 
 
-        async def post_log(self):
+        async def post_log(self, _type: o_f.Unique):
             """Posts logs to everyone."""
-
-
-            # for channel in dump_channels:
-            #     await channel.send("A new submission has been added. Here are the current details:", embed=await self.generate_embed())
-            #     await channel.send(self.proof)
-
-            # live_log_servers = f_i.get_data(["logData", "live", "servers"])
-            # live_channels = get_channels(live_log_servers)
-
-            # for channel in live_channels:
-            #     await channel.send()
+            await LogStructures.Dump(self).post_logs_discord(_type)
+            await LogStructures.Live(self).post_logs_discord(_type)
 
 
 
@@ -633,8 +624,8 @@ class Structures:
                 status: int
                 availability: int"""
 
-                def __init__(self, datas: dict | Structures.Default = None):
-                    if isinstance(datas, Structures.Default):
+                def __init__(self, datas: dict | ArtistStructures.Default = None):
+                    if isinstance(datas, ArtistStructures.Default):
                         datas = {
                             "name": datas.name,
                             "status": datas.states.status.value,
@@ -649,15 +640,15 @@ class Structures:
                     self.status = datas["status"]
                     self.availability = datas["availability"]
 
-                def send_data(self):
-                    """Creates the artist using the current instance."""
-                    return v_i.make_request("POST", "/artist/", self.get_json_dict())
+                # def send_data(self):
+                #     """Creates the artist using the current instance."""
+                #     return v_i.make_request("POST", "/artist/", self.get_json_dict())
 
             class Edit(ArtistDataStructure):
                 """Data structure for sending the "edit artist" request."""
 
-                def __init__(self, datas: dict | Structures.Default = None):
-                    if isinstance(datas, Structures.Default):
+                def __init__(self, datas: dict | ArtistStructures.Default = None):
+                    if isinstance(datas, ArtistStructures.Default):
                         datas = {
                             "name": datas.name,
 
@@ -700,8 +691,8 @@ class Structures:
                 """Data structure for requesting to completely obliterate the artist from the database.
                 id: int"""
 
-                def __init__(self, datas: dict | Structures.Default = None):
-                    if isinstance(datas, Structures.Default):
+                def __init__(self, datas: dict | ArtistStructures.Default = None):
+                    if isinstance(datas, ArtistStructures.Default):
                         datas = {
                             "id": datas.vadb_info.artist_id
                         }
@@ -722,8 +713,8 @@ class Structures:
             name: str
             aliases: list[dict[str, str]]
             """
-            def __init__(self, datas: dict | Structures.Default = None):
-                if isinstance(datas, Structures.Default):
+            def __init__(self, datas: dict | ArtistStructures.Default = None):
+                if isinstance(datas, ArtistStructures.Default):
                     datas = {
                         "id": datas.vadb_info.artist_id,
                         "name": datas.name,
@@ -770,72 +761,119 @@ class Structures:
     class Firebase:
         """Contains classes for Firebase Interaction."""
 
-        class Send(ArtistDataStructure):
-            """Class for pending and editing artists."""
-            def __init__(self, datas: dict | Structures.Default = None):
-                if isinstance(datas, Structures.Default):
-                    datas = {
-                        "artist_id": datas.vadb_info.artist_id,
-                        "name": datas.name,
-                        "logs": datas.discord_info.logs
-                    }
-                elif isinstance(datas, dict):
-                    datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
-                else:
-                    datas = self.get_default_dict()
+        class Send:
+            """Class for sending pending and editing artists."""
+            class Base(ArtistDataStructure):
+                """Base data structure for sending requests to Firebase."""
+                def __init__(self, datas: dict | ArtistStructures.Default = None):
+                    if isinstance(datas, ArtistStructures.Default):
+                        datas = {
+                            "id": datas.vadb_info.artist_id,
+                            "name": datas.name,
+                            "logs": datas.discord_info.logs
+                        }
+                    elif isinstance(datas, dict):
+                        datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
+                    else:
+                        datas = self.get_default_dict()
 
-                self.artist_id = datas["artist_id"]
-                self.name = datas["name"]
-                self.logs = datas["logs"]
+                    self.artist_id = datas["id"]
+                    self.name = datas["name"]
+                    self.logs = datas["logs"]
 
-            def send_data(self, path_choice: o_f.Unique):
-                """Sends the data to Firebase."""
-                if path_choice == self.SendDataChoices.pending:
-                    paths = ["artistData", "pending", "artists"]
-                elif path_choice == self.SendDataChoices.editing:
-                    paths = ["artistData", "editing", "artists"]
+                def send_logs_base(self, paths: list[str]):
+                    """Creates log data in Firebase."""
+                    f_i.edit_data(paths, {self.artist_id: {"name": self.name, "logs": self.logs}})
 
-                f_i.edit_data(paths, {self.artist_id: {"name": self.name, "logs": self.logs}})
+                def send_logs(self):
+                    """Send logs."""
 
-            class SendDataChoices:
-                """Choices for send_data function."""
-                pending = o_f.Unique()
-                editing = o_f.Unique()
+            class Pending(Base):
+                """Pending."""
+                def send_logs(self):
+                    return super().send_logs_base(["artistData", "pending", "data"])
 
-class LogType(abc.ABC):
-    """ABC that defines a logging type."""
-    def __init__(self, paths: list[str]):
-        self.paths = paths
+            class Editing(Base):
+                """Editing"""
+                def send_logs(self):
+                    return super().send_logs_base(["artistData", "editing", "data"])
 
-    def get_channels(self) -> list[nx.TextChannel]:
-        """Get channels from list of paths."""
+
+class LogType:
+    """Base class for defining logging structures."""
+    def __init__(self, datas: ArtistStructures.Default):
+        self.datas = datas
+
+    class MessageStructure:
+        """Class that contains structure for logs."""
+        def __init__(self, message_embed=None, message_proof=None, paths: list[str] = None):
+            if paths is not None:
+                log = f_i.get_data(paths)
+                message_embed = log["message_embed"]
+                message_proof = log["message_proof"]
+            self.message_embed = message_embed
+            self.message_proof = message_proof
+
+        def get_dict(self):
+            """Gets dict."""
+            return {
+                "message_embed": str(self.message_embed),
+                "message_proof": str(self.message_proof)
+            }
+
+
+    def get_channels(self, paths) -> list[nx.TextChannel]:
+        """Get channels from firebase path.
+        {"tag": "pa server", "channel": int}"""
+        paths = f_i.get_data(paths)
         channels = []
-        for entry in self.paths:
+        for entry in paths:
             try:
-                channels.append(vrs.global_bot.get_channel(int(entry["channel"])))
+                channels.append(int(entry["channel"]))
             except TypeError:
                 pass
-        channels = o_f.remove_none_in_list(channels)
         return channels
 
-    @abc.abstractmethod
-    async def post_log(self):
-        """Posts the logs."""
-        pass
+    def post_logs_firebase(self, _type: o_f.Unique):
+        """Posts logs on discord then puts the message links on firebase."""
+        if _type == self.LoggingTypes.PENDING:
+            ArtistStructures.Firebase.Send.Pending(self.datas)
+        elif _type == self.LoggingTypes.EDITING:
+            ArtistStructures.Firebase.Send.Editing(self.datas)
 
-class LogStructure:
-    """Class that contains log types."""
+    class LoggingTypes:
+        """Class that contains logging types, like pending or editing."""
+        PENDING = o_f.Unique()
+        EDITING = o_f.Unique()
+
+    async def post_logs_discord_base(self, _type: o_f.Unique, paths: list[str]):
+        """Post logs to discord."""
+        if _type == self.LoggingTypes.PENDING:
+            message_intro = "A new pending artist submission has been added. Here are the current details:"
+        elif _type == self.LoggingTypes.EDITING:
+            message_intro = "A new edit submission has been added. Here are the current details:"
+
+        messages: list[self.MessageStructure] = []
+        for channel in self.get_channels(paths):
+            log = self.MessageStructure()
+            log.message_embed = await channel.send(message_intro, embed=await self.datas.generate_embed())
+            log.message_proof = await channel.send(self.datas.proof)
+        return messages
+
+    async def post_logs_discord(self, _type: o_f.Unique):
+        """Inherited function."""
+
+class LogStructures:
+    """Contains log structures."""
     class Dump(LogType):
-        """Log type that dumps info."""
-        def __init__(self, datas: Structures.Default):
-            super().__init__(["logData", "dump", "servers"])
-            self.datas = datas
+        """Type where messages aren't deleted."""
+        async def post_logs_discord(self, _type: o_f.Unique):
+            await self.post_logs_discord_base(_type, paths=["logData", "dump"])
 
-        async def post_log(self):
-            for channel in self.get_channels():
-                await channel.send("A new submission has been added. Here are the current details:", embed=await self.datas.generate_embed())
-                await channel.send(self.datas.proof)
-
+    class Live(LogType):
+        """Type where messages are deleted."""
+        async def post_logs_discord(self, _type: o_f.Unique):
+            await self.post_logs_discord_base(_type, paths=["logData", "live"])
 
 
 def search_vadb(search_term: str):
@@ -849,14 +887,14 @@ def search_vadb(search_term: str):
         return None
 
     artists_data = response["data"]
-    final_list = [Structures.Default(Structures.VADB.Receive(artist_data)) for artist_data in artists_data]
+    final_list = [ArtistStructures.Default(ArtistStructures.VADB.Receive(artist_data)) for artist_data in artists_data]
     return final_list
 
-def search_for_artist(search_term: str) -> list[Structures.Default] | None:
+def search_for_artist(search_term: str) -> list[ArtistStructures.Default] | None:
     """Searches for artists."""
     return search_vadb(search_term)
 
-def generate_search_embed(result: list[Structures.Default]):
+def generate_search_embed(result: list[ArtistStructures.Default]):
     """Returns an embed for searches with multiple results."""
 
     embed = nx.Embed(color=0xFF0000)
@@ -876,4 +914,4 @@ def generate_search_embed(result: list[Structures.Default]):
 
 def get_artist_by_id(artist_id: int):
     """Gets an artist from VADB by ID."""
-    return Structures.Default(Structures.VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))
+    return ArtistStructures.Default(ArtistStructures.VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))

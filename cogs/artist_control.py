@@ -42,9 +42,9 @@ class ArtistControl(cmds.Cog):
 
         data = a_l.ArtistStructures.Default()
         if devbranch != "devbranch":
-            await data.trigger_all_set_attributes(ctx, self.bot)
+            await data.trigger_all_set_attributes(ctx)
 
-        await data.edit_loop(ctx, self.bot)
+        await data.edit_loop(ctx)
 
         response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
 
@@ -55,8 +55,7 @@ class ArtistControl(cmds.Cog):
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
         await i_u.delete_is_using_command(ctx.author.id)
 
-        await data.post_log(self.bot)
-        a_l.ArtistStructures.Firebase.Pending(data).send_data()
+        await data.post_log(a_l.LogType.LoggingTypes.PENDING)
 
 
     @c_w.command(

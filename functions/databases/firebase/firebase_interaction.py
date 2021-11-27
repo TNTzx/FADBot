@@ -56,7 +56,7 @@ def append_data(path: list[str], data: list):
 
 # Edit
 def edit_data(path: list[str], data: dict):
-    """Edits data in a path. Use key-value pairs."""
+    """Edits data in a path. Use key-value pairs. Won't replace data in path."""
     if not is_data_exists(path):
         raise c_exc.FirebaseNoEntry(f"Data can't be found for '{path}'.")
 

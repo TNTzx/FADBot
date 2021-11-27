@@ -25,11 +25,11 @@ async def send_error(ctx, suffix):
     """Sends an error, but with a syntax."""
     await s_e.send_error(ctx, f"{suffix} Try again.", send_author=True)
 
-async def waiting(ctx: cmds.Context, bot):
+async def waiting(ctx: cmds.Context):
     """Wait for a message then return the response."""
     try:
         check = lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, nx.channel.DMChannel)
-        response: nx.Message = await bot.wait_for("message", check=check, timeout=TIMEOUT)
+        response: nx.Message = await vrs.global_bot.wait_for("message", check=check, timeout=TIMEOUT)
     except asyncio.TimeoutError as exc:
         await i_u.delete_is_using_command(ctx.author.id)
         await s_e.send_error(ctx, "Command timed out. Please use the command again.")
@@ -156,7 +156,6 @@ async def wait_for_response(ctx: cmds.Context,
         choices: list[str] = None, choices_dict: list[str] = None,
         skippable=False, skip_default=None):
     """Returns the response, but with checks."""
-    bot = vrs.global_bot
 
     success = True
     while success:
@@ -180,7 +179,7 @@ async def wait_for_response(ctx: cmds.Context,
 
         await ctx.author.send(embed=embed)
 
-        response = await waiting(ctx, bot)
+        response = await waiting(ctx)
 
         if response.content == f"{vrs.CMD_PREFIX}cancel":
             raise c_e.ExitFunction("Exited Function.")
