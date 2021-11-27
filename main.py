@@ -3,16 +3,16 @@
 # pylint: disable=assigning-non-slot
 
 import os
-import discord
-import discord.ext.commands as cmds
+import nextcord as nx
+import nextcord.ext.commands as cmds
 
 from global_vars import variables as vrs
 
 def main():
     """...main!"""
-    bot = discord.Client()
+    bot = nx.Client()
 
-    intents = discord.Intents.default()
+    intents = nx.Intents.default()
     intents.members = True
 
     bot = cmds.Bot(command_prefix=vrs.CMD_PREFIX, intents=intents)

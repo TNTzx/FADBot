@@ -1,18 +1,22 @@
 """Contains sending errors."""
 
-import traceback
-import discord
-import discord.ext.commands as commands
+# pylint: disable=line-too-long
 
+import traceback
+import nextcord as nx
+import nextcord.ext.commands as commands
+
+from global_vars import variables as vrs
 from functions import other_functions as o_f
 
 
 ERROR_PREFIX = "**Error!**\n"
 
-async def send_error(ctx: commands.Context, bot: discord.Client, suffix, exc="", other_data: discord.Message = None,
+async def send_error(ctx: commands.Context, suffix, exc="", other_data: nx.Message = None,
         send_author=False, send_owner=False, send_console=False, cooldown_reset=False):
     """Sends an error to a context."""
 
+    bot: nx.Client = vrs.global_bot
     text = f"{ERROR_PREFIX}{ctx.author.mention}, {suffix}"
     tntz = await o_f.get_tntz(bot)
 
@@ -28,7 +32,7 @@ async def send_error(ctx: commands.Context, bot: discord.Client, suffix, exc="",
         print(f"Ignoring exception in command {ctx.command}:")
         # pylint: disable=no-member
         traceback.print_exception(type(error), error, error.__traceback__)
-        # pylint: emable=no-member
+        # pylint: enable=no-member
 
     if cooldown_reset:
         ctx.command.reset_cooldown(ctx)
@@ -36,7 +40,7 @@ async def send_error(ctx: commands.Context, bot: discord.Client, suffix, exc="",
     if send_author:
         await ctx.author.send(text)
     else:
-        if isinstance(ctx.message.channel, discord.DMChannel):
+        if isinstance(ctx.message.channel, nx.DMChannel):
             channel = bot.get_channel(ctx.message.channel.id)
             await channel.send(text)
         else:

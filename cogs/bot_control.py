@@ -9,15 +9,15 @@
 import os
 import sys
 
-import discord
-import discord.ext.commands as cmds
+import nextcord as nx
+import nextcord.ext.commands as cmds
 
 from global_vars import variables as vrs
 from functions import command_wrapper as c_w
 
 
 class RestartKill(cmds.Cog):
-    def __init__(self, bot: discord.Client):
+    def __init__(self, bot: nx.Client):
         self.bot = bot
 
     @c_w.command(

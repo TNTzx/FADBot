@@ -9,13 +9,14 @@
 # pylint: disable=unused-import
 # pylint: disable=invalid-name
 
+
 from __future__ import annotations
-from typing import Union
+from os import path
 import urllib.parse as ul
 import abc
 import requests as req
-import discord
-import discord.ext.commands as cmds
+import nextcord as nx
+import nextcord.ext.commands as cmds
 
 import tldextract as tld
 
@@ -80,6 +81,9 @@ class Structures:
                 "artist_id": None,
                 "page": "https://fadb.live/"
             },
+            "discord_info": {
+                "logs": None
+            },
             "states": {
                 "status": 2,
                 "availability": 2,
@@ -102,12 +106,7 @@ class Structures:
         }
 
         def __init__(self,
-                datas: Union[
-                    dict,
-                    Structures.VADB.Send.Create,
-                    Structures.VADB.Send.Edit,
-                    Structures.VADB.Receive
-                ] = None):
+                datas: dict | Structures.VADB.Send.Create | Structures.VADB.Send.Edit | Structures.VADB.Receive | Structures.Firebase.Send = None):
 
             if isinstance(datas, dict):
                 datas = o_f.override_dicts_recursive(Structures.Default.DEFAULT, datas)
@@ -172,12 +171,23 @@ class Structures:
                             "socials": datas.details.socials
                         }
                     }
+                elif isinstance(datas, Structures.Firebase.Send):
+                    datas = {
+                        "name": datas.name,
+                        "vadb_info": {
+                            "artist_id": datas.artist_id
+                        },
+                        "discord_info": {
+                            "logs": datas.logs
+                        }
+                    }
                 datas = o_f.override_dicts_recursive(Structures.Default.DEFAULT, datas)
 
 
             self.name = datas["name"]
             self.proof = datas["proof"]
             self.vadb_info = self.VADBInfo(datas["vadb_info"])
+            self.discord_info = self.DiscordInfo(datas["discord_info"])
             self.states = self.States(datas["states"])
             self.details = self.Details(datas["details"])
 
@@ -189,6 +199,13 @@ class Structures:
             def __init__(self, datas: dict = None):
                 self.artist_id = datas["artist_id"]
                 self.page = datas["page"]
+
+        class DiscordInfo(ArtistDataStructure):
+            """Stores Discord-related info.
+            logs: list[dict[str, int]]"""
+
+            def __init__(self, datas):
+                self.logs = datas["logs"]
 
         class States(ArtistDataSubStructure):
             """Stores the state of the artist in the verification process.\n
@@ -256,7 +273,7 @@ class Structures:
         async def generate_embed(self, editing=False):
             """Generates an embed."""
 
-            embed = discord.Embed()
+            embed = nx.Embed()
             embed.title = f"Artist data for {self.name}:"
             embed.description = "_ _"
 
@@ -376,15 +393,16 @@ class Structures:
             genre = o_f.Unique()
             socials = o_f.Unique()
 
-        async def set_attribute(self, ctx: cmds.Context, bot: discord.Client, attr: o_f.Unique, skippable=False):
+        async def set_attribute(self, ctx: cmds.Context, attr: o_f.Unique, skippable=False):
             """Sets an attribute in this class."""
+            bot = vrs.global_bot
             functions = self.Functions
 
             def check(attrib):
                 return attr == attrib
 
             if check(functions.name):
-                name = await ask.wait_for_response(ctx, bot,
+                name = await ask.wait_for_response(ctx,
                     "Artist Name",
                     "Send the artist name.",
                     ask.OutputTypes.text,
@@ -404,7 +422,7 @@ class Structures:
                     self.name = name
 
             elif check(functions.proof):
-                proof = await ask.wait_for_response(ctx, bot,
+                proof = await ask.wait_for_response(ctx,
                     "Please send proof that you contacted the artist.",
                     "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
                     ask.OutputTypes.image,
@@ -413,7 +431,7 @@ class Structures:
                 if proof is not None:
                     self.proof = proof
             elif check(functions.availability):
-                availability = await ask.wait_for_response(ctx, bot,
+                availability = await ask.wait_for_response(ctx,
                     "Is the artist verified, disallowed, or does it vary between songs?",
                     "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n\"Disallowed\" means that the artist's songs cannot be used.\n\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed.",
                     ask.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
@@ -427,7 +445,7 @@ class Structures:
                     }
                     self.states.availability.value = dictionary[availability]
             elif check(functions.usage_rights):
-                usage_rights = await ask.wait_for_response(ctx, bot,
+                usage_rights = await ask.wait_for_response(ctx,
                     "What are the usage rights for the artist?",
                     "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
                     ask.OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
@@ -443,7 +461,7 @@ class Structures:
                         })
                     self.states.usage_rights = usage_list
             elif check(functions.description):
-                description = await ask.wait_for_response(ctx, bot,
+                description = await ask.wait_for_response(ctx,
                     "Send a description about the artist.",
                     "You can put information about the artist here. Their bio, how their music is created, etc. could work.",
                     ask.OutputTypes.text,
@@ -452,7 +470,7 @@ class Structures:
                 if description is not None:
                     self.details.description = description
             elif check(functions.notes):
-                notes = await ask.wait_for_response(ctx, bot,
+                notes = await ask.wait_for_response(ctx,
                     "Notes",
                     "Send other notes you want to put in.",
                     ask.OutputTypes.text,
@@ -461,7 +479,7 @@ class Structures:
                 if notes is not None:
                     self.details.notes = notes
             elif check(functions.aliases):
-                aliases = await ask.wait_for_response(ctx, bot,
+                aliases = await ask.wait_for_response(ctx,
                     "Artist Aliases",
                     "Send other names that the artist goes by.",
                     ask.OutputTypes.listing,
@@ -470,7 +488,7 @@ class Structures:
                 if aliases is not None:
                     self.details.aliases = [{"name": alias} for alias in aliases]
             elif check(functions.avatar_url):
-                avatar_url = await ask.wait_for_response(ctx, bot,
+                avatar_url = await ask.wait_for_response(ctx,
                     "Send an image to an avatar of the artist.",
                     "This is the profile picture that the artist uses.",
                     ask.OutputTypes.image,
@@ -479,7 +497,7 @@ class Structures:
                 if avatar_url is not None:
                     self.details.images.avatar_url = avatar_url
             elif check(functions.banner_url):
-                banner = await ask.wait_for_response(ctx, bot,
+                banner = await ask.wait_for_response(ctx,
                     "Send an image to the banner of the artist.",
                     "This is the banner that the artist uses.",
                     ask.OutputTypes.image,
@@ -488,7 +506,7 @@ class Structures:
                 if banner is not None:
                     self.details.images.banner_url = banner
             elif check(functions.tracks):
-                tracks = await ask.wait_for_response(ctx, bot,
+                tracks = await ask.wait_for_response(ctx,
                     "How many tracks does the artist have?",
                     "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
                     ask.OutputTypes.number,
@@ -497,7 +515,7 @@ class Structures:
                 if tracks is not None:
                     self.details.music_info.tracks = tracks
             elif check(functions.genre):
-                genre = await ask.wait_for_response(ctx, bot,
+                genre = await ask.wait_for_response(ctx,
                     "What is the genre of the artist?",
                     "This is the type of music that the artist makes.",
                     ask.OutputTypes.text,
@@ -506,7 +524,7 @@ class Structures:
                 if genre is not None:
                     self.details.music_info.genre = genre
             elif check(functions.socials):
-                socials = await ask.wait_for_response(ctx, bot,
+                socials = await ask.wait_for_response(ctx,
                     "Put some links for the artist's social media here.",
                     "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
                     ask.OutputTypes.links,
@@ -523,7 +541,7 @@ class Structures:
                         })
                     self.details.socials = social_list
 
-        async def edit_loop(self, ctx: cmds.Context, bot: discord.Client):
+        async def edit_loop(self, ctx: cmds.Context, bot: nx.Client):
             """Initiates an edit loop to edit the attributes."""
             functions = self.Functions
             command_dict = {
@@ -546,17 +564,17 @@ class Structures:
 
                 await ctx.author.send(embed=await self.generate_embed(editing=True))
 
-                message: discord.Message = await ask.waiting(ctx, bot)
+                message: nx.Message = await ask.waiting(ctx, bot)
                 command = message.content.split(" ")
 
                 if command[0].startswith(f"{vrs.CMD_PREFIX}edit"):
                     command_to_get = command_dict.get(command[1] if len(command) > 1 else None, None)
 
                     if command_to_get is None:
-                        await ask.send_error(ctx, bot, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
+                        await ask.send_error(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
                         continue
 
-                    await self.set_attribute(ctx, bot, command_to_get, skippable=True)
+                    await self.set_attribute(ctx, command_to_get, skippable=True)
 
                 elif command[0] == f"{vrs.CMD_PREFIX}submit":
                     break
@@ -565,12 +583,12 @@ class Structures:
                     raise c_exc.ExitFunction("Exited Function.")
 
                 else:
-                    await ask.send_error(ctx, bot, "You didn't send a command!")
+                    await ask.send_error(ctx, "You didn't send a command!")
 
-        async def trigger_all_set_attributes(self, ctx: cmds.Context, bot: discord.Client):
+        async def trigger_all_set_attributes(self, ctx: cmds.Context):
             """Triggers all attributes."""
             async def trigger(cmd):
-                await self.set_attribute(ctx, bot, cmd)
+                await self.set_attribute(ctx, cmd)
 
             await trigger(self.Functions.name)
             # add check for existing artist here
@@ -587,21 +605,20 @@ class Structures:
             await trigger(self.Functions.notes)
 
 
-        async def post_log(self, bot: discord.Client):
+        async def post_log(self):
             """Posts logs to everyone."""
-            can_log = f_i.get_data(["mainData", "canLog"])
-            channels: list[discord.TextChannel] = [bot.get_channel(int(entry["channel"])) for entry in can_log]
 
-            channel_list = []
-            for channel in channels:
-                if channel is None:
-                    continue
-                channel_list.append(channel)
-            channels = channel_list
 
-            for channel in channels:
-                await channel.send(embed=await self.generate_embed())
-                await channel.send(self.proof)
+            # for channel in dump_channels:
+            #     await channel.send("A new submission has been added. Here are the current details:", embed=await self.generate_embed())
+            #     await channel.send(self.proof)
+
+            # live_log_servers = f_i.get_data(["logData", "live", "servers"])
+            # live_channels = get_channels(live_log_servers)
+
+            # for channel in live_channels:
+            #     await channel.send()
+
 
 
     class VADB:
@@ -616,7 +633,7 @@ class Structures:
                 status: int
                 availability: int"""
 
-                def __init__(self, datas: Union[dict, Structures.Default] = None):
+                def __init__(self, datas: dict | Structures.Default = None):
                     if isinstance(datas, Structures.Default):
                         datas = {
                             "name": datas.name,
@@ -639,7 +656,7 @@ class Structures:
             class Edit(ArtistDataStructure):
                 """Data structure for sending the "edit artist" request."""
 
-                def __init__(self, datas: Union[dict, Structures.Default] = None):
+                def __init__(self, datas: dict | Structures.Default = None):
                     if isinstance(datas, Structures.Default):
                         datas = {
                             "name": datas.name,
@@ -683,7 +700,7 @@ class Structures:
                 """Data structure for requesting to completely obliterate the artist from the database.
                 id: int"""
 
-                def __init__(self, datas: Union[dict, Structures.Default] = None):
+                def __init__(self, datas: dict | Structures.Default = None):
                     if isinstance(datas, Structures.Default):
                         datas = {
                             "id": datas.vadb_info.artist_id
@@ -705,7 +722,7 @@ class Structures:
             name: str
             aliases: list[dict[str, str]]
             """
-            def __init__(self, datas: Union[dict, Structures.Default] = None):
+            def __init__(self, datas: dict | Structures.Default = None):
                 if isinstance(datas, Structures.Default):
                     datas = {
                         "id": datas.vadb_info.artist_id,
@@ -753,25 +770,73 @@ class Structures:
     class Firebase:
         """Contains classes for Firebase Interaction."""
 
-        class Pending(ArtistDataStructure):
-            """Class for pending artists."""
-            def __init__(self, datas: Union[dict, Structures.Default] = None):
+        class Send(ArtistDataStructure):
+            """Class for pending and editing artists."""
+            def __init__(self, datas: dict | Structures.Default = None):
                 if isinstance(datas, Structures.Default):
                     datas = {
+                        "artist_id": datas.vadb_info.artist_id,
                         "name": datas.name,
-                        "data": datas.to_dict()
+                        "logs": datas.discord_info.logs
                     }
                 elif isinstance(datas, dict):
                     datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
                 else:
                     datas = self.get_default_dict()
 
+                self.artist_id = datas["artist_id"]
                 self.name = datas["name"]
-                self.data = datas["data"]
+                self.logs = datas["logs"]
 
-            def send_data(self):
+            def send_data(self, path_choice: o_f.Unique):
                 """Sends the data to Firebase."""
-                f_i.edit_data(["artistData", "pending", "artists"], {self.name: self.data})
+                if path_choice == self.SendDataChoices.pending:
+                    paths = ["artistData", "pending", "artists"]
+                elif path_choice == self.SendDataChoices.editing:
+                    paths = ["artistData", "editing", "artists"]
+
+                f_i.edit_data(paths, {self.artist_id: {"name": self.name, "logs": self.logs}})
+
+            class SendDataChoices:
+                """Choices for send_data function."""
+                pending = o_f.Unique()
+                editing = o_f.Unique()
+
+class LogType(abc.ABC):
+    """ABC that defines a logging type."""
+    def __init__(self, paths: list[str]):
+        self.paths = paths
+
+    def get_channels(self) -> list[nx.TextChannel]:
+        """Get channels from list of paths."""
+        channels = []
+        for entry in self.paths:
+            try:
+                channels.append(vrs.global_bot.get_channel(int(entry["channel"])))
+            except TypeError:
+                pass
+        channels = o_f.remove_none_in_list(channels)
+        return channels
+
+    @abc.abstractmethod
+    async def post_log(self):
+        """Posts the logs."""
+        pass
+
+class LogStructure:
+    """Class that contains log types."""
+    class Dump(LogType):
+        """Log type that dumps info."""
+        def __init__(self, datas: Structures.Default):
+            super().__init__(["logData", "dump", "servers"])
+            self.datas = datas
+
+        async def post_log(self):
+            for channel in self.get_channels():
+                await channel.send("A new submission has been added. Here are the current details:", embed=await self.datas.generate_embed())
+                await channel.send(self.datas.proof)
+
+
 
 def search_vadb(search_term: str):
     """Searches for artists on VADB."""
@@ -787,50 +852,14 @@ def search_vadb(search_term: str):
     final_list = [Structures.Default(Structures.VADB.Receive(artist_data)) for artist_data in artists_data]
     return final_list
 
-# def search_firebase(search_term: str):
-#     """Searches for artists on Firebase."""
-#     artists_data: dict = f_i.get_data(["artistData", "pending", "artists"])
-#     artists: tuple[str] = tuple(artists_data.keys())
-#     valid_artist_list = []
-#     for artist in artists:
-#         if search_term.lower() in artist.lower():
-#             valid_artist_list.append(artist)
-
-#     if len(valid_artist_list) == 0:
-#         return None
-
-#     final_list = [artists_data[artist] for artist in valid_artist_list]
-#     final_list = [Structures.Default(artist_data) for artist_data in final_list]
-#     return final_list
-
-
-def search_for_artist(search_term: str) -> Union[list[Structures.Default], None]:
+def search_for_artist(search_term: str) -> list[Structures.Default] | None:
     """Searches for artists."""
-    vadb_result = search_vadb(search_term)
-    # firebase_result = search_firebase(search_term)
-
-    # final = []
-    # if vadb_result is not None and firebase_result is not None:
-    #     firebase_names = [artist.name for artist in firebase_result]
-    #     for artist in vadb_result:
-    #         if artist.name not in firebase_names:
-    #             final.append(artist)
-
-    #     final = final + firebase_result
-    # else:
-    #     if vadb_result is not None:
-    #         final = vadb_result
-    #     elif firebase_result is not None:
-    #         final = firebase_result
-    #     else:
-    #         return None
-
-    return vadb_result
+    return search_vadb(search_term)
 
 def generate_search_embed(result: list[Structures.Default]):
     """Returns an embed for searches with multiple results."""
 
-    embed = discord.Embed(color=0xFF0000)
+    embed = nx.Embed(color=0xFF0000)
 
     str_list = []
     for artist in result:
