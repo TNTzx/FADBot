@@ -14,6 +14,8 @@ from __future__ import annotations
 from os import path
 import urllib.parse as ul
 import abc
+from nextcord import channel
+from nextcord import message
 from nextcord.message import Message
 import requests as req
 import nextcord as nx
@@ -77,7 +79,7 @@ class ArtistStructures:
 
         DEFAULT = {
             "name": "default name",
-            "proof": None,
+            "proof": DEFAULT_IMAGE,
             "vadb_info": {
                 "artist_id": None,
                 "page": "https://fadb.live/"
@@ -564,8 +566,8 @@ class ArtistStructures:
 
                 await ctx.author.send(embed=await self.generate_embed(editing=True))
 
-                message: nx.Message = await ask.waiting(ctx)
-                command = message.content.split(" ")
+                message_obj: nx.Message = await ask.waiting(ctx)
+                command = message_obj.content.split(" ")
 
                 if command[0].startswith(f"{vrs.CMD_PREFIX}edit"):
                     command_to_get = command_dict.get(command[1] if len(command) > 1 else None, None)
@@ -640,9 +642,9 @@ class ArtistStructures:
                     self.status = datas["status"]
                     self.availability = datas["availability"]
 
-                # def send_data(self):
-                #     """Creates the artist using the current instance."""
-                #     return v_i.make_request("POST", "/artist/", self.get_json_dict())
+                def send_data(self):
+                    """Creates the artist using the current instance."""
+                    return v_i.make_request("POST", "/artist/", self.get_json_dict())
 
             class Edit(ArtistDataStructure):
                 """Data structure for sending the "edit artist" request."""
@@ -777,6 +779,8 @@ class ArtistStructures:
                     else:
                         datas = self.get_default_dict()
 
+                    print(datas)
+
                     self.artist_id = datas["id"]
                     self.name = datas["name"]
                     self.logs = datas["logs"]
@@ -804,22 +808,32 @@ class LogType:
     def __init__(self, datas: ArtistStructures.Default):
         self.datas = datas
 
-    class MessageStructure:
+    class LogContainer:
         """Class that contains structure for logs."""
-        def __init__(self, message_embed=None, message_proof=None, paths: list[str] = None):
-            if paths is not None:
-                log = f_i.get_data(paths)
-                message_embed = log["message_embed"]
-                message_proof = log["message_proof"]
-            self.message_embed = message_embed
-            self.message_proof = message_proof
+        class IDs:
+            """Stores IDs."""
+            def __init__(self):
+                self.message_embed = self.MessageIDs()
+                self.message_proof = self.MessageIDs()
 
-        def get_dict(self):
-            """Gets dict."""
-            return {
-                "message_embed": str(self.message_embed),
-                "message_proof": str(self.message_proof)
-            }
+            class MessageIDs:
+                """Stores IDs that refer to a message."""
+                def __init__(self, channel_id: int = None, message_id: int = None):
+                    self.channel_id = str(channel_id)
+                    self.message_id = str(message_id)
+
+            def get_dict(self):
+                """Gets dict."""
+                return o_f.get_dict_attr(self)
+
+        class Objects:
+            """Stores channel and message objects."""
+            def __init__(self, id_object: LogType.LogContainer.IDs | None):
+                def get_message_from_ids(message_id_object: LogType.LogContainer.IDs.MessageIDs):
+                    channel_obj: nx.TextChannel = vrs.global_bot.get_channel(int(message_id_object.channel_id))
+                    return channel_obj.fetch_message(int(message_id_object.message_id))
+                self.message_embed = get_message_from_ids(id_object.message_embed)
+                self.message_proof = get_message_from_ids(id_object.message_proof)
 
 
     def get_channels(self, paths) -> list[nx.TextChannel]:
@@ -829,7 +843,7 @@ class LogType:
         channels = []
         for entry in paths:
             try:
-                channels.append(int(entry["channel"]))
+                channels.append(vrs.global_bot.get_channel(int(entry["channel"])))
             except TypeError:
                 pass
         return channels
@@ -837,28 +851,35 @@ class LogType:
     def post_logs_firebase(self, _type: o_f.Unique):
         """Posts logs on discord then puts the message links on firebase."""
         if _type == self.LoggingTypes.PENDING:
-            ArtistStructures.Firebase.Send.Pending(self.datas)
+            ArtistStructures.Firebase.Send.Pending(self.datas).send_logs()
         elif _type == self.LoggingTypes.EDITING:
-            ArtistStructures.Firebase.Send.Editing(self.datas)
+            ArtistStructures.Firebase.Send.Editing(self.datas).send_logs()
 
     class LoggingTypes:
         """Class that contains logging types, like pending or editing."""
         PENDING = o_f.Unique()
         EDITING = o_f.Unique()
 
-    async def post_logs_discord_base(self, _type: o_f.Unique, paths: list[str]):
+    async def post_logs_discord_base(self, _type: o_f.Unique, paths: list[str], post_to_firebase=False):
         """Post logs to discord."""
         if _type == self.LoggingTypes.PENDING:
             message_intro = "A new pending artist submission has been added. Here are the current details:"
         elif _type == self.LoggingTypes.EDITING:
             message_intro = "A new edit submission has been added. Here are the current details:"
 
-        messages: list[self.MessageStructure] = []
-        for channel in self.get_channels(paths):
-            log = self.MessageStructure()
-            log.message_embed = await channel.send(message_intro, embed=await self.datas.generate_embed())
-            log.message_proof = await channel.send(self.datas.proof)
-        return messages
+        def store_message_id(message_obj: nx.Message):
+            return LogType.LogContainer.IDs.MessageIDs(message_obj.channel.id, message_obj.id)
+
+        messages: list[self.LogContainer] = []
+        for channel_obj in self.get_channels(paths):
+            log = self.LogContainer.IDs()
+            log.message_embed = store_message_id(await channel_obj.send(message_intro, embed=await self.datas.generate_embed()))
+            log.message_proof = store_message_id(await channel_obj.send(self.datas.proof))
+            messages.append(log.get_dict())
+        self.datas.discord_info.logs = messages
+
+        if post_to_firebase:
+            self.post_logs_firebase(_type)
 
     async def post_logs_discord(self, _type: o_f.Unique):
         """Inherited function."""
@@ -873,7 +894,7 @@ class LogStructures:
     class Live(LogType):
         """Type where messages are deleted."""
         async def post_logs_discord(self, _type: o_f.Unique):
-            await self.post_logs_discord_base(_type, paths=["logData", "live"])
+            await self.post_logs_discord_base(_type, paths=["logData", "live"], post_to_firebase=True)
 
 
 def search_vadb(search_term: str):

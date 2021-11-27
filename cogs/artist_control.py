@@ -46,11 +46,11 @@ class ArtistControl(cmds.Cog):
 
         await data.edit_loop(ctx)
 
-        response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
+        # response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
 
-        artist_id = response["data"]["id"]
-        a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
-        data.vadb_info.artist_id = artist_id
+        # artist_id = response["data"]["id"]
+        # a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
+        # data.vadb_info.artist_id = artist_id
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
         await i_u.delete_is_using_command(ctx.author.id)
