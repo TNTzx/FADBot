@@ -9,12 +9,12 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 import requests as req
 
-from global_vars import variables as vrs
-from functions import command_wrapper as c_w
-from functions.artist_related.classes import artist_library as a_l
-from functions.artist_related import is_using as i_u
-from functions.exceptions import send_error as s_e
-from functions import other_functions as o_f
+import global_vars.variables as vrs
+import functions.command_wrapper as c_w
+import functions.artist_related.classes.artist_library as a_l
+import functions.artist_related.is_using as i_u
+import functions.exceptions.send_error as s_e
+import functions.other_functions as o_f
 
 
 class ArtistControl(cmds.Cog):
@@ -46,11 +46,11 @@ class ArtistControl(cmds.Cog):
 
         await data.edit_loop(ctx)
 
-        # response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
+        response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
 
-        # artist_id = response["data"]["id"]
-        # a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
-        # data.vadb_info.artist_id = artist_id
+        artist_id = response["data"]["id"]
+        a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
+        data.vadb_info.artist_id = artist_id
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
         await i_u.delete_is_using_command(ctx.author.id)

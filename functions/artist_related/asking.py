@@ -12,11 +12,11 @@ import requests as req
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-from global_vars import variables as vrs
-from functions.exceptions import custom_exc as c_e
-from functions.exceptions import send_error as s_e
-from functions.artist_related import is_using as i_u
-from functions import other_functions as o_f
+import global_vars.variables as vrs
+import functions.exceptions.custom_exc as c_e
+import functions.exceptions.send_error as s_e
+import functions.artist_related.is_using as i_u
+import functions.other_functions as o_f
 
 
 TIMEOUT = 60 * 10

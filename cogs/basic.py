@@ -8,10 +8,10 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-from global_vars import defaults
-from functions import command_wrapper as c_w
-from functions.databases.firebase import firebase_interaction as f_i
-from functions import other_functions as o_f
+import global_vars.defaults as defaults
+import functions.command_wrapper as c_w
+import functions.databases.firebase.firebase_interaction as f_i
+import functions.other_functions as o_f
 
 
 async def add_new_to_database(bot):

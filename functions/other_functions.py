@@ -10,7 +10,7 @@
 import datetime
 import nextcord as nx
 
-from functions.exceptions import custom_exc as c_exc
+import functions.exceptions.custom_exc as c_exc
 
 
 class Match:

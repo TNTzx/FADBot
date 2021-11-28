@@ -3,7 +3,7 @@
 import json
 import requests
 
-from global_vars import variables as vrs
+import global_vars.variables as vrs
 
 
 def make_request(request_type, path, data: dict = None):

@@ -1,6 +1,6 @@
 """Module that contains functions to check, add, and delete users using a command."""
 
-from functions.databases.firebase import firebase_interaction as f_i
+import functions.databases.firebase.firebase_interaction as f_i
 
 async def check_if_using_command(author_id):
     """Returns true if the user is using the command."""

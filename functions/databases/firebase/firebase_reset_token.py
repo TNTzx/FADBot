@@ -4,7 +4,7 @@ import time
 import datetime
 import pytz
 
-from global_vars import variables as vrs
+import global_vars.variables as vrs
 
 
 def start_loop():

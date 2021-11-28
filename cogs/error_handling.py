@@ -8,10 +8,10 @@
 # import nextcord as nx
 import nextcord.ext.commands as cmds
 
-from global_vars import variables as vrs
-from functions import other_functions as o_f
-from functions.exceptions import send_error as s_e
-from functions.artist_related import is_using as i_u
+import global_vars.variables as vrs
+import functions.other_functions as o_f
+import functions.exceptions.send_error as s_e
+import functions.artist_related.is_using as i_u
 
 CMD_PREFIX = vrs.CMD_PREFIX
 
