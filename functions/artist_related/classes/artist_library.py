@@ -172,16 +172,6 @@ class ArtistStructures:
                             "socials": datas.details.socials
                         }
                     }
-                elif isinstance(datas, (ArtistStructures.Firebase.Logging.Pending, ArtistStructures.Firebase.Logging.Editing)):
-                    datas = {
-                        "name": datas.name,
-                        "vadb_info": {
-                            "artist_id": datas.artist_id
-                        },
-                        "discord_info": {
-                            "logs": datas.logs
-                        }
-                    }
                 datas = o_f.override_dicts_recursive(ArtistStructures.Default.DEFAULT, datas)
 
 
@@ -191,6 +181,9 @@ class ArtistStructures:
             self.discord_info = self.DiscordInfo(datas["discord_info"])
             self.states = self.States(datas["states"])
             self.details = self.Details(datas["details"])
+
+            if self.vadb_info.artist_id is not None:
+                self.merge_from_logs()
 
         class VADBInfo(ArtistDataStructure):
             """Stores VADB-Related info.
@@ -204,6 +197,7 @@ class ArtistStructures:
         class DiscordInfo(ArtistDataStructure):
             """Stores Discord-related info.
             logs: list[dict[str, int]]
+            user_id: int
             """
             def __init__(self, datas):
                 self.logs = datas["logs"]
@@ -610,6 +604,19 @@ class ArtistStructures:
             """Posts logs to everyone."""
             await l_l.LogStructures.Dump(self).post_logs_discord(_type)
             await l_l.LogStructures.Live(self).post_logs_discord(_type)
+        
+        async def merge_from_logs(self):
+            """Merges from logs in Firebase."""
+            logs = get_logs(self.vadb_info.artist_id)
+            if logs is not None:
+                self.discord_info.logs = logs.logs
+                self.discord_info.user_id = logs.user_id
+            
+        async def delete_logs(self):
+            """Deletes logs from Discord and Firebase."""
+            for log in self.discord_info.logs:
+                log = l_l.LogContainer.Objects.create(l_l.LogContainer.IDs(log))
+                log.delete()
 
 
     class VADB:
@@ -765,10 +772,11 @@ class ArtistStructures:
             """Class for sending and receiving pending and editing artists."""
             class Base(ArtistDataStructure):
                 """Base data structure for sending requests to Firebase."""
+                paths = []
                 def __init__(self, datas: dict | ArtistStructures.Default = None):
                     if isinstance(datas, ArtistStructures.Default):
                         datas = {
-                            "id": datas.vadb_info.artist_id,
+                            "artist_id": datas.vadb_info.artist_id,
                             "name": datas.name,
                             "logs": datas.discord_info.logs,
                             "user_id": datas.discord_info.user_id
@@ -778,46 +786,42 @@ class ArtistStructures:
                     else:
                         datas = self.get_default_dict()
 
-                    self.artist_id = datas["id"]
+                    self.artist_id = datas["artist_id"]
                     self.name = datas["name"]
                     self.logs = datas["logs"]
                     self.user_id = datas["user_id"]
 
-                def send_logs_base(self, paths: list[str]):
-                    """Creates log data in Firebase."""
-                    f_i.edit_data(paths, {self.artist_id: {"name": self.name, "logs": self.logs}})
-
                 def send_logs(self):
-                    """Send logs."""
-
-                def get_logs_base(self, paths: list[str], artist_id: int):
+                    """Creates log data in Firebase."""
+                    f_i.edit_data(self.__class__.paths, {self.artist_id: {"name": self.name, "logs": self.logs}})
+                
+                def get_logs(self, artist_id: int):
                     """Gets log data from Firebase."""
-                    self.__init__(f_i.get_data(paths))
-
-                def get_logs(self, artist_id):
-                    """Returns logs."""
+                    logs = f_i.get_data(self.__class__.paths)
+                    self.__init__(logs.get(artist_id, None))
+                    self.artist_id = artist_id
 
 
             class Pending(Base):
                 """Pending."""
                 paths = ["artistData", "pending", "data"]
-                def send_logs(self):
-                    return super().send_logs_base(ArtistStructures.Firebase.Logging.Pending.paths)
-
-                def get_logs(self, artist_id):
-                    return super().get_logs_base(ArtistStructures.Firebase.Logging.Pending.paths, artist_id)
 
             class Editing(Base):
                 """Editing"""
                 paths = ["artistData", "editing", "data"]
-                def send_logs(self):
-                    return super().send_logs_base(ArtistStructures.Firebase.Logging.Editing.paths)
-
-                def get_logs(self, artist_id):
-                    return super().get_logs_base(ArtistStructures.Firebase.Logging.Editing.paths, artist_id)
 
 
-def search_vadb(search_term: str):
+def get_logs(artist_id: int) -> ArtistStructures.Firebase.Logging.Base:
+    """Gets log data from Firebase."""
+    logs = o_f.remove_none_in_list(
+        [ArtistStructures.Firebase.Logging.Pending().get_logs(artist_id),
+        ArtistStructures.Firebase.Logging.Editing().get_logs(artist_id)]
+    )
+    if len(logs) == 0:
+        return None
+    return logs[0]
+
+def search_for_artist(search_term: str) -> list[ArtistStructures.Default]:
     """Searches for artists on VADB."""
 
     search_term_url = ul.quote_plus(search_term)
@@ -828,12 +832,9 @@ def search_vadb(search_term: str):
         return None
 
     artists_data = response["data"]
-    final_list = [ArtistStructures.Default(ArtistStructures.VADB.Receive(artist_data)) for artist_data in artists_data]
-    return final_list
-
-def search_for_artist(search_term: str) -> list[ArtistStructures.Default] | None:
-    """Searches for artists."""
-    return search_vadb(search_term)
+    artist_list = [ArtistStructures.Default(ArtistStructures.VADB.Receive(artist_data)) for artist_data in artists_data]
+        
+    return artist_list
 
 def generate_search_embed(result: list[ArtistStructures.Default]):
     """Returns an embed for searches with multiple results."""
@@ -855,4 +856,5 @@ def generate_search_embed(result: list[ArtistStructures.Default]):
 
 def get_artist_by_id(artist_id: int):
     """Gets an artist from VADB by ID."""
-    return ArtistStructures.Default(ArtistStructures.VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))
+    artist = ArtistStructures.Default(ArtistStructures.VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))
+    return artist

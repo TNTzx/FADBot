@@ -8,6 +8,7 @@
 # pylint: disable=useless-super-delegation
 # pylint: disable=unused-import
 # pylint: disable=invalid-name
+# pylint: disable=attribute-defined-outside-init
 
 from __future__ import annotations
 import nextcord as nx
@@ -22,7 +23,11 @@ class LogContainer:
     """Class that contains structure for logs."""
     class IDs:
         """Stores IDs."""
-        def __init__(self):
+        def __init__(self, datas: dict[str, str] = None):
+            if datas is not None:
+                self.message_embed = self.MessageIDs(datas["message_embed"]["channel_id"], datas["message_embed"]["message_id"])
+                self.message_proof = self.MessageIDs(datas["message_proof"]["channel_id"], datas["message_proof"]["message_id"])
+                return
             self.message_embed = self.MessageIDs()
             self.message_proof = self.MessageIDs()
 
@@ -31,6 +36,7 @@ class LogContainer:
             def __init__(self, channel_id: int = None, message_id: int = None):
                 self.channel_id = str(channel_id)
                 self.message_id = str(message_id)
+                
 
         def get_dict(self):
             """Gets dict."""
@@ -38,12 +44,20 @@ class LogContainer:
 
     class Objects:
         """Stores channel and message objects."""
-        def __init__(self, id_object: LogContainer.IDs | None):
-            def get_message_from_ids(message_id_object: LogContainer.IDs.MessageIDs):
-                channel_obj: nx.TextChannel = vrs.global_bot.get_channel(int(message_id_object.channel_id))
-                return channel_obj.fetch_message(int(message_id_object.message_id))
-            self.message_embed = get_message_from_ids(id_object.message_embed)
-            self.message_proof = get_message_from_ids(id_object.message_proof)
+        def __init__(self):
+            print("Please use the create() method.")
+
+        async def create(self, id_object: LogContainer.IDs | None):
+            async def get_message_from_ids(message_id_object: LogContainer.IDs.MessageIDs):
+                channel_obj: nx.TextChannel = await vrs.global_bot.get_channel(int(message_id_object.channel_id))
+                return await channel_obj.fetch_message(int(message_id_object.message_id))
+            self.message_embed = await get_message_from_ids(id_object.message_embed)
+            self.message_proof = await get_message_from_ids(id_object.message_proof)
+            return self
+        
+        async def delete(self):
+            await self.message_embed.delete()
+            await self.message_proof.delete()
 
 class LogSend:
     """Base class for defining logging structures."""
