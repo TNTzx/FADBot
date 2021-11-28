@@ -12,6 +12,7 @@ import requests as req
 import global_vars.variables as vrs
 import functions.command_wrapper as c_w
 import functions.artist_related.classes.artist_library as a_l
+import functions.artist_related.classes.log_library as l_l
 import functions.artist_related.is_using as i_u
 import functions.exceptions.send_error as s_e
 import functions.other_functions as o_f
@@ -55,7 +56,7 @@ class ArtistControl(cmds.Cog):
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
         await i_u.delete_is_using_command(ctx.author.id)
 
-        await data.post_log(a_l.LogType.LoggingTypes.PENDING)
+        await data.post_log(l_l.LogSend.LoggingTypes.PENDING)
 
 
     @c_w.command(

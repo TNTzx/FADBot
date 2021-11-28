@@ -21,6 +21,7 @@ import tldextract as tld
 
 import global_vars.variables as vrs
 import functions.artist_related.asking as ask
+import functions.artist_related.classes.log_library as l_l
 import functions.databases.firebase.firebase_interaction as f_i
 import functions.databases.vadb.vadb_interact as v_i
 import functions.exceptions.custom_exc as c_exc
@@ -106,7 +107,7 @@ class ArtistStructures:
         }
 
         def __init__(self,
-                datas: dict | ArtistStructures.VADB.Send.Create | ArtistStructures.VADB.Send.Edit | ArtistStructures.VADB.Receive | ArtistStructures.Firebase.Send.Base = None):
+                datas: dict | ArtistStructures.VADB.Send.Create | ArtistStructures.VADB.Send.Edit | ArtistStructures.VADB.Receive | ArtistStructures.Firebase.Logging.Base = None):
 
             if isinstance(datas, dict):
                 datas = o_f.override_dicts_recursive(ArtistStructures.Default.DEFAULT, datas)
@@ -171,7 +172,7 @@ class ArtistStructures:
                             "socials": datas.details.socials
                         }
                     }
-                elif isinstance(datas, (ArtistStructures.Firebase.Send.Pending, ArtistStructures.Firebase.Send.Editing)):
+                elif isinstance(datas, (ArtistStructures.Firebase.Logging.Pending, ArtistStructures.Firebase.Logging.Editing)):
                     datas = {
                         "name": datas.name,
                         "vadb_info": {
@@ -607,9 +608,8 @@ class ArtistStructures:
 
         async def post_log(self, _type: o_f.Unique):
             """Posts logs to everyone."""
-            await LogStructures.Dump(self).post_logs_discord(_type)
-            await LogStructures.Live(self).post_logs_discord(_type)
-
+            await l_l.LogStructures.Dump(self).post_logs_discord(_type)
+            await l_l.LogStructures.Live(self).post_logs_discord(_type)
 
 
     class VADB:
@@ -761,8 +761,8 @@ class ArtistStructures:
     class Firebase:
         """Contains classes for Firebase Interaction."""
 
-        class Send:
-            """Class for sending pending and editing artists."""
+        class Logging:
+            """Class for sending and receiving pending and editing artists."""
             class Base(ArtistDataStructure):
                 """Base data structure for sending requests to Firebase."""
                 def __init__(self, datas: dict | ArtistStructures.Default = None):
@@ -770,18 +770,18 @@ class ArtistStructures:
                         datas = {
                             "id": datas.vadb_info.artist_id,
                             "name": datas.name,
-                            "logs": datas.discord_info.logs
+                            "logs": datas.discord_info.logs,
+                            "user_id": datas.discord_info.user_id
                         }
                     elif isinstance(datas, dict):
                         datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
                     else:
                         datas = self.get_default_dict()
 
-                    print(datas)
-
                     self.artist_id = datas["id"]
                     self.name = datas["name"]
                     self.logs = datas["logs"]
+                    self.user_id = datas["user_id"]
 
                 def send_logs_base(self, paths: list[str]):
                     """Creates log data in Firebase."""
@@ -790,15 +790,31 @@ class ArtistStructures:
                 def send_logs(self):
                     """Send logs."""
 
+                def get_logs_base(self, paths: list[str], artist_id: int):
+                    """Gets log data from Firebase."""
+                    self.__init__(f_i.get_data(paths))
+
+                def get_logs(self, artist_id):
+                    """Returns logs."""
+
+
             class Pending(Base):
                 """Pending."""
+                paths = ["artistData", "pending", "data"]
                 def send_logs(self):
-                    return super().send_logs_base(["artistData", "pending", "data"])
+                    return super().send_logs_base(ArtistStructures.Firebase.Logging.Pending.paths)
+
+                def get_logs(self, artist_id):
+                    return super().get_logs_base(ArtistStructures.Firebase.Logging.Pending.paths, artist_id)
 
             class Editing(Base):
                 """Editing"""
+                paths = ["artistData", "editing", "data"]
                 def send_logs(self):
-                    return super().send_logs_base(["artistData", "editing", "data"])
+                    return super().send_logs_base(ArtistStructures.Firebase.Logging.Editing.paths)
+
+                def get_logs(self, artist_id):
+                    return super().get_logs_base(ArtistStructures.Firebase.Logging.Editing.paths, artist_id)
 
 
 def search_vadb(search_term: str):
