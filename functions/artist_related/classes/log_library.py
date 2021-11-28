@@ -8,7 +8,6 @@
 # pylint: disable=useless-super-delegation
 # pylint: disable=unused-import
 # pylint: disable=invalid-name
-# pylint: disable=attribute-defined-outside-init
 
 from __future__ import annotations
 import nextcord as nx
@@ -36,7 +35,7 @@ class LogContainer:
             def __init__(self, channel_id: int = None, message_id: int = None):
                 self.channel_id = str(channel_id)
                 self.message_id = str(message_id)
-                
+
 
         def get_dict(self):
             """Gets dict."""
@@ -46,16 +45,22 @@ class LogContainer:
         """Stores channel and message objects."""
         def __init__(self):
             print("Please use the create() method.")
+            self.message_embed = None
+            self.message_proof = None
 
-        async def create(self, id_object: LogContainer.IDs | None):
+        @classmethod
+        async def create(cls, id_object: LogContainer.IDs | None):
+            """Creates a new object."""
+            self = LogContainer.Objects()
             async def get_message_from_ids(message_id_object: LogContainer.IDs.MessageIDs):
                 channel_obj: nx.TextChannel = await vrs.global_bot.get_channel(int(message_id_object.channel_id))
                 return await channel_obj.fetch_message(int(message_id_object.message_id))
             self.message_embed = await get_message_from_ids(id_object.message_embed)
             self.message_proof = await get_message_from_ids(id_object.message_proof)
             return self
-        
+
         async def delete(self):
+            """Deletes the message."""
             await self.message_embed.delete()
             await self.message_proof.delete()
 

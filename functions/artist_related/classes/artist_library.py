@@ -604,18 +604,18 @@ class ArtistStructures:
             """Posts logs to everyone."""
             await l_l.LogStructures.Dump(self).post_logs_discord(_type)
             await l_l.LogStructures.Live(self).post_logs_discord(_type)
-        
+
         async def merge_from_logs(self):
             """Merges from logs in Firebase."""
             logs = get_logs(self.vadb_info.artist_id)
             if logs is not None:
                 self.discord_info.logs = logs.logs
                 self.discord_info.user_id = logs.user_id
-            
+
         async def delete_logs(self):
             """Deletes logs from Discord and Firebase."""
             for log in self.discord_info.logs:
-                log = l_l.LogContainer.Objects.create(l_l.LogContainer.IDs(log))
+                log = await l_l.LogContainer.Objects.create(l_l.LogContainer.IDs(log))
                 log.delete()
 
 
@@ -794,7 +794,7 @@ class ArtistStructures:
                 def send_logs(self):
                     """Creates log data in Firebase."""
                     f_i.edit_data(self.__class__.paths, {self.artist_id: {"name": self.name, "logs": self.logs}})
-                
+
                 def get_logs(self, artist_id: int):
                     """Gets log data from Firebase."""
                     logs = f_i.get_data(self.__class__.paths)
@@ -833,7 +833,7 @@ def search_for_artist(search_term: str) -> list[ArtistStructures.Default]:
 
     artists_data = response["data"]
     artist_list = [ArtistStructures.Default(ArtistStructures.VADB.Receive(artist_data)) for artist_data in artists_data]
-        
+
     return artist_list
 
 def generate_search_embed(result: list[ArtistStructures.Default]):
