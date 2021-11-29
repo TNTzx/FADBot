@@ -37,13 +37,13 @@ class Unique():
 class MessagePointer(DataStructure):
     """Class that contains channel and message ids to represent a message."""
     def __init__(self, channel_id = 0, message_id = 0):
-        self.channel_id = int(channel_id)
-        self.message_id = int(message_id)
+        self.channel_id = str(channel_id)
+        self.message_id = str(message_id)
 
     async def get_message(self):
         """Gets the message from discord and returns it."""
-        channel: nx.TextChannel = await vrs.global_bot.get_channel(self.channel_id)
-        return await channel.fetch_message(self.message_id)
+        channel: nx.TextChannel = await vrs.global_bot.get_channel(int(self.channel_id))
+        return await channel.fetch_message(int(self.message_id))
 
 async def get_tntz(bot: nx.Client):
     """Gets TNTz."""
@@ -81,6 +81,8 @@ def get_dict_attr(obj):
     """Gets attributes of an object then returns it as a dict."""
     dictionary = {}
     for attr, value in obj.__dict__.items():
+        if isinstance(value, list):
+            return [get_dict_attr(value_item) for value_item in value]
         if not hasattr(value, '__dict__'):
             dictionary[attr] = value
         else:

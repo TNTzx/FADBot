@@ -29,7 +29,7 @@ class ArtistControl(cmds.Cog):
         aliases=["aa"],
         guild_only=False
     )
-    async def artistadd(self, ctx: cmds.Context, devbranch=""):
+    async def artistadd(self, ctx: cmds.Context, *skips):
         if await i_u.check_if_using_command(ctx.author.id):
             await s_e.send_error(ctx, f"You're already using this command! Use {vrs.CMD_PREFIX}cancel on your DMs with me to cancel the command.")
             return
@@ -42,21 +42,30 @@ class ArtistControl(cmds.Cog):
         await ctx.author.send("> The artist verification form is now being set up. Please __follow all instructions as necessary.__")
 
         data = a_l.ArtistStructures.Default()
-        if devbranch != "devbranch":
+        if "no_init" in skips:
+            pass
+        else:
             await data.trigger_all_set_attributes(ctx)
 
-        await data.edit_loop(ctx)
+        if "no_edit" in skips:
+            pass
+        else:
+            await data.edit_loop(ctx)
 
-        response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
-
-        artist_id = response["data"]["id"]
-        a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
-        data.vadb_info.artist_id = artist_id
+        if "no_send" in skips:
+            data.vadb_info.artist_id = 0
+        else:
+            response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
+            artist_id = response["data"]["id"]
+            a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
+            data.vadb_info.artist_id = artist_id
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
         await i_u.delete_is_using_command(ctx.author.id)
 
-        await data.post_log(l_l.LogSend.LoggingTypes.PENDING)
+        await data.post_log(l_l.LogTypes.PENDING, ctx.author.id)
+
+        print(data.discord_info.logs.get_dict())
 
 
     @c_w.command(

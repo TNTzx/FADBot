@@ -20,16 +20,24 @@ import functions.other_functions as o_f
 
 class LogTypes:
     """Class that contains log types."""
-    class Pending:
+    class Base:
+        """Base class."""
+        def __init__(self):
+            self.path: list[str] = None
+            self.title_str: str = None
+
+    class Pending(Base):
         """For pending artist submissions."""
         def __init__(self):
+            super().__init__()
             self.path = ["artistData", "pending", "data"]
             self.title_str = "A new pending artist submission has been created."
     PENDING = Pending()
 
-    class Editing:
+    class Editing(Base):
         """For editing requests."""
         def __init__(self):
+            super().__init__()
             self.path = ["artistData", "pending", "data"]
             self.title_str = "A new edit request has been created."
 
@@ -42,23 +50,23 @@ class LogMessages(o_f.DataStructure):
     def __init__(self, datas: dict[str, o_f.MessagePointer] = None):
         if datas is None:
             datas = {
-                "main": o_f.MessagePointer(),
-                "proof": o_f.MessagePointer(),
+                "main": None,
+                "proof": None,
             }
 
-        self.main = datas["main"]
-        self.proof = datas["proof"]
+        self.main = o_f.MessagePointer(datas["main"])
+        self.proof = o_f.MessagePointer(datas["proof"])
 
 class Log(o_f.DataStructure):
     """A data structure to store a log.
     "message": LogMessages
     "user_id": int"""
-    def __init__(self, datas: dict[str, o_f.MessagePointer] = None):
+    def __init__(self, datas: dict = None):
         if datas is None:
             datas = {
-                "message": LogMessages(),
-                "user_id": 0
+                "message": None,
+                "user_id": None
             }
 
-        self.message = datas["message"]
+        self.message = LogMessages(datas["message"])
         self.user_id = datas["user_id"]

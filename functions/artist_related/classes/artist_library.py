@@ -75,7 +75,10 @@ class ArtistStructures:
                 "page": "https://fadb.live/"
             },
             "discord_info": {
-                "logs": None
+                "logs": {
+                    "pending": None,
+                    "editing": None
+                }
             },
             "states": {
                 "status": 2,
@@ -174,8 +177,7 @@ class ArtistStructures:
             self.states = self.States(datas["states"])
             self.details = self.Details(datas["details"])
 
-            if self.vadb_info.artist_id is not None:
-                self.merge_from_logs()
+            self.get_logs()
 
         class VADBInfo(ArtistDataStructure):
             """Stores VADB-Related info.
@@ -191,7 +193,15 @@ class ArtistStructures:
             logs: list[o_f.Log]
             """
             def __init__(self, datas):
-                self.logs = datas["logs"]
+                self.logs = self.Logs(datas["logs"])
+
+            class Logs(ArtistDataStructure):
+                """Stores logs.
+                pending: list[o_f.Log]
+                editing: list[o_f.Log]"""
+                def __init__(self, datas: dict = None):
+                    self.pending = l_l.Log(datas["pending"])
+                    self.editing = l_l.Log(datas["editing"])
 
         class States(ArtistDataStructure):
             """Stores the state of the artist in the verification process.\n
@@ -598,16 +608,16 @@ class ArtistStructures:
                     if not isinstance(channel_dict, dict):
                         continue
 
-                    channel: nx.TextChannel = await vrs.global_bot.get_channel(int(channel_dict["channel"]))
+                    channel: nx.TextChannel = vrs.global_bot.get_channel(int(channel_dict["channel"]))
                     main_message: nx.Message = await channel.send(f"{log_type.title_str} The PA moderators will look into this.",
-                        embed=self.generate_embed())
+                        embed=await self.generate_embed())
 
                     proof_message: nx.Message = await channel.send(self.proof)
 
-                    log_message = l_l.LogMessages({
+                    log_message = {
                             "main": o_f.MessagePointer(channel.id, main_message.id),
                             "proof": o_f.MessagePointer(channel.id, proof_message.id),
-                        })
+                        }
 
                     log_messages.append(log_message)
 
@@ -617,15 +627,25 @@ class ArtistStructures:
                 }) for log_message in log_messages]
 
             await post_log_to_channels(f_i.get_data(["logData", "dump"]))
-            self.discord_info.logs = await post_log_to_channels(f_i.get_data(["logData", "live"]))
+            live_logs = await post_log_to_channels(f_i.get_data(["logData", "live"]))
+            if log_type == l_l.LogTypes.PENDING:
+                self.discord_info.logs.pending = live_logs
+            elif log_type == l_l.LogTypes.EDITING:
+                self.discord_info.logs.editing = live_logs
 
             ArtistStructures.Firebase.Logging(self).send_data(log_type)
 
+        def get_logs(self):
+            """Merges object from logs in Firebase."""
+            if self.vadb_info.artist_id is None:
+                return None
 
+            def get_logs_by_type(log_type: l_l.LogTypes.Base):
+                return f_i.get_data(log_type.path + [self.vadb_info.artist_id])
 
+            self.discord_info.logs.pending = get_logs_by_type(l_l.LogTypes.PENDING)
+            self.discord_info.logs.editing = get_logs_by_type(l_l.LogTypes.EDITING)
 
-        async def merge_from_logs(self):
-            """Merges from logs in Firebase."""
 
         async def delete_logs(self):
             """Deletes logs from Discord and Firebase."""
@@ -794,11 +814,11 @@ class ArtistStructures:
                     datas = self.get_default_dict()
 
                 self.artist_id = datas["artist_id"]
-                self.data = datas["data"]
+                self.datas = datas["data"]
 
             def send_data(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing):
                 """Sends the data to Firebase."""
-                f_i.edit_data(log_type.path, {self.artist_id: self.data.get_dict()})
+                f_i.edit_data(log_type.path, {self.artist_id: self.datas.get_dict()})
 
 
 
