@@ -615,8 +615,8 @@ class ArtistStructures:
                     proof_message: nx.Message = await channel.send(self.proof)
 
                     log_message = {
-                            "main": o_f.MessagePointer(channel.id, main_message.id),
-                            "proof": o_f.MessagePointer(channel.id, proof_message.id),
+                            "main": o_f.MessagePointer(channel.id, main_message.id).get_dict(),
+                            "proof": o_f.MessagePointer(channel.id, proof_message.id).get_dict(),
                         }
 
                     log_messages.append(log_message)

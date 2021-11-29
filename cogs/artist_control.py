@@ -65,7 +65,7 @@ class ArtistControl(cmds.Cog):
 
         await data.post_log(l_l.LogTypes.PENDING, ctx.author.id)
 
-        print(data.discord_info.logs.get_dict())
+        print(data.discord_info.logs.pending)
 
 
     @c_w.command(

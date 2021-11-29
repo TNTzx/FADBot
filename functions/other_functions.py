@@ -82,8 +82,8 @@ def get_dict_attr(obj):
     dictionary = {}
     for attr, value in obj.__dict__.items():
         if isinstance(value, list):
-            return [get_dict_attr(value_item) for value_item in value]
-        if not hasattr(value, '__dict__'):
+            dictionary[attr] = [get_dict_attr(value_item) for value_item in value]
+        elif not hasattr(value, '__dict__'):
             dictionary[attr] = value
         else:
             dictionary[attr] = get_dict_attr(value)

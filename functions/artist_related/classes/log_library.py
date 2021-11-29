@@ -69,4 +69,4 @@ class Log(o_f.DataStructure):
             }
 
         self.message = LogMessages(datas["message"])
-        self.user_id = datas["user_id"]
+        self.user_id = str(datas["user_id"])
