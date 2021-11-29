@@ -391,6 +391,7 @@ class ArtistStructures:
 
         async def set_attribute(self, ctx: cmds.Context, attr: o_f.Unique, skippable=False):
             """Sets an attribute in this class."""
+            bot = vrs.global_bot
             functions = self.Functions
 
             def check(attrib):

@@ -30,6 +30,7 @@ async def waiting(ctx: cmds.Context):
     try:
         check = lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, nx.channel.DMChannel)
         response: nx.Message = await vrs.global_bot.wait_for("message", check=check, timeout=TIMEOUT)
+
     except asyncio.TimeoutError as exc:
         await i_u.delete_is_using_command(ctx.author.id)
         await s_e.send_error(ctx, "Command timed out. Please use the command again.")
@@ -156,6 +157,7 @@ async def wait_for_response(ctx: cmds.Context,
         choices: list[str] = None, choices_dict: list[str] = None,
         skippable=False, skip_default=None):
     """Returns the response, but with checks."""
+    bot = vrs.global_bot
 
     success = True
     while success:
