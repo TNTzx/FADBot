@@ -36,9 +36,14 @@ class Unique():
 
 class MessagePointer(DataStructure):
     """Class that contains channel and message ids to represent a message."""
-    def __init__(self, channel_id = 0, message_id = 0):
-        self.channel_id = str(channel_id)
-        self.message_id = str(message_id)
+    def __init__(self, datas: dict = None, channel_id = "0", message_id = "0"):
+        if datas is None:
+            datas = {
+                "channel_id": channel_id,
+                "message_id": message_id
+            }
+        self.channel_id = str(datas["channel_id"])
+        self.message_id = str(datas["message_id"])
 
     async def get_message(self):
         """Gets the message from discord and returns it."""

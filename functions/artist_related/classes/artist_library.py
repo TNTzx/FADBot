@@ -200,8 +200,8 @@ class ArtistStructures:
                 pending: list[o_f.Log]
                 editing: list[o_f.Log]"""
                 def __init__(self, datas: dict = None):
-                    self.pending = l_l.Log(datas["pending"])
-                    self.editing = l_l.Log(datas["editing"])
+                    self.pending = create_log_list(datas["pending"])
+                    self.editing = create_log_list(datas["editing"])
 
         class States(ArtistDataStructure):
             """Stores the state of the artist in the verification process.\n
@@ -615,8 +615,8 @@ class ArtistStructures:
                     proof_message: nx.Message = await channel.send(self.proof)
 
                     log_message = {
-                            "main": o_f.MessagePointer(channel.id, main_message.id).get_dict(),
-                            "proof": o_f.MessagePointer(channel.id, proof_message.id).get_dict(),
+                            "main": o_f.MessagePointer(channel_id=channel.id, message_id=main_message.id).get_dict(),
+                            "proof": o_f.MessagePointer(channel_id=channel.id, message_id=proof_message.id).get_dict(),
                         }
 
                     log_messages.append(log_message)
@@ -640,11 +640,14 @@ class ArtistStructures:
             if self.vadb_info.artist_id is None:
                 return None
 
-            def get_logs_by_type(log_type: l_l.LogTypes.Base):
-                return f_i.get_data(log_type.path + [self.vadb_info.artist_id])
+            def get_logs_by_type(log_type: l_l.LogTypes.Base, other: str):
+                try:
+                    return create_log_list(f_i.get_data(log_type.path + [self.vadb_info.artist_id, "discord_info", "logs", other]))
+                except c_exc.FirebaseNoEntry:
+                    return None
 
-            self.discord_info.logs.pending = get_logs_by_type(l_l.LogTypes.PENDING)
-            self.discord_info.logs.editing = get_logs_by_type(l_l.LogTypes.EDITING)
+            self.discord_info.logs.pending = get_logs_by_type(l_l.LogTypes.PENDING, "pending")
+            self.discord_info.logs.editing = get_logs_by_type(l_l.LogTypes.EDITING, "editing")
 
 
         async def delete_logs(self):
@@ -859,3 +862,7 @@ def get_artist_by_id(artist_id: int):
     """Gets an artist from VADB by ID."""
     artist = ArtistStructures.Default(ArtistStructures.VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))
     return artist
+
+def create_log_list(logs):
+    """Creates a list of log objects."""
+    return [l_l.Log(log) for log in logs] if logs is not None else None
