@@ -11,46 +11,40 @@
 
 
 from __future__ import annotations
+from os import path
 import urllib.parse as ul
-import abc
 import requests as req
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import tldextract as tld
 
-from global_vars import variables as vrs
-from functions.artist_related import asking as ask
-from functions.databases.firebase import firebase_interaction as f_i
-from functions.databases.vadb import vadb_interact as v_i
-from functions.exceptions import custom_exc as c_exc
-from functions import other_functions as o_f
+import global_vars.variables as vrs
+import functions.artist_related.asking as ask
+import functions.artist_related.classes.log_library as l_l
+import functions.databases.firebase.firebase_interaction as f_i
+import functions.databases.vadb.vadb_interact as v_i
+import functions.exceptions.custom_exc as c_exc
+import functions.other_functions as o_f
 
 
 DEFAULT_IMAGE = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
 
-class ArtistDataStructure():
+class ArtistDataStructure(o_f.DataStructure):
     """Defines a common data structure for artists."""
 
     def get_default_dict(self):
         """Gets the default dictionary."""
-        return self.__class__(Structures.Default()).to_dict()
-
-    def to_dict(self):
-        """Turns the data into a dictionary."""
-        return o_f.get_dict_attr(self)
+        return self.__class__(ArtistStructures.Default()).get_dict()
 
     def get_json_dict(self):
         """Turns the data into a dictionary for sending."""
-        data: dict = self.to_dict()
+        data: dict = self.get_dict()
         for key, value in data.items():
             if isinstance(value, dict):
                 data[key] = str(value)
 
         return data
-
-class ArtistDataSubStructure():
-    """Defines a structure for nested classes inside an ArtistDataStructure."""
 
 
 def check_if_empty(variable):
@@ -61,7 +55,7 @@ def check_if_empty(variable):
     return variable
 
 
-class Structures:
+class ArtistStructures:
     """Contains classes for artist data structures."""
 
     class Default(ArtistDataStructure):
@@ -75,10 +69,16 @@ class Structures:
 
         DEFAULT = {
             "name": "default name",
-            "proof": None,
+            "proof": DEFAULT_IMAGE,
             "vadb_info": {
                 "artist_id": None,
                 "page": "https://fadb.live/"
+            },
+            "discord_info": {
+                "logs": {
+                    "pending": None,
+                    "editing": None
+                }
             },
             "states": {
                 "status": 2,
@@ -102,14 +102,14 @@ class Structures:
         }
 
         def __init__(self,
-                datas: dict | Structures.VADB.Send.Create | Structures.VADB.Send.Edit | Structures.VADB.Receive = None):
+                datas: dict | ArtistStructures.VADB.Send.Create | ArtistStructures.VADB.Send.Edit | ArtistStructures.VADB.Receive | ArtistStructures.Firebase.Logging = None):
 
             if isinstance(datas, dict):
-                datas = o_f.override_dicts_recursive(Structures.Default.DEFAULT, datas)
+                datas = o_f.override_dicts_recursive(ArtistStructures.Default.DEFAULT, datas)
             elif datas is None:
-                datas = Structures.Default.DEFAULT
+                datas = ArtistStructures.Default.DEFAULT
             else:
-                if isinstance(datas, Structures.VADB.Send.Create):
+                if isinstance(datas, ArtistStructures.VADB.Send.Create):
                     datas = {
                         "name": datas.name,
                         "states": {
@@ -117,7 +117,7 @@ class Structures:
                             "availability": datas.availability
                         }
                     }
-                elif isinstance(datas, Structures.VADB.Send.Edit):
+                elif isinstance(datas, ArtistStructures.VADB.Send.Edit):
                     datas = {
                         "name": datas.name,
                         "states": {
@@ -140,7 +140,7 @@ class Structures:
                             "socials": datas.socials
                         }
                     }
-                elif isinstance(datas, Structures.VADB.Receive):
+                elif isinstance(datas, ArtistStructures.VADB.Receive):
                     datas = {
                         "name": datas.name,
                         "vadb_info": {
@@ -167,16 +167,19 @@ class Structures:
                             "socials": datas.details.socials
                         }
                     }
-                datas = o_f.override_dicts_recursive(Structures.Default.DEFAULT, datas)
+                datas = o_f.override_dicts_recursive(ArtistStructures.Default.DEFAULT, datas)
 
 
             self.name = datas["name"]
             self.proof = datas["proof"]
             self.vadb_info = self.VADBInfo(datas["vadb_info"])
+            self.discord_info = self.DiscordInfo(datas["discord_info"])
             self.states = self.States(datas["states"])
             self.details = self.Details(datas["details"])
 
-        class VADBInfo(ArtistDataSubStructure):
+            self.get_logs()
+
+        class VADBInfo(ArtistDataStructure):
             """Stores VADB-Related info.
             artist_id: int
             page: str
@@ -185,7 +188,22 @@ class Structures:
                 self.artist_id = datas["artist_id"]
                 self.page = datas["page"]
 
-        class States(ArtistDataSubStructure):
+        class DiscordInfo(ArtistDataStructure):
+            """Stores Discord-related info.
+            logs: list[o_f.Log]
+            """
+            def __init__(self, datas):
+                self.logs = self.Logs(datas["logs"])
+
+            class Logs(ArtistDataStructure):
+                """Stores logs.
+                pending: list[o_f.Log]
+                editing: list[o_f.Log]"""
+                def __init__(self, datas: dict = None):
+                    self.pending = create_log_list(datas["pending"])
+                    self.editing = create_log_list(datas["editing"])
+
+        class States(ArtistDataStructure):
             """Stores the state of the artist in the verification process.\n
             status: int
             availability: int
@@ -211,7 +229,7 @@ class Structures:
                 self.usage_rights: list[dict[str, str]] = datas["usage_rights"]
                 self.usage_rights = check_if_empty(self.usage_rights)
 
-        class Details(ArtistDataSubStructure):
+        class Details(ArtistDataStructure):
             """Stores details of the artist.
             description: str
             notes: str
@@ -230,7 +248,7 @@ class Structures:
                 self.socials = datas["socials"]
                 self.socials = check_if_empty(self.socials)
 
-            class Images(ArtistDataSubStructure):
+            class Images(ArtistDataStructure):
                 """Stores the images of the artist.
                 avatar_url: str
                 banner_url: str
@@ -239,7 +257,7 @@ class Structures:
                     self.avatar_url = datas["avatar_url"]
                     self.banner_url = datas["banner_url"]
 
-            class MusicInfo(ArtistDataSubStructure):
+            class MusicInfo(ArtistDataStructure):
                 """Stores the information about the artist's music.
                 tracks: int
                 genre: str
@@ -286,7 +304,7 @@ class Structures:
             embed.add_field(name=f"Description{edit_format('description')}:", value=description, inline=False)
 
             vadb_page = self.vadb_info.page
-            vadb_page = f"[Click here!]({vadb_page})" if not (vadb_page == Structures.Default.DEFAULT["vadb_info"]["page"]) and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
+            vadb_page = f"[Click here!]({vadb_page})" if not (vadb_page == ArtistStructures.Default.DEFAULT["vadb_info"]["page"]) and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
             embed.add_field(name="VADB Page:", value=vadb_page, inline=False)
 
 
@@ -390,8 +408,8 @@ class Structures:
                 search_result = search_for_artist(name)
                 if search_result is not None:
                     await ctx.author.send("Other artist(s) found. Please check if you have a duplicate submission.\nUse `##cancel` if you think you have a different artist, or type anything to continue.", embed=generate_search_embed(search_result))
-                    response = await ask.waiting(ctx, bot)
-                    response = await ask.reformat(ctx, bot, ask.OutputTypes.text, response)
+                    response = await ask.waiting(ctx)
+                    response = await ask.reformat(ctx, ask.OutputTypes.text, response)
 
                     if response == "##cancel":
                         return
@@ -519,7 +537,7 @@ class Structures:
                         })
                     self.details.socials = social_list
 
-        async def edit_loop(self, ctx: cmds.Context, bot: nx.Client):
+        async def edit_loop(self, ctx: cmds.Context):
             """Initiates an edit loop to edit the attributes."""
             functions = self.Functions
             command_dict = {
@@ -542,14 +560,14 @@ class Structures:
 
                 await ctx.author.send(embed=await self.generate_embed(editing=True))
 
-                message: nx.Message = await ask.waiting(ctx, bot)
-                command = message.content.split(" ")
+                message_obj: nx.Message = await ask.waiting(ctx)
+                command = message_obj.content.split(" ")
 
                 if command[0].startswith(f"{vrs.CMD_PREFIX}edit"):
                     command_to_get = command_dict.get(command[1] if len(command) > 1 else None, None)
 
                     if command_to_get is None:
-                        await ask.send_error(ctx, bot, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
+                        await ask.send_error(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
                         continue
 
                     await self.set_attribute(ctx, command_to_get, skippable=True)
@@ -561,9 +579,9 @@ class Structures:
                     raise c_exc.ExitFunction("Exited Function.")
 
                 else:
-                    await ask.send_error(ctx, bot, "You didn't send a command!")
+                    await ask.send_error(ctx, "You didn't send a command!")
 
-        async def trigger_all_set_attributes(self, ctx: cmds.Context, bot: nx.Client):
+        async def trigger_all_set_attributes(self, ctx: cmds.Context):
             """Triggers all attributes."""
             async def trigger(cmd):
                 await self.set_attribute(ctx, cmd)
@@ -583,21 +601,58 @@ class Structures:
             await trigger(self.Functions.notes)
 
 
-        async def post_log(self, bot: nx.Client):
-            """Posts logs to everyone."""
-            can_log = f_i.get_data(["mainData", "canLog"])
-            channels: list[nx.TextChannel] = [bot.get_channel(int(entry["channel"])) for entry in can_log]
+        async def post_log(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, user_id: int):
+            """Posts logs to channels by type."""
+            async def post_log_to_channels(channel_dicts):
+                log_messages = []
+                for channel_dict in channel_dicts:
+                    if not isinstance(channel_dict, dict):
+                        continue
 
-            channel_list = []
-            for channel in channels:
-                if channel is None:
-                    continue
-                channel_list.append(channel)
-            channels = channel_list
+                    channel: nx.TextChannel = vrs.global_bot.get_channel(int(channel_dict["channel"]))
+                    main_message: nx.Message = await channel.send(f"{log_type.title_str} The PA moderators will look into this.",
+                        embed=await self.generate_embed())
 
-            for channel in channels:
-                await channel.send(embed=await self.generate_embed())
-                await channel.send(self.proof)
+                    proof_message: nx.Message = await channel.send(self.proof)
+
+                    log_message = {
+                            "main": o_f.MessagePointer(channel_id=channel.id, message_id=main_message.id).get_dict(),
+                            "proof": o_f.MessagePointer(channel_id=channel.id, message_id=proof_message.id).get_dict(),
+                        }
+
+                    log_messages.append(log_message)
+
+                return [l_l.Log({
+                    "message": log_message,
+                    "user_id": user_id
+                }) for log_message in log_messages]
+
+            await post_log_to_channels(f_i.get_data(["logData", "dump"]))
+            live_logs = await post_log_to_channels(f_i.get_data(["logData", "live"]))
+            if log_type == l_l.LogTypes.PENDING:
+                self.discord_info.logs.pending = live_logs
+            elif log_type == l_l.LogTypes.EDITING:
+                self.discord_info.logs.editing = live_logs
+
+            ArtistStructures.Firebase.Logging(self).send_data(log_type)
+
+        def get_logs(self):
+            """Merges object from logs in Firebase."""
+            if self.vadb_info.artist_id is None:
+                return None
+
+            def get_logs_by_type(log_type: l_l.LogTypes.Base, other: str):
+                try:
+                    return create_log_list(f_i.get_data(log_type.path + [self.vadb_info.artist_id, "discord_info", "logs", other]))
+                except c_exc.FirebaseNoEntry:
+                    return None
+
+            self.discord_info.logs.pending = get_logs_by_type(l_l.LogTypes.PENDING, "pending")
+            self.discord_info.logs.editing = get_logs_by_type(l_l.LogTypes.EDITING, "editing")
+
+
+        async def delete_logs(self):
+            """Deletes logs from Discord and Firebase."""
 
 
     class VADB:
@@ -612,8 +667,8 @@ class Structures:
                 status: int
                 availability: int"""
 
-                def __init__(self, datas: dict | Structures.Default = None):
-                    if isinstance(datas, Structures.Default):
+                def __init__(self, datas: dict | ArtistStructures.Default = None):
+                    if isinstance(datas, ArtistStructures.Default):
                         datas = {
                             "name": datas.name,
                             "status": datas.states.status.value,
@@ -635,8 +690,8 @@ class Structures:
             class Edit(ArtistDataStructure):
                 """Data structure for sending the "edit artist" request."""
 
-                def __init__(self, datas: dict | Structures.Default = None):
-                    if isinstance(datas, Structures.Default):
+                def __init__(self, datas: dict | ArtistStructures.Default = None):
+                    if isinstance(datas, ArtistStructures.Default):
                         datas = {
                             "name": datas.name,
 
@@ -679,8 +734,8 @@ class Structures:
                 """Data structure for requesting to completely obliterate the artist from the database.
                 id: int"""
 
-                def __init__(self, datas: dict | Structures.Default = None):
-                    if isinstance(datas, Structures.Default):
+                def __init__(self, datas: dict | ArtistStructures.Default = None):
+                    if isinstance(datas, ArtistStructures.Default):
                         datas = {
                             "id": datas.vadb_info.artist_id
                         }
@@ -701,8 +756,8 @@ class Structures:
             name: str
             aliases: list[dict[str, str]]
             """
-            def __init__(self, datas: dict | Structures.Default = None):
-                if isinstance(datas, Structures.Default):
+            def __init__(self, datas: dict | ArtistStructures.Default = None):
+                if isinstance(datas, ArtistStructures.Default):
                     datas = {
                         "id": datas.vadb_info.artist_id,
                         "name": datas.name,
@@ -738,7 +793,7 @@ class Structures:
                 self.usageRights = datas["usageRights"]
                 self.details = self.Details(datas["details"])
 
-            class Details(ArtistDataSubStructure):
+            class Details(ArtistDataStructure):
                 """Contains details."""
                 def __init__(self, datas: dict = None):
                     self.avatarUrl = datas["avatarUrl"]
@@ -749,27 +804,29 @@ class Structures:
     class Firebase:
         """Contains classes for Firebase Interaction."""
 
-        class Pending(ArtistDataStructure):
-            """Class for pending artists."""
-            def __init__(self, datas: dict | Structures.Default = None):
-                if isinstance(datas, Structures.Default):
+        class Logging(ArtistDataStructure):
+            """Class for logging and receiving pending and editing artists."""
+            def __init__(self, datas: dict | ArtistStructures.Default = None):
+                if isinstance(datas, ArtistStructures.Default):
                     datas = {
-                        "name": datas.name,
-                        "data": datas.to_dict()
+                        "artist_id": datas.vadb_info.artist_id,
+                        "data": datas
                     }
                 elif isinstance(datas, dict):
                     datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
                 else:
                     datas = self.get_default_dict()
 
-                self.name = datas["name"]
-                self.data = datas["data"]
+                self.artist_id = datas["artist_id"]
+                self.datas = datas["data"]
 
-            def send_data(self):
+            def send_data(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing):
                 """Sends the data to Firebase."""
-                f_i.edit_data(["artistData", "pending", "artists"], {self.name: self.data})
+                f_i.edit_data(log_type.path, {self.artist_id: self.datas.get_dict()})
 
-def search_vadb(search_term: str):
+
+
+def search_for_artist(search_term: str) -> list[ArtistStructures.Default]:
     """Searches for artists on VADB."""
 
     search_term_url = ul.quote_plus(search_term)
@@ -780,50 +837,11 @@ def search_vadb(search_term: str):
         return None
 
     artists_data = response["data"]
-    final_list = [Structures.Default(Structures.VADB.Receive(artist_data)) for artist_data in artists_data]
-    return final_list
+    artist_list = [ArtistStructures.Default(ArtistStructures.VADB.Receive(artist_data)) for artist_data in artists_data]
 
-# def search_firebase(search_term: str):
-#     """Searches for artists on Firebase."""
-#     artists_data: dict = f_i.get_data(["artistData", "pending", "artists"])
-#     artists: tuple[str] = tuple(artists_data.keys())
-#     valid_artist_list = []
-#     for artist in artists:
-#         if search_term.lower() in artist.lower():
-#             valid_artist_list.append(artist)
+    return artist_list
 
-#     if len(valid_artist_list) == 0:
-#         return None
-
-#     final_list = [artists_data[artist] for artist in valid_artist_list]
-#     final_list = [Structures.Default(artist_data) for artist_data in final_list]
-#     return final_list
-
-
-def search_for_artist(search_term: str) -> list[Structures.Default] | None:
-    """Searches for artists."""
-    vadb_result = search_vadb(search_term)
-    # firebase_result = search_firebase(search_term)
-
-    # final = []
-    # if vadb_result is not None and firebase_result is not None:
-    #     firebase_names = [artist.name for artist in firebase_result]
-    #     for artist in vadb_result:
-    #         if artist.name not in firebase_names:
-    #             final.append(artist)
-
-    #     final = final + firebase_result
-    # else:
-    #     if vadb_result is not None:
-    #         final = vadb_result
-    #     elif firebase_result is not None:
-    #         final = firebase_result
-    #     else:
-    #         return None
-
-    return vadb_result
-
-def generate_search_embed(result: list[Structures.Default]):
+def generate_search_embed(result: list[ArtistStructures.Default]):
     """Returns an embed for searches with multiple results."""
 
     embed = nx.Embed(color=0xFF0000)
@@ -843,4 +861,9 @@ def generate_search_embed(result: list[Structures.Default]):
 
 def get_artist_by_id(artist_id: int):
     """Gets an artist from VADB by ID."""
-    return Structures.Default(Structures.VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))
+    artist = ArtistStructures.Default(ArtistStructures.VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))
+    return artist
+
+def create_log_list(logs):
+    """Creates a list of log objects."""
+    return [l_l.Log(log) for log in logs] if logs is not None else None

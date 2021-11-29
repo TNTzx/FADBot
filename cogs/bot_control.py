@@ -12,8 +12,8 @@ import sys
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-from global_vars import variables as vrs
-from functions import command_wrapper as c_w
+import global_vars.variables as vrs
+import functions.command_wrapper as c_w
 
 
 class RestartKill(cmds.Cog):

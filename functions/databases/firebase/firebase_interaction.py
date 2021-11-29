@@ -3,9 +3,9 @@
 import collections as cl
 import threading as thread
 
-from functions.exceptions import custom_exc as c_exc
-from functions.databases.firebase import firebase_reset_token as f_r_t
-from global_vars import variables as vrs
+import functions.exceptions.custom_exc as c_exc
+import functions.databases.firebase.firebase_reset_token as f_r_t
+import global_vars.variables as vrs
 
 
 def get_from_path(path: list[str]):
@@ -56,7 +56,7 @@ def append_data(path: list[str], data: list):
 
 # Edit
 def edit_data(path: list[str], data: dict):
-    """Edits data in a path. Use key-value pairs."""
+    """Edits data in a path. Use key-value pairs. Won't replace data in path."""
     if not is_data_exists(path):
         raise c_exc.FirebaseNoEntry(f"Data can't be found for '{path}'.")
 

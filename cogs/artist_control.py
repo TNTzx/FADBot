@@ -9,12 +9,13 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 import requests as req
 
-from global_vars import variables as vrs
-from functions import command_wrapper as c_w
-from functions.artist_related.classes import artist_library as a_l
-from functions.artist_related import is_using as i_u
-from functions.exceptions import send_error as s_e
-from functions import other_functions as o_f
+import global_vars.variables as vrs
+import functions.command_wrapper as c_w
+import functions.artist_related.classes.artist_library as a_l
+import functions.artist_related.classes.log_library as l_l
+import functions.artist_related.is_using as i_u
+import functions.exceptions.send_error as s_e
+import functions.other_functions as o_f
 
 
 class ArtistControl(cmds.Cog):
@@ -28,7 +29,7 @@ class ArtistControl(cmds.Cog):
         aliases=["aa"],
         guild_only=False
     )
-    async def artistadd(self, ctx: cmds.Context, devbranch=""):
+    async def artistadd(self, ctx: cmds.Context, *skips):
         if await i_u.check_if_using_command(ctx.author.id):
             await s_e.send_error(ctx, f"You're already using this command! Use {vrs.CMD_PREFIX}cancel on your DMs with me to cancel the command.")
             return
@@ -40,23 +41,31 @@ class ArtistControl(cmds.Cog):
 
         await ctx.author.send("> The artist verification form is now being set up. Please __follow all instructions as necessary.__")
 
-        data = a_l.Structures.Default()
-        if devbranch != "devbranch":
-            await data.trigger_all_set_attributes(ctx, self.bot)
+        data = a_l.ArtistStructures.Default()
+        if "no_init" in skips:
+            pass
+        else:
+            await data.trigger_all_set_attributes(ctx)
 
-        await data.edit_loop(ctx, self.bot)
+        if "no_edit" in skips:
+            pass
+        else:
+            await data.edit_loop(ctx)
 
-        response = a_l.Structures.VADB.Send.Create(data).send_data()
-
-        artist_id = response["data"]["id"]
-        a_l.Structures.VADB.Send.Edit(data).send_data(artist_id)
-        data.vadb_info.artist_id = artist_id
+        if "no_send" in skips:
+            data.vadb_info.artist_id = 0
+        else:
+            response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
+            artist_id = response["data"]["id"]
+            a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
+            data.vadb_info.artist_id = artist_id
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
         await i_u.delete_is_using_command(ctx.author.id)
 
-        await data.post_log(self.bot)
-        a_l.Structures.Firebase.Pending(data).send_data()
+        await data.post_log(l_l.LogTypes.PENDING, ctx.author.id)
+
+        print(data.discord_info.logs.pending)
 
 
     @c_w.command(
@@ -72,7 +81,7 @@ class ArtistControl(cmds.Cog):
     )
     async def artistverify(self, ctx: cmds.Context, artist_id: int, action: str):
         try:
-            artist: a_l.Structures.Default = a_l.get_artist_by_id(artist_id)
+            artist: a_l.ArtistStructures.Default = a_l.get_artist_by_id(artist_id)
         except req.exceptions.HTTPError:
             await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
             return
@@ -89,11 +98,13 @@ class ArtistControl(cmds.Cog):
 
         if action == "accept":
             artist.states.status.value = 0
-            a_l.Structures.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
+            a_l.ArtistStructures.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
             await ctx.send(f"Success! The verification submission is now complete for `{artist.name}`!")
         if action == "decline":
-            a_l.Structures.VADB.Send.Delete(artist).send_data()
+            a_l.ArtistStructures.VADB.Send.Delete(artist).send_data()
             await ctx.send(f"Success! The verification submission is now deleted for `{artist.name}`!")
+
+        artist.delete_logs()
 
 
     @c_w.command(
@@ -119,7 +130,7 @@ class ArtistControl(cmds.Cog):
 
         if isinstance(term, int):
             try:
-                artist: a_l.Structures.Default = a_l.get_artist_by_id(term)
+                artist: a_l.ArtistStructures.Default = a_l.get_artist_by_id(term)
                 await ctx.send(embed=await artist.generate_embed())
             except req.exceptions.HTTPError:
                 await s_e.send_error(ctx, "The artist doesn't exist. Try again?")

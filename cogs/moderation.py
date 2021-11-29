@@ -9,9 +9,9 @@
 # import nextcord as nx
 import nextcord.ext.commands as cmds
 
-from functions.databases.firebase import firebase_interaction as f_i
-from functions import command_wrapper as c_w
-from functions.exceptions import send_error as s_e
+import functions.databases.firebase.firebase_interaction as f_i
+import functions.command_wrapper as c_w
+import functions.exceptions.send_error as s_e
 
 class Moderation(cmds.Cog):
     def __init__(self, bot):

@@ -6,8 +6,8 @@ import traceback
 import nextcord as nx
 import nextcord.ext.commands as commands
 
-from global_vars import variables as vrs
-from functions import other_functions as o_f
+import global_vars.variables as vrs
+import functions.other_functions as o_f
 
 
 ERROR_PREFIX = "**Error!**\n"
