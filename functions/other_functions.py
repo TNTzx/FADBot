@@ -10,12 +10,18 @@
 import datetime
 import nextcord as nx
 
+import global_vars.variables as vrs
 import functions.exceptions.custom_exc as c_exc
 
+class DataStructure:
+    """Parent class where data structures are inherited in."""
+    def get_dict(self):
+        """Gets dictionary of stored data."""
+        return get_dict_attr(self)
 
 class Match:
     """Structure that contains a dictionary and a value to match it with."""
-    def __init__(self, data_dict: dict[int, str], value: int):
+    def __init__(self, data_dict: dict[object, str], value: object):
         self.data_dict = data_dict
         self.value = value
 
@@ -27,6 +33,17 @@ class Unique():
     """Unique variable!"""
     def __init__(self):
         pass
+
+class MessagePointer(DataStructure):
+    """Class that contains channel and message ids to represent a message."""
+    def __init__(self, channel_id = 0, message_id = 0):
+        self.channel_id = int(channel_id)
+        self.message_id = int(message_id)
+
+    async def get_message(self):
+        """Gets the message from discord and returns it."""
+        channel: nx.TextChannel = await vrs.global_bot.get_channel(self.channel_id)
+        return await channel.fetch_message(self.message_id)
 
 async def get_tntz(bot: nx.Client):
     """Gets TNTz."""

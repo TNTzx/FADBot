@@ -30,28 +30,21 @@ import functions.other_functions as o_f
 
 DEFAULT_IMAGE = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
 
-class ArtistDataStructure():
+class ArtistDataStructure(o_f.DataStructure):
     """Defines a common data structure for artists."""
 
     def get_default_dict(self):
         """Gets the default dictionary."""
-        return self.__class__(ArtistStructures.Default()).to_dict()
-
-    def to_dict(self):
-        """Turns the data into a dictionary."""
-        return o_f.get_dict_attr(self)
+        return self.__class__(ArtistStructures.Default()).get_dict()
 
     def get_json_dict(self):
         """Turns the data into a dictionary for sending."""
-        data: dict = self.to_dict()
+        data: dict = self.get_dict()
         for key, value in data.items():
             if isinstance(value, dict):
                 data[key] = str(value)
 
         return data
-
-class ArtistDataSubStructure():
-    """Defines a structure for nested classes inside an ArtistDataStructure."""
 
 
 def check_if_empty(variable):
@@ -82,8 +75,7 @@ class ArtistStructures:
                 "page": "https://fadb.live/"
             },
             "discord_info": {
-                "logs": None,
-                "user_id": None
+                "logs": None
             },
             "states": {
                 "status": 2,
@@ -107,7 +99,7 @@ class ArtistStructures:
         }
 
         def __init__(self,
-                datas: dict | ArtistStructures.VADB.Send.Create | ArtistStructures.VADB.Send.Edit | ArtistStructures.VADB.Receive | ArtistStructures.Firebase.Logging.Base = None):
+                datas: dict | ArtistStructures.VADB.Send.Create | ArtistStructures.VADB.Send.Edit | ArtistStructures.VADB.Receive | ArtistStructures.Firebase.Logging = None):
 
             if isinstance(datas, dict):
                 datas = o_f.override_dicts_recursive(ArtistStructures.Default.DEFAULT, datas)
@@ -196,12 +188,10 @@ class ArtistStructures:
 
         class DiscordInfo(ArtistDataStructure):
             """Stores Discord-related info.
-            logs: list[dict[str, int]]
-            user_id: int
+            logs: list[o_f.Log]
             """
             def __init__(self, datas):
                 self.logs = datas["logs"]
-                self.user_id = datas["user_id"]
 
         class States(ArtistDataStructure):
             """Stores the state of the artist in the verification process.\n
@@ -229,7 +219,7 @@ class ArtistStructures:
                 self.usage_rights: list[dict[str, str]] = datas["usage_rights"]
                 self.usage_rights = check_if_empty(self.usage_rights)
 
-        class Details(ArtistDataSubStructure):
+        class Details(ArtistDataStructure):
             """Stores details of the artist.
             description: str
             notes: str
@@ -248,7 +238,7 @@ class ArtistStructures:
                 self.socials = datas["socials"]
                 self.socials = check_if_empty(self.socials)
 
-            class Images(ArtistDataSubStructure):
+            class Images(ArtistDataStructure):
                 """Stores the images of the artist.
                 avatar_url: str
                 banner_url: str
@@ -257,7 +247,7 @@ class ArtistStructures:
                     self.avatar_url = datas["avatar_url"]
                     self.banner_url = datas["banner_url"]
 
-            class MusicInfo(ArtistDataSubStructure):
+            class MusicInfo(ArtistDataStructure):
                 """Stores the information about the artist's music.
                 tracks: int
                 genre: str
@@ -600,23 +590,45 @@ class ArtistStructures:
             await trigger(self.Functions.notes)
 
 
-        async def post_log(self, _type: o_f.Unique):
-            """Posts logs to everyone."""
-            await l_l.LogStructures.Dump(self).post_logs_discord(_type)
-            await l_l.LogStructures.Live(self).post_logs_discord(_type)
+        async def post_log(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, user_id: int):
+            """Posts logs to channels by type."""
+            async def post_log_to_channels(channel_dicts):
+                log_messages = []
+                for channel_dict in channel_dicts:
+                    if not isinstance(channel_dict, dict):
+                        continue
+
+                    channel: nx.TextChannel = await vrs.global_bot.get_channel(int(channel_dict["channel"]))
+                    main_message: nx.Message = await channel.send(f"{log_type.title_str} The PA moderators will look into this.",
+                        embed=self.generate_embed())
+
+                    proof_message: nx.Message = await channel.send(self.proof)
+
+                    log_message = l_l.LogMessages({
+                            "main": o_f.MessagePointer(channel.id, main_message.id),
+                            "proof": o_f.MessagePointer(channel.id, proof_message.id),
+                        })
+
+                    log_messages.append(log_message)
+
+                return [l_l.Log({
+                    "message": log_message,
+                    "user_id": user_id
+                }) for log_message in log_messages]
+
+            await post_log_to_channels(f_i.get_data(["logData", "dump"]))
+            self.discord_info.logs = await post_log_to_channels(f_i.get_data(["logData", "live"]))
+
+            ArtistStructures.Firebase.Logging(self).send_data(log_type)
+
+
+
 
         async def merge_from_logs(self):
             """Merges from logs in Firebase."""
-            logs = get_logs(self.vadb_info.artist_id)
-            if logs is not None:
-                self.discord_info.logs = logs.logs
-                self.discord_info.user_id = logs.user_id
 
         async def delete_logs(self):
             """Deletes logs from Discord and Firebase."""
-            for log in self.discord_info.logs:
-                log = await l_l.LogContainer.Objects.create(l_l.LogContainer.IDs(log))
-                log.delete()
 
 
     class VADB:
@@ -757,7 +769,7 @@ class ArtistStructures:
                 self.usageRights = datas["usageRights"]
                 self.details = self.Details(datas["details"])
 
-            class Details(ArtistDataSubStructure):
+            class Details(ArtistDataStructure):
                 """Contains details."""
                 def __init__(self, datas: dict = None):
                     self.avatarUrl = datas["avatarUrl"]
@@ -768,58 +780,27 @@ class ArtistStructures:
     class Firebase:
         """Contains classes for Firebase Interaction."""
 
-        class Logging:
-            """Class for sending and receiving pending and editing artists."""
-            class Base(ArtistDataStructure):
-                """Base data structure for sending requests to Firebase."""
-                paths = []
-                def __init__(self, datas: dict | ArtistStructures.Default = None):
-                    if isinstance(datas, ArtistStructures.Default):
-                        datas = {
-                            "artist_id": datas.vadb_info.artist_id,
-                            "name": datas.name,
-                            "logs": datas.discord_info.logs,
-                            "user_id": datas.discord_info.user_id
-                        }
-                    elif isinstance(datas, dict):
-                        datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
-                    else:
-                        datas = self.get_default_dict()
+        class Logging(ArtistDataStructure):
+            """Class for logging and receiving pending and editing artists."""
+            def __init__(self, datas: dict | ArtistStructures.Default = None):
+                if isinstance(datas, ArtistStructures.Default):
+                    datas = {
+                        "artist_id": datas.vadb_info.artist_id,
+                        "data": datas
+                    }
+                elif isinstance(datas, dict):
+                    datas = o_f.override_dicts_recursive(self.get_default_dict(), datas)
+                else:
+                    datas = self.get_default_dict()
 
-                    self.artist_id = datas["artist_id"]
-                    self.name = datas["name"]
-                    self.logs = datas["logs"]
-                    self.user_id = datas["user_id"]
+                self.artist_id = datas["artist_id"]
+                self.data = datas["data"]
 
-                def send_logs(self):
-                    """Creates log data in Firebase."""
-                    f_i.edit_data(self.__class__.paths, {self.artist_id: {"name": self.name, "logs": self.logs}})
-
-                def get_logs(self, artist_id: int):
-                    """Gets log data from Firebase."""
-                    logs = f_i.get_data(self.__class__.paths)
-                    self.__init__(logs.get(artist_id, None))
-                    self.artist_id = artist_id
+            def send_data(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing):
+                """Sends the data to Firebase."""
+                f_i.edit_data(log_type.path, {self.artist_id: self.data.get_dict()})
 
 
-            class Pending(Base):
-                """Pending."""
-                paths = ["artistData", "pending", "data"]
-
-            class Editing(Base):
-                """Editing"""
-                paths = ["artistData", "editing", "data"]
-
-
-def get_logs(artist_id: int) -> ArtistStructures.Firebase.Logging.Base:
-    """Gets log data from Firebase."""
-    logs = o_f.remove_none_in_list(
-        [ArtistStructures.Firebase.Logging.Pending().get_logs(artist_id),
-        ArtistStructures.Firebase.Logging.Editing().get_logs(artist_id)]
-    )
-    if len(logs) == 0:
-        return None
-    return logs[0]
 
 def search_for_artist(search_term: str) -> list[ArtistStructures.Default]:
     """Searches for artists on VADB."""

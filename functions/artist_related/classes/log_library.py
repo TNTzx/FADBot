@@ -18,113 +18,47 @@ import functions.artist_related.classes.artist_library as a_l
 import functions.databases.firebase.firebase_interaction as f_i
 import functions.other_functions as o_f
 
-class LogContainer:
-    """Class that contains structure for logs."""
-    class IDs:
-        """Stores IDs."""
-        def __init__(self, datas: dict[str, str] = None):
-            if datas is not None:
-                self.message_embed = self.MessageIDs(datas["message_embed"]["channel_id"], datas["message_embed"]["message_id"])
-                self.message_proof = self.MessageIDs(datas["message_proof"]["channel_id"], datas["message_proof"]["message_id"])
-                return
-            self.message_embed = self.MessageIDs()
-            self.message_proof = self.MessageIDs()
-
-        class MessageIDs:
-            """Stores IDs that refer to a message."""
-            def __init__(self, channel_id: int = None, message_id: int = None):
-                self.channel_id = str(channel_id)
-                self.message_id = str(message_id)
-
-
-        def get_dict(self):
-            """Gets dict."""
-            return o_f.get_dict_attr(self)
-
-    class Objects:
-        """Stores channel and message objects."""
+class LogTypes:
+    """Class that contains log types."""
+    class Pending:
+        """For pending artist submissions."""
         def __init__(self):
-            print("Please use the create() method.")
-            self.message_embed = None
-            self.message_proof = None
+            self.path = ["artistData", "pending", "data"]
+            self.title_str = "A new pending artist submission has been created."
+    PENDING = Pending()
 
-        @classmethod
-        async def create(cls, id_object: LogContainer.IDs | None):
-            """Creates a new object."""
-            self = LogContainer.Objects()
-            async def get_message_from_ids(message_id_object: LogContainer.IDs.MessageIDs):
-                channel_obj: nx.TextChannel = await vrs.global_bot.get_channel(int(message_id_object.channel_id))
-                return await channel_obj.fetch_message(int(message_id_object.message_id))
-            self.message_embed = await get_message_from_ids(id_object.message_embed)
-            self.message_proof = await get_message_from_ids(id_object.message_proof)
-            return self
+    class Editing:
+        """For editing requests."""
+        def __init__(self):
+            self.path = ["artistData", "pending", "data"]
+            self.title_str = "A new edit request has been created."
 
-        async def delete(self):
-            """Deletes the message."""
-            await self.message_embed.delete()
-            await self.message_proof.delete()
+    EDITING = Editing()
 
-class LogSend:
-    """Base class for defining logging structures."""
-    def __init__(self, datas: a_l.ArtistStructures.Default):
-        self.datas = datas
+class LogMessages(o_f.DataStructure):
+    """A data structure to store messages of a log.
+    "main": o_f.MessagePointer
+    "proof": o_f.MessagePointer"""
+    def __init__(self, datas: dict[str, o_f.MessagePointer] = None):
+        if datas is None:
+            datas = {
+                "main": o_f.MessagePointer(),
+                "proof": o_f.MessagePointer(),
+            }
 
-    def get_channels(self, paths) -> list[nx.TextChannel]:
-        """Get channels from firebase path.
-        {"tag": "pa server", "channel": int}"""
-        paths = f_i.get_data(paths)
-        channels = []
-        for entry in paths:
-            try:
-                channels.append(vrs.global_bot.get_channel(int(entry["channel"])))
-            except TypeError:
-                pass
-        return channels
+        self.main = datas["main"]
+        self.proof = datas["proof"]
 
-    def post_logs_firebase(self, _type: o_f.Unique):
-        """Posts logs on discord then puts the message links on firebase."""
-        if _type == self.LoggingTypes.PENDING:
-            a_l.ArtistStructures.Firebase.Logging.Pending(self.datas).send_logs()
-        elif _type == self.LoggingTypes.EDITING:
-            a_l.ArtistStructures.Firebase.Logging.Editing(self.datas).send_logs()
+class Log(o_f.DataStructure):
+    """A data structure to store a log.
+    "message": LogMessages
+    "user_id": int"""
+    def __init__(self, datas: dict[str, o_f.MessagePointer] = None):
+        if datas is None:
+            datas = {
+                "message": LogMessages(),
+                "user_id": 0
+            }
 
-    class LoggingTypes:
-        """Class that contains logging types, like pending or editing."""
-        PENDING = o_f.Unique()
-        EDITING = o_f.Unique()
-
-    async def post_logs_discord_base(self, _type: o_f.Unique, paths: list[str], post_to_firebase=False):
-        """Post logs to discord."""
-        if _type == self.LoggingTypes.PENDING:
-            message_intro = "A new pending artist submission has been added. Here are the current details:"
-        elif _type == self.LoggingTypes.EDITING:
-            message_intro = "A new edit submission has been added. Here are the current details:"
-
-        def store_message_id(message_obj: nx.Message):
-            return LogContainer.IDs.MessageIDs(message_obj.channel.id, message_obj.id)
-
-        messages: list[LogContainer] = []
-        for channel_obj in self.get_channels(paths):
-            log = LogContainer.IDs()
-            log.message_embed = store_message_id(await channel_obj.send(message_intro, embed=await self.datas.generate_embed()))
-            log.message_proof = store_message_id(await channel_obj.send(self.datas.proof))
-            messages.append(log.get_dict())
-        self.datas.discord_info.logs = messages
-
-        if post_to_firebase:
-            self.post_logs_firebase(_type)
-
-    async def post_logs_discord(self, _type: o_f.Unique):
-        """Inherited function."""
-
-class LogStructures:
-    """Contains log structures."""
-    class Dump(LogSend):
-        """Type where messages aren't deleted."""
-        async def post_logs_discord(self, _type: o_f.Unique):
-            await self.post_logs_discord_base(_type, ["logData", "dump"])
-
-    class Live(LogSend):
-        """Type where messages are deleted."""
-        async def post_logs_discord(self, _type: o_f.Unique):
-            await self.post_logs_discord_base(_type, ["logData", "live"], post_to_firebase=True)
+        self.message = datas["message"]
+        self.user_id = datas["user_id"]
