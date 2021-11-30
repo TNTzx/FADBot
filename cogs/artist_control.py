@@ -104,7 +104,7 @@ class ArtistControl(cmds.Cog):
             a_l.ArtistStructures.VADB.Send.Delete(artist).send_data()
             await ctx.send(f"Success! The verification submission is now deleted for `{artist.name}`!")
 
-        artist.delete_logs()
+        await artist.delete_logs()
 
 
     @c_w.command(

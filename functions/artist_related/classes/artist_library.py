@@ -653,9 +653,14 @@ class ArtistStructures:
         async def delete_logs(self):
             """Deletes logs from Discord and Firebase."""
             async def delete_log(log_list: list[l_l.Log], log_type: l_l.LogTypes.Base):
+                if log_list is None:
+                    return
+                
                 for log in log_list:
-                    message = await log.message.main.get_message()
-                    await message.delete()
+                    main_message = await log.message.main.get_message()
+                    await main_message.delete()
+                    proof_message = await log.message.proof.get_message()
+                    await proof_message.delete()
                 
                 f_i.delete_data(log_type.path + [str(self.vadb_info.artist_id)])
             

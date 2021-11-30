@@ -47,7 +47,7 @@ class MessagePointer(DataStructure):
 
     async def get_message(self):
         """Gets the message from discord and returns it."""
-        channel: nx.TextChannel = await vrs.global_bot.get_channel(int(self.channel_id))
+        channel: nx.TextChannel = vrs.global_bot.get_channel(int(self.channel_id))
         return await channel.fetch_message(int(self.message_id))
 
 async def get_tntz(bot: nx.Client):
