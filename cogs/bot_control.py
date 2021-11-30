@@ -71,11 +71,29 @@ class RestartKill(cmds.Cog):
 
 
     @c_w.command(
-        req_pa_mod=True
+        req_dev=True,
+        guild_only=False
     )
     async def test(self, ctx: cmds.Context):
         # ...hey, uhm, man, you doing alright? Make sure to take some breaks okay? You need it! - past you
-        await ctx.send("win")
+        async def button_or_text():
+            class Buttons(nx.ui.View):
+                def __init__(self):
+                    super().__init__()
+                    self.value = None
+                
+                @nx.ui.button(label="exit", style=nx.ButtonStyle.green)
+                async def exit(self, button: nx.ui.Button, interact: nx.Interaction):
+
+                    self.stop()
+        
+            view = Buttons()
+            await ctx.send("beans?", view=view)
+            check = check = lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, nx.channel.DMChannel)
+            await vrs.global_bot.wait_for("message", check=check)
+        
+        await button_or_text()
+        await ctx.send("end")
 
 def setup(bot):
     """Sets the bot up."""

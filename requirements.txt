@@ -22,7 +22,7 @@ filelock==3.3.0
 Flask==2.0.1
 future==0.18.2
 gcloud==0.18.3
-gevent==21.8.0
+#gevent==21.8.0
 gevent-websocket==0.10.1
 google-api-core==1.31.1
 google-api-python-client==2.15.0
