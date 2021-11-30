@@ -86,7 +86,7 @@ class ArtistControl(cmds.Cog):
             await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
             return
 
-        if artist.states.status.value != 2:
+        if artist.states.status.get_name() != "Pending":
             await s_e.send_error(ctx, f"The artist `{artist.name}` is not pending! You must have an artist that is pending!")
             return
 

@@ -391,7 +391,6 @@ class ArtistStructures:
 
         async def set_attribute(self, ctx: cmds.Context, attr: o_f.Unique, skippable=False):
             """Sets an attribute in this class."""
-            bot = vrs.global_bot
             functions = self.Functions
 
             def check(attrib):
@@ -653,6 +652,15 @@ class ArtistStructures:
 
         async def delete_logs(self):
             """Deletes logs from Discord and Firebase."""
+            async def delete_log(log_list: list[l_l.Log], log_type: l_l.LogTypes.Base):
+                for log in log_list:
+                    message = await log.message.main.get_message()
+                    await message.delete()
+                
+                f_i.delete_data(log_type.path + [str(self.vadb_info.artist_id)])
+            
+            self.discord_info.logs.pending = await delete_log(self.discord_info.logs.pending, l_l.LogTypes.PENDING)
+            self.discord_info.logs.editing = await delete_log(self.discord_info.logs.editing, l_l.LogTypes.EDITING)
 
 
     class VADB:

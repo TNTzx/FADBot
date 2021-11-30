@@ -157,7 +157,6 @@ async def wait_for_response(ctx: cmds.Context,
         choices: list[str] = None, choices_dict: list[str] = None,
         skippable=False, skip_default=None):
     """Returns the response, but with checks."""
-    bot = vrs.global_bot
 
     success = True
     while success:
