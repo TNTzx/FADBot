@@ -31,7 +31,9 @@ class Help(cmds.Cog):
         async def show_all():
             embed = nx.Embed(
                 title="Help!",
-                description=f"**__Command Prefix: {vrs.CMD_PREFIX}__**",
+                description=f"""**Command Prefix: `{vrs.CMD_PREFIX}`**
+                    {"This bot was made possible by Nao's website. Go check it out! [**VADB link**](https://fadb.live/)"}
+                    {"This bot is created by //TNTz."}""",
                 color=0xFFAEAE
             )
             for category, names in c_w.ListOfCommands.commands_all.items():
@@ -87,7 +89,7 @@ class Help(cmds.Cog):
 
             await create_separator()
 
-            guild_only = "only in servers" if help_docs.guild_only else "in Direct Messages and servers"
+            guild_only = "only in servers." if help_docs.guild_only else "in direct messages and servers."
             embed.add_field(name=f"Can be used {guild_only}", value="_ _", inline=False)
 
             require = help_docs.require
@@ -121,7 +123,7 @@ class Help(cmds.Cog):
                 elif cooldown.type == cmds.BucketType.user:
                     cooldown_type = "Per user"
                 else:
-                    cooldown_type = "TNTz messed up, they didn't add another edge case, please ping him"
+                    cooldown_type = "TNTz messed up, he didn't add another edge case, please ping him"
                 cooldown_form = f"Duration: `{o_f.format_time(help_docs.cooldown.length)}`\nApplies to: `{cooldown_type}`"
                 embed.add_field(name="Cooldown Info:", value=f"{cooldown_form}")
 
