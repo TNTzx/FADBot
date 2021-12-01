@@ -40,6 +40,7 @@ class CustomCommandClass:
             self.cooldown = self.Cooldown()
             self.require = self.Require()
             self.show_condition = lambda ctx: True
+            self.show_help = True
             self.example_usage: list[str] = []
 
         class Require:
@@ -80,6 +81,7 @@ def command(
         req_pa_mod=False,
 
         show_condition=lambda ctx: True,
+        show_help=True,
         example_usage: list[str] = None
         ):
     """Wraps a command."""
@@ -188,6 +190,7 @@ def command(
         helps.require = require
 
         helps.show_condition = show_condition
+        helps.show_help = show_help
         helps.example_usage = example_usage if example_usage is not None else []
 
         cmd.help = helps

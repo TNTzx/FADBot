@@ -40,7 +40,8 @@ class Help(cmds.Cog):
 
                 name_list = []
                 for name in names:
-                    if c_w.ListOfCommands.commands[name].help.show_condition(ctx):
+                    cmd = c_w.ListOfCommands.commands[name]
+                    if cmd.help.show_condition(ctx) and cmd.help.show_help:
                         name_list.append(name)
 
                 name_form = f"`{'`, `'.join(name_list)}`"
@@ -49,14 +50,17 @@ class Help(cmds.Cog):
 
 
         async def specific():
-            if not command in c_w.ListOfCommands.commands:
+            async def send_not_exist():
                 await s_e.send_error(ctx, "*This command doesn't exist! Make sure you typed it correctly!*")
+
+            if not command in c_w.ListOfCommands.commands:
+                await send_not_exist()
                 return
 
             cmd: c_w.CustomCommandClass = c_w.ListOfCommands.commands[command]
 
-            if not cmd.help.show_condition(ctx):
-                await s_e.send_error(ctx, "*This command doesn't exist! Make sure you typed it correctly!*")
+            if not cmd.help.show_condition(ctx) or not cmd.help.show_help:
+                await send_not_exist()
                 return
 
             help_docs = cmd.help
