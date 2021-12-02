@@ -64,7 +64,7 @@ class ArtistControl(cmds.Cog):
                 a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
                 data.vadb_info.artist_id = artist_id
             except req.exceptions.HTTPError:
-                await ctx.author.send("This artist already exists.")
+                await s_e.send_error(ctx, "This artist already exists! I warned you about it! >:(", send_author=True)
                 return
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
