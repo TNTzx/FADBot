@@ -37,7 +37,7 @@ class ArtistControl(cmds.Cog):
         await i_u.add_is_using_command(ctx.author.id)
 
         if not isinstance(ctx.channel, nx.channel.DMChannel):
-            await ctx.send("The form is being set up on your DMs. Please check it.")
+            await ctx.send("The form is being set up in your DMs. Please check it.")
 
         await ctx.author.send("Reminder that this bot is made for a website!\nCheck it out! https://fadb.live/")
         await ctx.author.send("> The artist verification form is now being set up. Please __follow all instructions as necessary.__")
