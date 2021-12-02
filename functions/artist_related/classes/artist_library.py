@@ -406,7 +406,7 @@ class ArtistStructures:
 
                 search_result = search_for_artist(name)
                 if search_result is not None:
-                    await ctx.author.send("Other artist(s) found. Please check if you have a duplicate submission.\nUse `##cancel` if you think you have a different artist, or type anything to continue.", embed=generate_search_embed(search_result))
+                    await ctx.author.send("Other artist(s) found with this name. Please check if you have a duplicate submission.\nUse `##cancel` if you think you have a different artist, or type anything to continue.\nIf you are submitting an artist with the same exact name as these results, try to add extra characters on the name to avoid duplicates.", embed=generate_search_embed(search_result))
                     response = await ask.waiting(ctx)
                     response = await ask.reformat(ctx, ask.OutputTypes.text, response)
 
@@ -609,6 +609,8 @@ class ArtistStructures:
                         continue
 
                     channel: nx.TextChannel = vrs.global_bot.get_channel(int(channel_dict["channel"]))
+                    if channel is None:
+                        continue
                     main_message: nx.Message = await channel.send(f"{log_type.title_str} The PA moderators will look into this.",
                         embed=await self.generate_embed())
 

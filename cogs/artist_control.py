@@ -56,10 +56,15 @@ class ArtistControl(cmds.Cog):
         if "no_send" in skips:
             data.vadb_info.artist_id = 0
         else:
-            response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
-            artist_id = response["data"]["id"]
-            a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
-            data.vadb_info.artist_id = artist_id
+            try:
+                await ctx.author.send("Creating verification submission...")
+                response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
+                artist_id = response["data"]["id"]
+                await ctx.author.send("Applying details...")
+                a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
+                data.vadb_info.artist_id = artist_id
+            except req.exceptions.HTTPError:
+                await ctx.author.send("This artist already exists.")
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
         await i_u.delete_is_using_command(ctx.author.id)

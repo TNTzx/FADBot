@@ -13,7 +13,9 @@ def main():
     bot = nx.Client()
 
     intents = nx.Intents.default()
+    intents.reactions = True
     intents.members = True
+    intents.guilds = True
 
     bot = cmds.Bot(command_prefix=vrs.CMD_PREFIX, intents=intents)
     bot.remove_command("help")
