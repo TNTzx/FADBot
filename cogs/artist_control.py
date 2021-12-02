@@ -65,6 +65,7 @@ class ArtistControl(cmds.Cog):
                 data.vadb_info.artist_id = artist_id
             except req.exceptions.HTTPError:
                 await ctx.author.send("This artist already exists.")
+                return
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
         await i_u.delete_is_using_command(ctx.author.id)
