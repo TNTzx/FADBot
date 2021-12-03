@@ -64,7 +64,7 @@ class ArtistControl(cmds.Cog):
                 a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
                 data.vadb_info.artist_id = artist_id
             except req.exceptions.HTTPError:
-                await s_e.send_error(ctx, "This artist already exists! I warned you about it! >:(", send_author=True)
+                await s_e.send_error(ctx, "The artist may already be pending, or this artist already exists! I warned you about it! >:(", send_author=True)
                 return
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
@@ -77,14 +77,15 @@ class ArtistControl(cmds.Cog):
         category=c_w.Categories.artist_management,
         description="Accepts / declines the verification submission.",
         parameters={
+            "id": "Artist ID to verify.",
             "[accept / decline]": "Accepts or declines the verification submission. `accept` to mark the artist as completed, or `decline` to delete the submission.",
-            "id": "Artist ID to verify."
+            "reason": "Reason for declining the verification submission. Only required if you choose `decline`. Surround with quotes."
         },
         aliases=["av"],
         guild_only=False,
         req_pa_mod=True
     )
-    async def artistverify(self, ctx: cmds.Context, artist_id: int, action: str):
+    async def artistverify(self, ctx: cmds.Context, artist_id: int, action: str, reason: str = None):
         try:
             artist: a_l.ArtistStructures.Default = a_l.get_artist_by_id(artist_id)
         except req.exceptions.HTTPError:
@@ -100,14 +101,33 @@ class ArtistControl(cmds.Cog):
             await s_e.send_error(ctx, f"Make sure you have the correct parameters! `{action}` is not a valid parameter.")
             return
 
+        async def send_logs_and_dms(logs_message: str, dm_message: str):
+            await ctx.send(logs_message, embed=await artist.generate_embed())
+            log_list = artist.discord_info.logs.pending
+            if len(log_list) == 0:
+                return
+
+            user_ids = []
+            for log in log_list:
+                if log.user_id not in user_ids:
+                    user_ids.append(str(log.user_id))
+            
+            users = [await vrs.global_bot.fetch_user(int(user_id)) for user_id in user_ids]
+            for user in users:
+                await user.send(dm_message, embed=await artist.generate_embed())
+            
+            return users
 
         if action == "accept":
             artist.states.status.value = 0
             a_l.ArtistStructures.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
-            await ctx.send(f"Success! The verification submission is now complete for `{artist.name}`!")
+            await send_logs_and_dms(f"Success! The verification submission is now complete for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
         if action == "decline":
+            if reason == None:
+                await s_e.send_error(ctx, "You didn't provide a reason as to why the add request was declined.")
+            artist.states.status.value = 1
             a_l.ArtistStructures.VADB.Send.Delete(artist).send_data()
-            await ctx.send(f"Success! The verification submission is now deleted for `{artist.name}`!")
+            await send_logs_and_dms(f"Success! The verification submission has been deleted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
 
         await artist.delete_logs()
 

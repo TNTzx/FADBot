@@ -20,7 +20,7 @@ class ErrorHandler(cmds.Cog):
         self.bot = bot
 
     @cmds.Cog.listener()
-    async def on_command_error(self, ctx: cmds.Context, exc: Exception):
+    async def on_command_error(self, ctx: cmds.Context, exc: Exception | cmds.CommandInvokeError):
         def checkexc(exc_type):
             return isinstance(exc, exc_type)
 
@@ -51,6 +51,9 @@ class ErrorHandler(cmds.Cog):
 
         if checkexc(cmds.CommandInvokeError):
             if str(exc.__cause__) == "Exited Function.":
+                return
+            if exc.original.status == 403:
+                print(f"Forbidden. Code {exc.original.code}: {exc.original.text}")
                 return
 
         if checkexc(cmds.CommandNotFound):

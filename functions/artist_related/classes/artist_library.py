@@ -660,8 +660,10 @@ class ArtistStructures:
                 
                 for log in log_list:
                     main_message = await log.message.main.get_message()
-                    await main_message.delete()
                     proof_message = await log.message.proof.get_message()
+                    if None in [main_message, proof_message]:
+                        continue
+                    await main_message.delete()
                     await proof_message.delete()
                 
                 f_i.delete_data(log_type.path + [str(self.vadb_info.artist_id)])
