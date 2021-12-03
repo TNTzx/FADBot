@@ -132,7 +132,7 @@ class ArtistControl(cmds.Cog):
                 return
             artist.states.status.value = 1
             a_l.ArtistStructures.VADB.Send.Delete(artist).send_data()
-            await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}``.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
+            await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
 
         await artist.delete_logs()
 

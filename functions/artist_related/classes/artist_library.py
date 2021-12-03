@@ -529,7 +529,6 @@ class ArtistStructures:
                 if socials is not None:
                     for link in socials:
                         type_link: str = tld.extract(link).domain
-                        type_link = type_link.capitalize()
                         social_list.append({
                             "link": link,
                             "type": type_link
