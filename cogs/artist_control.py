@@ -14,6 +14,7 @@ import functions.command_wrapper as c_w
 import functions.artist_related.classes.artist_library as a_l
 import functions.artist_related.classes.log_library as l_l
 import functions.artist_related.is_using as i_u
+import functions.databases.firebase.firebase_interaction as f_i
 import functions.exceptions.send_error as s_e
 import functions.other_functions as o_f
 
@@ -65,6 +66,7 @@ class ArtistControl(cmds.Cog):
                 data.vadb_info.artist_id = artist_id
             except req.exceptions.HTTPError:
                 await s_e.send_error(ctx, "The artist may already be pending, or this artist already exists! I warned you about it! >:(", send_author=True)
+                await i_u.delete_is_using_command(ctx.author.id)
                 return
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
@@ -111,23 +113,26 @@ class ArtistControl(cmds.Cog):
             for log in log_list:
                 if log.user_id not in user_ids:
                     user_ids.append(str(log.user_id))
-            
+
             users = [await vrs.global_bot.fetch_user(int(user_id)) for user_id in user_ids]
             for user in users:
                 await user.send(dm_message, embed=await artist.generate_embed())
-            
+
+            await artist.post_log_to_channels(logs_message, f_i.get_data(["logData", "dump"]))
+
             return users
 
         if action == "accept":
             artist.states.status.value = 0
             a_l.ArtistStructures.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
-            await send_logs_and_dms(f"Success! The verification submission is now complete for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
+            await send_logs_and_dms(f"The add request has been accepted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
         if action == "decline":
-            if reason == None:
+            if reason is None:
                 await s_e.send_error(ctx, "You didn't provide a reason as to why the add request was declined.")
+                return
             artist.states.status.value = 1
             a_l.ArtistStructures.VADB.Send.Delete(artist).send_data()
-            await send_logs_and_dms(f"Success! The verification submission has been deleted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
+            await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}``.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
 
         await artist.delete_logs()
 

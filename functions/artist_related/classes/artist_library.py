@@ -600,36 +600,37 @@ class ArtistStructures:
             await trigger(self.Functions.notes)
 
 
+        async def post_log_to_channels(self, prefix: str, channel_dicts, user_id: int = None):
+            "Posts logs to channels."
+            log_messages = []
+            for channel_dict in channel_dicts:
+                if not isinstance(channel_dict, dict):
+                    continue
+
+                channel: nx.TextChannel = vrs.global_bot.get_channel(int(channel_dict["channel"]))
+                if channel is None:
+                    continue
+                main_message: nx.Message = await channel.send(prefix, embed=await self.generate_embed())
+
+                proof_message: nx.Message = await channel.send(self.proof)
+
+                log_message = {
+                        "main": o_f.MessagePointer(channel_id=channel.id, message_id=main_message.id).get_dict(),
+                        "proof": o_f.MessagePointer(channel_id=channel.id, message_id=proof_message.id).get_dict(),
+                    }
+
+                log_messages.append(log_message)
+
+            return [l_l.Log({
+                "message": log_message,
+                "user_id": user_id
+            }) for log_message in log_messages]
+
         async def post_log(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, user_id: int):
             """Posts logs to channels by type."""
-            async def post_log_to_channels(channel_dicts):
-                log_messages = []
-                for channel_dict in channel_dicts:
-                    if not isinstance(channel_dict, dict):
-                        continue
-
-                    channel: nx.TextChannel = vrs.global_bot.get_channel(int(channel_dict["channel"]))
-                    if channel is None:
-                        continue
-                    main_message: nx.Message = await channel.send(f"{log_type.title_str} The PA moderators will look into this.",
-                        embed=await self.generate_embed())
-
-                    proof_message: nx.Message = await channel.send(self.proof)
-
-                    log_message = {
-                            "main": o_f.MessagePointer(channel_id=channel.id, message_id=main_message.id).get_dict(),
-                            "proof": o_f.MessagePointer(channel_id=channel.id, message_id=proof_message.id).get_dict(),
-                        }
-
-                    log_messages.append(log_message)
-
-                return [l_l.Log({
-                    "message": log_message,
-                    "user_id": user_id
-                }) for log_message in log_messages]
-
-            await post_log_to_channels(f_i.get_data(["logData", "dump"]))
-            live_logs = await post_log_to_channels(f_i.get_data(["logData", "live"]))
+            prefix = f"{log_type.title_str} The PA moderators will look into this."
+            await self.post_log_to_channels(prefix, f_i.get_data(["logData", "dump"]))
+            live_logs = await self.post_log_to_channels(prefix, f_i.get_data(["logData", "live"]), user_id=user_id)
             if log_type == l_l.LogTypes.PENDING:
                 self.discord_info.logs.pending = live_logs
             elif log_type == l_l.LogTypes.EDITING:
@@ -657,7 +658,7 @@ class ArtistStructures:
             async def delete_log(log_list: list[l_l.Log], log_type: l_l.LogTypes.Base):
                 if log_list is None:
                     return
-                
+
                 for log in log_list:
                     main_message = await log.message.main.get_message()
                     proof_message = await log.message.proof.get_message()
@@ -665,9 +666,9 @@ class ArtistStructures:
                         continue
                     await main_message.delete()
                     await proof_message.delete()
-                
+
                 f_i.delete_data(log_type.path + [str(self.vadb_info.artist_id)])
-            
+
             self.discord_info.logs.pending = await delete_log(self.discord_info.logs.pending, l_l.LogTypes.PENDING)
             self.discord_info.logs.editing = await delete_log(self.discord_info.logs.editing, l_l.LogTypes.EDITING)
 
