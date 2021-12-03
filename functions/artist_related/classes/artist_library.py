@@ -366,7 +366,9 @@ class ArtistStructures:
                     color_match.value = "yellow"
                 elif self.states.availability.value == 3: # varies
                     color_match.value = "blue"
-            elif self.states.status.value in (1, 2): # no contact / pending
+            elif self.states.status.value == 1: # no contact
+                color_match.value = "red"
+            elif self.states.status.value == 2: # pending
                 color_match.value = "yellow"
 
             embed.colour = color_match.get_name()
