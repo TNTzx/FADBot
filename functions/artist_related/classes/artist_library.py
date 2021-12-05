@@ -20,6 +20,7 @@ import nextcord.ext.commands as cmds
 import tldextract as tld
 
 import global_vars.variables as vrs
+import functions.command_related.is_using as i_u
 import functions.artist_related.asking as ask
 import functions.artist_related.classes.log_library as l_l
 import functions.databases.firebase.firebase_interaction as f_i
@@ -393,6 +394,7 @@ class ArtistStructures:
 
         async def set_attribute(self, ctx: cmds.Context, attr: o_f.Unique, skippable=False):
             """Sets an attribute in this class."""
+            
             functions = self.Functions
 
             def check(attrib):
