@@ -38,7 +38,7 @@ class LogTypes:
         """For editing requests."""
         def __init__(self):
             super().__init__()
-            self.path = ["artistData", "pending", "data"]
+            self.path = ["artistData", "editing", "data"]
             self.title_str = "A new edit request has been created."
 
     EDITING = Editing()

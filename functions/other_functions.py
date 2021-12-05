@@ -53,12 +53,12 @@ class MessagePointer(DataStructure):
         message: nx.Message = await channel.fetch_message(int(self.message_id))
         if message is None:
             return None
-        
+
         return message
 
-async def get_tntz(bot: nx.Client):
+async def get_tntz():
     """Gets TNTz."""
-    return await bot.fetch_user(279803094722674693)
+    return await vrs.global_bot.fetch_user(279803094722674693)
 
 
 def format_time(num: int):
@@ -92,7 +92,7 @@ def get_dict_attr(obj):
     """Gets attributes of an object then returns it as a dict."""
     def check_if_has_dict(obj):
         return hasattr(obj, "__dict__")
-    
+
     dictionary = {}
     for attr, value in obj.__dict__.items():
         if isinstance(value, list):

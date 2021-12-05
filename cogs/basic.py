@@ -8,18 +8,23 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import global_vars.variables as vrs
 import global_vars.defaults as defaults
-import functions.command_wrapper as c_w
+import functions.command_related.command_wrapper as c_w
 import functions.databases.firebase.firebase_interaction as f_i
 import functions.other_functions as o_f
 
 
-async def add_new_to_database(bot):
+async def add_new_to_database():
     """Updates the database for joined servers."""
     guild_data: dict = f_i.get_data(['guildData'])
-    for guild_client in bot.guilds:
+    for guild_client in vrs.global_bot.guilds:
         if not str(guild_client.id) in guild_data.keys():
             f_i.edit_data(['guildData'], {str(guild_client.id): defaults.default["guildData"]["guildId"]})
+
+def delete_is_using():
+    for path in [["artistData", "pending", "isUsingCommand"], ["artistData", "editing", "isUsingCommand"]]:
+        f_i.override_data(path, ["test"])
 
 
 class Hello(cmds.Cog):
@@ -28,14 +33,17 @@ class Hello(cmds.Cog):
 
     @cmds.Cog.listener()
     async def on_ready(self):
-        print(f"Logged in as {self.bot.user}.")
-        tntz = await o_f.get_tntz(self.bot)
+        print(f"Logged in as {vrs.global_bot.user}.")
+        tntz = await o_f.get_tntz()
         await tntz.send("Logged in!")
-        await add_new_to_database(self.bot)
+
+        # initialize on ready
+        await add_new_to_database()
+        delete_is_using()
 
     @cmds.Cog.listener()
     async def on_guild_join(self, guild: nx.Guild):
-        await add_new_to_database(self.bot)
+        await add_new_to_database()
 
     @c_w.command(
         category=c_w.Categories.basic_commands,
@@ -44,7 +52,7 @@ class Hello(cmds.Cog):
         req_dev=True
     )
     async def updatedatabase(self, ctx: cmds.Context):
-        await add_new_to_database(self.bot)
+        await add_new_to_database()
         await ctx.send("Database updated.")
 
 

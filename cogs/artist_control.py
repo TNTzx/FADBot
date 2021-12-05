@@ -10,7 +10,7 @@ import nextcord.ext.commands as cmds
 import requests as req
 
 import global_vars.variables as vrs
-import functions.command_wrapper as c_w
+import functions.command_related.command_wrapper as c_w
 import functions.artist_related.classes.artist_library as a_l
 import functions.artist_related.classes.log_library as l_l
 import functions.artist_related.is_using as i_u

@@ -13,7 +13,7 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
-import functions.command_wrapper as c_w
+import functions.command_related.command_wrapper as c_w
 
 
 class RestartKill(cmds.Cog):
@@ -53,7 +53,8 @@ class RestartKill(cmds.Cog):
     )
     async def switchkill(self, ctx):
         await ctx.send("Terminated bot.")
-        await self.bot.logout()
+        await self.bot.close()
+        exit()
 
 
     @c_w.command(

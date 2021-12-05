@@ -10,7 +10,7 @@
 import nextcord.ext.commands as cmds
 
 import functions.databases.firebase.firebase_interaction as f_i
-import functions.command_wrapper as c_w
+import functions.command_related.command_wrapper as c_w
 import functions.exceptions.send_error as s_e
 
 class Moderation(cmds.Cog):
