@@ -23,10 +23,6 @@ async def add_new_to_database():
         if not str(guild_client.id) in guild_data.keys():
             f_i.edit_data(['guildData'], {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
-def delete_is_using():
-    for sustained_cmd in i_u.LIST_OF_SUSTAINED_CMDS:
-        f_i.override_data(sustained_cmd.path, vrs.PLACEHOLDER_DATA)
-
 
 class Hello(cmds.Cog):
     def __init__(self, bot):
@@ -40,7 +36,7 @@ class Hello(cmds.Cog):
 
         # initialize on ready
         await add_new_to_database()
-        delete_is_using()
+        i_u.delete_all_is_using()
 
     @cmds.Cog.listener()
     async def on_guild_join(self, guild: nx.Guild):

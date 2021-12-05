@@ -28,6 +28,10 @@ def delete_is_using_command(path: list[str], author_id: int):
     """Deletes the user as one that is using the command."""
     f_i.deduct_data(path, [str(author_id)])
 
+def delete_all_is_using():
+    for sustained_cmd in LIST_OF_SUSTAINED_CMDS:
+        f_i.override_data(sustained_cmd.path, vrs.PLACEHOLDER_DATA)
+
 
 class SustainedCommand:
     """A class that stores info about a command that requires tracking of who's using it."""

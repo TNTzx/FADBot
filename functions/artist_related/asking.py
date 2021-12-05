@@ -18,7 +18,7 @@ import functions.exceptions.send_error as s_e
 import functions.other_functions as o_f
 
 
-TIMEOUT = 1 # 60 * 10
+TIMEOUT = 60 * 10
 
 async def send_error(ctx, suffix):
     """Sends an error, but with a syntax."""
