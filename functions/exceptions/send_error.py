@@ -18,7 +18,7 @@ async def send_error(ctx: commands.Context, suffix, exc="", other_data: nx.Messa
 
     bot: nx.Client = vrs.global_bot
     text = f"{ERROR_PREFIX}{ctx.author.mention}, {suffix}"
-    tntz = await o_f.get_tntz(bot)
+    tntz: nx.User = await o_f.get_tntz()
 
     if send_owner:
         extra = ""

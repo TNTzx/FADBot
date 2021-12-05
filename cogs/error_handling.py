@@ -11,7 +11,7 @@ import nextcord.ext.commands as cmds
 import global_vars.variables as vrs
 import functions.other_functions as o_f
 import functions.exceptions.send_error as s_e
-import functions.artist_related.is_using as i_u
+
 
 CMD_PREFIX = vrs.CMD_PREFIX
 
@@ -52,14 +52,14 @@ class ErrorHandler(cmds.Cog):
         if checkexc(cmds.CommandInvokeError):
             if str(exc.__cause__) == "Exited Function.":
                 return
-            if exc.original.status == 403:
-                print(f"Forbidden. Code {exc.original.code}: {exc.original.text}")
-                return
+            if hasattr(exc.original, "status"): 
+                if exc.original.status == 403:
+                    print(f"Forbidden. Code {exc.original.code}: {exc.original.text}")
+                    return
 
         if checkexc(cmds.CommandNotFound):
             return
 
-        await i_u.delete_is_using_command(ctx.author.id)
         await s_e.send_error(ctx, "Something went wrong. This error has been reported to the owner of the bot.", exc=exc, send_owner=True, send_console=True)
 
 

@@ -15,11 +15,10 @@ import nextcord.ext.commands as cmds
 import global_vars.variables as vrs
 import functions.exceptions.custom_exc as c_e
 import functions.exceptions.send_error as s_e
-import functions.artist_related.is_using as i_u
 import functions.other_functions as o_f
 
 
-TIMEOUT = 60 * 10
+TIMEOUT = 1 # 60 * 10
 
 async def send_error(ctx, suffix):
     """Sends an error, but with a syntax."""
@@ -32,7 +31,6 @@ async def waiting(ctx: cmds.Context):
         response: nx.Message = await vrs.global_bot.wait_for("message", check=check, timeout=TIMEOUT)
 
     except asyncio.TimeoutError as exc:
-        await i_u.delete_is_using_command(ctx.author.id)
         await s_e.send_error(ctx, "Command timed out. Please use the command again.")
         raise c_e.ExitFunction("Exited Function.") from exc
     return response
@@ -183,6 +181,7 @@ async def wait_for_response(ctx: cmds.Context,
         response = await waiting(ctx)
 
         if response.content == f"{vrs.CMD_PREFIX}cancel":
+            await ctx.author.send("Command cancelled.")
             raise c_e.ExitFunction("Exited Function.")
         elif response.content == f"{vrs.CMD_PREFIX}skip":
             if skippable:
@@ -192,11 +191,7 @@ async def wait_for_response(ctx: cmds.Context,
                 await send_error(ctx, "You can't skip this section!")
                 continue
 
-        try:
-            response = await reformat(ctx, output_type, response, choices=choices, choices_dict=choices_dict)
-        except Exception as exc:
-            await i_u.delete_is_using_command(ctx.author.id)
-            raise exc
+        response = await reformat(ctx, output_type, response, choices=choices, choices_dict=choices_dict)
         success = (response is None)
     return response
 

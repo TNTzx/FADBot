@@ -15,16 +15,16 @@ import functions.exceptions.custom_exc as c_e
 import functions.exceptions.send_error as s_e
 
 
-async def check_if_using_command(path: list[str], author_id: int):
+def check_if_using_command(path: list[str], author_id: int):
     """Returns true if the user is using the command."""
     users_using = f_i.get_data(path)
     return str(author_id) in list(users_using)
 
-async def add_is_using_command(path: list[str], author_id: int):
+def add_is_using_command(path: list[str], author_id: int):
     """Adds the user as one that is using the command."""
     f_i.append_data(path, [str(author_id)])
 
-async def delete_is_using_command(path: list[str], author_id: int):
+def delete_is_using_command(path: list[str], author_id: int):
     """Deletes the user as one that is using the command."""
     f_i.deduct_data(path, [str(author_id)])
 
@@ -45,11 +45,11 @@ def sustained_command():
 
         if not f_i.is_data_exists(path):
             f_i.override_data(path, vrs.PLACEHOLDER_DATA)
-        
+
         async def wrapper(*args, **kwargs):
             ctx: cmds.Context = args[1]
 
-            if await check_if_using_command(path, ctx.author.id):
+            if check_if_using_command(path, ctx.author.id):
                 await s_e.send_error(ctx, f"You're already using this command! Use {vrs.CMD_PREFIX}cancelall on your DMs with me to cancel the command.")
                 return
 
@@ -57,8 +57,11 @@ def sustained_command():
 
             try:
                 await func(*args, **kwargs)
-            except c_e.ExitFunction:
-                pass
+            except Exception as exc:
+                delete_is_using_command(path, ctx.author.id)
+                if isinstance(exc, c_e.ExitFunction):
+                    pass
+                raise exc
 
             delete_is_using_command(path, ctx.author.id)
 
