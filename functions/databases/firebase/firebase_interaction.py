@@ -3,9 +3,10 @@
 import collections as cl
 import threading as thread
 
+import global_vars.variables as vrs
 import functions.exceptions.custom_exc as c_exc
 import functions.databases.firebase.firebase_reset_token as f_r_t
-import global_vars.variables as vrs
+import functions.other_functions as o_f
 
 
 def get_from_path(path: list[str]):
@@ -52,6 +53,12 @@ def append_data(path: list[str], data: list):
     """Adds data to a specific path. Only works with lists."""
     new_data = get_data(path)
     new_data += data
+    override_data(path, new_data)
+
+def deduct_data(path: list[str], data: list):
+    """Deletes data in a specific path. Only works with lists."""
+    old_data = get_data(path)
+    new_data = o_f.subtract_list(old_data, data)
     override_data(path, new_data)
 
 # Edit

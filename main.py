@@ -8,6 +8,7 @@ import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
 
+
 def main():
     """...main!"""
     bot = nx.Client()

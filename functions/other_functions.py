@@ -140,3 +140,6 @@ def remove_none_in_list(_list: list):
             continue
         clean_list.append(item)
     return clean_list
+
+def subtract_list(minuend: list, subtrahend: list):
+    return [item for item in minuend if item not in subtrahend]

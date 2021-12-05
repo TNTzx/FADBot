@@ -11,6 +11,7 @@ import nextcord.ext.commands as cmds
 import global_vars.variables as vrs
 import global_vars.defaults as defaults
 import functions.command_related.command_wrapper as c_w
+import functions.command_related.is_using as i_u
 import functions.databases.firebase.firebase_interaction as f_i
 import functions.other_functions as o_f
 
@@ -23,8 +24,8 @@ async def add_new_to_database():
             f_i.edit_data(['guildData'], {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
 def delete_is_using():
-    for path in [["artistData", "pending", "isUsingCommand"], ["artistData", "editing", "isUsingCommand"]]:
-        f_i.override_data(path, ["test"])
+    for sustained_cmd in i_u.LIST_OF_SUSTAINED_CMDS:
+        f_i.override_data(sustained_cmd.path, vrs.PLACEHOLDER_DATA)
 
 
 class Hello(cmds.Cog):

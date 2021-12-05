@@ -84,7 +84,7 @@ def command(
         show_help=True,
         example_usage: list[str] = None
         ):
-    """Wraps a command."""
+    """Decorator factory to define a command."""
 
     def decorator(func):
         @fc.wraps(func)

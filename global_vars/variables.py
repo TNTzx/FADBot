@@ -29,6 +29,8 @@ def get_token():
     fb_token = fb_user['idToken']
     return fb_token
 
+PLACEHOLDER_DATA = [["placeholder"]]
+
 
 # API
 API_LINK = "https://fadb.live/api"

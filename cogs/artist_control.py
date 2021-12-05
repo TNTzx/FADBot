@@ -11,9 +11,9 @@ import requests as req
 
 import global_vars.variables as vrs
 import functions.command_related.command_wrapper as c_w
+import functions.command_related.is_using as i_u
 import functions.artist_related.classes.artist_library as a_l
 import functions.artist_related.classes.log_library as l_l
-import functions.artist_related.is_using as i_u
 import functions.databases.firebase.firebase_interaction as f_i
 import functions.exceptions.send_error as s_e
 import functions.other_functions as o_f
@@ -30,13 +30,8 @@ class ArtistControl(cmds.Cog):
         aliases=["aa"],
         guild_only=False
     )
+    @i_u.sustained_command()
     async def artistadd(self, ctx: cmds.Context, *skips):
-        if await i_u.check_if_using_command(ctx.author.id):
-            await s_e.send_error(ctx, f"You're already using this command! Use {vrs.CMD_PREFIX}cancel on your DMs with me to cancel the command.")
-            return
-
-        await i_u.add_is_using_command(ctx.author.id)
-
         if not isinstance(ctx.channel, nx.channel.DMChannel):
             await ctx.send("The form is being set up in your DMs. Please check it.")
 
@@ -66,11 +61,9 @@ class ArtistControl(cmds.Cog):
                 data.vadb_info.artist_id = artist_id
             except req.exceptions.HTTPError:
                 await s_e.send_error(ctx, "The artist may already be pending, or this artist already exists! I warned you about it! >:(", send_author=True)
-                await i_u.delete_is_using_command(ctx.author.id)
                 return
 
         await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
-        await i_u.delete_is_using_command(ctx.author.id)
 
         await data.post_log(l_l.LogTypes.PENDING, ctx.author.id)
 
@@ -176,15 +169,15 @@ class ArtistControl(cmds.Cog):
             await ctx.send("Multiple artists found! Use `##artistsearch <id>` to search for a specific artist.", embed=a_l.generate_search_embed(search_result))
 
 
-    @c_w.command(
-        category=c_w.Categories.bot_control,
-        description="Cancels the current command. Usually used for artist commands.",
-        guild_only=False
-    )
-    async def cancel(self, ctx: cmds.Context):
-        if isinstance(ctx.channel, nx.DMChannel):
-            await i_u.delete_is_using_command(ctx.author.id)
-            await ctx.author.send("Command cancelled.")
+    # @c_w.command(
+    #     category=c_w.Categories.bot_control,
+    #     description="Cancels the current command. Usually used for artist commands.",
+    #     guild_only=False
+    # )
+    # async def cancel(self, ctx: cmds.Context):
+    #     if isinstance(ctx.channel, nx.DMChannel):
+    #         await i_u.delete_is_using_command(ctx.author.id)
+    #         await ctx.author.send("Command cancelled.")
 
 
 def setup(bot: cmds.Bot):
