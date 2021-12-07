@@ -81,10 +81,10 @@ def format_time(num: int):
     return time_final
 
 
-async def get_channel_from_mention(bot, mention: str):
+async def get_channel_from_mention(mention: str):
     """Gets channel from a mention."""
     get_id = mention[2:-1]
-    obj = bot.get_channel(int(get_id))
+    obj = vrs.global_bot.get_channel(int(get_id))
     return obj
 
 
