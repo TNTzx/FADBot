@@ -26,7 +26,7 @@ class ErrorHandler(cmds.Cog):
 
         if checkexc(cmds.CommandOnCooldown):
             time = o_f.format_time(int(str(round(exc.retry_after, 0))[:-2]))
-            await s_e.send_error(ctx, f"The command is on cooldown for `{time}` more!", cooldown_reset=True)
+            await s_e.send_error(ctx, f"The command is on cooldown for `{time}` more!", cooldown_reset=False)
             return
 
         if checkexc(cmds.MissingRole):

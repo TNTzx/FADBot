@@ -188,8 +188,14 @@ def command(
         require.guild_admin = req_guild_admin
         require.guild_owner = req_guild_owner
         helps.require = require
+        
+        def show_condition_wrapper(ctx: cmds.Context):
+            try:
+                show_condition()
+            except AttributeError:
+                return False
 
-        helps.show_condition = show_condition
+        helps.show_condition = show_condition_wrapper
         helps.show_help = show_help
         helps.example_usage = example_usage if example_usage is not None else []
 
