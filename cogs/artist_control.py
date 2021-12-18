@@ -38,7 +38,7 @@ class ArtistControl(cmds.Cog):
         await ctx.author.send("Reminder that this bot is made for a website!\nCheck it out! https://fadb.live/")
         await ctx.author.send("> The artist verification form is now being set up. Please __follow all instructions as necessary.__")
 
-        data = a_l.ArtistStructures.Default()
+        data = a_l.Default()
         if "no_init" in skips:
             pass
         else:
@@ -54,10 +54,10 @@ class ArtistControl(cmds.Cog):
         else:
             try:
                 await ctx.author.send("Creating verification submission...")
-                response = a_l.ArtistStructures.VADB.Send.Create(data).send_data()
+                response = a_l.VADB.Send.Create(data).send_data()
                 artist_id = response["data"]["id"]
                 await ctx.author.send("Applying details...")
-                a_l.ArtistStructures.VADB.Send.Edit(data).send_data(artist_id)
+                a_l.VADB.Send.Edit(data).send_data(artist_id)
                 data.vadb_info.artist_id = artist_id
             except req.exceptions.HTTPError:
                 await s_e.send_error(ctx, "The artist may already be pending, or this artist already exists! I warned you about it! >:(", send_author=True)
@@ -82,7 +82,7 @@ class ArtistControl(cmds.Cog):
     )
     async def artistverify(self, ctx: cmds.Context, artist_id: int, action: str, reason: str = None):
         try:
-            artist: a_l.ArtistStructures.Default = a_l.get_artist_by_id(artist_id)
+            artist: a_l.Default = a_l.get_artist_by_id(artist_id)
         except req.exceptions.HTTPError:
             await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
             return
@@ -117,14 +117,14 @@ class ArtistControl(cmds.Cog):
 
         if action == "accept":
             artist.states.status.value = 0
-            a_l.ArtistStructures.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
+            a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
             await send_logs_and_dms(f"The add request has been accepted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
         if action == "decline":
             if reason is None:
                 await s_e.send_error(ctx, "You didn't provide a reason as to why the add request was declined.")
                 return
             artist.states.status.value = 1
-            a_l.ArtistStructures.VADB.Send.Delete(artist).send_data()
+            a_l.VADB.Send.Delete(artist).send_data()
             await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
 
         await artist.delete_logs()
@@ -153,7 +153,7 @@ class ArtistControl(cmds.Cog):
 
         if isinstance(term, int):
             try:
-                artist: a_l.ArtistStructures.Default = a_l.get_artist_by_id(term)
+                artist: a_l.Default = a_l.get_artist_by_id(term)
                 await ctx.send(embed=await artist.generate_embed())
             except req.exceptions.HTTPError:
                 await s_e.send_error(ctx, "The artist doesn't exist. Try again?")

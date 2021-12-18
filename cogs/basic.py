@@ -30,8 +30,8 @@ class Hello(cmds.Cog):
     @cmds.Cog.listener()
     async def on_ready(self):
         print(f"Logged in as {vrs.global_bot.user}.")
-        tntz = vrs.TNTz
-        await tntz.send("Logged in!")
+        vrs.TNTz = await vrs.global_bot.fetch_user(279803094722674693)
+        await vrs.TNTz.send("Logged in!")
 
         # initialize on ready
         await add_new_to_database()

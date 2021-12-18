@@ -6,7 +6,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=unused-argument
 
-
+import functools as fc
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
@@ -51,6 +51,7 @@ def sustained_command():
         if not f_i.is_data_exists(path):
             f_i.override_data(path, vrs.PLACEHOLDER_DATA)
 
+        @fc.wraps(func)
         async def wrapper(*args, **kwargs):
             ctx: cmds.Context = args[1]
 

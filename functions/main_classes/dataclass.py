@@ -23,11 +23,13 @@ class Dataclass():
         """Returns an object with data given by a dictionary."""
         for key, value in data.items():
             try:
-                getattr(self, key)
+                obj: Dataclass | o_f.Match = getattr(self, key)
             except AttributeError as exc:
                 raise AttributeError(f"Attribute '{key}' not found for object of type '{self.__class__.__name__}'") from exc
-            if isinstance(value, dict):
-                obj: Dataclass = getattr(self, key)
+
+            if isinstance(obj, o_f.Match):
+                obj.value = value["value"]
+            elif isinstance(value, dict):
                 setattr(self, key, obj.from_dict(value))
             else:
                 setattr(self, key, value)

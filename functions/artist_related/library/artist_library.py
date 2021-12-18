@@ -642,8 +642,8 @@ class VADB:
             def dict_from_default(self, data: Default):
                 return {
                     "name": data.name,
-                    "status": data.states.status,
-                    "availability": data.states.availability
+                    "status": data.states.status.value,
+                    "availability": data.states.availability.value
                 }
 
             def send_data(self):
@@ -695,6 +695,8 @@ class VADB:
         class Delete(dt.NonStandardDataclass, ArtistStructure):
             """Data structure for requesting to completely obliterate the artist from the database.
             id: int"""
+
+            default_class = Default
 
             def __init__(self, datas=None):
                 self.artist_id = None
@@ -767,7 +769,7 @@ class Firebase:
 
         def __init__(self, data=None):
             self.artist_id = None
-            self.datas = None
+            self.data: Default = None
 
         def dict_from_default(self, data: Default):
             return {
@@ -777,7 +779,7 @@ class Firebase:
 
         def send_data(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing):
             """Sends the data to Firebase."""
-            f_i.edit_data(log_type.path, {self.artist_id: self.datas.get_dict()})
+            f_i.edit_data(log_type.path, {self.artist_id: self.data.get_dict()})
 
 
 
