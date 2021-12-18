@@ -13,6 +13,7 @@ import nextcord as nx
 import global_vars.variables as vrs
 import functions.exceptions.custom_exc as c_exc
 
+
 class DataStructure:
     """Parent class where data structures are inherited in."""
     def get_dict(self):
@@ -55,11 +56,6 @@ class MessagePointer(DataStructure):
             return None
 
         return message
-
-async def get_tntz():
-    """Gets TNTz."""
-    return await vrs.global_bot.fetch_user(279803094722674693)
-
 
 def format_time(num: int):
     """Formats the time from seconds to '#h #m #s'."""
@@ -132,6 +128,13 @@ def is_not_blank_str(string: str | None):
         return False
     return True
 
+def check_if_empty(variable):
+    """Returns the variable if it is not None or not an empty iterable."""
+    if variable is not None:
+        if len(variable) == 0:
+            return None
+    return variable
+
 def remove_none_in_list(_list: list):
     """Removes all instances of None in a list."""
     clean_list = []
@@ -142,4 +145,5 @@ def remove_none_in_list(_list: list):
     return clean_list
 
 def subtract_list(minuend: list, subtrahend: list):
+    """Subtract two lists."""
     return [item for item in minuend if item not in subtrahend]

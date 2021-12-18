@@ -22,6 +22,7 @@ def main():
     bot.remove_command("help")
 
     vrs.global_bot = bot
+    vrs.TNTz = vrs.global_bot.fetch_user(279803094722674693)
 
 
     # Load all cogs

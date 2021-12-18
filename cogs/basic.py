@@ -13,7 +13,6 @@ import global_vars.defaults as defaults
 import functions.command_related.command_wrapper as c_w
 import functions.command_related.is_using as i_u
 import functions.databases.firebase.firebase_interaction as f_i
-import functions.other_functions as o_f
 
 
 async def add_new_to_database():
@@ -31,7 +30,7 @@ class Hello(cmds.Cog):
     @cmds.Cog.listener()
     async def on_ready(self):
         print(f"Logged in as {vrs.global_bot.user}.")
-        tntz = await o_f.get_tntz()
+        tntz = vrs.TNTz
         await tntz.send("Logged in!")
 
         # initialize on ready

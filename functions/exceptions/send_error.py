@@ -7,7 +7,6 @@ import nextcord as nx
 import nextcord.ext.commands as commands
 
 import global_vars.variables as vrs
-import functions.other_functions as o_f
 
 
 ERROR_PREFIX = "**Error!**\n"
@@ -18,7 +17,7 @@ async def send_error(ctx: commands.Context, suffix, exc="", other_data: nx.Messa
 
     bot: nx.Client = vrs.global_bot
     text = f"{ERROR_PREFIX}{ctx.author.mention}, {suffix}"
-    tntz: nx.User = await o_f.get_tntz()
+    tntz: nx.User = vrs.TNTz
 
     if send_owner:
         extra = ""

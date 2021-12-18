@@ -12,6 +12,10 @@ CMD_PREFIX = "##"
 global_bot = nx.Client()
 
 
+# Tent
+TNTz: nx.User = None
+
+
 # Database
 env = os.environ["FadbDBToken"]
 env_dict = json.loads(env)
