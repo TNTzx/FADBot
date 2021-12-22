@@ -31,12 +31,12 @@ class ArtistControl(cmds.Cog):
         guild_only=False
     )
     @i_u.sustained_command()
-    async def artistadd(self, ctx: cmds.Context, *skips):
+    async def artistrequestadd(self, ctx: cmds.Context, *skips):
         if not isinstance(ctx.channel, nx.channel.DMChannel):
-            await ctx.send("The form is being set up in your DMs. Please check it.")
+            await ctx.send("The artist add request form is sent to your DMs. Please check it.")
 
         await ctx.author.send("Reminder that this bot is made for a website!\nCheck it out! https://fadb.live/")
-        await ctx.author.send("> The artist verification form is now being set up. Please __follow all instructions as necessary.__")
+        await ctx.author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
 
         data = a_l.Default()
         if "no_init" in skips:
@@ -80,7 +80,7 @@ class ArtistControl(cmds.Cog):
         guild_only=False,
         req_pa_mod=True
     )
-    async def artistverify(self, ctx: cmds.Context, artist_id: int, action: str, reason: str = None):
+    async def artistverifyadd(self, ctx: cmds.Context, artist_id: int, action: str, reason: str = None):
         try:
             artist: a_l.Default = a_l.get_artist_by_id(artist_id)
         except req.exceptions.HTTPError:
@@ -132,7 +132,7 @@ class ArtistControl(cmds.Cog):
 
     @c_w.command(
         category=c_w.Categories.artist_management,
-        description="Gets a specified artist.",
+        description="Gets a specified artist by search term or VADB ID.",
         parameters={
             "[<search term> | <ID>]": "If <search term> is used, then the command will return a list of artists for that search term.\nIf <ID> is used, then the bot will return the artist with that ID."
         },
