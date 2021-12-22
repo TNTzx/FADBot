@@ -5,6 +5,7 @@ import datetime
 import pytz
 
 import global_vars.variables as vrs
+import global_vars.loggers as lgr
 
 
 def start_loop():
@@ -17,5 +18,5 @@ def start_loop():
         time_obj = datetime.datetime.now(timezone)
         time_str = time_obj.strftime("%I:%M:%S %p | %a, %d/%m/%Y")
 
-        print(f"Token refreshed at {time_str}.")
+        lgr.log_firebase.info("Token reset.")
         

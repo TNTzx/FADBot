@@ -147,3 +147,26 @@ def remove_none_in_list(_list: list):
 def subtract_list(minuend: list, subtrahend: list):
     """Subtract two lists."""
     return [item for item in minuend if item not in subtrahend]
+
+def pr_print(value, htchar='\t', lfchar='\n', indent=0):
+    nlch = lfchar + htchar * (indent + 1)
+    if isinstance(value, dict):
+        items = [
+            nlch + repr(key) + ': ' + pr_print(value[key], htchar, lfchar, indent + 1)
+            for key in value
+        ]
+        return '{%s}' % (','.join(items) + lfchar + htchar * indent)
+    if isinstance(value, list):
+        items = [
+            nlch + pr_print(item, htchar, lfchar, indent + 1)
+            for item in value
+        ]
+        return '[%s]' % (','.join(items) + lfchar + htchar * indent)
+    if isinstance(value, tuple):
+        items = [
+            nlch + pr_print(item, htchar, lfchar, indent + 1)
+            for item in value
+        ]
+        return '(%s)' % (','.join(items) + lfchar + htchar * indent)
+    
+    return repr(value)
