@@ -66,5 +66,3 @@ log_bot_status = setup_logger("bot_status", filename=os.path.join(LogPaths.bot_c
 
 log_firebase = setup_logger("firebase", filename=os.path.join(LogPaths.databases, form_filename(1, "firebase")))
 log_vadb = setup_logger("vadb", filename=os.path.join(LogPaths.databases, form_filename(1, "vadb")))
-
-

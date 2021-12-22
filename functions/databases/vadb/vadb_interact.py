@@ -12,7 +12,7 @@ def make_request(request_type, path, data: dict = None):
     """Interacts with the VADB API."""
     if data is None:
         data = {}
-    
+
     api_link = vrs.API_LINK
     api_headers = vrs.API_HEADERS
 

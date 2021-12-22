@@ -149,6 +149,7 @@ def subtract_list(minuend: list, subtrahend: list):
     return [item for item in minuend if item not in subtrahend]
 
 def pr_print(value, htchar='\t', lfchar='\n', indent=0):
+    """Returns a string for pretty logging."""
     nlch = lfchar + htchar * (indent + 1)
     if isinstance(value, dict):
         items = [
