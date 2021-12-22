@@ -169,5 +169,5 @@ def pr_print(value, htchar='\t', lfchar='\n', indent=0):
             for item in value
         ]
         return '(%s)' % (','.join(items) + lfchar + htchar * indent)
-    
+
     return repr(value)
