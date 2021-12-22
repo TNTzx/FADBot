@@ -75,6 +75,7 @@ class Hello(cmds.Cog):
     @c_w.command(
         category=c_w.Categories.bot_control,
         description="Cause an error...?",
+        guild_only=False,
         req_dev=True,
         show_help=False
     )
