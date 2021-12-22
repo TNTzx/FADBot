@@ -26,6 +26,7 @@ class RestartKill(cmds.Cog):
         aliases=["sr"],
         guild_only=False,
         req_dev=True,
+        show_help=False
     )
     async def switchrestart(self, ctx):
         await ctx.send("Restarting bot...")
@@ -49,7 +50,7 @@ class RestartKill(cmds.Cog):
         description="Shuts down the bot.",
         aliases=["sk"],
         guild_only=False,
-        req_dev=True
+        req_dev=True,
     )
     async def switchkill(self, ctx):
         await ctx.send("Terminated bot.")
@@ -62,7 +63,8 @@ class RestartKill(cmds.Cog):
         description=f"Like {vrs.CMD_PREFIX}restart, but hard.",
         aliases=["srh"],
         guild_only=False,
-        req_dev=True
+        req_dev=True,
+        show_help=False
     )
     async def switchrestarthard(self, ctx):
         await ctx.send("Restart initiated!")

@@ -45,7 +45,8 @@ class Hello(cmds.Cog):
         category=c_w.Categories.basic_commands,
         description="Updates the database manually.",
         aliases=['ud'],
-        req_dev=True
+        req_dev=True,
+        show_help=False
     )
     async def updatedatabase(self, ctx: cmds.Context):
         await add_new_to_database()
@@ -71,7 +72,8 @@ class Hello(cmds.Cog):
     @c_w.command(
         category=c_w.Categories.bot_control,
         description="Cause an error...?",
-        req_dev=True
+        req_dev=True,
+        show_help=False
     )
     async def causeerror(self, ctx):
         raise TypeError("caused error!")
