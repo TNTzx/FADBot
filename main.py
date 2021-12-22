@@ -7,6 +7,13 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
+import global_vars.loggers as lgr
+
+
+def log_something(log_str: str):
+    """Logs something."""
+    print(log_str)
+    lgr.log_bot_status.info(log_str)
 
 
 def main():
@@ -25,7 +32,7 @@ def main():
 
 
     # Load all cogs
-    print("Loading cogs...")
+    log_something("Loading cogs...")
 
     def all_cogs():
         """Returns all cogs."""
@@ -35,20 +42,20 @@ def main():
         if filename.endswith(".py"):
             if filename == "__init__.py":
                 continue
-            print(f"Loading cog '{filename}'...")
+            log_something(f"Loading cog '{filename}'...")
             bot.load_extension(f"cogs.{filename[:-3]}")
 
-    print("Loaded all cogs!")
+    log_something("Loaded all cogs!")
 
 
     # def test_for_commands(command):
     #     """Prints the commands registered."""
-    #     print(bot.all_commands.keys(), command in bot.all_commands.keys())
+    #     log_something(bot.all_commands.keys(), command in bot.all_commands.keys())
 
     # testForCommands("test")
 
     # Log in
-    print("Logging into bot...")
+    log_something("Logging into bot...")
     bot_token = os.environ['FadbToken']
     bot.run(bot_token)
 

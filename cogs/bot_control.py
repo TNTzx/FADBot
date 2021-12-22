@@ -13,6 +13,7 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
+import global_vars.loggers as lgr
 import functions.command_related.command_wrapper as c_w
 
 
@@ -30,6 +31,7 @@ class RestartKill(cmds.Cog):
     )
     async def switchrestart(self, ctx):
         await ctx.send("Restarting bot...")
+        lgr.log_bot_status.info("Restarting bot by cogs...")
         for file in os.listdir(os.path.dirname(__file__)):
             if file.endswith(".py"):
                 if file == "__init__.py":
@@ -42,6 +44,7 @@ class RestartKill(cmds.Cog):
                     continue
                 self.bot.load_extension(new_file)
         await ctx.send("Restarted!")
+        lgr.log_bot_status.info("Restarted bot by cogs.")
         print("\n \n Restart break! -------------------------------------- \n \n")
 
 
@@ -53,6 +56,7 @@ class RestartKill(cmds.Cog):
         req_dev=True,
     )
     async def switchkill(self, ctx):
+        lgr.log_bot_status.info("Closed bot by command.")
         await ctx.send("Terminated bot.")
         await self.bot.close()
         exit()
@@ -67,6 +71,7 @@ class RestartKill(cmds.Cog):
         show_help=False
     )
     async def switchrestarthard(self, ctx):
+        lgr.log_bot_status.info("Initiated hard restart.")
         await ctx.send("Restart initiated!")
         print("\n \n Restart break! Hard! -------------------------------------- \n \n")
         args = ['python'] + [f"\"{sys.argv[0]}\""]

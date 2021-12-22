@@ -5,10 +5,12 @@
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
+import traceback as tr
 # import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
+import global_vars.loggers as lgr
 import functions.other_functions as o_f
 import functions.exceptions.send_error as s_e
 
@@ -54,12 +56,14 @@ class ErrorHandler(cmds.Cog):
                 return
             if hasattr(exc.original, "status"): 
                 if exc.original.status == 403:
-                    print(f"Forbidden. Code {exc.original.code}: {exc.original.text}")
+                    error_message = f"Forbidden from sending. Code {exc.original.code}: {exc.original.text}"
+                    lgr.log_global_exc.warning(error_message)
                     return
 
         if checkexc(cmds.CommandNotFound):
             return
 
+        lgr.log_global_exc.error("".join(tr.format_exc(exc)))
         await s_e.send_error(ctx, "Something went wrong. This error has been reported to the owner of the bot.", exc=exc, send_owner=True, send_console=True)
 
 

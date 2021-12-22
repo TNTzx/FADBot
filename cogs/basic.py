@@ -9,6 +9,7 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
+import global_vars.loggers as lgr
 import global_vars.defaults as defaults
 import functions.command_related.command_wrapper as c_w
 import functions.command_related.is_using as i_u
@@ -32,6 +33,8 @@ class Hello(cmds.Cog):
         print(f"Logged in as {vrs.global_bot.user}.")
         vrs.TNTz = await vrs.global_bot.fetch_user(279803094722674693)
         await vrs.TNTz.send("Logged in!")
+
+        lgr.log_bot_status.info("Logged in.")
 
         # initialize on ready
         await add_new_to_database()
