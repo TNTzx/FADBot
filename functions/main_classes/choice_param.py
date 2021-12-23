@@ -22,6 +22,6 @@ def choice_param_cmd(ctx: cmds.Context, arg, choices: list):
         async def wrapper(*args, **kwargs):
             if arg not in choices:
                 await s_e.send_error(ctx, f"Make sure you have the correct parameters! `{arg}` is not a valid parameter.\nThe available parameters are `{'`, `'.join(choices)}`.")
-            return func(*args, **kwargs)
+            return await func(*args, **kwargs)
         return wrapper
     return decorator

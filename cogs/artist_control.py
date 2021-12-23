@@ -120,30 +120,30 @@ class ArtistControl(cmds.Cog):
                     self.value = None
 
                 @nx.ui.button(label="Confirm", style=nx.ButtonStyle.green)
-                def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
+                async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
                     self.value = True
                     self.stop()
 
                 @nx.ui.button(label="Cancel", style=nx.ButtonStyle.red)
-                def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
+                async def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
                     self.value = False
                     self.stop()
 
             timeout = 60
 
             confirm = Confirm()
-            message = await ctx.send(f"Are you sure that you want to `{action}` this `{_type} request`?\nThis command times out in `{o_f.format_time(timeout)}`.", view=confirm)
+            await ctx.send(f"Are you sure that you want to `{action}` this `{_type} request`?\nThis command times out in `{o_f.format_time(timeout)}`.")
+            message = await ctx.send(embed=await artist.generate_embed(), view=confirm)
 
             def check_button(interact: nx.Interaction):
                 return ctx.author.id == interact.user.id and interact.message.id == message.id
 
-            vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
+            await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
 
             if confirm.value:
                 return
-            else:
-                await ctx.send("Cancelled.")
-                raise c_e.ExitFunction("Exited Function.")
+            await ctx.send("Cancelled.")
+            raise c_e.ExitFunction("Exited Function.")
 
 
         @c_p.choice_param_cmd(ctx, _type, ["add", "edit"])

@@ -29,7 +29,7 @@ class Dataclass():
                 raise AttributeError(f"Attribute '{key}' not found for object of type '{self.__class__.__name__}'") from exc
 
             if isinstance(obj, mot.Match):
-                obj.value = value["value"]
+                obj.value = value
             elif isinstance(value, dict):
                 setattr(self, key, obj.from_dict(value))
             else:
