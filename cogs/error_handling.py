@@ -5,6 +5,7 @@
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
+import asyncio
 import traceback as tr
 # import nextcord as nx
 import nextcord.ext.commands as cmds
@@ -28,7 +29,7 @@ class ErrorHandler(cmds.Cog):
 
         if checkexc(cmds.CommandOnCooldown):
             time = o_f.format_time(int(str(round(exc.retry_after, 0))[:-2]))
-            await s_e.send_error(ctx, f"The command is on cooldown for `{time}` more!", cooldown_reset=False)
+            await s_e.send_error(ctx, f"The command is on cooldown for `{time}` more!")
             return
 
         if checkexc(cmds.MissingRole):
@@ -59,6 +60,9 @@ class ErrorHandler(cmds.Cog):
                     error_message = f"Forbidden from sending. Code {exc.original.code}: {exc.original.text}"
                     lgr.log_global_exc.warning(error_message)
                     return
+            
+            if isinstance(exc.original, asyncio.TimeoutError):
+                await s_e.send_error(ctx, "Command timed out. Please run the command again.")
 
         if checkexc(cmds.CommandNotFound):
             return

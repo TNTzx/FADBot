@@ -5,12 +5,14 @@
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
+import asyncio
 import nextcord as nx
 import nextcord.ext.commands as cmds
 import requests as req
 
 import global_vars.variables as vrs
 import functions.main_classes.choice_param as c_p
+import functions.main_classes.asking as ask
 import functions.command_related.command_wrapper as c_w
 import functions.command_related.is_using as i_u
 import functions.artist_related.library.artist_library as a_l
@@ -89,17 +91,9 @@ class ArtistControl(cmds.Cog):
             await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
             return
 
-        @c_p.choice_param_cmd(ctx, _type, ["add", "edit"])
-        async def _type_choice():
-            if _type == "add":
-                if artist.states.status.get_name() != "Pending":
-                    await s_e.send_error(ctx, f"The artist `{artist.name}` is not pending! You must have an artist that is pending!")
-                    return
-            elif _type == "edit":
-                pass
-
-        await _type_choice()
-
+        if artist.states.status.get_name() != "Pending":
+            await s_e.send_error(ctx, f"The artist `{artist.name}` is not pending! You must have an artist that is pending!")
+            return
 
         async def send_logs_and_dms(logs_message: str, dm_message: str):
             await ctx.send(logs_message, embed=await artist.generate_embed())
@@ -120,21 +114,57 @@ class ArtistControl(cmds.Cog):
 
             return users
 
-        @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
-        async def action_choice():
-            if action == "accept":
-                artist.states.status.value = 0
-                a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
-                await send_logs_and_dms(f"The add request has been accepted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
-            if action == "decline":
-                if reason is None:
-                    await s_e.send_error(ctx, "You didn't provide a reason as to why the add request was declined.")
-                    return
-                artist.states.status.value = 1
-                a_l.VADB.Send.Delete(artist).send_data()
-                await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
+        async def confirm_verify():
+            class Confirm(nx.ui.View):
+                def __init__(self):
+                    super().__init__()
+                    self.value = None
 
-        await action_choice()
+                @nx.ui.button(label="Confirm", style=nx.ButtonStyle.green)
+                def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
+                    self.value = True
+                    self.stop()
+
+                @nx.ui.button(label="Cancel", style=nx.ButtonStyle.red)
+                def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
+                    self.value = False
+                    self.stop()
+            
+            timeout = 60
+
+            confirm = Confirm()
+            message = await ctx.send(f"Are you sure that you want to `{action}` this `{_type} request`?\nThis command times out in `{o_f.format_time(timeout)}`.", view=confirm)
+
+            def check_button(interact: nx.Interaction):
+                return ctx.author.id == interact.user.id and interact.message.id == message.id
+
+            vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
+            
+
+
+
+        @c_p.choice_param_cmd(ctx, _type, ["add", "edit"])
+        async def _type_choice():
+            if _type == "add":
+                @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
+                async def action_choice():
+                    if action == "accept":
+                        artist.states.status.value = 0
+                        a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
+                        await send_logs_and_dms(f"The add request has been accepted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
+                    if action == "decline":
+                        if reason is None:
+                            await s_e.send_error(ctx, "You didn't provide a reason as to why the add request was declined.")
+                            return
+                        artist.states.status.value = 1
+                        a_l.VADB.Send.Delete(artist).send_data()
+                        await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
+
+                await action_choice()
+            elif _type == "edit":
+                pass
+
+        await _type_choice()
 
         await artist.delete_logs()
 

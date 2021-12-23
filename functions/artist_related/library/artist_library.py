@@ -23,7 +23,7 @@ import global_vars.variables as vrs
 import functions.main_classes.dataclass as dt
 import functions.main_classes.other as mot
 import functions.main_classes.message_pointer as m_p
-import functions.artist_related.asking as ask
+import functions.main_classes.asking as ask
 import functions.artist_related.library.log_library as l_l
 import functions.databases.firebase.firebase_interaction as f_i
 import functions.databases.vadb.vadb_interact as v_i
