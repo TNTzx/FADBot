@@ -86,6 +86,7 @@ class ArtistControl(cmds.Cog):
     async def artistverify(self, ctx: cmds.Context, _type: str, artist_id: int, action: str, reason: str = None):
         try:
             artist: a_l.Default = a_l.get_artist_by_id(artist_id)
+            artist.get_logs()
         except req.exceptions.HTTPError:
             await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
             return
@@ -97,6 +98,9 @@ class ArtistControl(cmds.Cog):
         async def send_logs_and_dms(logs_message: str, dm_message: str):
             await ctx.send(logs_message, embed=await artist.generate_embed())
             log_list = artist.discord_info.logs.pending
+
+            if log_list is None:
+                return
             if len(log_list) == 0:
                 return
 

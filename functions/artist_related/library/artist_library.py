@@ -265,7 +265,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         embed.add_field(name=f"Availability{edit_format('availability')}:", value=availability)
 
         usage_rights = self.states.usage_rights
-        if o_f.is_not_blank_str(usage_rights):
+        if o_f.check_if_empty(usage_rights):
             usage_list = []
             for entry in usage_rights:
                 status_rights = entry["value"]
@@ -277,7 +277,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
 
         socials = self.details.socials
-        if o_f.is_not_blank_str(socials):
+        if o_f.check_if_empty(socials):
             socials_list = []
             for entry in socials:
                 link_type: str = entry["type"]
@@ -805,7 +805,7 @@ def check_if_has_entry_firebase(artist_id: int):
     for other in ("pending", "editing"):
         if f_i.is_data_exists(["artistData", other, "data", artist_id]):
             return True
-    
+
     return False
 
 def generate_search_embed(result: list[Default]):
