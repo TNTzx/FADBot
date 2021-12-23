@@ -128,7 +128,7 @@ class ArtistControl(cmds.Cog):
                 def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
                     self.value = False
                     self.stop()
-            
+
             timeout = 60
 
             confirm = Confirm()
