@@ -80,7 +80,7 @@ class ArtistControl(cmds.Cog):
         guild_only=False,
         req_pa_mod=True
     )
-    async def artistverifyadd(self, ctx: cmds.Context, artist_id: int, action: str, reason: str = None):
+    async def artistverify(self, ctx: cmds.Context, _type: str, artist_id: int, action: str, reason: str = None):
         try:
             artist: a_l.Default = a_l.get_artist_by_id(artist_id)
         except req.exceptions.HTTPError:

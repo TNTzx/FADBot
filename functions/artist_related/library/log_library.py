@@ -13,9 +13,8 @@ from __future__ import annotations
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-import global_vars.variables as vrs
-import functions.artist_related.library.artist_library as a_l
-import functions.databases.firebase.firebase_interaction as f_i
+import functions.main_classes.dataclass as dt
+import functions.main_classes.message_pointer as m_p
 import functions.other_functions as o_f
 
 class LogTypes:
@@ -43,21 +42,22 @@ class LogTypes:
 
     EDITING = Editing()
 
-class LogMessages(o_f.DataStructure):
+
+class LogMessages(dt.Dataclass):
     """A data structure to store messages of a log.
-    "main": o_f.MessagePointer
-    "proof": o_f.MessagePointer"""
-    def __init__(self, datas: dict[str, o_f.MessagePointer] = None):
+    "main": m_p.MessagePointer
+    "proof": m_p.MessagePointer"""
+    def __init__(self, datas: dict[str, m_p.MessagePointer] = None):
         if datas is None:
             datas = {
                 "main": None,
                 "proof": None,
             }
 
-        self.main = o_f.MessagePointer(datas["main"])
-        self.proof = o_f.MessagePointer(datas["proof"])
+        self.main = m_p.MessagePointer(datas["main"])
+        self.proof = m_p.MessagePointer(datas["proof"])
 
-class Log(o_f.DataStructure):
+class Log(dt.Dataclass):
     """A data structure to store a log.
     "message": LogMessages
     "user_id": int"""
