@@ -13,16 +13,6 @@ import global_vars.variables as vrs
 import functions.exceptions.custom_exc as c_exc
 
 
-def choice_attr(arg, choices: list):
-    """A decorator to dictate that there is a choice for an attribute."""
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            if arg not in choices:
-                raise TypeError
-            return func(*args, **kwargs)
-        return wrapper()
-    return decorator
-
 def format_time(num: int):
     """Formats the time from seconds to '#h #m #s'."""
     seconds = num

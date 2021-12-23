@@ -10,6 +10,7 @@ import nextcord.ext.commands as cmds
 import requests as req
 
 import global_vars.variables as vrs
+import functions.main_classes.choice_param as c_p
 import functions.command_related.command_wrapper as c_w
 import functions.command_related.is_using as i_u
 import functions.artist_related.library.artist_library as a_l
@@ -70,8 +71,9 @@ class ArtistControl(cmds.Cog):
 
     @c_w.command(
         category=c_w.Categories.artist_management,
-        description="Accepts / declines the verification submission.",
+        description="Accepts / declines the request.",
         parameters={
+            "[add / edit]": "Chooses whether or not the request to be verified is to `add` an artist or `edit` an artist.",
             "id": "Artist ID to verify.",
             "[accept / decline]": "Accepts or declines the verification submission. `accept` to mark the artist as completed, or `decline` to delete the submission.",
             "reason": "Reason for declining the verification submission. Only required if you choose `decline`. Surround with quotes."
@@ -87,14 +89,17 @@ class ArtistControl(cmds.Cog):
             await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
             return
 
-        if artist.states.status.get_name() != "Pending":
-            await s_e.send_error(ctx, f"The artist `{artist.name}` is not pending! You must have an artist that is pending!")
-            return
+        @c_p.choice_param_cmd(ctx, _type, ["add", "edit"])
+        async def _type_choice():
+            if _type == "add":
+                if artist.states.status.get_name() != "Pending":
+                    await s_e.send_error(ctx, f"The artist `{artist.name}` is not pending! You must have an artist that is pending!")
+                    return
+            elif _type == "edit":
+                pass
 
-        action = action.lower()
-        if action not in ("accept", "decline"):
-            await s_e.send_error(ctx, f"Make sure you have the correct parameters! `{action}` is not a valid parameter.")
-            return
+        await _type_choice()
+
 
         async def send_logs_and_dms(logs_message: str, dm_message: str):
             await ctx.send(logs_message, embed=await artist.generate_embed())
@@ -115,17 +120,21 @@ class ArtistControl(cmds.Cog):
 
             return users
 
-        if action == "accept":
-            artist.states.status.value = 0
-            a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
-            await send_logs_and_dms(f"The add request has been accepted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
-        if action == "decline":
-            if reason is None:
-                await s_e.send_error(ctx, "You didn't provide a reason as to why the add request was declined.")
-                return
-            artist.states.status.value = 1
-            a_l.VADB.Send.Delete(artist).send_data()
-            await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
+        @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
+        async def action_choice():
+            if action == "accept":
+                artist.states.status.value = 0
+                a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
+                await send_logs_and_dms(f"The add request has been accepted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
+            if action == "decline":
+                if reason is None:
+                    await s_e.send_error(ctx, "You didn't provide a reason as to why the add request was declined.")
+                    return
+                artist.states.status.value = 1
+                a_l.VADB.Send.Delete(artist).send_data()
+                await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
+
+        await action_choice()
 
         await artist.delete_logs()
 
