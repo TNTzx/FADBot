@@ -5,7 +5,6 @@
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
-import asyncio
 import nextcord as nx
 import nextcord.ext.commands as cmds
 import requests as req
@@ -126,7 +125,7 @@ class ArtistControl(cmds.Cog):
                     self.stop()
 
                 @nx.ui.button(label="Cancel", style=nx.ButtonStyle.red)
-                def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
+                def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
                     self.value = False
                     self.stop()
             
@@ -152,6 +151,7 @@ class ArtistControl(cmds.Cog):
             if _type == "add":
                 @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
                 async def action_choice():
+                    await confirm_verify()
                     if action == "accept":
                         artist.states.status.value = 0
                         a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
