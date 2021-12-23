@@ -12,13 +12,13 @@ import requests as req
 
 import global_vars.variables as vrs
 import functions.main_classes.choice_param as c_p
-import functions.main_classes.asking as ask
 import functions.command_related.command_wrapper as c_w
 import functions.command_related.is_using as i_u
 import functions.artist_related.library.artist_library as a_l
 import functions.artist_related.library.log_library as l_l
 import functions.databases.firebase.firebase_interaction as f_i
 import functions.exceptions.send_error as s_e
+import functions.exceptions.custom_exc as c_e
 import functions.other_functions as o_f
 
 
@@ -139,8 +139,12 @@ class ArtistControl(cmds.Cog):
                 return ctx.author.id == interact.user.id and interact.message.id == message.id
 
             vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
-            
 
+            if confirm.value:
+                return
+            else:
+                await ctx.send("Cancelled.")
+                raise c_e.ExitFunction("Exited Function.")
 
 
         @c_p.choice_param_cmd(ctx, _type, ["add", "edit"])
