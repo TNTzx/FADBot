@@ -9,6 +9,7 @@
 from __future__ import annotations
 import abc
 
+import functions.main_classes.other as mot
 import functions.other_functions as o_f
 
 
@@ -23,12 +24,15 @@ class Dataclass():
         """Returns an object with data given by a dictionary."""
         for key, value in data.items():
             try:
-                obj: Dataclass | o_f.Match = getattr(self, key)
+                obj: Dataclass | mot.Match = getattr(self, key)
             except AttributeError as exc:
                 raise AttributeError(f"Attribute '{key}' not found for object of type '{self.__class__.__name__}'") from exc
 
-            if isinstance(obj, o_f.Match):
-                obj.value = value["value"]
+            if isinstance(obj, mot.Match):
+                if isinstance(value, dict):
+                    obj.value = value["value"]
+                else:
+                    obj.value = value
             elif isinstance(value, dict):
                 setattr(self, key, obj.from_dict(value))
             else:

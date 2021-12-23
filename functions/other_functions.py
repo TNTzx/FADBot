@@ -8,54 +8,10 @@
 
 
 import datetime
-import nextcord as nx
 
 import global_vars.variables as vrs
 import functions.exceptions.custom_exc as c_exc
 
-
-class DataStructure:
-    """Parent class where data structures are inherited in."""
-    def get_dict(self):
-        """Gets dictionary of stored data."""
-        return get_dict_attr(self)
-
-class Match:
-    """Structure that contains a dictionary and a value to match it with."""
-    def __init__(self, data_dict: dict[object, str], value: object):
-        self.data_dict = data_dict
-        self.value = value
-
-    def get_name(self):
-        """Gets the name of the value."""
-        return self.data_dict[self.value]
-
-class Unique():
-    """Unique variable!"""
-    def __init__(self):
-        pass
-
-class MessagePointer(DataStructure):
-    """Class that contains channel and message ids to represent a message."""
-    def __init__(self, datas: dict = None, channel_id = "0", message_id = "0"):
-        if datas is None:
-            datas = {
-                "channel_id": channel_id,
-                "message_id": message_id
-            }
-        self.channel_id = str(datas["channel_id"])
-        self.message_id = str(datas["message_id"])
-
-    async def get_message(self):
-        """Gets the message from discord and returns it."""
-        channel: nx.TextChannel = vrs.global_bot.get_channel(int(self.channel_id))
-        if channel is None:
-            return None
-        message: nx.Message = await channel.fetch_message(int(self.message_id))
-        if message is None:
-            return None
-
-        return message
 
 def format_time(num: int):
     """Formats the time from seconds to '#h #m #s'."""

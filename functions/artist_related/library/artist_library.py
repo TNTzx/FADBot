@@ -21,7 +21,9 @@ import tldextract as tld
 
 import global_vars.variables as vrs
 import functions.main_classes.dataclass as dt
-import functions.artist_related.asking as ask
+import functions.main_classes.other as mot
+import functions.main_classes.message_pointer as m_p
+import functions.main_classes.asking as ask
 import functions.artist_related.library.log_library as l_l
 import functions.databases.firebase.firebase_interaction as f_i
 import functions.databases.vadb.vadb_interact as v_i
@@ -99,7 +101,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 2: "Pending",
                 3: "Requested"
             }
-            self.status: o_f.Match = o_f.Match(status_dict, 2)
+            self.status: mot.Match = mot.Match(status_dict, 2)
 
             availability_dict = {
                 0: "Verified",
@@ -107,7 +109,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 2: "Contact Required",
                 3: "Varies"
             }
-            self.availability: o_f.Match = o_f.Match(availability_dict, 2)
+            self.availability: mot.Match = mot.Match(availability_dict, 2)
 
             self.usage_rights: list[dict[str, str]] = None
             self.usage_rights = o_f.check_if_empty(self.usage_rights)
@@ -263,7 +265,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         embed.add_field(name=f"Availability{edit_format('availability')}:", value=availability)
 
         usage_rights = self.states.usage_rights
-        if usage_rights is not None:
+        if o_f.check_if_empty(usage_rights):
             usage_list = []
             for entry in usage_rights:
                 status_rights = entry["value"]
@@ -275,7 +277,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
 
         socials = self.details.socials
-        if socials is not None:
+        if o_f.check_if_empty(socials):
             socials_list = []
             for entry in socials:
                 link_type: str = entry["type"]
@@ -301,7 +303,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             "yellow": 0xFFFF00,
             "blue": 0x0000FF
         }
-        color_match = o_f.Match(color_keys, "green")
+        color_match = mot.Match(color_keys, "green")
 
         if self.states.status.value == 0: # completed
             if self.states.availability.value == 0: # verified
@@ -324,20 +326,20 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
     class Functions:
         """Contains identifiers for the set_attribute() function."""
-        name = o_f.Unique()
-        proof = o_f.Unique()
-        availability = o_f.Unique()
-        usage_rights = o_f.Unique()
-        description = o_f.Unique()
-        notes = o_f.Unique()
-        aliases = o_f.Unique()
-        avatar_url = o_f.Unique()
-        banner_url = o_f.Unique()
-        tracks = o_f.Unique()
-        genre = o_f.Unique()
-        socials = o_f.Unique()
+        name = mot.Unique()
+        proof = mot.Unique()
+        availability = mot.Unique()
+        usage_rights = mot.Unique()
+        description = mot.Unique()
+        notes = mot.Unique()
+        aliases = mot.Unique()
+        avatar_url = mot.Unique()
+        banner_url = mot.Unique()
+        tracks = mot.Unique()
+        genre = mot.Unique()
+        socials = mot.Unique()
 
-    async def set_attribute(self, ctx: cmds.Context, attr: o_f.Unique, skippable=False):
+    async def set_attribute(self, ctx: cmds.Context, attr: mot.Unique, skippable=False):
         """Sets an attribute in this class."""
 
         functions = self.Functions
@@ -563,8 +565,8 @@ class Default(dt.StandardDataclass, ArtistStructure):
             proof_message: nx.Message = await channel.send(self.proof)
 
             log_message = {
-                    "main": o_f.MessagePointer(channel_id=channel.id, message_id=main_message.id).get_dict(),
-                    "proof": o_f.MessagePointer(channel_id=channel.id, message_id=proof_message.id).get_dict(),
+                    "main": m_p.MessagePointer(channel_id=channel.id, message_id=main_message.id).get_dict(),
+                    "proof": m_p.MessagePointer(channel_id=channel.id, message_id=proof_message.id).get_dict(),
                 }
 
             log_messages.append(log_message)
@@ -797,6 +799,14 @@ def search_for_artist(search_term: str) -> list[Default]:
     artist_list = [Default(VADB.Receive(artist_data)) for artist_data in artists_data]
 
     return artist_list
+
+def check_if_has_entry_firebase(artist_id: int):
+    """Checks if there's an entry in Firebase."""
+    for other in ("pending", "editing"):
+        if f_i.is_data_exists(["artistData", other, "data", artist_id]):
+            return True
+
+    return False
 
 def generate_search_embed(result: list[Default]):
     """Returns an embed for searches with multiple results."""
