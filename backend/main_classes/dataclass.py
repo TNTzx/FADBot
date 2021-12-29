@@ -9,8 +9,8 @@
 from __future__ import annotations
 import abc
 
-import functions.main_classes.other as mot
-import functions.other_functions as o_f
+import backend.main_classes.other as mot
+import backend.other_functions as o_f
 
 
 class Dataclass():
@@ -24,23 +24,39 @@ class Dataclass():
         """Returns an object with data given by a dictionary."""
         for key, value in data.items():
             try:
-                obj: Dataclass | mot.Match = getattr(self, key)
+                obj: Dataclass | list[Dataclass] | mot.Match = getattr(self, key)
             except AttributeError as exc:
                 raise AttributeError(f"Attribute '{key}' not found for object of type '{self.__class__.__name__}'") from exc
+                
 
-            if isinstance(obj, mot.Match):
-                if isinstance(value, dict):
-                    obj.value = value["value"]
+            if obj is not None:
+                if isinstance(obj, mot.Match):
+                    if isinstance(value, dict):
+                        obj.value = value["value"]
+                    else:
+                        obj.value = value
+                elif isinstance(value, dict):
+                    setattr(self, key, obj.from_dict(value))
+                elif isinstance(value, list):
+                    obj = obj[0]
+                    if issubclass(obj.__class__, Dataclass):
+                        setattr(self, key, [obj.__class__().from_dict(item) for item in value])
+                    else:
+                        setattr(self, key, value)
                 else:
-                    obj.value = value
-            elif isinstance(value, dict):
-                setattr(self, key, obj.from_dict(value))
+                    setattr(self, key, value)
             else:
                 setattr(self, key, value)
         return self
 
     def __repr__(self) -> str:
-        return str(self.get_dict())
+        return f"Dataclass: {self.get_dict()}"
+    
+    def __eq__(self, other: Dataclass):
+        if self.__class__ != other.__class__:
+            return False
+
+        return self.get_dict() == other.get_dict()
 
 
 class DataclassSub(Dataclass):

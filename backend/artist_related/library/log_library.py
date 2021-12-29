@@ -13,9 +13,9 @@ from __future__ import annotations
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-import functions.main_classes.dataclass as dt
-import functions.main_classes.message_pointer as m_p
-import functions.other_functions as o_f
+import backend.main_classes.dataclass as dt
+import backend.main_classes.message_pointer as m_p
+import backend.other_functions as o_f
 
 class LogTypes:
     """Class that contains log types."""
@@ -43,30 +43,18 @@ class LogTypes:
     EDITING = Editing()
 
 
-class LogMessages(dt.Dataclass):
-    """A data structure to store messages of a log.
-    "main": m_p.MessagePointer
-    "proof": m_p.MessagePointer"""
-    def __init__(self, datas: dict[str, m_p.MessagePointer] = None):
-        if datas is None:
-            datas = {
-                "main": None,
-                "proof": None,
-            }
-
-        self.main = m_p.MessagePointer(datas["main"])
-        self.proof = m_p.MessagePointer(datas["proof"])
-
-class Log(dt.Dataclass):
+class Log(dt.DataclassSub):
     """A data structure to store a log.
     "message": LogMessages
     "user_id": int"""
     def __init__(self, datas: dict = None):
-        if datas is None:
-            datas = {
-                "message": None,
-                "user_id": None
-            }
-
-        self.message = LogMessages(datas["message"])
-        self.user_id = str(datas["user_id"])
+        self.message = self.LogMessages()
+        self.user_id = None
+    
+    class LogMessages(dt.DataclassSub):
+        """A data structure to store messages of a log.
+        "main": m_p.MessagePointer
+        "proof": m_p.MessagePointer"""
+        def __init__(self, datas: dict[str, m_p.MessagePointer] = None):
+            self.main = m_p.MessagePointer()
+            self.proof = m_p.MessagePointer()

@@ -4,7 +4,7 @@
 
 import nextcord.ext.commands as cmds
 
-import functions.exceptions.send_error as s_e
+import backend.exceptions.send_error as s_e
 
 def choice_param(arg, choices: list):
     """A decorator to dictate that there is a choice for a parameter."""

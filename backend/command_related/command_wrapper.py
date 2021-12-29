@@ -11,9 +11,9 @@ import functools as fc
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-import functions.databases.firebase.firebase_interaction as f_i
-import functions.exceptions.send_error as s_e
-import functions.exceptions.custom_exc as c_exc
+import backend.databases.firebase.firebase_interaction as f_i
+import backend.exceptions.send_error as s_e
+import backend.exceptions.custom_exc as c_exc
 
 
 class Categories:

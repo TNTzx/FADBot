@@ -10,9 +10,9 @@ import functools as fc
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
-import functions.databases.firebase.firebase_interaction as f_i
-import functions.exceptions.custom_exc as c_e
-import functions.exceptions.send_error as s_e
+import backend.databases.firebase.firebase_interaction as f_i
+import backend.exceptions.custom_exc as c_e
+import backend.exceptions.send_error as s_e
 
 
 def check_if_using_command(path: list[str], author_id: int):

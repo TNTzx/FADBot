@@ -10,15 +10,16 @@ import nextcord.ext.commands as cmds
 import requests as req
 
 import global_vars.variables as vrs
-import functions.main_classes.choice_param as c_p
-import functions.command_related.command_wrapper as c_w
-import functions.command_related.is_using as i_u
-import functions.artist_related.library.artist_library as a_l
-import functions.artist_related.library.log_library as l_l
-import functions.databases.firebase.firebase_interaction as f_i
-import functions.exceptions.send_error as s_e
-import functions.exceptions.custom_exc as c_e
-import functions.other_functions as o_f
+import backend.main_classes.choice_param as c_p
+import backend.command_related.command_wrapper as c_w
+import backend.command_related.is_using as i_u
+import backend.artist_related.checks as a_ch
+import backend.artist_related.library.artist_library as a_l
+import backend.artist_related.library.log_library as l_l
+import backend.databases.firebase.firebase_interaction as f_i
+import backend.exceptions.send_error as s_e
+import backend.exceptions.custom_exc as c_e
+import backend.other_functions as o_f
 
 
 class ArtistControl(cmds.Cog):
@@ -28,7 +29,7 @@ class ArtistControl(cmds.Cog):
 
     @c_w.command(
         category=c_w.Categories.artist_management,
-        description=f"Requests an artist to be added to the database. Times out after `{o_f.format_time(60 * 2)}`.",
+        description="Requests an artist to be added to the database.",
         aliases=["ara"],
         guild_only=False
     )
@@ -65,59 +66,100 @@ class ArtistControl(cmds.Cog):
                 await s_e.send_error(ctx, "The artist may already be pending, or this artist already exists! I warned you about it! >:(", send_author=True)
                 return
 
-        await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
+        await ctx.author.send("The `add request` has been submitted. Please wait for an official moderator to approve your submission.")
 
         await data.post_log(l_l.LogTypes.PENDING, ctx.author.id)
 
 
     @c_w.command(
         category=c_w.Categories.artist_management,
+        description="Requests an artist to be edited in the database.",
+        parameters={
+            "id": "Artist ID to edit."
+        },
+        aliases=["are"],
+        guild_only=False
+    )
+    @i_u.sustained_command()
+    async def artistrequestedit(self, ctx: cmds.Context, artist_id: int, *skips):
+        if f_i.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
+            await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.", send_author=True)
+            return
+        
+        if not isinstance(ctx.channel, nx.channel.DMChannel):
+            await ctx.send("The artist `edit request` form is sent to your DMs. Please check it.")
+
+        artist = await a_ch.get_artist_by_id(ctx, artist_id)
+
+        if "no_init" not in skips:
+            await artist.set_attribute(ctx, a_l.Default.Functions.proof)
+            await artist.edit_loop(ctx)
+
+        await ctx.author.send("Sending `edit request`...")
+        a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
+
+        artist.get_logs()
+
+        old_artist = a_l.get_artist_by_id_vadb(artist_id)
+
+        if artist == old_artist:
+            await s_e.send_error(ctx, "You didn't make any edits!", send_author=True)
+            return
+
+        old_artist.states.status.value = 2
+        a_l.VADB.Send.Edit(old_artist).send_data(old_artist.vadb_info.artist_id)
+
+        await ctx.author.send("The `edit request` has been submitted. Please wait for an official moderator to approve your submission.")
+
+        await artist.post_log(l_l.LogTypes.EDITING, ctx.author.id)
+
+
+    @c_w.command(
+        category=c_w.Categories.artist_management,
         description="Accepts / declines the request.",
         parameters={
-            "[add / edit]": "Chooses whether or not the request to be verified is to `add` an artist or `edit` an artist.",
+            "[\"add\" / \"edit\"]": "Chooses whether or not the request to be verified is to `add` an artist or `edit` an artist.",
             "id": "Artist ID to verify.",
-            "[accept / decline]": "Accepts or declines the verification submission. `accept` to mark the artist as completed, or `decline` to delete the submission.",
+            "[\"accept\" / \"decline\"]": "Accepts or declines the verification submission. `accept` to mark the artist as completed, or `decline` to delete the submission.",
             "reason": "Reason for declining the verification submission. Only required if you choose `decline`. Surround with quotes."
         },
         aliases=["av"],
         guild_only=False,
         req_pa_mod=True
     )
+    @i_u.sustained_command()
     async def artistverify(self, ctx: cmds.Context, _type: str, artist_id: int, action: str, reason: str = None):
-        try:
-            artist: a_l.Default = a_l.get_artist_by_id(artist_id)
-            artist.get_logs()
-        except req.exceptions.HTTPError:
-            await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
-            return
+        await ctx.send("Getting data...")
+
+        artist = await a_ch.get_artist_by_id(ctx, artist_id)
 
         if artist.states.status.get_name() != "Pending":
             await s_e.send_error(ctx, f"The artist `{artist.name}` is not pending! You must have an artist that is pending!")
             return
 
-        async def send_logs_and_dms(logs_message: str, dm_message: str):
-            await ctx.send(logs_message, embed=await artist.generate_embed())
-            log_list = artist.discord_info.logs.pending
+        async def send_logs_and_dms(artist_obj: a_l.Default, logs_message: str, dm_message: str):
+            await ctx.send(logs_message, embed=await artist_obj.generate_embed())
+            async def parse_logs(log_list: list[l_l.Log]):
+                if log_list[0].user_id == None:
+                    return
+                if len(log_list) == 0:
+                    return
 
-            if log_list is None:
-                return
-            if len(log_list) == 0:
-                return
+                user_ids = []
+                for log in log_list:
+                    if log.user_id not in user_ids:
+                        user_ids.append(int(log.user_id))
 
-            user_ids = []
-            for log in log_list:
-                if log.user_id not in user_ids:
-                    user_ids.append(str(log.user_id))
+                users = [await vrs.global_bot.fetch_user(user_id) for user_id in user_ids]
+                for user in users:
+                    await user.send(dm_message, embed=await artist_obj.generate_embed())
 
-            users = [await vrs.global_bot.fetch_user(int(user_id)) for user_id in user_ids]
-            for user in users:
-                await user.send(dm_message, embed=await artist.generate_embed())
+                await artist_obj.post_log_to_channels(logs_message, f_i.get_data(["logData", "dump"]))
 
-            await artist.post_log_to_channels(logs_message, f_i.get_data(["logData", "dump"]))
+            await parse_logs(artist_obj.discord_info.logs.pending)
+            await parse_logs(artist_obj.discord_info.logs.editing)
 
-            return users
-
-        async def confirm_verify():
+        async def confirm_verify(artist_obj: a_l.Default):
             class Confirm(nx.ui.View):
                 def __init__(self):
                     super().__init__()
@@ -137,7 +179,8 @@ class ArtistControl(cmds.Cog):
 
             confirm = Confirm()
             await ctx.send(f"Are you sure that you want to `{action}` this `{_type} request`?\nThis command times out in `{o_f.format_time(timeout)}`.")
-            message = await ctx.send(embed=await artist.generate_embed(), view=confirm)
+            await ctx.send(embed=await artist_obj.generate_embed(), view=confirm)
+            message = await ctx.send(artist_obj.proof)
 
             def check_button(interact: nx.Interaction):
                 return ctx.author.id == interact.user.id and interact.message.id == message.id
@@ -155,22 +198,54 @@ class ArtistControl(cmds.Cog):
             if _type == "add":
                 @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
                 async def action_choice():
-                    await confirm_verify()
+                    await confirm_verify(artist)
+
                     if action == "accept":
                         artist.states.status.value = 0
+
+                        await ctx.send("Verifying `add request`...")
                         a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
-                        await send_logs_and_dms(f"The add request has been accepted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
+                        await send_logs_and_dms(artist, f"The `add request` has been accepted for `{artist.name}`!", f"Your pending `add request` for `{artist.name}` has been accepted!")
                     if action == "decline":
                         if reason is None:
-                            await s_e.send_error(ctx, "You didn't provide a reason as to why the add request was declined.")
+                            await s_e.send_error(ctx, "You didn't provide a reason as to why the `add request` was declined.")
                             return
                         artist.states.status.value = 1
+
+                        await ctx.send("Declining `add request`...")
                         a_l.VADB.Send.Delete(artist).send_data()
-                        await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
+                        await send_logs_and_dms(artist, f"The `add request` has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending `add request` for `{artist.name}` has been denied due to the following reason:\n`{reason}`")
 
                 await action_choice()
+
+                await artist.delete_logs()
             elif _type == "edit":
-                pass
+                try:
+                    artist_from_fb = a_l.get_artist_by_id_fb(l_l.LogTypes.EDITING, artist.vadb_info.artist_id)
+                except c_e.FirebaseNoEntry as exc:
+                    await s_e.send_error(ctx, "The artist doesn't have a pending edit request!")
+                    raise c_e.ExitFunction("Exited Function.") from exc
+
+                @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
+                async def action_choice():
+                    await confirm_verify(artist_from_fb)
+
+                    if action == "accept":
+                        await ctx.send("Verifying `edit request`...")
+                        artist_from_fb.states.status.value = 0
+                        a_l.VADB.Send.Edit(artist_from_fb).send_data(artist.vadb_info.artist_id)
+                        await send_logs_and_dms(artist_from_fb, f"The `edit request` has been accepted for `{artist_from_fb.name}`!", f"Your pending `edit request` for `{artist_from_fb.name}` has been accepted!")
+                    if action == "decline":
+                        if reason is None:
+                            await s_e.send_error(ctx, "You didn't provide a reason as to why the `edit request` was declined.")
+                            return
+                        artist.states.status.value = 0
+                        a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
+                        await send_logs_and_dms(artist_from_fb, f"The `edit request` has been declined for `{artist_from_fb.name}` due to the following reason: `{reason}`.", f"Your pending `edit request` for `{artist_from_fb.name}` has been denied due to the following reason:\n`{reason}`")
+
+                await action_choice()
+
+                await artist_from_fb.delete_logs()
 
         await _type_choice()
 
@@ -192,20 +267,19 @@ class ArtistControl(cmds.Cog):
         ]
     )
     async def artistsearch(self, ctx: cmds.Context, term: str | int):
-        search_result = a_l.search_for_artist(term)
         try:
             term = int(term)
         except (ValueError, TypeError):
             pass
 
+        await ctx.send("Searching for artist...")
+
         if isinstance(term, int):
-            try:
-                artist: a_l.Default = a_l.get_artist_by_id(term)
-                await ctx.send(embed=await artist.generate_embed())
-            except req.exceptions.HTTPError:
-                await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
+            artist = await a_ch.get_artist_by_id(ctx, term)
+            await ctx.send(embed=await artist.generate_embed())
             return
 
+        search_result = a_l.search_for_artist(term)
         if search_result is None:
             await s_e.send_error(ctx, "Your search term has no results. The artist might also be pending, in which case you can try `##artistsearch <id>` instead. Try again?")
             return

@@ -11,9 +11,9 @@ import nextcord.ext.commands as cmds
 import global_vars.variables as vrs
 import global_vars.loggers as lgr
 import global_vars.defaults as defaults
-import functions.command_related.command_wrapper as c_w
-import functions.command_related.is_using as i_u
-import functions.databases.firebase.firebase_interaction as f_i
+import backend.command_related.command_wrapper as c_w
+import backend.command_related.is_using as i_u
+import backend.databases.firebase.firebase_interaction as f_i
 
 
 async def add_new_to_database():

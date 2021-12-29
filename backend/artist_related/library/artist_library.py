@@ -20,15 +20,15 @@ import nextcord.ext.commands as cmds
 import tldextract as tld
 
 import global_vars.variables as vrs
-import functions.main_classes.dataclass as dt
-import functions.main_classes.other as mot
-import functions.main_classes.message_pointer as m_p
-import functions.main_classes.asking as ask
-import functions.artist_related.library.log_library as l_l
-import functions.databases.firebase.firebase_interaction as f_i
-import functions.databases.vadb.vadb_interact as v_i
-import functions.exceptions.custom_exc as c_exc
-import functions.other_functions as o_f
+import backend.main_classes.dataclass as dt
+import backend.main_classes.other as mot
+import backend.main_classes.message_pointer as m_p
+import backend.main_classes.asking as ask
+import backend.artist_related.library.log_library as l_l
+import backend.databases.firebase.firebase_interaction as f_i
+import backend.databases.vadb.vadb_interact as v_i
+import backend.exceptions.custom_exc as c_exc
+import backend.other_functions as o_f
 
 
 DEFAULT_IMAGE = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
@@ -85,8 +85,8 @@ class Default(dt.StandardDataclass, ArtistStructure):
             pending: list[o_f.Log]
             editing: list[o_f.Log]"""
             def __init__(self):
-                self.pending = None
-                self.editing = None
+                self.pending = [l_l.Log()]
+                self.editing = [l_l.Log()]
 
     class States(dt.DataclassSub):
         """Stores the state of the artist in the verification process.\n
@@ -112,7 +112,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
             self.availability: mot.Match = mot.Match(availability_dict, 2)
 
             self.usage_rights: list[dict[str, str]] = None
-            self.usage_rights = o_f.check_if_empty(self.usage_rights)
 
     class Details(dt.DataclassSub):
         """Stores details of the artist.
@@ -126,12 +125,15 @@ class Default(dt.StandardDataclass, ArtistStructure):
         def __init__(self):
             self.description = None
             self.notes = None
-            self.aliases = None
-            self.aliases = o_f.check_if_empty(self.aliases)
+            self.aliases = [self.Alias()]
             self.images = self.Images()
             self.music_info = self.MusicInfo()
             self.socials = None
-            self.socials = o_f.check_if_empty(self.socials)
+        
+        class Alias(dt.DataclassSub):
+            """Stores an alias."""
+            def __init__(self) -> None:
+                self.name = None
 
         class Images(dt.DataclassSub):
             """Stores the images of the artist.
@@ -214,6 +216,19 @@ class Default(dt.StandardDataclass, ArtistStructure):
             }
 
 
+    def __eq__(self, other: Default):
+        if self.__class__ != other.__class__:
+            return False
+
+        self_new = self
+        other_new = other
+
+        self_new.discord_info.logs = None
+        other_new.discord_info.logs = None
+        return dt.Dataclass.__eq__(self_new, other_new)
+
+
+
     async def generate_embed(self, editing=False):
         """Generates an embed."""
 
@@ -239,9 +254,13 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
 
         aliases = self.details.aliases
-        if aliases is not None:
-            alias_list = [alias['name'] for alias in aliases]
-            aliases = f"`{'`, `'.join(alias_list)}`"
+
+        if aliases != Default().details.aliases:
+            aliases = [alias.name for alias in aliases if o_f.is_not_blank_str(alias.name)]
+            if o_f.is_not_empty(aliases):
+                aliases = f"`{'`, `'.join(aliases)}`"
+            else:
+                aliases = "No aliases!"
         else:
             aliases = "No aliases!"
         embed.add_field(name=f"Aliases{edit_format('aliases')}:", value=aliases)
@@ -265,7 +284,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         embed.add_field(name=f"Availability{edit_format('availability')}:", value=availability)
 
         usage_rights = self.states.usage_rights
-        if o_f.check_if_empty(usage_rights):
+        if o_f.is_not_empty(usage_rights):
             usage_list = []
             for entry in usage_rights:
                 status_rights = entry["value"]
@@ -277,7 +296,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
 
         socials = self.details.socials
-        if o_f.check_if_empty(socials):
+        if o_f.is_not_empty(socials):
             socials_list = []
             for entry in socials:
                 link_type: str = entry["type"]
@@ -432,7 +451,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 skippable=True
             )
             if aliases is not None:
-                self.details.aliases = [{"name": alias} for alias in aliases]
+                self.details.aliases = [Default.Details.Alias().from_dict({"name": alias}) for alias in aliases]
         elif check(functions.avatar_url):
             avatar_url = await ask.wait_for_response(ctx,
                 "Send an image to an avatar of the artist.",
@@ -571,9 +590,9 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
             log_messages.append(log_message)
 
-        return [l_l.Log({
+        return [l_l.Log().from_dict({
             "message": log_message,
-            "user_id": user_id
+            "user_id": str(user_id)
         }) for log_message in log_messages]
 
     async def post_log(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, user_id: int):
@@ -616,7 +635,10 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 await main_message.delete()
                 await proof_message.delete()
 
-            f_i.delete_data(log_type.path + [str(self.vadb_info.artist_id)])
+            try:
+                f_i.delete_data(log_type.path + [str(self.vadb_info.artist_id)])
+            except c_exc.FirebaseNoEntry:
+                pass
 
         self.discord_info.logs.pending = await delete_log(self.discord_info.logs.pending, l_l.LogTypes.PENDING)
         self.discord_info.logs.editing = await delete_log(self.discord_info.logs.editing, l_l.LogTypes.EDITING)
@@ -679,7 +701,7 @@ class VADB:
                         "availability": data.states.availability.value,
                         "usageRights": data.states.usage_rights,
 
-                        "aliases": data.details.aliases,
+                        "aliases": [{"name": alias.name} for alias in data.details.aliases],
                         "description": data.details.description,
                         "notes": data.details.notes,
                         "tracks": data.details.music_info.tracks,
@@ -745,7 +767,7 @@ class VADB:
             return {
                 "id": data.vadb_info.artist_id,
                 "name": data.name,
-                "aliases": data.details.aliases,
+                "aliases": [{"name": alias.name} for alias in data.details.aliases],
                 "description": data.details.description,
                 "tracks": data.details.music_info.tracks,
                 "genre": data.details.music_info.genre,
@@ -826,9 +848,16 @@ def generate_search_embed(result: list[Default]):
 
     return embed
 
-def get_artist_by_id(artist_id: int):
+def get_artist_by_id_vadb(artist_id: int):
     """Gets an artist from VADB by ID."""
     artist = Default(VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))
+    return artist
+
+def get_artist_by_id_fb(log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, artist_id: int):
+    """Gets an artist from Firebase by ID and log type."""
+    diction = f_i.get_data(log_type.path + [str(artist_id)])
+    artist = Default()
+    artist.from_dict(diction)
     return artist
 
 def create_log_list(logs):

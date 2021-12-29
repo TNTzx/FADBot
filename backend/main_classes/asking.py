@@ -13,9 +13,9 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
-import functions.exceptions.custom_exc as c_e
-import functions.exceptions.send_error as s_e
-import functions.other_functions as o_f
+import backend.exceptions.custom_exc as c_e
+import backend.exceptions.send_error as s_e
+import backend.other_functions as o_f
 
 
 TIMEOUT = 60 * 10
