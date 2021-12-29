@@ -82,10 +82,13 @@ class ArtistControl(cmds.Cog):
     )
     @i_u.sustained_command()
     async def artistrequestedit(self, ctx: cmds.Context, artist_id: int):
-        artist = await a_ch.get_artist_by_id(ctx, artist_id)
-        artist.edit_loop(ctx)
+        if not isinstance(ctx.channel, nx.channel.DMChannel):
+            await ctx.send("The artist `edit request` form is sent to your DMs. Please check it.")
 
-        await ctx.send("Sending `edit request`...")
+        artist = await a_ch.get_artist_by_id(ctx, artist_id)
+        await artist.edit_loop(ctx)
+
+        await ctx.author.send("Sending `edit request`...")
         a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
         await ctx.author.send("The `edit request` has been submitted. Please wait for an official moderator to approve your submission.")
 
@@ -135,7 +138,7 @@ class ArtistControl(cmds.Cog):
 
             return users
 
-        async def confirm_verify():
+        async def confirm_verify(artist_obj: a_l.Default):
             class Confirm(nx.ui.View):
                 def __init__(self):
                     super().__init__()
@@ -173,24 +176,43 @@ class ArtistControl(cmds.Cog):
             if _type == "add":
                 @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
                 async def action_choice():
-                    await confirm_verify()
+                    await confirm_verify(artist)
+
                     if action == "accept":
                         artist.states.status.value = 0
 
                         await ctx.send("Verifying `add request`...")
                         a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
-                        await send_logs_and_dms(f"The add request has been accepted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
+                        await send_logs_and_dms(f"The `add request` has been accepted for `{artist.name}`!", f"Your pending `add request` for `{artist.name}` has been accepted!")
                     if action == "decline":
                         if reason is None:
-                            await s_e.send_error(ctx, "You didn't provide a reason as to why the add request was declined.")
+                            await s_e.send_error(ctx, "You didn't provide a reason as to why the `add request` was declined.")
                             return
                         artist.states.status.value = 1
+
+                        await ctx.send("Declining `add request`...")
                         a_l.VADB.Send.Delete(artist).send_data()
-                        await send_logs_and_dms(f"The verification submission has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending add request for `{artist.name}` has been denied due to the following reason: `{reason}`")
+                        await send_logs_and_dms(f"The `add request` has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending `add request` for `{artist.name}` has been denied due to the following reason:\n`{reason}`")
 
                 await action_choice()
             elif _type == "edit":
-                pass
+                artist_from_vadb = a_l.get_artist_by_id_fb(l_l.LogTypes.EDITING, artist.vadb_info.artist_id)
+
+                @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
+                async def action_choice():
+                    await confirm_verify(artist_from_vadb)
+
+                    if action == "accept":
+                        await ctx.send("Verifying `edit request`...")
+                        a_l.VADB.Send.Edit(artist_from_vadb).send_data(artist_from_vadb.vadb_info.artist_id)
+                        await send_logs_and_dms(f"The `edit request` has been accepted for `{artist_from_vadb.name}`!", f"Your pending `edit request` for `{artist_from_vadb.name}` has been accepted!")
+                    if action == "decline":
+                        if reason is None:
+                            await s_e.send_error(ctx, "You didn't provide a reason as to why the `edit request` was declined.")
+                            return
+                        await send_logs_and_dms(f"The `edit request` has been declined for `{artist_from_vadb.name}` due to the following reason: `{reason}`.", f"Your pending `edit request` for `{artist_from_vadb.name}` has been denied due to the following reason:\n`{reason}`")
+
+                await action_choice()
 
         await _type_choice()
 
@@ -217,9 +239,12 @@ class ArtistControl(cmds.Cog):
         except (ValueError, TypeError):
             pass
 
+        await ctx.send("Searching for artist...")
+
         if isinstance(term, int):
             artist = await a_ch.get_artist_by_id(ctx, term)
             await ctx.send(embed=await artist.generate_embed())
+            return
 
         search_result = a_l.search_for_artist(term)
         if search_result is None:

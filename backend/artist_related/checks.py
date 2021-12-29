@@ -19,7 +19,7 @@ import backend.exceptions.send_error as s_e
 async def get_artist_by_id(ctx: cmds.Context, artist_id: int) -> a_l.Default:
     """Gets an artist from its id. Sends an error if not found."""
     try:
-        artist: a_l.Default = a_l.get_artist_by_id(artist_id)
+        artist: a_l.Default = a_l.get_artist_by_id_vadb(artist_id)
         artist.get_logs()
         return artist
     except req.exceptions.HTTPError as exc:

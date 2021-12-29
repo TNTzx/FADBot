@@ -826,10 +826,13 @@ def generate_search_embed(result: list[Default]):
 
     return embed
 
-def get_artist_by_id(artist_id: int):
+def get_artist_by_id_vadb(artist_id: int):
     """Gets an artist from VADB by ID."""
     artist = Default(VADB.Receive(v_i.make_request("GET", f"/artist/{artist_id}")["data"]))
     return artist
+
+def get_artist_by_id_fb(log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, artist_id: int):
+    return Default(f_i.get_data(log_type.path + [str(artist_id)]))
 
 def create_log_list(logs):
     """Creates a list of log objects."""
