@@ -862,4 +862,4 @@ def get_artist_by_id_fb(log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, a
 
 def create_log_list(logs):
     """Creates a list of log objects."""
-    return [l_l.Log(log) for log in logs] if logs is not None else None
+    return [l_l.Log().from_dict(log) for log in logs] if logs is not None else None

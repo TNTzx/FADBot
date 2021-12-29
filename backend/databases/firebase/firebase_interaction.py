@@ -28,7 +28,7 @@ def get_data(path: list[str]):
         if isinstance(value, cl.OrderedDict):
             value = dict(result)
 
-        log_message = f"Received data from path {path}: {value}"
+        log_message = f"Received data from path {path}: {o_f.pr_print(value)}"
         lgr.log_firebase.info(log_message)
         return value
     else:
@@ -50,7 +50,7 @@ def override_data(path: list[str], data: dict):
     """Overrides the data at a specific path."""
     path_parse = get_from_path(path)
 
-    log_message = f"Overriden data from path {path}: {data}"
+    log_message = f"Overriden data from path {path}: {o_f.pr_print(data)}"
     lgr.log_firebase.info(log_message)
     path_parse.set(data, token=vrs.get_token())
 
@@ -60,7 +60,7 @@ def append_data(path: list[str], data: list):
     new_data = get_data(path)
     new_data += data
 
-    log_message = f"Appended data from path {path}: {new_data}"
+    log_message = f"Appended data from path {path}: {o_f.pr_print(new_data)}"
     lgr.log_firebase.info(log_message)
     override_data(path, new_data)
 
@@ -69,7 +69,7 @@ def deduct_data(path: list[str], data: list):
     old_data = get_data(path)
     new_data = o_f.subtract_list(old_data, data)
 
-    log_message = f"Deducted data from path {path}: {new_data}"
+    log_message = f"Deducted data from path {path}: {o_f.pr_print(new_data)}"
     lgr.log_firebase.info(log_message)
     override_data(path, new_data)
 
@@ -81,7 +81,7 @@ def edit_data(path: list[str], data: dict):
 
     path_parse = get_from_path(path)
 
-    log_message = f"Edited data from path {path}: {data}"
+    log_message = f"Edited data from path {path}: {o_f.pr_print(data)}"
     lgr.log_firebase.info(log_message)
     path_parse.update(data, token=vrs.get_token())
 
