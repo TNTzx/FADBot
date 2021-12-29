@@ -20,15 +20,15 @@ import nextcord.ext.commands as cmds
 import tldextract as tld
 
 import global_vars.variables as vrs
-import functions.main_classes.dataclass as dt
-import functions.main_classes.other as mot
-import functions.main_classes.message_pointer as m_p
-import functions.main_classes.asking as ask
-import functions.artist_related.library.log_library as l_l
-import functions.databases.firebase.firebase_interaction as f_i
-import functions.databases.vadb.vadb_interact as v_i
-import functions.exceptions.custom_exc as c_exc
-import functions.other_functions as o_f
+import backend.main_classes.dataclass as dt
+import backend.main_classes.other as mot
+import backend.main_classes.message_pointer as m_p
+import backend.main_classes.asking as ask
+import backend.artist_related.library.log_library as l_l
+import backend.databases.firebase.firebase_interaction as f_i
+import backend.databases.vadb.vadb_interact as v_i
+import backend.exceptions.custom_exc as c_exc
+import backend.other_functions as o_f
 
 
 DEFAULT_IMAGE = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"

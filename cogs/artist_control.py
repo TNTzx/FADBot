@@ -10,15 +10,15 @@ import nextcord.ext.commands as cmds
 import requests as req
 
 import global_vars.variables as vrs
-import functions.main_classes.choice_param as c_p
-import functions.command_related.command_wrapper as c_w
-import functions.command_related.is_using as i_u
-import functions.artist_related.library.artist_library as a_l
-import functions.artist_related.library.log_library as l_l
-import functions.databases.firebase.firebase_interaction as f_i
-import functions.exceptions.send_error as s_e
-import functions.exceptions.custom_exc as c_e
-import functions.other_functions as o_f
+import backend.main_classes.choice_param as c_p
+import backend.command_related.command_wrapper as c_w
+import backend.command_related.is_using as i_u
+import backend.artist_related.library.artist_library as a_l
+import backend.artist_related.library.log_library as l_l
+import backend.databases.firebase.firebase_interaction as f_i
+import backend.exceptions.send_error as s_e
+import backend.exceptions.custom_exc as c_e
+import backend.other_functions as o_f
 
 
 class ArtistControl(cmds.Cog):

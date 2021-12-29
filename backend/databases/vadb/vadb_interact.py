@@ -5,7 +5,7 @@ import requests
 
 import global_vars.variables as vrs
 import global_vars.loggers as lgr
-import functions.other_functions as o_f
+import backend.other_functions as o_f
 
 
 def make_request(request_type, path, data: dict = None):

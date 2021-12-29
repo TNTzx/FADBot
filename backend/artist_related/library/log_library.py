@@ -13,9 +13,9 @@ from __future__ import annotations
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-import functions.main_classes.dataclass as dt
-import functions.main_classes.message_pointer as m_p
-import functions.other_functions as o_f
+import backend.main_classes.dataclass as dt
+import backend.main_classes.message_pointer as m_p
+import backend.other_functions as o_f
 
 class LogTypes:
     """Class that contains log types."""

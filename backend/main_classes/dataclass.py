@@ -9,8 +9,8 @@
 from __future__ import annotations
 import abc
 
-import functions.main_classes.other as mot
-import functions.other_functions as o_f
+import backend.main_classes.other as mot
+import backend.other_functions as o_f
 
 
 class Dataclass():

@@ -10,7 +10,7 @@
 import datetime
 
 import global_vars.variables as vrs
-import functions.exceptions.custom_exc as c_exc
+import backend.exceptions.custom_exc as c_exc
 
 
 def format_time(num: int):
