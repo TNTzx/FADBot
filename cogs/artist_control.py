@@ -10,6 +10,7 @@ import nextcord.ext.commands as cmds
 import requests as req
 
 import global_vars.variables as vrs
+import global_vars.loggers as lgr
 import backend.main_classes.choice_param as c_p
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
@@ -68,6 +69,10 @@ class ArtistControl(cmds.Cog):
 
         await ctx.author.send("The `add request` has been submitted. Please wait for an official moderator to approve your submission.")
 
+
+        log_message = f"[ADD] {data.name}: {o_f.pr_print(data.get_dict())}"
+        lgr.log_artist_control.info(log_message)
+
         await data.post_log(l_l.LogTypes.PENDING, ctx.author.id)
 
 
@@ -85,7 +90,7 @@ class ArtistControl(cmds.Cog):
         if f_i.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
             await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.", send_author=True)
             return
-        
+
         if not isinstance(ctx.channel, nx.channel.DMChannel):
             await ctx.send("The artist `edit request` form is sent to your DMs. Please check it.")
 
@@ -110,6 +115,9 @@ class ArtistControl(cmds.Cog):
         a_l.VADB.Send.Edit(old_artist).send_data(old_artist.vadb_info.artist_id)
 
         await ctx.author.send("The `edit request` has been submitted. Please wait for an official moderator to approve your submission.")
+
+        log_message = f"[EDIT] {old_artist.name} / {artist.name}: {o_f.pr_print(artist.get_dict())}"
+        lgr.log_artist_control.info(log_message)
 
         await artist.post_log(l_l.LogTypes.EDITING, ctx.author.id)
 
@@ -140,7 +148,7 @@ class ArtistControl(cmds.Cog):
         async def send_logs_and_dms(artist_obj: a_l.Default, logs_message: str, dm_message: str):
             await ctx.send(logs_message, embed=await artist_obj.generate_embed())
             async def parse_logs(log_list: list[l_l.Log]):
-                if log_list[0].user_id == None:
+                if log_list[0].user_id is None:
                     return
                 if len(log_list) == 0:
                     return
@@ -179,8 +187,8 @@ class ArtistControl(cmds.Cog):
 
             confirm = Confirm()
             await ctx.send(f"Are you sure that you want to `{action}` this `{_type} request`?\nThis command times out in `{o_f.format_time(timeout)}`.")
-            await ctx.send(embed=await artist_obj.generate_embed(), view=confirm)
-            message = await ctx.send(artist_obj.proof)
+            await ctx.send(embed=await artist_obj.generate_embed())
+            message = await ctx.send(artist_obj.proof, view=confirm)
 
             def check_button(interact: nx.Interaction):
                 return ctx.author.id == interact.user.id and interact.message.id == message.id
@@ -191,6 +199,11 @@ class ArtistControl(cmds.Cog):
                 return
             await ctx.send("Cancelled.")
             raise c_e.ExitFunction("Exited Function.")
+
+
+        def log_verify(artist_obj: a_l.Default):
+            log_message = f"[VERIFY] [{_type.upper()}] [{action.upper()}]: {o_f.pr_print(artist_obj.get_dict())}\nReason: {reason}"
+            lgr.log_artist_control.info(log_message)
 
 
         @c_p.choice_param_cmd(ctx, _type, ["add", "edit"])
@@ -218,6 +231,8 @@ class ArtistControl(cmds.Cog):
 
                 await action_choice()
 
+                log_verify(artist)
+
                 await artist.delete_logs()
             elif _type == "edit":
                 try:
@@ -244,6 +259,8 @@ class ArtistControl(cmds.Cog):
                         await send_logs_and_dms(artist_from_fb, f"The `edit request` has been declined for `{artist_from_fb.name}` due to the following reason: `{reason}`.", f"Your pending `edit request` for `{artist_from_fb.name}` has been denied due to the following reason:\n`{reason}`")
 
                 await action_choice()
+
+                log_verify(artist_from_fb)
 
                 await artist_from_fb.delete_logs()
 

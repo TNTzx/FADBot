@@ -52,6 +52,7 @@ class LogPaths:
     """Contains names for folders."""
     databases = "databases"
     bot_control = "bot_control"
+    artist_control = "artist_control"
 
 logger_paths = [getattr(LogPaths, x) for x in dir(LogPaths) if not x.startswith("__")]
 for logger_path in logger_paths:
@@ -63,6 +64,8 @@ log_master = setup_logger("master", is_master=True)
 log_global_exc = setup_logger("global_exc", filename=form_filename(0, "global_exc"))
 
 log_bot_status = setup_logger("bot_status", filename=os.path.join(LogPaths.bot_control, form_filename(1, "bot_status")))
+
+log_artist_control = setup_logger("artist_control", filename=os.path.join(LogPaths.artist_control, form_filename(0, "artist_control")))
 
 log_firebase = setup_logger("firebase", filename=os.path.join(LogPaths.databases, form_filename(1, "firebase")))
 log_vadb = setup_logger("vadb", filename=os.path.join(LogPaths.databases, form_filename(1, "vadb")))

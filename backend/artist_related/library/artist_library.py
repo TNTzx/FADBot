@@ -129,7 +129,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             self.images = self.Images()
             self.music_info = self.MusicInfo()
             self.socials = None
-        
+
         class Alias(dt.DataclassSub):
             """Stores an alias."""
             def __init__(self) -> None:
