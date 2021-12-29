@@ -13,6 +13,7 @@ import global_vars.variables as vrs
 import backend.main_classes.choice_param as c_p
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
+import backend.artist_related.checks as a_ch
 import backend.artist_related.library.artist_library as a_l
 import backend.artist_related.library.log_library as l_l
 import backend.databases.firebase.firebase_interaction as f_i
@@ -83,13 +84,9 @@ class ArtistControl(cmds.Cog):
         guild_only=False,
         req_pa_mod=True
     )
+    @i_u.sustained_command()
     async def artistverify(self, ctx: cmds.Context, _type: str, artist_id: int, action: str, reason: str = None):
-        try:
-            artist: a_l.Default = a_l.get_artist_by_id(artist_id)
-            artist.get_logs()
-        except req.exceptions.HTTPError:
-            await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
-            return
+        artist = await a_ch.get_artist_by_id(ctx, artist_id)
 
         if artist.states.status.get_name() != "Pending":
             await s_e.send_error(ctx, f"The artist `{artist.name}` is not pending! You must have an artist that is pending!")
@@ -192,20 +189,16 @@ class ArtistControl(cmds.Cog):
         ]
     )
     async def artistsearch(self, ctx: cmds.Context, term: str | int):
-        search_result = a_l.search_for_artist(term)
         try:
             term = int(term)
         except (ValueError, TypeError):
             pass
 
         if isinstance(term, int):
-            try:
-                artist: a_l.Default = a_l.get_artist_by_id(term)
-                await ctx.send(embed=await artist.generate_embed())
-            except req.exceptions.HTTPError:
-                await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
-            return
+            artist = await a_ch.get_artist_by_id(ctx, term)
+            await ctx.send(embed=await artist.generate_embed())
 
+        search_result = a_l.search_for_artist(term)
         if search_result is None:
             await s_e.send_error(ctx, "Your search term has no results. The artist might also be pending, in which case you can try `##artistsearch <id>` instead. Try again?")
             return
