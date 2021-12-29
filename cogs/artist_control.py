@@ -81,21 +81,29 @@ class ArtistControl(cmds.Cog):
         guild_only=False
     )
     @i_u.sustained_command()
-    async def artistrequestedit(self, ctx: cmds.Context, artist_id: int):
+    async def artistrequestedit(self, ctx: cmds.Context, artist_id: int, *skips):
+        if f_i.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
+            await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.", send_author=True)
+            return
+        
         if not isinstance(ctx.channel, nx.channel.DMChannel):
             await ctx.send("The artist `edit request` form is sent to your DMs. Please check it.")
 
         artist = await a_ch.get_artist_by_id(ctx, artist_id)
-        await artist.set_attribute(ctx, a_l.Default.Functions.proof)
-        await artist.edit_loop(ctx)
+
+        if "no_init" not in skips:
+            await artist.set_attribute(ctx, a_l.Default.Functions.proof)
+            await artist.edit_loop(ctx)
 
         await ctx.author.send("Sending `edit request`...")
         a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
 
+        artist.get_logs()
+
         old_artist = a_l.get_artist_by_id_vadb(artist_id)
 
         if artist == old_artist:
-            await s_e.send_error(ctx, "You didn't make any edits!")
+            await s_e.send_error(ctx, "You didn't make any edits!", send_author=True)
             return
 
         old_artist.states.status.value = 2
@@ -121,6 +129,8 @@ class ArtistControl(cmds.Cog):
     )
     @i_u.sustained_command()
     async def artistverify(self, ctx: cmds.Context, _type: str, artist_id: int, action: str, reason: str = None):
+        await ctx.send("Getting data...")
+
         artist = await a_ch.get_artist_by_id(ctx, artist_id)
 
         if artist.states.status.get_name() != "Pending":
@@ -169,7 +179,8 @@ class ArtistControl(cmds.Cog):
 
             confirm = Confirm()
             await ctx.send(f"Are you sure that you want to `{action}` this `{_type} request`?\nThis command times out in `{o_f.format_time(timeout)}`.")
-            message = await ctx.send(embed=await artist_obj.generate_embed(), view=confirm)
+            await ctx.send(embed=await artist_obj.generate_embed(), view=confirm)
+            message = await ctx.send(artist_obj.proof)
 
             def check_button(interact: nx.Interaction):
                 return ctx.author.id == interact.user.id and interact.message.id == message.id
@@ -233,6 +244,8 @@ class ArtistControl(cmds.Cog):
                         await send_logs_and_dms(artist_from_fb, f"The `edit request` has been declined for `{artist_from_fb.name}` due to the following reason: `{reason}`.", f"Your pending `edit request` for `{artist_from_fb.name}` has been denied due to the following reason:\n`{reason}`")
 
                 await action_choice()
+
+                await artist_from_fb.delete_logs()
 
         await _type_choice()
 

@@ -55,6 +55,7 @@ class Dataclass():
     def __eq__(self, other: Dataclass):
         if self.__class__ != other.__class__:
             return False
+
         return self.get_dict() == other.get_dict()
 
 

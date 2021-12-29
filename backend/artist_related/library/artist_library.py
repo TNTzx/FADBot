@@ -216,6 +216,19 @@ class Default(dt.StandardDataclass, ArtistStructure):
             }
 
 
+    def __eq__(self, other: Default):
+        if self.__class__ != other.__class__:
+            return False
+
+        self_new = self
+        other_new = other
+
+        self_new.discord_info.logs = None
+        other_new.discord_info.logs = None
+        return dt.Dataclass.__eq__(self_new, other_new)
+
+
+
     async def generate_embed(self, editing=False):
         """Generates an embed."""
 
@@ -245,8 +258,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         if aliases != Default().details.aliases:
             aliases = [alias.name for alias in aliases if o_f.is_not_blank_str(alias.name)]
             if o_f.is_not_empty(aliases):
-                alias_list = [alias['name'] for alias in aliases]
-                aliases = f"`{'`, `'.join(alias_list)}`"
+                aliases = f"`{'`, `'.join(aliases)}`"
             else:
                 aliases = "No aliases!"
         else:
@@ -580,7 +592,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
         return [l_l.Log().from_dict({
             "message": log_message,
-            "user_id": user_id
+            "user_id": str(user_id)
         }) for log_message in log_messages]
 
     async def post_log(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, user_id: int):
@@ -623,7 +635,10 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 await main_message.delete()
                 await proof_message.delete()
 
-            f_i.delete_data(log_type.path + [str(self.vadb_info.artist_id)])
+            try:
+                f_i.delete_data(log_type.path + [str(self.vadb_info.artist_id)])
+            except c_exc.FirebaseNoEntry:
+                pass
 
         self.discord_info.logs.pending = await delete_log(self.discord_info.logs.pending, l_l.LogTypes.PENDING)
         self.discord_info.logs.editing = await delete_log(self.discord_info.logs.editing, l_l.LogTypes.EDITING)
