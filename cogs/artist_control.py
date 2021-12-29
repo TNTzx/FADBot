@@ -125,7 +125,7 @@ class ArtistControl(cmds.Cog):
         async def send_logs_and_dms(artist_obj: a_l.Default, logs_message: str, dm_message: str):
             await ctx.send(logs_message, embed=await artist_obj.generate_embed())
             async def parse_logs(log_list: list[l_l.Log]):
-                if log_list is None:
+                if log_list == a_l.Default().discord_info.logs.pending:
                     return
                 if len(log_list) == 0:
                     return

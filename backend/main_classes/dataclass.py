@@ -35,12 +35,20 @@ class Dataclass():
                     obj.value = value
             elif isinstance(value, dict):
                 setattr(self, key, obj.from_dict(value))
+            elif isinstance(value, list):
+                for item in value:
+                    return [obj[0].from_dict(item)]
             else:
                 setattr(self, key, value)
         return self
 
     def __repr__(self) -> str:
-        return str(self.get_dict())
+        return f"Dataclass: {self.get_dict()}"
+    
+    def __eq__(self, other):
+        if self.__class__ != other.__class__:
+            return False
+        return self.__dict__ == other.__dict__
 
 
 class DataclassSub(Dataclass):

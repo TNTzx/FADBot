@@ -85,8 +85,8 @@ class Default(dt.StandardDataclass, ArtistStructure):
             pending: list[o_f.Log]
             editing: list[o_f.Log]"""
             def __init__(self):
-                self.pending = None
-                self.editing = None
+                self.pending = l_l.Log()
+                self.editing = l_l.Log()
 
     class States(dt.DataclassSub):
         """Stores the state of the artist in the verification process.\n
