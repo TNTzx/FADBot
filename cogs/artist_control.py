@@ -86,6 +86,7 @@ class ArtistControl(cmds.Cog):
             await ctx.send("The artist `edit request` form is sent to your DMs. Please check it.")
 
         artist = await a_ch.get_artist_by_id(ctx, artist_id)
+        await artist.set_attribute(ctx, a_l.Default.Functions.proof)
         await artist.edit_loop(ctx)
 
         await ctx.author.send("Sending `edit request`...")
