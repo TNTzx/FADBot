@@ -238,10 +238,13 @@ class Default(dt.StandardDataclass, ArtistStructure):
         embed.add_field(name=f"Name{edit_format('name')}:", value=f"**{self.name}**")
 
 
-        aliases = self.details.aliases
+        aliases: list[str] | None = self.details.aliases
+
         if aliases is not None:
-            alias_list = [alias['name'] for alias in aliases]
-            aliases = f"`{'`, `'.join(alias_list)}`"
+            aliases = [alias for alias in aliases if o_f.is_not_blank_str(alias)]
+            if not o_f.check_if_empty(aliases):
+                alias_list = [alias['name'] for alias in aliases]
+                aliases = f"`{'`, `'.join(alias_list)}`"
         else:
             aliases = "No aliases!"
         embed.add_field(name=f"Aliases{edit_format('aliases')}:", value=aliases)
@@ -832,7 +835,11 @@ def get_artist_by_id_vadb(artist_id: int):
     return artist
 
 def get_artist_by_id_fb(log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, artist_id: int):
-    return Default(f_i.get_data(log_type.path + [str(artist_id)]))
+    """Gets an artist from Firebase by ID and log type."""
+    diction = f_i.get_data(log_type.path + [str(artist_id)])
+    artist = Default()
+    artist.from_dict(diction)
+    return artist
 
 def create_log_list(logs):
     """Creates a list of log objects."""
