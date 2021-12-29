@@ -93,6 +93,11 @@ class ArtistControl(cmds.Cog):
         a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
 
         old_artist = a_l.get_artist_by_id_vadb(artist_id)
+
+        if artist == old_artist:
+            await s_e.send_error(ctx, "You didn't make any edits!")
+            return
+
         old_artist.states.status.value = 2
         a_l.VADB.Send.Edit(old_artist).send_data(old_artist.vadb_info.artist_id)
 
@@ -125,7 +130,7 @@ class ArtistControl(cmds.Cog):
         async def send_logs_and_dms(artist_obj: a_l.Default, logs_message: str, dm_message: str):
             await ctx.send(logs_message, embed=await artist_obj.generate_embed())
             async def parse_logs(log_list: list[l_l.Log]):
-                if log_list == a_l.Default().discord_info.logs.pending:
+                if log_list[0].user_id == None:
                     return
                 if len(log_list) == 0:
                     return

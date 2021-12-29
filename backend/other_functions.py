@@ -84,12 +84,12 @@ def is_not_blank_str(string: str | None):
         return False
     return True
 
-def check_if_empty(variable):
+def is_not_empty(variable):
     """Returns the variable if it is not None or not an empty iterable."""
     if variable is not None:
-        if len(variable) == 0:
-            return None
-    return variable
+        if len(variable) != 0:
+            return True
+    return False
 
 def remove_none_in_list(_list: list):
     """Removes all instances of None in a list."""

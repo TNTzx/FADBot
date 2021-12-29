@@ -85,8 +85,8 @@ class Default(dt.StandardDataclass, ArtistStructure):
             pending: list[o_f.Log]
             editing: list[o_f.Log]"""
             def __init__(self):
-                self.pending = l_l.Log()
-                self.editing = l_l.Log()
+                self.pending = [l_l.Log()]
+                self.editing = [l_l.Log()]
 
     class States(dt.DataclassSub):
         """Stores the state of the artist in the verification process.\n
@@ -112,7 +112,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
             self.availability: mot.Match = mot.Match(availability_dict, 2)
 
             self.usage_rights: list[dict[str, str]] = None
-            self.usage_rights = o_f.check_if_empty(self.usage_rights)
 
     class Details(dt.DataclassSub):
         """Stores details of the artist.
@@ -126,12 +125,15 @@ class Default(dt.StandardDataclass, ArtistStructure):
         def __init__(self):
             self.description = None
             self.notes = None
-            self.aliases = None
-            self.aliases = o_f.check_if_empty(self.aliases)
+            self.aliases = [self.Alias()]
             self.images = self.Images()
             self.music_info = self.MusicInfo()
             self.socials = None
-            self.socials = o_f.check_if_empty(self.socials)
+        
+        class Alias(dt.DataclassSub):
+            """Stores an alias."""
+            def __init__(self) -> None:
+                self.name = None
 
         class Images(dt.DataclassSub):
             """Stores the images of the artist.
@@ -238,13 +240,15 @@ class Default(dt.StandardDataclass, ArtistStructure):
         embed.add_field(name=f"Name{edit_format('name')}:", value=f"**{self.name}**")
 
 
-        aliases: list[str] | None = self.details.aliases
+        aliases = self.details.aliases
 
-        if aliases is not None:
-            aliases = [alias for alias in aliases if o_f.is_not_blank_str(alias)]
-            if not o_f.check_if_empty(aliases):
+        if aliases != Default().details.aliases:
+            aliases = [alias.name for alias in aliases if o_f.is_not_blank_str(alias.name)]
+            if o_f.is_not_empty(aliases):
                 alias_list = [alias['name'] for alias in aliases]
                 aliases = f"`{'`, `'.join(alias_list)}`"
+            else:
+                aliases = "No aliases!"
         else:
             aliases = "No aliases!"
         embed.add_field(name=f"Aliases{edit_format('aliases')}:", value=aliases)
@@ -268,7 +272,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         embed.add_field(name=f"Availability{edit_format('availability')}:", value=availability)
 
         usage_rights = self.states.usage_rights
-        if o_f.check_if_empty(usage_rights):
+        if o_f.is_not_empty(usage_rights):
             usage_list = []
             for entry in usage_rights:
                 status_rights = entry["value"]
@@ -280,7 +284,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
 
         socials = self.details.socials
-        if o_f.check_if_empty(socials):
+        if o_f.is_not_empty(socials):
             socials_list = []
             for entry in socials:
                 link_type: str = entry["type"]
@@ -435,7 +439,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 skippable=True
             )
             if aliases is not None:
-                self.details.aliases = [{"name": alias} for alias in aliases]
+                self.details.aliases = [Default.Details.Alias().from_dict({"name": alias}) for alias in aliases]
         elif check(functions.avatar_url):
             avatar_url = await ask.wait_for_response(ctx,
                 "Send an image to an avatar of the artist.",
@@ -574,7 +578,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
             log_messages.append(log_message)
 
-        return [l_l.Log({
+        return [l_l.Log().from_dict({
             "message": log_message,
             "user_id": user_id
         }) for log_message in log_messages]
@@ -682,7 +686,7 @@ class VADB:
                         "availability": data.states.availability.value,
                         "usageRights": data.states.usage_rights,
 
-                        "aliases": data.details.aliases,
+                        "aliases": [{"name": alias.name} for alias in data.details.aliases],
                         "description": data.details.description,
                         "notes": data.details.notes,
                         "tracks": data.details.music_info.tracks,
@@ -748,7 +752,7 @@ class VADB:
             return {
                 "id": data.vadb_info.artist_id,
                 "name": data.name,
-                "aliases": data.details.aliases,
+                "aliases": [{"name": alias.name} for alias in data.details.aliases],
                 "description": data.details.description,
                 "tracks": data.details.music_info.tracks,
                 "genre": data.details.music_info.genre,
