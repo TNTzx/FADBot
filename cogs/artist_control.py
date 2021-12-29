@@ -29,7 +29,7 @@ class ArtistControl(cmds.Cog):
 
     @c_w.command(
         category=c_w.Categories.artist_management,
-        description=f"Requests an artist to be added to the database. Times out after `{o_f.format_time(60 * 2)}`.",
+        description="Requests an artist to be added to the database.",
         aliases=["ara"],
         guild_only=False
     )
@@ -66,18 +66,39 @@ class ArtistControl(cmds.Cog):
                 await s_e.send_error(ctx, "The artist may already be pending, or this artist already exists! I warned you about it! >:(", send_author=True)
                 return
 
-        await ctx.author.send("The artist verification form has been submitted. Please wait for an official moderator to approve your submission.")
+        await ctx.author.send("The `add request` has been submitted. Please wait for an official moderator to approve your submission.")
 
         await data.post_log(l_l.LogTypes.PENDING, ctx.author.id)
 
 
     @c_w.command(
         category=c_w.Categories.artist_management,
+        description="Requests an artist to be edited in the database.",
+        parameters={
+            "id": "Artist ID to edit."
+        },
+        aliases=["are"],
+        guild_only=False
+    )
+    @i_u.sustained_command()
+    async def artistrequestedit(self, ctx: cmds.Context, artist_id: int):
+        artist = await a_ch.get_artist_by_id(ctx, artist_id)
+        artist.edit_loop(ctx)
+
+        await ctx.send("Sending `edit request`...")
+        a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
+        await ctx.author.send("The `edit request` has been submitted. Please wait for an official moderator to approve your submission.")
+
+        await artist.post_log(l_l.LogTypes.EDITING, ctx.author.id)
+
+
+    @c_w.command(
+        category=c_w.Categories.artist_management,
         description="Accepts / declines the request.",
         parameters={
-            "[add / edit]": "Chooses whether or not the request to be verified is to `add` an artist or `edit` an artist.",
+            "[\"add\" / \"edit\"]": "Chooses whether or not the request to be verified is to `add` an artist or `edit` an artist.",
             "id": "Artist ID to verify.",
-            "[accept / decline]": "Accepts or declines the verification submission. `accept` to mark the artist as completed, or `decline` to delete the submission.",
+            "[\"accept\" / \"decline\"]": "Accepts or declines the verification submission. `accept` to mark the artist as completed, or `decline` to delete the submission.",
             "reason": "Reason for declining the verification submission. Only required if you choose `decline`. Surround with quotes."
         },
         aliases=["av"],
@@ -155,6 +176,8 @@ class ArtistControl(cmds.Cog):
                     await confirm_verify()
                     if action == "accept":
                         artist.states.status.value = 0
+
+                        await ctx.send("Verifying `add request`...")
                         a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
                         await send_logs_and_dms(f"The add request has been accepted for `{artist.name}`!", f"Your pending add request for `{artist.name}` has been accepted!")
                     if action == "decline":
