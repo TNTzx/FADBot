@@ -23,6 +23,8 @@ import backend.main_library.other as m_o
 
 TIMEOUT = 60 * 10
 
+TIMEOUT_MESSAGE = "Command timed out. Please use the command again."
+
 
 async def send_error(ctx, suffix):
     """Sends an error, but with a syntax."""
@@ -34,7 +36,7 @@ async def wait_for_response(ctx: cmds.Context, timeout=TIMEOUT):
         response: nx.Message = await vrs.global_bot.wait_for("message", check=w_f_ch.check_message(ctx), timeout=timeout)
 
     except asyncio.TimeoutError as exc:
-        await s_e.send_error(ctx, "Command timed out. Please use the command again.")
+        await s_e.send_error(ctx, TIMEOUT_MESSAGE)
         raise c_e.ExitFunction("Exited Function.") from exc
     return response
 
@@ -68,8 +70,8 @@ async def wait_for_response_view(ctx: cmds.Context, original_message: nx.Message
     done, pending = await asyncio.wait(events, timeout=TIMEOUT, return_when=asyncio.FIRST_COMPLETED)
 
     if len(done) == 0:
-        await ctx.send("AAAAAAAAAAAAA timeout >:(")
-        return
+        await s_e.send_error(ctx, TIMEOUT_MESSAGE)
+        raise c_e.ExitFunction("Exited Function.")
 
     result: asyncio.Task = done.pop()
     result = result.result()
