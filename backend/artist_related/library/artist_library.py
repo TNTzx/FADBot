@@ -24,7 +24,7 @@ import backend.main_library.dataclass as dt
 import backend.main_library.other as mot
 import backend.main_library.message_pointer as m_p
 import backend.main_library.asking.wait_for as w_f
-import backend.artist_related.library.ask_attr as ask_a
+import backend.artist_related.library.ask_for_attr.ask_attr as ask_a
 import backend.artist_related.library.log_library as l_l
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.vadb.vadb_interact as v_i
