@@ -44,9 +44,10 @@ class ExampleView(nx.ui.View):
     def __init__(self):
         super().__init__()
         self.value = None
-    
+
     @nx.ui.button(label="one", style=nx.ButtonStyle.green)
     async def button_one(self, button: nx.ui.Button, interact: nx.Interaction):
+        """Button!"""
         self.value = "one"
         self.stop()
 

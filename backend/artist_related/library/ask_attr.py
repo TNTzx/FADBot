@@ -7,6 +7,7 @@ Used for setting artist objects attributes."""
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
+# pylint: disable=unused-argument
 
 import requests as req
 import nextcord as nx
@@ -135,6 +136,19 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
         return await listing()
     elif output_type == OutputTypes.dictionary:
         return await dictionary()
+
+
+class Cancel(nx.ui.View):
+    """An example view."""
+    def __init__(self):
+        super().__init__()
+        self.value = None
+
+    @nx.ui.button(label="one", style=nx.ButtonStyle.green)
+    async def button_one(self, button: nx.ui.Button, interact: nx.Interaction):
+        """Button!"""
+        self.value = "one"
+        self.stop()
 
 async def ask_attribute(ctx: cmds.Context,
         title, description, output_type,
