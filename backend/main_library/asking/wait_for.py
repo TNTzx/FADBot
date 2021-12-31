@@ -64,7 +64,11 @@ async def wait_for_response_view(ctx: cmds.Context, original_message: nx.Message
         vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx, original_message))
     ]
 
-    done, pending = await asyncio.wait(events, return_when=asyncio.FIRST_COMPLETED)
+    done, pending = await asyncio.wait(events, timeout=TIMEOUT, return_when=asyncio.FIRST_COMPLETED)
+
+    if len(done) == 0:
+        await ctx.send("AAAAAAAAAAAAA timeout >:(")
+        return
 
     result: asyncio.Task = done.pop()
     result = result.result()
