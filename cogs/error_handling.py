@@ -57,12 +57,12 @@ class ErrorHandler(cmds.Cog):
             if isinstance(exc.original, c_e.ExitFunction):
                 return
 
-            if hasattr(exc.original, "status"): 
+            if hasattr(exc.original, "status"):
                 if exc.original.status == 403:
                     error_message = f"Forbidden from sending. Code {exc.original.code}: {exc.original.text}"
                     lgr.log_global_exc.warning(error_message)
                     return
-            
+
             if isinstance(exc.original, asyncio.TimeoutError):
                 await s_e.send_error(ctx, "Command timed out. Please run the command again.")
 

@@ -37,7 +37,7 @@ async def wait_for_response(ctx: cmds.Context, timeout=TIMEOUT):
 
     except asyncio.TimeoutError as exc:
         await s_e.send_error(ctx, TIMEOUT_MESSAGE)
-        raise c_e.ExitFunction("Exited Function.") from exc
+        raise c_e.ExitFunction() from exc
     return response
 
 
@@ -71,7 +71,7 @@ async def wait_for_response_view(ctx: cmds.Context, original_message: nx.Message
 
     if len(done) == 0:
         await s_e.send_error(ctx, TIMEOUT_MESSAGE)
-        raise c_e.ExitFunction("Exited Function.")
+        raise c_e.ExitFunction()
 
     result: asyncio.Task = done.pop()
     result = result.result()
@@ -82,6 +82,6 @@ async def wait_for_response_view(ctx: cmds.Context, original_message: nx.Message
     if isinstance(result, nx.Message):
         return MessageViewCheck.message, result
     if isinstance(result, nx.Interaction):
-        return MessageViewCheck.view, view.value
+        return MessageViewCheck.view, view
 
     raise c_e.InvalidResponse

@@ -81,7 +81,7 @@ class Hello(cmds.Cog):
         show_help=False
     )
     async def causeerror(self, ctx):
-        raise c_e.ExitFunction("caused error!")
+        raise c_e.ExitFunction()
 
 def setup(bot):
     bot.add_cog(Hello(bot))

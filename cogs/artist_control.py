@@ -200,7 +200,7 @@ class ArtistControl(cmds.Cog):
             if confirm.value:
                 return
             await ctx.send("Cancelled.")
-            raise c_e.ExitFunction("Exited Function.")
+            raise c_e.ExitFunction()
 
 
         def log_verify(artist_obj: a_l.Default):
@@ -241,7 +241,7 @@ class ArtistControl(cmds.Cog):
                     artist_from_fb = a_l.get_artist_by_id_fb(l_l.LogTypes.EDITING, artist.vadb_info.artist_id)
                 except c_e.FirebaseNoEntry as exc:
                     await s_e.send_error(ctx, "The artist doesn't have a pending edit request!")
-                    raise c_e.ExitFunction("Exited Function.") from exc
+                    raise c_e.ExitFunction() from exc
 
                 @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
                 async def action_choice():

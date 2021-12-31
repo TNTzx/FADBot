@@ -174,7 +174,7 @@ async def ask_attribute(ctx: cmds.Context,
 
         if response.content == f"{vrs.CMD_PREFIX}cancel":
             await ctx.author.send("Command cancelled.")
-            raise c_e.ExitFunction("Exited Function.")
+            raise c_e.ExitFunction()
         elif response.content == f"{vrs.CMD_PREFIX}skip":
             if skippable:
                 await ctx.author.send("Section skipped.")
