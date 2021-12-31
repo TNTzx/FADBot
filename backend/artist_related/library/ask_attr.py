@@ -1,4 +1,5 @@
-"""Module that contains functions for waiting for responses."""
+"""Module that contains functions for waiting for responses.
+Used for setting artist objects attributes."""
 
 # pylint: disable=line-too-long
 # pylint: disable=no-else-raise
@@ -7,33 +8,17 @@
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
 
-import asyncio
 import requests as req
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
+import backend.main_library.asking.wait_for as w_f
 import backend.exceptions.custom_exc as c_e
-import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
 TIMEOUT = 60 * 10
-
-async def send_error(ctx, suffix):
-    """Sends an error, but with a syntax."""
-    await s_e.send_error(ctx, f"{suffix} Try again.", send_author=True)
-
-async def waiting(ctx: cmds.Context):
-    """Wait for a message then return the response."""
-    try:
-        check = lambda msg: ctx.author.id == msg.author.id and isinstance(msg.channel, nx.channel.DMChannel)
-        response: nx.Message = await vrs.global_bot.wait_for("message", check=check, timeout=TIMEOUT)
-
-    except asyncio.TimeoutError as exc:
-        await s_e.send_error(ctx, "Command timed out. Please use the command again.")
-        raise c_e.ExitFunction("Exited Function.") from exc
-    return response
 
 
 async def check_has_required(choices):
@@ -47,22 +32,23 @@ async def check_has_dict(choices, choices_dict):
         return len(choices_dict) > 0
     return False
 
+
 async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, choices: list[str] = None, choices_dict: list[str] = None,):
     """Reformats the response."""
     async def number():
         if not response.content.isnumeric():
-            await send_error(ctx, "That's not a number!")
+            await w_f.send_error(ctx, "That's not a number!")
             return None
         return int(response.content)
 
     async def text():
         if await check_has_required(choices):
             if not response.content.lower() in [x.lower() for x in choices]:
-                await send_error(ctx, "You didn't send a choice in the list of choices!")
+                await w_f.send_error(ctx, "You didn't send a choice in the list of choices!")
                 return None
             return response.content.lower()
         if response.content == "":
-            await send_error(ctx, "You didn't send anything!")
+            await w_f.send_error(ctx, "You didn't send anything!")
             return None
         return response.content
 
@@ -71,7 +57,7 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
             try:
                 req.head(url)
             except req.exceptions.RequestException as exc:
-                await send_error(ctx, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
+                await w_f.send_error(ctx, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
                 return None
             return url
 
@@ -89,11 +75,11 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
             try:
                 image_request = req.head(image_url)
             except req.exceptions.RequestException as exc:
-                await send_error(ctx, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
+                await w_f.send_error(ctx, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
                 return None
 
             if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
-                await send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
+                await w_f.send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
                 return None
 
             return image_url
@@ -129,11 +115,11 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
                 else:
                     entry_dict[item[0]] = item[1].lower()
             except (KeyError, IndexError):
-                await send_error(ctx, "Your formatting is wrong!")
+                await w_f.send_error(ctx, "Your formatting is wrong!")
                 return None
 
             if not item[1].lower() in [x.lower() for x in choices_dict]:
-                await send_error(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join(choices_dict)}`")
+                await w_f.send_error(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join(choices_dict)}`")
                 return None
         return entry_dict
 
@@ -150,7 +136,7 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
     elif output_type == OutputTypes.dictionary:
         return await dictionary()
 
-async def wait_for_response(ctx: cmds.Context,
+async def ask_attribute(ctx: cmds.Context,
         title, description, output_type,
         choices: list[str] = None, choices_dict: list[str] = None,
         skippable=False, skip_default=None):
@@ -158,27 +144,31 @@ async def wait_for_response(ctx: cmds.Context,
 
     success = True
     while success:
-        title_form = title if not skippable else f"{title} (skippable)"
-        embed = nx.Embed(title=title_form, description=description, colour=0xFFAEAE)
-        embed.add_field(name="_ _", value="_ _", inline=False)
+        async def generate_embed():
+            title_form = title if not skippable else f"{title} (skippable)"
 
-        field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
+            embed = nx.Embed(title=title_form, description=description, colour=0xFFAEAE)
+            embed.add_field(name="_ _", value="_ _", inline=False)
 
-        if not await check_has_required(choices):
-            field_desc = f"__Here is an example of what you have to send:__\n`{output_type['example']}`"
-            embed.add_field(name=field_name, value=field_desc, inline=False)
-        else:
-            field_desc = f"Choose from one of the following choices: \n`{'`, `'.join(choices)}`"
-            embed.add_field(name=field_name, value=field_desc, inline=False)
+            field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
 
-        embed.add_field(name="_ _", value="_ _", inline=False)
+            if not await check_has_required(choices):
+                field_desc = f"__Here is an example of what you have to send:__\n`{output_type['example']}`"
+                embed.add_field(name=field_name, value=field_desc, inline=False)
+            else:
+                field_desc = f"Choose from one of the following choices: \n`{'`, `'.join(choices)}`"
+                embed.add_field(name=field_name, value=field_desc, inline=False)
 
-        skip_str = f"This command times out in {o_f.format_time(TIMEOUT)}. \nUse {vrs.CMD_PREFIX}cancel to cancel the current command." + (f"\nUse {vrs.CMD_PREFIX}skip to skip this section." if skippable else "")
-        embed.set_footer(text=skip_str)
+            embed.add_field(name="_ _", value="_ _", inline=False)
 
-        await ctx.author.send(embed=embed)
+            skip_str = f"This command times out in {o_f.format_time(TIMEOUT)}. \nUse {vrs.CMD_PREFIX}cancel to cancel the current command." + (f"\nUse {vrs.CMD_PREFIX}skip to skip this section." if skippable else "")
+            embed.set_footer(text=skip_str)
 
-        response = await waiting(ctx)
+            return embed
+
+        await ctx.author.send(embed=await generate_embed())
+
+        response = await w_f.wait_for_response(ctx)
 
         if response.content == f"{vrs.CMD_PREFIX}cancel":
             await ctx.author.send("Command cancelled.")
@@ -187,9 +177,8 @@ async def wait_for_response(ctx: cmds.Context,
             if skippable:
                 await ctx.author.send("Section skipped.")
                 return skip_default
-            else:
-                await send_error(ctx, "You can't skip this section!")
-                continue
+            await w_f.send_error(ctx, "You can't skip this section!")
+            continue
 
         response = await reformat(ctx, output_type, response, choices=choices, choices_dict=choices_dict)
         success = (response is None)

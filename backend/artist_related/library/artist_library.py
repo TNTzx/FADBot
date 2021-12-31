@@ -23,7 +23,8 @@ import global_vars.variables as vrs
 import backend.main_library.dataclass as dt
 import backend.main_library.other as mot
 import backend.main_library.message_pointer as m_p
-import backend.main_library.asking as ask
+import backend.main_library.asking.wait_for as w_f
+import backend.artist_related.library.ask_attr as ask_a
 import backend.artist_related.library.log_library as l_l
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.vadb.vadb_interact as v_i
@@ -367,18 +368,18 @@ class Default(dt.StandardDataclass, ArtistStructure):
             return attr == attrib
 
         if check(functions.name):
-            name = await ask.wait_for_response(ctx,
+            name = await ask_a.ask_attribute(ctx,
                 "Artist Name",
                 "Send the artist name.",
-                ask.OutputTypes.text,
+                ask_a.OutputTypes.text,
                 skippable=skippable
             )
 
             search_result = search_for_artist(name)
             if search_result is not None:
                 await ctx.author.send("Other artist(s) found with this name. Please check if you have a duplicate submission.\nUse `##cancel` if you think you have a different artist, or type anything to continue.\nIf you are submitting an artist with the same exact name as these results, try to add extra characters on the name to avoid duplicates.", embed=generate_search_embed(search_result))
-                response = await ask.waiting(ctx)
-                response = await ask.reformat(ctx, ask.OutputTypes.text, response)
+                response = await w_f.wait_for_response(ctx)
+                response = await ask_a.reformat(ctx, ask_a.OutputTypes.text, response)
 
                 if response == "##cancel":
                     return
@@ -387,19 +388,19 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 self.name = name
 
         elif check(functions.proof):
-            proof = await ask.wait_for_response(ctx,
+            proof = await ask_a.ask_attribute(ctx,
                 "Please send proof that you contacted the artist.",
                 "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
-                ask.OutputTypes.image,
+                ask_a.OutputTypes.image,
                 skippable=skippable
             )
             if proof is not None:
                 self.proof = proof
         elif check(functions.availability):
-            availability = await ask.wait_for_response(ctx,
+            availability = await ask_a.ask_attribute(ctx,
                 "Is the artist verified, disallowed, or does it vary between songs?",
                 "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n\"Disallowed\" means that the artist's songs cannot be used.\n\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed.",
-                ask.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
+                ask_a.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
                 skippable=skippable
             )
             if availability is not None:
@@ -410,10 +411,10 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 }
                 self.states.availability.value = dictionary[availability]
         elif check(functions.usage_rights):
-            usage_rights = await ask.wait_for_response(ctx,
+            usage_rights = await ask_a.ask_attribute(ctx,
                 "What are the usage rights for the artist?",
                 "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
-                ask.OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
+                ask_a.OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
                 skippable=True
             )
             usage_list = []
@@ -426,73 +427,73 @@ class Default(dt.StandardDataclass, ArtistStructure):
                     })
                 self.states.usage_rights = usage_list
         elif check(functions.description):
-            description = await ask.wait_for_response(ctx,
+            description = await ask_a.ask_attribute(ctx,
                 "Send a description about the artist.",
                 "You can put information about the artist here. Their bio, how their music is created, etc. could work.",
-                ask.OutputTypes.text,
+                ask_a.OutputTypes.text,
                 skippable=True
             )
             if description is not None:
                 self.details.description = description
         elif check(functions.notes):
-            notes = await ask.wait_for_response(ctx,
+            notes = await ask_a.ask_attribute(ctx,
                 "Notes",
                 "Send other notes you want to put in.",
-                ask.OutputTypes.text,
+                ask_a.OutputTypes.text,
                 skippable=True
             )
             if notes is not None:
                 self.details.notes = notes
         elif check(functions.aliases):
-            aliases = await ask.wait_for_response(ctx,
+            aliases = await ask_a.ask_attribute(ctx,
                 "Artist Aliases",
                 "Send other names that the artist goes by.",
-                ask.OutputTypes.listing,
+                ask_a.OutputTypes.listing,
                 skippable=True
             )
             if aliases is not None:
                 self.details.aliases = [Default.Details.Alias().from_dict({"name": alias}) for alias in aliases]
         elif check(functions.avatar_url):
-            avatar_url = await ask.wait_for_response(ctx,
+            avatar_url = await ask_a.ask_attribute(ctx,
                 "Send an image to an avatar of the artist.",
                 "This is the profile picture that the artist uses.",
-                ask.OutputTypes.image,
+                ask_a.OutputTypes.image,
                 skippable=True
             )
             if avatar_url is not None:
                 self.details.images.avatar_url = avatar_url
         elif check(functions.banner_url):
-            banner = await ask.wait_for_response(ctx,
+            banner = await ask_a.ask_attribute(ctx,
                 "Send an image to the banner of the artist.",
                 "This is the banner that the artist uses.",
-                ask.OutputTypes.image,
+                ask_a.OutputTypes.image,
                 skippable=True
             )
             if banner is not None:
                 self.details.images.banner_url = banner
         elif check(functions.tracks):
-            tracks = await ask.wait_for_response(ctx,
+            tracks = await ask_a.ask_attribute(ctx,
                 "How many tracks does the artist have?",
                 "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
-                ask.OutputTypes.number,
+                ask_a.OutputTypes.number,
                 skippable=True
             )
             if tracks is not None:
                 self.details.music_info.tracks = tracks
         elif check(functions.genre):
-            genre = await ask.wait_for_response(ctx,
+            genre = await ask_a.ask_attribute(ctx,
                 "What is the genre of the artist?",
                 "This is the type of music that the artist makes.",
-                ask.OutputTypes.text,
+                ask_a.OutputTypes.text,
                 skippable=True
             )
             if genre is not None:
                 self.details.music_info.genre = genre
         elif check(functions.socials):
-            socials = await ask.wait_for_response(ctx,
+            socials = await ask_a.ask_attribute(ctx,
                 "Put some links for the artist's social media here.",
                 "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
-                ask.OutputTypes.links,
+                ask_a.OutputTypes.links,
                 skippable=True
             )
             social_list = []
@@ -528,14 +529,14 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
             await ctx.author.send(embed=await self.generate_embed(editing=True))
 
-            message_obj: nx.Message = await ask.waiting(ctx)
+            message_obj: nx.Message = await w_f.wait_for_response(ctx)
             command = message_obj.content.split(" ")
 
             if command[0].startswith(f"{vrs.CMD_PREFIX}edit"):
                 command_to_get = command_dict.get(command[1] if len(command) > 1 else None, None)
 
                 if command_to_get is None:
-                    await ask.send_error(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
+                    await w_f.send_error(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
                     continue
 
                 await self.set_attribute(ctx, command_to_get, skippable=True)
@@ -547,7 +548,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 raise c_exc.ExitFunction("Exited Function.")
 
             else:
-                await ask.send_error(ctx, "You didn't send a command!")
+                await w_f.send_error(ctx, "You didn't send a command!")
 
     async def trigger_all_set_attributes(self, ctx: cmds.Context):
         """Triggers all attributes."""
