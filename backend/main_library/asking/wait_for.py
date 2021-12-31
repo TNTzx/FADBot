@@ -71,8 +71,10 @@ async def wait_for_response_view(ctx: cmds.Context, original_message: nx.Message
     for task in pending:
         task: asyncio.Task = task
         task.cancel()
-    
+
     if isinstance(result, nx.Message):
         return MessageViewCheck.message, result
-    elif isinstance(result, nx.Interaction):
+    if isinstance(result, nx.Interaction):
         return MessageViewCheck.view, view.value
+
+    raise c_e.InvalidResponse
