@@ -11,7 +11,7 @@ import requests as req
 
 import global_vars.variables as vrs
 import global_vars.loggers as lgr
-import backend.main_classes.choice_param as c_p
+import backend.main_library.choice_param as c_p
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
 import backend.artist_related.checks as a_ch

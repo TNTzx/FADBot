@@ -20,10 +20,10 @@ import nextcord.ext.commands as cmds
 import tldextract as tld
 
 import global_vars.variables as vrs
-import backend.main_classes.dataclass as dt
-import backend.main_classes.other as mot
-import backend.main_classes.message_pointer as m_p
-import backend.main_classes.asking as ask
+import backend.main_library.dataclass as dt
+import backend.main_library.other as mot
+import backend.main_library.message_pointer as m_p
+import backend.main_library.asking as ask
 import backend.artist_related.library.log_library as l_l
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.vadb.vadb_interact as v_i
