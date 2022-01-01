@@ -18,8 +18,9 @@ def select_factory(options: list[nx.SelectOption]):
     class SelectOptions(View):
         """A class for select options."""
         @nx.ui.select(placeholder="Select...", options=options)
-        async def select(self, button: nx.ui.Button, interact: nx.Interaction):
-            """el"""
+        async def select(self, select: nx.ui.Select, interact: nx.Interaction):
+            """Main select."""
+            self.value = select.values
             return
-    
+
     return SelectOptions

@@ -30,11 +30,11 @@ async def send_error(ctx, suffix):
     """Sends an error, but with a syntax."""
     await s_e.send_error(ctx, f"{suffix} Try again.", send_author=True)
 
-async def wait_for_response(ctx: cmds.Context, timeout=TIMEOUT):
+
+async def wait_for_message(ctx: cmds.Context, timeout=TIMEOUT):
     """Wait for a message then return the response."""
     try:
         response: nx.Message = await vrs.global_bot.wait_for("message", check=w_f_ch.check_message(ctx), timeout=timeout)
-
     except asyncio.TimeoutError as exc:
         await s_e.send_error(ctx, TIMEOUT_MESSAGE)
         raise c_e.ExitFunction() from exc
@@ -54,20 +54,30 @@ class ExampleView(nx.ui.View):
         self.stop()
 
 
+async def wait_for_view(ctx: cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout=TIMEOUT):
+    """Waits for an interaction."""
+    try:
+        await vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx, original_message), timeout=timeout)
+    except asyncio.TimeoutError as exc:
+        await s_e.send_error(ctx, TIMEOUT_MESSAGE)
+        raise c_e.ExitFunction() from exc
+    return view
+
+
 class MessageViewCheck:
     """A class containing identifiers for outputs of a message or a view."""
     message = m_o.Unique()
     view = m_o.Unique()
 
-async def wait_for_response_view(ctx: cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout=TIMEOUT):
-    """Waits for a message then returns that message. If instead it was a view interaction, return the value of that interaction."""
+async def wait_for_message_view(ctx: cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout=TIMEOUT):
+    """Waits for a message then returns that message. If instead it was a view interaction, return the view of that interaction."""
 
     events = [
         vrs.global_bot.wait_for("message", check=w_f_ch.check_message(ctx)),
         vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx, original_message))
     ]
 
-    done, pending = await asyncio.wait(events, timeout=TIMEOUT, return_when=asyncio.FIRST_COMPLETED)
+    done, pending = await asyncio.wait(events, timeout=timeout, return_when=asyncio.FIRST_COMPLETED)
 
     if len(done) == 0:
         await s_e.send_error(ctx, TIMEOUT_MESSAGE)

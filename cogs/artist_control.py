@@ -39,7 +39,10 @@ class ArtistControl(cmds.Cog):
         if not isinstance(ctx.channel, nx.channel.DMChannel):
             await ctx.send("The artist add request form is sent to your DMs. Please check it.")
 
-        await ctx.author.send("Reminder that this bot is made for a website!\nCheck it out! https://fadb.live/")
+        await ctx.author.send((
+            "Reminder that this bot is made for a website!\n"
+            "Check it out! https://fadb.live/"
+        ))
         await ctx.author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
 
         data = a_l.Default()
@@ -97,7 +100,7 @@ class ArtistControl(cmds.Cog):
         artist = await a_ch.get_artist_by_id(ctx, artist_id)
 
         if "no_init" not in skips:
-            await artist.set_attribute(ctx, a_l.Default.Functions.proof)
+            await artist.set_attribute(ctx, a_l.Default.Attributes.proof)
             await artist.edit_loop(ctx)
 
         await ctx.author.send("Sending `edit request`...")
@@ -188,7 +191,10 @@ class ArtistControl(cmds.Cog):
             timeout = 60
 
             confirm = Confirm()
-            await ctx.send(f"Are you sure that you want to `{action}` this `{_type} request`?\nThis command times out in `{o_f.format_time(timeout)}`.")
+            await ctx.send((
+                f"Are you sure that you want to `{action}` this `{_type} request`?\n"
+                f"This command times out in `{o_f.format_time(timeout)}`."
+            ))
             await ctx.send(embed=await artist_obj.generate_embed())
             message = await ctx.send(artist_obj.proof, view=confirm)
 
@@ -204,7 +210,10 @@ class ArtistControl(cmds.Cog):
 
 
         def log_verify(artist_obj: a_l.Default):
-            log_message = f"[VERIFY] [{_type.upper()}] [{action.upper()}]: {o_f.pr_print(artist_obj.get_dict())}\nReason: {reason}"
+            log_message = (
+                f"[VERIFY] [{_type.upper()}] [{action.upper()}]: {o_f.pr_print(artist_obj.get_dict())}\n"
+                f"Reason: {reason}"
+            )
             lgr.log_artist_control.info(log_message)
 
 
@@ -229,7 +238,12 @@ class ArtistControl(cmds.Cog):
 
                         await ctx.send("Declining `add request`...")
                         a_l.VADB.Send.Delete(artist).send_data()
-                        await send_logs_and_dms(artist, f"The `add request` has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending `add request` for `{artist.name}` has been denied due to the following reason:\n`{reason}`")
+                        await send_logs_and_dms(artist,
+                            f"The `add request` has been declined for `{artist.name}` due to the following reason: `{reason}`.", (
+                                f"Your pending `add request` for `{artist.name}` has been denied due to the following reason:\n"
+                                f"`{reason}`"
+                            )
+                        )
 
                 await action_choice()
 
@@ -258,7 +272,12 @@ class ArtistControl(cmds.Cog):
                             return
                         artist.states.status.value = 0
                         a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
-                        await send_logs_and_dms(artist_from_fb, f"The `edit request` has been declined for `{artist_from_fb.name}` due to the following reason: `{reason}`.", f"Your pending `edit request` for `{artist_from_fb.name}` has been denied due to the following reason:\n`{reason}`")
+                        await send_logs_and_dms(artist_from_fb,
+                            f"The `edit request` has been declined for `{artist_from_fb.name}` due to the following reason: `{reason}`.", (
+                                f"Your pending `edit request` for `{artist_from_fb.name}` has been denied due to the following reason:\n"
+                                f"`{reason}`"
+                            )
+                        )
 
                 await action_choice()
 
@@ -275,7 +294,10 @@ class ArtistControl(cmds.Cog):
         category=c_w.Categories.artist_management,
         description="Gets a specified artist by search term or VADB ID.",
         parameters={
-            "[<search term> | <ID>]": "If <search term> is used, then the command will return a list of artists for that search term.\nIf <ID> is used, then the bot will return the artist with that ID."
+            "[<search term> | <ID>]": (
+                "If <search term> is used, then the command will return a list of artists for that search term.\n"
+                "If <ID> is used, then the bot will return the artist with that ID."
+            )
         },
         aliases=["as"],
         guild_only=False,

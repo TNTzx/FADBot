@@ -24,7 +24,11 @@ async def send_error(ctx: commands.Context, suffix, exc="", other_data: nx.Messa
         if not other_data is None:
             extra = f"\nOther Data: `{vars(other_data)}"
 
-        await tntz.send(f"Error!\nCommand used: `{ctx.message.content}`{extra}\n```{exc}```")
+        await tntz.send((
+            "Error!\n"
+            f"Command used: `{ctx.message.content}`{extra}\n"
+            f"```{exc}```"
+        ))
 
     if send_console:
         error = getattr(exc, 'original', exc)

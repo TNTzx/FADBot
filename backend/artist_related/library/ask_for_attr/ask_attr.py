@@ -9,12 +9,14 @@ Used for setting artist objects attributes."""
 # pylint: disable=too-many-statements
 # pylint: disable=unused-argument
 
+import typing as typ
 import requests as req
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-import global_vars.variables as vrs
 import backend.main_library.asking.wait_for as w_f
+import backend.main_library.views as vw
+import backend.artist_related.library.ask_for_attr.views as a_f_a_v
 import backend.exceptions.custom_exc as c_e
 import backend.other_functions as o_f
 
@@ -58,7 +60,10 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
             try:
                 req.head(url)
             except req.exceptions.RequestException as exc:
-                await w_f.send_error(ctx, f"You didn't send valid links! Here's the error:\n```{str(exc)}```")
+                await w_f.send_error(ctx, (
+                    "You didn't send valid links! Here's the error:\n"
+                    f"```{str(exc)}```"
+                ))
                 return None
             return url
 
@@ -76,7 +81,10 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
             try:
                 image_request = req.head(image_url)
             except req.exceptions.RequestException as exc:
-                await w_f.send_error(ctx, f"You didn't send a valid image/link! Here's the error:\n```{str(exc)}```")
+                await w_f.send_error(ctx, (
+                    f"You didn't send a valid image/link! Here's the error:\n"
+                    f"```{str(exc)}```"
+                ))
                 return None
 
             if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
@@ -140,69 +148,131 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
 
 async def ask_attribute(ctx: cmds.Context,
         title, description, output_type,
+        add_view: typ.Type[vw.View] = a_f_a_v.Blank,
         choices: list[str] = None, choices_dict: list[str] = None,
         skippable=False, skip_default=None):
-    """Returns the response, but with checks."""
+    """Returns the response for setting attributes."""
 
-    success = True
-    while success:
-        async def generate_embed():
-            title_form = title if not skippable else f"{title} (skippable)"
+    async def generate_embed():
+        title_form = title if not skippable else f"{title} (skippable)"
 
-            embed = nx.Embed(title=title_form, description=description, colour=0xFFAEAE)
+        embed = nx.Embed(title=title_form, description=description, colour=0xFFAEAE)
+
+        def make_empty_field():
             embed.add_field(name="_ _", value="_ _", inline=False)
 
-            field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
+        make_empty_field()
 
-            if not await check_has_required(choices):
-                field_desc = f"__Here is an example of what you have to send:__\n`{output_type['example']}`"
-                embed.add_field(name=field_name, value=field_desc, inline=False)
-            else:
-                field_desc = f"Choose from one of the following choices: \n`{'`, `'.join(choices)}`"
-                embed.add_field(name=field_name, value=field_desc, inline=False)
+        field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
 
-            embed.add_field(name="_ _", value="_ _", inline=False)
+        if not await check_has_required(choices):
+            field_desc = (
+                "__Here is an example of what you have to send:__\n"
+                f"`{output_type['example']}`"
+            )
+        else:
+            field_desc = (
+                "Choose from one of the following choices: \n"
+                f"`{'`, `'.join(choices)}`"
+            )
 
-            skip_str = f"This command times out in {o_f.format_time(TIMEOUT)}. \nUse {vrs.CMD_PREFIX}cancel to cancel the current command." + (f"\nUse {vrs.CMD_PREFIX}skip to skip this section." if skippable else "")
-            embed.set_footer(text=skip_str)
+        embed.add_field(name=field_name, value=field_desc, inline=False)
 
-            return embed
+        make_empty_field()
 
-        await ctx.author.send(embed=await generate_embed())
+        skip_str = (
+            f"This command times out in `{o_f.format_time(TIMEOUT)}`.\n"
+            f"Click on the \"Skip\" button to skip this section." if skippable else ""
+            "Click on the \"Cancel\" button to cancel the current command.\n"
+        )
+        embed.set_footer(text=skip_str)
 
-        response = await w_f.wait_for_response(ctx)
+        return embed
 
-        if response.content == f"{vrs.CMD_PREFIX}cancel":
-            await ctx.author.send("Command cancelled.")
-            raise c_e.ExitFunction()
-        elif response.content == f"{vrs.CMD_PREFIX}skip":
-            if skippable:
-                await ctx.author.send("Section skipped.")
-                return skip_default
-            await w_f.send_error(ctx, "You can't skip this section!")
-            continue
+    def get_view_from_skippable():
+        if skippable:
+            class Merged(a_f_a_v.ViewCancelSkip, add_view):
+                """Cancel Skip with custom view."""
+        else:
+            class Merged(a_f_a_v.ViewCancelOnly, add_view):
+                """Cancel with custom view."""
+        return Merged
 
-        response = await reformat(ctx, output_type, response, choices=choices, choices_dict=choices_dict)
-        success = (response is None)
+    current_view_class = get_view_from_skippable()
+
+
+    while True:
+        current_view = current_view_class()
+        message = await ctx.author.send(
+            embed=await generate_embed(),
+            view = current_view
+        )
+
+        if not await check_has_required(choices):
+            response_type, response = await w_f.wait_for_message_view(ctx, message, current_view)
+            if response_type == w_f.MessageViewCheck.view:
+                if response.value == a_f_a_v.OutputValues.cancel:
+                    await ctx.author.send("Command cancelled.")
+                    raise c_e.ExitFunction()
+                elif response.value == a_f_a_v.OutputValues.skip:
+                    await ctx.author.send("Section skipped.")
+                    return skip_default
+
+            response = await reformat(ctx, output_type, response, choices=choices, choices_dict=choices_dict)
+            if response is not None:
+                break
+        else:
+            response = await w_f.wait_for_view(ctx, message, current_view)
+
     return response
 
 class OutputTypes:
     """Available output types for the wait_for_response() function."""
-    number = {"type": "number",
+    number = {
+        "type": "number",
         "prefix": "a",
-        "example": "1234531"}
-    text = {"type": "text",
+        "example": "1234531"
+    }
+    text = {
+        "type": "text",
         "prefix": "some",
-        "example": "This is a very cool string of text!"}
-    links = {"type": "links",
-        "prefix": "a list of",
-        "example": "https://www.youtube.com/FunnyArtistName\nhttps://open.spotify.com/AnotherFunnyArtistName"}
-    image = {"type": "image",
-        "prefix": "an",
-        "example": "https://cdn.discordapp.com/attachments/888419023237316609/894910496199827536/beanss.jpg`\n`(OR you can upload your images as attachments like normal!)"}
-    listing = {"type": "list",
-        "prefix": "a", "example":
-        "This is the first item on the list!\nThis is the second item on the list!\nThis is the third item on the list!"}
-    dictionary = {"type": "dictionary",
+        "example": "This is a very cool string of text!"
+    }
+    choice = {
+        "type": "choice",
         "prefix": "a",
-        "example": "Remixes: Disallowed\nA very specific song: Verified"}
+        "example": "Click on the dropdown to select!"
+    }
+    links = {
+        "type": "links",
+        "prefix": "a list of",
+        "example": (
+            "https://www.youtube.com/FunnyArtistName\n"
+            "https://open.spotify.com/AnotherFunnyArtistName"
+        )
+    }
+    image = {
+        "type": "image",
+        "prefix": "an",
+        "example": (
+            "https://cdn.discordapp.com/attachments/888419023237316609/894910496199827536/beanss.jpg`\n"
+            "`(OR you can upload your images as attachments like normal!)"
+        )
+    }
+    listing = {
+        "type": "list",
+        "prefix": "a",
+        "example": (
+            "This is the first item on the list!\n"
+            "This is the second item on the list!\n"
+            "This is the third item on the list!"
+        )
+    }
+    dictionary = {
+        "type": "dictionary",
+        "prefix": "a",
+        "example": (
+            "Remixes: Disallowed\n"
+            "A very specific song: Verified"
+        )
+    }

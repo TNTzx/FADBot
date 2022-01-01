@@ -314,7 +314,10 @@ class Default(dt.StandardDataclass, ArtistStructure):
         embed.add_field(name=f"Other notes{edit_format('notes')}:", value=notes)
 
         if editing:
-            embed.add_field(name=f"{edit_format('avatar_url')} for editing the avatar\n{edit_format('banner_url')} for editing the banner", value="_ _", inline=False)
+            embed.add_field(name=(
+                f"{edit_format('avatar_url')} for editing the avatar\n"
+                f"{edit_format('banner_url')} for editing the banner"
+            ), value="_ _", inline=False)
 
 
         color_keys = {
@@ -344,7 +347,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         return embed
 
 
-    class Functions:
+    class Attributes:
         """Contains identifiers for the set_attribute() function."""
         name = mot.Unique()
         proof = mot.Unique()
@@ -362,12 +365,12 @@ class Default(dt.StandardDataclass, ArtistStructure):
     async def set_attribute(self, ctx: cmds.Context, attr: mot.Unique, skippable=False):
         """Sets an attribute in this class."""
 
-        functions = self.Functions
+        attributes = self.Attributes
 
         def check(attrib):
             return attr == attrib
 
-        if check(functions.name):
+        if check(attributes.name):
             name = await ask_a.ask_attribute(ctx,
                 "Artist Name",
                 "Send the artist name.",
@@ -375,10 +378,17 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 skippable=skippable
             )
 
+            if name is None:
+                return
+
             search_result = search_for_artist(name)
             if search_result is not None:
-                await ctx.author.send("Other artist(s) found with this name. Please check if you have a duplicate submission.\nUse `##cancel` if you think you have a different artist, or type anything to continue.\nIf you are submitting an artist with the same exact name as these results, try to add extra characters on the name to avoid duplicates.", embed=generate_search_embed(search_result))
-                response = await w_f.wait_for_response(ctx)
+                await ctx.author.send((
+                    "Other artist(s) found with this name. Please check if you have a duplicate submission.\n"
+                    "Use `##cancel` if you think you have a different artist, or type anything to continue.\n"
+                    "If you are submitting an artist with the same exact name as these results, try to add extra characters on the name to avoid duplicates."
+                    ), embed=generate_search_embed(search_result))
+                response = await w_f.wait_for_message(ctx)
                 response = await ask_a.reformat(ctx, ask_a.OutputTypes.text, response)
 
                 if response == "##cancel":
@@ -387,7 +397,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             if name is not None:
                 self.name = name
 
-        elif check(functions.proof):
+        elif check(attributes.proof):
             proof = await ask_a.ask_attribute(ctx,
                 "Please send proof that you contacted the artist.",
                 "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
@@ -396,10 +406,14 @@ class Default(dt.StandardDataclass, ArtistStructure):
             )
             if proof is not None:
                 self.proof = proof
-        elif check(functions.availability):
+        elif check(attributes.availability):
             availability = await ask_a.ask_attribute(ctx,
                 "Is the artist verified, disallowed, or does it vary between songs?",
-                "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n\"Disallowed\" means that the artist's songs cannot be used.\n\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed.",
+                (
+                    "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n"
+                    "\"Disallowed\" means that the artist's songs cannot be used.\n"
+                    "\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed."
+                ),
                 ask_a.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
                 skippable=skippable
             )
@@ -410,7 +424,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                     "varies": 3,
                 }
                 self.states.availability.value = dictionary[availability]
-        elif check(functions.usage_rights):
+        elif check(attributes.usage_rights):
             usage_rights = await ask_a.ask_attribute(ctx,
                 "What are the usage rights for the artist?",
                 "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
@@ -426,7 +440,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                         "value": value
                     })
                 self.states.usage_rights = usage_list
-        elif check(functions.description):
+        elif check(attributes.description):
             description = await ask_a.ask_attribute(ctx,
                 "Send a description about the artist.",
                 "You can put information about the artist here. Their bio, how their music is created, etc. could work.",
@@ -435,7 +449,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             )
             if description is not None:
                 self.details.description = description
-        elif check(functions.notes):
+        elif check(attributes.notes):
             notes = await ask_a.ask_attribute(ctx,
                 "Notes",
                 "Send other notes you want to put in.",
@@ -444,7 +458,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             )
             if notes is not None:
                 self.details.notes = notes
-        elif check(functions.aliases):
+        elif check(attributes.aliases):
             aliases = await ask_a.ask_attribute(ctx,
                 "Artist Aliases",
                 "Send other names that the artist goes by.",
@@ -453,7 +467,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             )
             if aliases is not None:
                 self.details.aliases = [Default.Details.Alias().from_dict({"name": alias}) for alias in aliases]
-        elif check(functions.avatar_url):
+        elif check(attributes.avatar_url):
             avatar_url = await ask_a.ask_attribute(ctx,
                 "Send an image to an avatar of the artist.",
                 "This is the profile picture that the artist uses.",
@@ -462,7 +476,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             )
             if avatar_url is not None:
                 self.details.images.avatar_url = avatar_url
-        elif check(functions.banner_url):
+        elif check(attributes.banner_url):
             banner = await ask_a.ask_attribute(ctx,
                 "Send an image to the banner of the artist.",
                 "This is the banner that the artist uses.",
@@ -471,7 +485,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             )
             if banner is not None:
                 self.details.images.banner_url = banner
-        elif check(functions.tracks):
+        elif check(attributes.tracks):
             tracks = await ask_a.ask_attribute(ctx,
                 "How many tracks does the artist have?",
                 "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
@@ -480,7 +494,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             )
             if tracks is not None:
                 self.details.music_info.tracks = tracks
-        elif check(functions.genre):
+        elif check(attributes.genre):
             genre = await ask_a.ask_attribute(ctx,
                 "What is the genre of the artist?",
                 "This is the type of music that the artist makes.",
@@ -489,7 +503,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             )
             if genre is not None:
                 self.details.music_info.genre = genre
-        elif check(functions.socials):
+        elif check(attributes.socials):
             socials = await ask_a.ask_attribute(ctx,
                 "Put some links for the artist's social media here.",
                 "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
@@ -508,7 +522,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
     async def edit_loop(self, ctx: cmds.Context):
         """Initiates an edit loop to edit the attributes."""
-        functions = self.Functions
+        functions = self.Attributes
         command_dict = {
                 "proof": functions.proof,
                 "availability": functions.availability,
@@ -525,11 +539,14 @@ class Default(dt.StandardDataclass, ArtistStructure):
             }
 
         while True:
-            await ctx.author.send(f"This is the generated artist profile.\nUse `{vrs.CMD_PREFIX}edit <property>` to edit a property, `{vrs.CMD_PREFIX}submit` to submit this verification for approval, or `{vrs.CMD_PREFIX}cancel` to cancel this command.")
+            await ctx.author.send((
+                f"This is the generated artist profile.\n"
+                f"Use `{vrs.CMD_PREFIX}edit <property>` to edit a property, `{vrs.CMD_PREFIX}submit` to submit this verification for approval, or `{vrs.CMD_PREFIX}cancel` to cancel this command."
+            ))
 
             await ctx.author.send(embed=await self.generate_embed(editing=True))
 
-            message_obj: nx.Message = await w_f.wait_for_response(ctx)
+            message_obj: nx.Message = await w_f.wait_for_message(ctx)
             command = message_obj.content.split(" ")
 
             if command[0].startswith(f"{vrs.CMD_PREFIX}edit"):
@@ -555,19 +572,19 @@ class Default(dt.StandardDataclass, ArtistStructure):
         async def trigger(cmd):
             await self.set_attribute(ctx, cmd)
 
-        await trigger(self.Functions.name)
+        await trigger(self.Attributes.name)
         # add check for existing artist here
-        await trigger(self.Functions.proof)
-        await trigger(self.Functions.availability)
-        await trigger(self.Functions.usage_rights)
-        await trigger(self.Functions.aliases)
-        await trigger(self.Functions.description)
-        await trigger(self.Functions.avatar_url)
-        await trigger(self.Functions.banner_url)
-        await trigger(self.Functions.tracks)
-        await trigger(self.Functions.genre)
-        await trigger(self.Functions.socials)
-        await trigger(self.Functions.notes)
+        await trigger(self.Attributes.proof)
+        await trigger(self.Attributes.availability)
+        await trigger(self.Attributes.usage_rights)
+        await trigger(self.Attributes.aliases)
+        await trigger(self.Attributes.description)
+        await trigger(self.Attributes.avatar_url)
+        await trigger(self.Attributes.banner_url)
+        await trigger(self.Attributes.tracks)
+        await trigger(self.Attributes.genre)
+        await trigger(self.Attributes.socials)
+        await trigger(self.Attributes.notes)
 
 
     async def post_log_to_channels(self, prefix: str, channel_dicts, user_id: int = None):
@@ -845,7 +862,10 @@ def generate_search_embed(result: list[Default]):
 
     value_string = "\n".join(str_list)
 
-    embed.add_field(name="Multiple artists found!\n`<ID>: <Artist Name>`", value=value_string)
+    embed.add_field(name=(
+        "Multiple artists found!\n"
+        "`<ID>: <Artist Name>`"
+        ), value=value_string)
 
     return embed
 
