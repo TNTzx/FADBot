@@ -43,13 +43,3 @@ class ViewCancelOnly(ButtonCancel, ButtonSkipDisabled):
 
 class ViewCancelSkip(ButtonCancel, ButtonSkipEnabled):
     """Cancel button with skip."""
-
-
-def select_option_factory(options: list[str]):
-    return [nx.SelectOption(label=value) for value in options]
-
-class SelectOptions(vw.View):
-    @nx.ui.select(placeholder="AAAAA", options=select_option_factory(["a", "AAAA"]))
-    async def select(self, button: nx.ui.Button, interact: nx.Interaction):
-        """el"""
-        return

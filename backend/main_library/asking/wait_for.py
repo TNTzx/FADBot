@@ -84,4 +84,4 @@ async def wait_for_response_view(ctx: cmds.Context, original_message: nx.Message
     if isinstance(result, nx.Interaction):
         return MessageViewCheck.view, view
 
-    raise c_e.InvalidResponse
+    raise c_e.InvalidResponse()

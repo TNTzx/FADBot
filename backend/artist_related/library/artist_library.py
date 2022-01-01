@@ -545,7 +545,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 break
 
             elif command[0] == f"{vrs.CMD_PREFIX}cancel":
-                raise c_exc.ExitFunction("Exited Function.")
+                raise c_exc.ExitFunction()
 
             else:
                 await w_f.send_error(ctx, "You didn't send a command!")

@@ -109,7 +109,7 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
             item = [x.lstrip(' ') for x in item]
             try:
                 if not len(item) == 2:
-                    raise IndexError
+                    raise IndexError()
 
                 if not await check_has_dict(choices, choices_dict):
                     entry_dict[item[0]] = item[1]

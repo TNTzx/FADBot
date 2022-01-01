@@ -11,7 +11,7 @@ def choice_param(arg, choices: list):
     def decorator(func):
         def wrapper(*args, **kwargs):
             if arg not in choices:
-                raise TypeError
+                raise TypeError()
             return func(*args, **kwargs)
         return wrapper
     return decorator
