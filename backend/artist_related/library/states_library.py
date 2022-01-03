@@ -78,7 +78,7 @@ availability_list = [
         "label": "Verified",
         "value": 0,
         "choice_info": {
-            "description": "The artist's music is allowed to be used for Project Arrhythmia levels.",
+            "description": "The artist's music is allowed to be used.",
             "emoji": "✅"
         }
     }),
@@ -86,7 +86,7 @@ availability_list = [
         "label": "Disallowed",
         "value": 1,
         "choice_info": {
-            "description": "The artist's music is not allowed to be used for Project Arrhythmia levels.",
+            "description": "The artist's music is not allowed to be used.",
             "emoji": "❌"
         }
     }),
@@ -102,7 +102,7 @@ availability_list = [
         "label": "Varies",
         "value": 3,
         "choice_info": {
-            "description": "The artist's music rights are dependent on certain conditions.",
+            "description": "The artist's music rights are dependent on a few conditions.",
             "emoji": "❔"
         }
     }),

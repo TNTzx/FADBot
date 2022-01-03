@@ -427,7 +427,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 add_view = AvailabilityChoose,
                 skippable = skippable
             )
-            self.states.availability.value = availability.value
+            self.states.availability.value = o_f.get_value_from_key(self.states.availability.data_dict, availability.value[0])
 
         elif check(attributes.usage_rights):
             usage_rights = await ask_a.ask_attribute(ctx,

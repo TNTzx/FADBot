@@ -21,7 +21,7 @@ import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
-TIMEOUT = 5
+TIMEOUT = 60 * 10
 
 
 async def check_has_required(choices):
@@ -213,6 +213,7 @@ async def ask_attribute(ctx: cmds.Context,
                 break
         else:
             response = await w_f.wait_for_view(ctx, message, current_view, timeout=TIMEOUT)
+            break
 
     return response
 
