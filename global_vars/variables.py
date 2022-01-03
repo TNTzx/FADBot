@@ -40,31 +40,15 @@ PLACEHOLDER_DATA = [["placeholder"]]
 API_LINK = "https://fadb.live/api"
 API_AUTH_TOKEN = os.environ["FadbAuthToken"]
 API_HEADERS = {
-  "Authorization": f"Basic {API_AUTH_TOKEN}",
-  "Content-Type": "application/x-www-form-urlencoded"
+    "Authorization": f"Basic {API_AUTH_TOKEN}",
+    "Content-Type": "application/x-www-form-urlencoded"
 }
 
 
-# # Authorization
-# canVerify = {
-#   "servers": {
-#     734204348665692181: [
-#       886608688318656552
-#     ]
-#   },
-#   "users": [
-#     279803094722674693
-#   ]
-# }
+# Timeouts
+class Timeouts:
+    """Class that contains common timeout durations."""
+    SHORT = 10
+    MEDIUM = 60
+    LONG = 60 * 10
 
-
-# Where to send
-sendLogs = [
-    {
-      "server": 734204348665692181,
-      "channel": 897014835945046066
-  }, {
-    "server": 896753662477615114,
-    "channel": 897014931130576936
-  }
-]

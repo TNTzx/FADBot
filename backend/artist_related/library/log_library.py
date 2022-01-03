@@ -13,8 +13,8 @@ from __future__ import annotations
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-import backend.main_classes.dataclass as dt
-import backend.main_classes.message_pointer as m_p
+import backend.main_library.dataclass as dt
+import backend.main_library.message_pointer as m_p
 import backend.other_functions as o_f
 
 class LogTypes:

@@ -24,4 +24,4 @@ async def get_artist_by_id(ctx: cmds.Context, artist_id: int) -> a_l.Default:
         return artist
     except req.exceptions.HTTPError as exc:
         await s_e.send_error(ctx, "The artist doesn't exist. Try again?")
-        raise c_e.ExitFunction("Exited Function.") from exc
+        raise c_e.ExitFunction() from exc

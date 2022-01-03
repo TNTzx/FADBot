@@ -14,6 +14,7 @@ import global_vars.defaults as defaults
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
 import backend.databases.firebase.firebase_interaction as f_i
+import backend.exceptions.custom_exc as c_e
 
 
 async def add_new_to_database():
@@ -80,7 +81,7 @@ class Hello(cmds.Cog):
         show_help=False
     )
     async def causeerror(self, ctx):
-        raise TypeError("caused error!")
+        raise c_e.ExitFunction()
 
 def setup(bot):
     bot.add_cog(Hello(bot))

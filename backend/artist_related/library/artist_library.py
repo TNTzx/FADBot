@@ -11,8 +11,8 @@
 
 
 from __future__ import annotations
-from os import path
 import urllib.parse as ul
+import copy
 import requests as req
 import nextcord as nx
 import nextcord.ext.commands as cmds
@@ -20,14 +20,20 @@ import nextcord.ext.commands as cmds
 import tldextract as tld
 
 import global_vars.variables as vrs
-import backend.main_classes.dataclass as dt
-import backend.main_classes.other as mot
-import backend.main_classes.message_pointer as m_p
-import backend.main_classes.asking as ask
+import global_vars.loggers as lgr
+import backend.main_library.dataclass as dt
+import backend.main_library.message_pointer as m_p
+import backend.main_library.asking.wait_for as w_f
+import backend.main_library.views as vw
+import backend.main_library.other as mot
 import backend.artist_related.library.log_library as l_l
+import backend.artist_related.library.states_library as s_l
+import backend.artist_related.library.ask_for_attr.ask_attr as ask_a
+import backend.artist_related.library.ask_for_attr.ask_confirm as ask_c
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.vadb.vadb_interact as v_i
 import backend.exceptions.custom_exc as c_exc
+import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
@@ -95,20 +101,10 @@ class Default(dt.StandardDataclass, ArtistStructure):
         usage_rights: list[dict[str, Any]]
         """
         def __init__(self):
-            status_dict = {
-                0: "Completed",
-                1: "No Contact",
-                2: "Pending",
-                3: "Requested"
-            }
+            status_dict = {status.value: status.label for status in s_l.status_list}
             self.status: mot.Match = mot.Match(status_dict, 2)
 
-            availability_dict = {
-                0: "Verified",
-                1: "Disallowed",
-                2: "Contact Required",
-                3: "Varies"
-            }
+            availability_dict = {avail.value: avail.label for avail in s_l.availability_list}
             self.availability: mot.Match = mot.Match(availability_dict, 2)
 
             self.usage_rights: list[dict[str, str]] = None
@@ -220,8 +216,8 @@ class Default(dt.StandardDataclass, ArtistStructure):
         if self.__class__ != other.__class__:
             return False
 
-        self_new = self
-        other_new = other
+        self_new = copy.deepcopy(self)
+        other_new = copy.deepcopy(other)
 
         self_new.discord_info.logs = None
         other_new.discord_info.logs = None
@@ -229,15 +225,14 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
 
 
-    async def generate_embed(self, editing=False):
+    async def generate_embed(self):
         """Generates an embed."""
+        log_message = f"Generating embed for {self.name}: {o_f.pr_print(self.get_dict())}"
+        lgr.log_artist_control.info(log_message)
 
         embed = nx.Embed()
         embed.title = f"Artist data for {self.name}:"
         embed.description = "_ _"
-
-        def edit_format(prefix):
-            return f" (`{vrs.CMD_PREFIX}edit {prefix}`)" if editing else ""
 
         id_format = self.vadb_info.artist_id if self.vadb_info.artist_id is not None else "Not submitted yet!"
 
@@ -250,7 +245,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         embed.set_thumbnail(url=self.details.images.avatar_url)
         embed.set_image(url=self.details.images.banner_url)
 
-        embed.add_field(name=f"Name{edit_format('name')}:", value=f"**{self.name}**")
+        embed.add_field(name="Name:", value=f"**{self.name}**")
 
 
         aliases = self.details.aliases
@@ -263,12 +258,12 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 aliases = "No aliases!"
         else:
             aliases = "No aliases!"
-        embed.add_field(name=f"Aliases{edit_format('aliases')}:", value=aliases)
+        embed.add_field(name="Aliases:", value=aliases)
 
 
         description = self.details.description
         description = description if o_f.is_not_blank_str(description) else "No description!"
-        embed.add_field(name=f"Description{edit_format('description')}:", value=description, inline=False)
+        embed.add_field(name="Description:", value=description, inline=False)
 
         vadb_page = self.vadb_info.page
         vadb_page = f"[Click here!]({vadb_page})" if vadb_page != Default().vadb_info.page and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
@@ -281,7 +276,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
         availability = self.states.availability.get_name()
         availability = f"**__{availability}__**"
-        embed.add_field(name=f"Availability{edit_format('availability')}:", value=availability)
+        embed.add_field(name="Availability:", value=availability)
 
         usage_rights = self.states.usage_rights
         if o_f.is_not_empty(usage_rights):
@@ -292,7 +287,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             usage_rights = "\n".join(usage_list)
         else:
             usage_rights = "No other specific usage rights!"
-        embed.add_field(name=f"Specific usage rights{edit_format('usageRights')}:", value=f"`{usage_rights}`")
+        embed.add_field(name="Specific usage rights:", value=f"`{usage_rights}`")
 
 
         socials = self.details.socials
@@ -306,15 +301,11 @@ class Default(dt.StandardDataclass, ArtistStructure):
             socials = " ".join(socials_list)
         else:
             socials = "No socials links!"
-        embed.add_field(name=f"Social links{edit_format('socials')}:", value=socials, inline=False)
+        embed.add_field(name="Social links:", value=socials, inline=False)
 
         notes = self.details.notes
         notes = notes if o_f.is_not_blank_str(notes) else "No other notes!"
-        embed.add_field(name=f"Other notes{edit_format('notes')}:", value=notes)
-
-        if editing:
-            embed.add_field(name=f"{edit_format('avatar_url')} for editing the avatar\n{edit_format('banner_url')} for editing the banner", value="_ _", inline=False)
-
+        embed.add_field(name="Other notes:", value=notes)
 
         color_keys = {
             "green": 0x00FF00,
@@ -343,7 +334,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         return embed
 
 
-    class Functions:
+    class Attributes:
         """Contains identifiers for the set_attribute() function."""
         name = mot.Unique()
         proof = mot.Unique()
@@ -361,59 +352,75 @@ class Default(dt.StandardDataclass, ArtistStructure):
     async def set_attribute(self, ctx: cmds.Context, attr: mot.Unique, skippable=False):
         """Sets an attribute in this class."""
 
-        functions = self.Functions
+        attributes = self.Attributes
 
         def check(attrib):
             return attr == attrib
 
-        if check(functions.name):
-            name = await ask.wait_for_response(ctx,
+        if check(attributes.name):
+            name = await ask_a.ask_attribute(ctx,
                 "Artist Name",
                 "Send the artist name.",
-                ask.OutputTypes.text,
+                ask_a.OutputTypes.text,
                 skippable=skippable
             )
 
+            if name is None:
+                return
+
             search_result = search_for_artist(name)
             if search_result is not None:
-                await ctx.author.send("Other artist(s) found with this name. Please check if you have a duplicate submission.\nUse `##cancel` if you think you have a different artist, or type anything to continue.\nIf you are submitting an artist with the same exact name as these results, try to add extra characters on the name to avoid duplicates.", embed=generate_search_embed(search_result))
-                response = await ask.waiting(ctx)
-                response = await ask.reformat(ctx, ask.OutputTypes.text, response)
+                view = vw.ViewConfirmCancel()
+                message = await ctx.author.send((
+                    "Other artist(s) found with this name. Please check if you have a duplicate submission.\n"
+                    "Use the `Confirm` button to continue, but make sure that the artist name is unique!\n"
+                    "Use the `Cancel` button if the artist is already listed below.\n"
+                    "If you are submitting an artist with the same exact name as these results, try to add extra characters on the name to avoid duplicates."
+                    ), embed=generate_search_embed(search_result), view=view)
 
-                if response == "##cancel":
-                    return
+                response = await w_f.wait_for_view(ctx, message, view)
+                if response.value == vw.OutputValues.cancel:
+                    await s_e.cancel_function(ctx, send_author=True)
 
             if name is not None:
                 self.name = name
 
-        elif check(functions.proof):
-            proof = await ask.wait_for_response(ctx,
+        elif check(attributes.proof):
+            proof = await ask_a.ask_attribute(ctx,
                 "Please send proof that you contacted the artist.",
                 "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
-                ask.OutputTypes.image,
+                ask_a.OutputTypes.image,
                 skippable=skippable
             )
             if proof is not None:
                 self.proof = proof
-        elif check(functions.availability):
-            availability = await ask.wait_for_response(ctx,
+
+        elif check(attributes.availability):
+            options_list = [avail.get_option() for avail in s_l.availability_list]
+            class AvailabilityChoose(vw.View):
+                """Options!"""
+                @nx.ui.select(placeholder="Select availability...", options=options_list, row=0)
+                async def avail_choose(self, select: nx.ui.Select, interact: nx.Interaction):
+                    """a"""
+                    self.value = select.values
+                    self.stop()
+
+            availability = await ask_a.ask_attribute(ctx,
                 "Is the artist verified, disallowed, or does it vary between songs?",
-                "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n\"Disallowed\" means that the artist's songs cannot be used.\n\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed.",
-                ask.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
-                skippable=skippable
+                "This determines whether the artist's songs are allowed for use or not.",
+                ask_a.OutputTypes.choice,
+                add_view = AvailabilityChoose,
+                skippable = skippable
             )
+
             if availability is not None:
-                dictionary = {
-                    "verified": 0,
-                    "disallowed": 1,
-                    "varies": 3,
-                }
-                self.states.availability.value = dictionary[availability]
-        elif check(functions.usage_rights):
-            usage_rights = await ask.wait_for_response(ctx,
+                self.states.availability.value = o_f.get_value_from_key(self.states.availability.data_dict, availability.value[0])
+
+        elif check(attributes.usage_rights):
+            usage_rights = await ask_a.ask_attribute(ctx,
                 "What are the usage rights for the artist?",
                 "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
-                ask.OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
+                ask_a.OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
                 skippable=True
             )
             usage_list = []
@@ -425,74 +432,82 @@ class Default(dt.StandardDataclass, ArtistStructure):
                         "value": value
                     })
                 self.states.usage_rights = usage_list
-        elif check(functions.description):
-            description = await ask.wait_for_response(ctx,
+
+        elif check(attributes.description):
+            description = await ask_a.ask_attribute(ctx,
                 "Send a description about the artist.",
                 "You can put information about the artist here. Their bio, how their music is created, etc. could work.",
-                ask.OutputTypes.text,
+                ask_a.OutputTypes.text,
                 skippable=True
             )
             if description is not None:
                 self.details.description = description
-        elif check(functions.notes):
-            notes = await ask.wait_for_response(ctx,
+
+        elif check(attributes.notes):
+            notes = await ask_a.ask_attribute(ctx,
                 "Notes",
                 "Send other notes you want to put in.",
-                ask.OutputTypes.text,
+                ask_a.OutputTypes.text,
                 skippable=True
             )
             if notes is not None:
                 self.details.notes = notes
-        elif check(functions.aliases):
-            aliases = await ask.wait_for_response(ctx,
+
+        elif check(attributes.aliases):
+            aliases = await ask_a.ask_attribute(ctx,
                 "Artist Aliases",
                 "Send other names that the artist goes by.",
-                ask.OutputTypes.listing,
+                ask_a.OutputTypes.listing,
                 skippable=True
             )
             if aliases is not None:
                 self.details.aliases = [Default.Details.Alias().from_dict({"name": alias}) for alias in aliases]
-        elif check(functions.avatar_url):
-            avatar_url = await ask.wait_for_response(ctx,
+
+        elif check(attributes.avatar_url):
+            avatar_url = await ask_a.ask_attribute(ctx,
                 "Send an image to an avatar of the artist.",
                 "This is the profile picture that the artist uses.",
-                ask.OutputTypes.image,
+                ask_a.OutputTypes.image,
                 skippable=True
             )
             if avatar_url is not None:
                 self.details.images.avatar_url = avatar_url
-        elif check(functions.banner_url):
-            banner = await ask.wait_for_response(ctx,
+
+        elif check(attributes.banner_url):
+            banner = await ask_a.ask_attribute(ctx,
                 "Send an image to the banner of the artist.",
                 "This is the banner that the artist uses.",
-                ask.OutputTypes.image,
+                ask_a.OutputTypes.image,
                 skippable=True
             )
             if banner is not None:
                 self.details.images.banner_url = banner
-        elif check(functions.tracks):
-            tracks = await ask.wait_for_response(ctx,
+
+        elif check(attributes.tracks):
+            tracks = await ask_a.ask_attribute(ctx,
                 "How many tracks does the artist have?",
                 "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
-                ask.OutputTypes.number,
+                ask_a.OutputTypes.number,
                 skippable=True
             )
             if tracks is not None:
                 self.details.music_info.tracks = tracks
-        elif check(functions.genre):
-            genre = await ask.wait_for_response(ctx,
+
+        elif check(attributes.genre):
+            genre = await ask_a.ask_attribute(ctx,
                 "What is the genre of the artist?",
                 "This is the type of music that the artist makes.",
-                ask.OutputTypes.text,
+                ask_a.OutputTypes.text,
                 skippable=True
             )
             if genre is not None:
                 self.details.music_info.genre = genre
-        elif check(functions.socials):
-            socials = await ask.wait_for_response(ctx,
+
+        elif check(attributes.socials):
+            socials = await ask_a.ask_attribute(ctx,
                 "Put some links for the artist's social media here.",
                 "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
-                ask.OutputTypes.links,
+                ask_a.OutputTypes.links,
                 skippable=True
             )
             social_list = []
@@ -507,66 +522,79 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
     async def edit_loop(self, ctx: cmds.Context):
         """Initiates an edit loop to edit the attributes."""
-        functions = self.Functions
+        attributes = self.Attributes
         command_dict = {
-                "proof": functions.proof,
-                "availability": functions.availability,
-                "name": functions.name,
-                "aliases": functions.aliases,
-                "description": functions.description,
-                "avatar_url": functions.avatar_url,
-                "banner_url": functions.banner_url,
-                "tracks": functions.tracks,
-                "genre": functions.genre,
-                "usagerights": functions.usage_rights,
-                "socials": functions.socials,
-                "notes": functions.notes
+                "Proof": attributes.proof,
+                "Availability": attributes.availability,
+                "Name": attributes.name,
+                "Aliases": attributes.aliases,
+                "Description": attributes.description,
+                "Avatar URL": attributes.avatar_url,
+                "Banner URL": attributes.banner_url,
+                "Tracks": attributes.tracks,
+                "Genre": attributes.genre,
+                "Usage Rights": attributes.usage_rights,
+                "Socials": attributes.socials,
+                "Notes": attributes.notes
             }
 
+
+        choices = [nx.SelectOption(label=command_label) for command_label in command_dict]
+
+        class Commands(vw.ViewConfirmCancel):
+            """A view for choices."""
+            @nx.ui.select(placeholder="Select attribute to edit...", options=choices)
+            async def command_select(self, select: nx.ui.Select, interact: nx.Interaction):
+                """Selects!"""
+                self.value = select.values
+                self.stop()
+
+        async def edit():
+            while True:
+                view = Commands()
+
+                await ctx.author.send((
+                    "This is the generated artist profile.\n"
+                    "Select from the dropdown menu to edit that property.\n"
+                    "Click on `Confirm` to finish editing the artist.\n"
+                    "Click on `Cancel` to cancel the command.\n"
+                ))
+
+                await ctx.author.send(embed = await self.generate_embed())
+                message = await ctx.author.send(self.proof, view=view)
+
+                new_view = await w_f.wait_for_view(ctx, message, view)
+
+                if new_view.value == vw.OutputValues.confirm:
+                    break
+                elif new_view.value == vw.OutputValues.cancel:
+                    await s_e.cancel_function(ctx, send_author=True)
+                elif isinstance(new_view.value[0], str):
+                    await self.set_attribute(ctx, command_dict[new_view.value[0]],skippable=True)
+
         while True:
-            await ctx.author.send(f"This is the generated artist profile.\nUse `{vrs.CMD_PREFIX}edit <property>` to edit a property, `{vrs.CMD_PREFIX}submit` to submit this verification for approval, or `{vrs.CMD_PREFIX}cancel` to cancel this command.")
-
-            await ctx.author.send(embed=await self.generate_embed(editing=True))
-
-            message_obj: nx.Message = await ask.waiting(ctx)
-            command = message_obj.content.split(" ")
-
-            if command[0].startswith(f"{vrs.CMD_PREFIX}edit"):
-                command_to_get = command_dict.get(command[1] if len(command) > 1 else None, None)
-
-                if command_to_get is None:
-                    await ask.send_error(ctx, f"You didn't specify a valid property! The valid properties are `{'`, `'.join(command_dict.keys())}`")
-                    continue
-
-                await self.set_attribute(ctx, command_to_get, skippable=True)
-
-            elif command[0] == f"{vrs.CMD_PREFIX}submit":
+            await edit()
+            if await ask_c.ask_confirm(ctx):
                 break
-
-            elif command[0] == f"{vrs.CMD_PREFIX}cancel":
-                raise c_exc.ExitFunction("Exited Function.")
-
-            else:
-                await ask.send_error(ctx, "You didn't send a command!")
 
     async def trigger_all_set_attributes(self, ctx: cmds.Context):
         """Triggers all attributes."""
         async def trigger(cmd):
             await self.set_attribute(ctx, cmd)
 
-        await trigger(self.Functions.name)
+        await trigger(self.Attributes.name)
         # add check for existing artist here
-        await trigger(self.Functions.proof)
-        await trigger(self.Functions.availability)
-        await trigger(self.Functions.usage_rights)
-        await trigger(self.Functions.aliases)
-        await trigger(self.Functions.description)
-        await trigger(self.Functions.avatar_url)
-        await trigger(self.Functions.banner_url)
-        await trigger(self.Functions.tracks)
-        await trigger(self.Functions.genre)
-        await trigger(self.Functions.socials)
-        await trigger(self.Functions.notes)
+        await trigger(self.Attributes.proof)
+        await trigger(self.Attributes.availability)
+        await trigger(self.Attributes.usage_rights)
+        await trigger(self.Attributes.aliases)
+        await trigger(self.Attributes.description)
+        await trigger(self.Attributes.avatar_url)
+        await trigger(self.Attributes.banner_url)
+        await trigger(self.Attributes.tracks)
+        await trigger(self.Attributes.genre)
+        await trigger(self.Attributes.socials)
+        await trigger(self.Attributes.notes)
 
 
     async def post_log_to_channels(self, prefix: str, channel_dicts, user_id: int = None):
@@ -844,7 +872,10 @@ def generate_search_embed(result: list[Default]):
 
     value_string = "\n".join(str_list)
 
-    embed.add_field(name="Multiple artists found!\n`<ID>: <Artist Name>`", value=value_string)
+    embed.add_field(name=(
+        "Multiple artists found!\n"
+        "`<ID>: <Artist Name>`"
+        ), value=value_string)
 
     return embed
 
@@ -863,3 +894,11 @@ def get_artist_by_id_fb(log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, a
 def create_log_list(logs):
     """Creates a list of log objects."""
     return [l_l.Log().from_dict(log) for log in logs] if logs is not None else None
+
+
+async def send_reminder(ctx: cmds.Context):
+    """Sends a reminder that the VADB site exists."""
+    await ctx.author.send((
+        "Reminder that this bot is made for a website!\n"
+        "Check it out! https://fadb.live/"
+    ))

@@ -128,7 +128,10 @@ class Help(cmds.Cog):
                     cooldown_type = "Per user"
                 else:
                     cooldown_type = "TNTz messed up, he didn't add another edge case, please ping him"
-                cooldown_form = f"Duration: `{o_f.format_time(help_docs.cooldown.length)}`\nApplies to: `{cooldown_type}`"
+                cooldown_form = (
+                    f"Duration: `{o_f.format_time(help_docs.cooldown.length)}`\n"
+                    f"Applies to: `{cooldown_type}`"
+                )
                 embed.add_field(name="Cooldown Info:", value=f"{cooldown_form}")
 
             if not len(help_docs.example_usage) == 0:

@@ -9,7 +9,7 @@
 from __future__ import annotations
 import abc
 
-import backend.main_classes.other as mot
+import backend.main_library.other as mot
 import backend.other_functions as o_f
 
 
@@ -27,7 +27,7 @@ class Dataclass():
                 obj: Dataclass | list[Dataclass] | mot.Match = getattr(self, key)
             except AttributeError as exc:
                 raise AttributeError(f"Attribute '{key}' not found for object of type '{self.__class__.__name__}'") from exc
-                
+
 
             if obj is not None:
                 if isinstance(obj, mot.Match):
@@ -51,7 +51,7 @@ class Dataclass():
 
     def __repr__(self) -> str:
         return f"Dataclass: {self.get_dict()}"
-    
+
     def __eq__(self, other: Dataclass):
         if self.__class__ != other.__class__:
             return False
@@ -72,9 +72,6 @@ def init_wrapper(init, end_init):
 
 class DataclassConvention(Dataclass):
     """Base class for standard and non-standard dataclasses."""
-
-    def __init__(self, data=None):
-        pass
 
     @abc.abstractmethod
     def end_init(self, data=None):

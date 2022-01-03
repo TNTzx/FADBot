@@ -8,3 +8,6 @@ class FirebaseNoEntry(Exception):
 
 class DictOverrideError(Exception):
     """Override doesn't have an entry in default."""
+
+class InvalidResponse(Exception):
+    """WELL WELL WELL WHAT DO WE HAVE HERE AN INVALID RESPONSE"""

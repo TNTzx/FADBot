@@ -53,19 +53,47 @@ class LogPaths:
     databases = "databases"
     bot_control = "bot_control"
     artist_control = "artist_control"
+    discord = "discord"
 
 logger_paths = [getattr(LogPaths, x) for x in dir(LogPaths) if not x.startswith("__")]
 for logger_path in logger_paths:
     check_if_create_path(os.path.join(logs_path, logger_path))
 
 
-log_master = setup_logger("master", is_master=True)
+log_master = setup_logger(
+    "master",
+    is_master=True
+)
 
-log_global_exc = setup_logger("global_exc", filename=form_filename(0, "global_exc"))
 
-log_bot_status = setup_logger("bot_status", filename=os.path.join(LogPaths.bot_control, form_filename(1, "bot_status")))
+log_global_exc = setup_logger(
+    "global_exc",
+    filename = form_filename(0, "global_exc")
+)
 
-log_artist_control = setup_logger("artist_control", filename=os.path.join(LogPaths.artist_control, form_filename(0, "artist_control")))
 
-log_firebase = setup_logger("firebase", filename=os.path.join(LogPaths.databases, form_filename(1, "firebase")))
-log_vadb = setup_logger("vadb", filename=os.path.join(LogPaths.databases, form_filename(1, "vadb")))
+log_discord_forbidden = setup_logger(
+    "discord_forbidden",
+    filename = os.path.join(LogPaths.discord, form_filename(0, "discord_forbidden"))
+)
+
+
+log_bot_status = setup_logger(
+    "bot_status",
+    filename = os.path.join(LogPaths.bot_control, form_filename(1, "bot_status"))
+)
+
+
+log_artist_control = setup_logger(
+    "artist_control",
+    filename = os.path.join(LogPaths.artist_control, form_filename(0, "artist_control"))
+)
+
+
+log_firebase = setup_logger(
+    "firebase",
+    filename = os.path.join(LogPaths.databases, form_filename(1, "firebase"))
+)
+log_vadb = setup_logger("vadb",
+    filename = os.path.join(LogPaths.databases, form_filename(1, "vadb"))
+)

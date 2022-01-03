@@ -5,13 +5,15 @@
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
+from async_timeout import asyncio
 import nextcord as nx
 import nextcord.ext.commands as cmds
 import requests as req
 
 import global_vars.variables as vrs
 import global_vars.loggers as lgr
-import backend.main_classes.choice_param as c_p
+import backend.main_library.choice_param as c_p
+import backend.main_library.views as vw
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
 import backend.artist_related.checks as a_ch
@@ -39,7 +41,7 @@ class ArtistControl(cmds.Cog):
         if not isinstance(ctx.channel, nx.channel.DMChannel):
             await ctx.send("The artist add request form is sent to your DMs. Please check it.")
 
-        await ctx.author.send("Reminder that this bot is made for a website!\nCheck it out! https://fadb.live/")
+        await a_l.send_reminder(ctx)
         await ctx.author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
 
         data = a_l.Default()
@@ -88,28 +90,31 @@ class ArtistControl(cmds.Cog):
     @i_u.sustained_command()
     async def artistrequestedit(self, ctx: cmds.Context, artist_id: int, *skips):
         if f_i.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
-            await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.", send_author=True)
+            await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.")
             return
 
         if not isinstance(ctx.channel, nx.channel.DMChannel):
             await ctx.send("The artist `edit request` form is sent to your DMs. Please check it.")
 
+        await a_l.send_reminder(ctx)
+
+        await ctx.author.send("Getting artist...")
         artist = await a_ch.get_artist_by_id(ctx, artist_id)
+        artist.get_logs()
 
         if "no_init" not in skips:
-            await artist.set_attribute(ctx, a_l.Default.Functions.proof)
-            await artist.edit_loop(ctx)
-
-        await ctx.author.send("Sending `edit request`...")
-        a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
-
-        artist.get_logs()
+            await artist.set_attribute(ctx, a_l.Default.Attributes.proof)
+        
+        await artist.edit_loop(ctx)
 
         old_artist = a_l.get_artist_by_id_vadb(artist_id)
 
         if artist == old_artist:
             await s_e.send_error(ctx, "You didn't make any edits!", send_author=True)
             return
+
+        await ctx.author.send("Sending `edit request`...")
+        a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
 
         old_artist.states.status.value = 2
         a_l.VADB.Send.Edit(old_artist).send_data(old_artist.vadb_info.artist_id)
@@ -170,41 +175,35 @@ class ArtistControl(cmds.Cog):
             await parse_logs(artist_obj.discord_info.logs.editing)
 
         async def confirm_verify(artist_obj: a_l.Default):
-            class Confirm(nx.ui.View):
-                def __init__(self):
-                    super().__init__()
-                    self.value = None
+            timeout = vrs.Timeouts.MEDIUM
 
-                @nx.ui.button(label="Confirm", style=nx.ButtonStyle.green)
-                async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
-                    self.value = True
-                    self.stop()
-
-                @nx.ui.button(label="Cancel", style=nx.ButtonStyle.red)
-                async def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
-                    self.value = False
-                    self.stop()
-
-            timeout = 60
-
-            confirm = Confirm()
-            await ctx.send(f"Are you sure that you want to `{action}` this `{_type} request`?\nThis command times out in `{o_f.format_time(timeout)}`.")
+            confirm = vw.ViewConfirmCancel()
+            await ctx.send((
+                f"Are you sure that you want to `{action}` this `{_type} request`?\n"
+                f"This command times out in `{o_f.format_time(timeout)}`."
+            ))
             await ctx.send(embed=await artist_obj.generate_embed())
             message = await ctx.send(artist_obj.proof, view=confirm)
 
             def check_button(interact: nx.Interaction):
                 return ctx.author.id == interact.user.id and interact.message.id == message.id
 
-            await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
+            try:
+                await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
+            except asyncio.TimeoutError:
+                await s_e.timeout_function(ctx, send_author=True)
 
-            if confirm.value:
+            if confirm.value == vw.OutputValues.confirm:
                 return
-            await ctx.send("Cancelled.")
-            raise c_e.ExitFunction("Exited Function.")
+
+            await s_e.cancel_function(ctx)
 
 
         def log_verify(artist_obj: a_l.Default):
-            log_message = f"[VERIFY] [{_type.upper()}] [{action.upper()}]: {o_f.pr_print(artist_obj.get_dict())}\nReason: {reason}"
+            log_message = (
+                f"[VERIFY] [{_type.upper()}] [{action.upper()}]: {o_f.pr_print(artist_obj.get_dict())}\n"
+                f"Reason: {reason}"
+            )
             lgr.log_artist_control.info(log_message)
 
 
@@ -229,7 +228,12 @@ class ArtistControl(cmds.Cog):
 
                         await ctx.send("Declining `add request`...")
                         a_l.VADB.Send.Delete(artist).send_data()
-                        await send_logs_and_dms(artist, f"The `add request` has been declined for `{artist.name}` due to the following reason: `{reason}`.", f"Your pending `add request` for `{artist.name}` has been denied due to the following reason:\n`{reason}`")
+                        await send_logs_and_dms(artist,
+                            f"The `add request` has been declined for `{artist.name}` due to the following reason: `{reason}`.", (
+                                f"Your pending `add request` for `{artist.name}` has been denied due to the following reason:\n"
+                                f"`{reason}`"
+                            )
+                        )
 
                 await action_choice()
 
@@ -241,7 +245,7 @@ class ArtistControl(cmds.Cog):
                     artist_from_fb = a_l.get_artist_by_id_fb(l_l.LogTypes.EDITING, artist.vadb_info.artist_id)
                 except c_e.FirebaseNoEntry as exc:
                     await s_e.send_error(ctx, "The artist doesn't have a pending edit request!")
-                    raise c_e.ExitFunction("Exited Function.") from exc
+                    raise c_e.ExitFunction() from exc
 
                 @c_p.choice_param_cmd(ctx, action, ["accept", "decline"])
                 async def action_choice():
@@ -258,7 +262,12 @@ class ArtistControl(cmds.Cog):
                             return
                         artist.states.status.value = 0
                         a_l.VADB.Send.Edit(artist).send_data(artist.vadb_info.artist_id)
-                        await send_logs_and_dms(artist_from_fb, f"The `edit request` has been declined for `{artist_from_fb.name}` due to the following reason: `{reason}`.", f"Your pending `edit request` for `{artist_from_fb.name}` has been denied due to the following reason:\n`{reason}`")
+                        await send_logs_and_dms(artist_from_fb,
+                            f"The `edit request` has been declined for `{artist_from_fb.name}` due to the following reason: `{reason}`.", (
+                                f"Your pending `edit request` for `{artist_from_fb.name}` has been denied due to the following reason:\n"
+                                f"`{reason}`"
+                            )
+                        )
 
                 await action_choice()
 
@@ -275,7 +284,10 @@ class ArtistControl(cmds.Cog):
         category=c_w.Categories.artist_management,
         description="Gets a specified artist by search term or VADB ID.",
         parameters={
-            "[<search term> | <ID>]": "If <search term> is used, then the command will return a list of artists for that search term.\nIf <ID> is used, then the bot will return the artist with that ID."
+            "[<search term> | <ID>]": (
+                "If <search term> is used, then the command will return a list of artists for that search term.\n"
+                "If <ID> is used, then the bot will return the artist with that ID."
+            )
         },
         aliases=["as"],
         guild_only=False,
