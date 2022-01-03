@@ -12,12 +12,12 @@ import requests as req
 import global_vars.variables as vrs
 import global_vars.loggers as lgr
 import backend.main_library.choice_param as c_p
+import backend.main_library.views as vw
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
 import backend.artist_related.checks as a_ch
 import backend.artist_related.library.artist_library as a_l
 import backend.artist_related.library.log_library as l_l
-import backend.artist_related.library.ask_for_attr.views as a_f_a_v
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.exceptions.send_error as s_e
 import backend.exceptions.custom_exc as c_e
@@ -40,10 +40,7 @@ class ArtistControl(cmds.Cog):
         if not isinstance(ctx.channel, nx.channel.DMChannel):
             await ctx.send("The artist add request form is sent to your DMs. Please check it.")
 
-        await ctx.author.send((
-            "Reminder that this bot is made for a website!\n"
-            "Check it out! https://fadb.live/"
-        ))
+        await a_l.send_reminder(ctx)
         await ctx.author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
 
         data = a_l.Default()
@@ -98,6 +95,9 @@ class ArtistControl(cmds.Cog):
         if not isinstance(ctx.channel, nx.channel.DMChannel):
             await ctx.send("The artist `edit request` form is sent to your DMs. Please check it.")
 
+        await a_l.send_reminder(ctx)
+
+        await ctx.author.send("Getting artist...")
         artist = await a_ch.get_artist_by_id(ctx, artist_id)
 
         if "no_init" not in skips:
@@ -174,12 +174,12 @@ class ArtistControl(cmds.Cog):
             await parse_logs(artist_obj.discord_info.logs.editing)
 
         async def confirm_verify(artist_obj: a_l.Default):
-            timeout = 60
+            TIMEOUT = vrs.Timeouts.SHORT
 
-            confirm = a_f_a_v.ViewConfirmCancel()
+            confirm = vw.ViewConfirmCancel()
             await ctx.send((
                 f"Are you sure that you want to `{action}` this `{_type} request`?\n"
-                f"This command times out in `{o_f.format_time(timeout)}`."
+                f"This command times out in `{o_f.format_time(TIMEOUT)}`."
             ))
             await ctx.send(embed=await artist_obj.generate_embed())
             message = await ctx.send(artist_obj.proof, view=confirm)
@@ -187,9 +187,9 @@ class ArtistControl(cmds.Cog):
             def check_button(interact: nx.Interaction):
                 return ctx.author.id == interact.user.id and interact.message.id == message.id
 
-            await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
+            await vrs.global_bot.wait_for("interaction", check=check_button, timeout=TIMEOUT)
 
-            if confirm.value == a_f_a_v.OutputValues.confirm:
+            if confirm.value == vw.OutputValues.confirm:
                 return
 
             await s_e.cancel_function(ctx)

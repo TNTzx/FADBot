@@ -27,7 +27,7 @@ import backend.main_library.other as mot
 import backend.artist_related.library.log_library as l_l
 import backend.artist_related.library.states_library as s_l
 import backend.artist_related.library.ask_for_attr.ask_attr as ask_a
-import backend.artist_related.library.ask_for_attr.views as a_f_a_v
+import backend.artist_related.library.ask_for_attr.ask_confirm as ask_c
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.vadb.vadb_interact as v_i
 import backend.exceptions.custom_exc as c_exc
@@ -375,7 +375,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
             search_result = search_for_artist(name)
             if search_result is not None:
-                view = a_f_a_v.ViewConfirmCancel()
+                view = vw.ViewConfirmCancel()
                 message = await ctx.author.send((
                     "Other artist(s) found with this name. Please check if you have a duplicate submission.\n"
                     "Use the `Confirm` button to continue, but make sure that the artist name is unique!\n"
@@ -384,7 +384,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                     ), embed=generate_search_embed(search_result), view=view)
 
                 response = await w_f.wait_for_view(ctx, message, view)
-                if response.value == a_f_a_v.OutputValues.cancel:
+                if response.value == vw.OutputValues.cancel:
                     await s_e.cancel_function(ctx, send_author=True)
 
             if name is not None:
@@ -546,7 +546,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
         choices = [nx.SelectOption(label=command_label) for command_label in command_dict]
 
-        class Commands(a_f_a_v.ViewConfirmCancel):
+        class Commands(vw.ViewConfirmCancel):
             """A view for choices."""
             @nx.ui.select(placeholder="Select attribute to edit...", options=choices)
             async def command_select(self, select: nx.ui.Select, interact: nx.Interaction):
@@ -554,27 +554,33 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 self.value = select.values
                 self.stop()
 
+        async def edit():
+            while True:
+                view = Commands()
+
+                await ctx.author.send((
+                    "This is the generated artist profile.\n"
+                    "Select from the dropdown menu to edit that property.\n"
+                    "Click on `Confirm` to finish editing the artist.\n"
+                    "Click on `Cancel` to cancel the command.\n"
+                ))
+
+                await ctx.author.send(embed = await self.generate_embed())
+                message = await ctx.author.send(self.proof, view=view)
+
+                new_view = await w_f.wait_for_view(ctx, message, view)
+
+                if new_view.value == vw.OutputValues.confirm:
+                    break
+                elif new_view.value == vw.OutputValues.cancel:
+                    await s_e.cancel_function(ctx, send_author=True)
+                elif isinstance(new_view.value[0], str):
+                    await self.set_attribute(ctx, command_dict[new_view.value[0]],skippable=True)
+        
         while True:
-            view = Commands()
-
-            await ctx.author.send((
-                "This is the generated artist profile.\n"
-                "Select from the dropdown menu to edit that property."
-                "Click on `Confirm` to finish editing the artist."
-                "Click on `Cancel` to cancel the command."
-            ))
-            
-            await ctx.author.send(embed = await self.generate_embed())
-            message = await ctx.author.send(self.proof, view=view)
-
-            new_view = await w_f.wait_for_view(ctx, message, view)
-
-            if new_view.value == a_f_a_v.OutputValues.confirm:
-                return
-            elif new_view.value == a_f_a_v.OutputValues.cancel:
-                await s_e.cancel_function(ctx, send_author=True)
-            elif isinstance(new_view.value[0], str):
-                await self.set_attribute(ctx, command_dict[new_view.value[0]],skippable=True)
+            await edit()
+            if await ask_c.ask_confirm(ctx):
+                break
 
     async def trigger_all_set_attributes(self, ctx: cmds.Context):
         """Triggers all attributes."""
@@ -899,3 +905,11 @@ def get_artist_by_id_fb(log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, a
 def create_log_list(logs):
     """Creates a list of log objects."""
     return [l_l.Log().from_dict(log) for log in logs] if logs is not None else None
+
+
+async def send_reminder(ctx: cmds.Context):
+    """Sends a reminder that the VADB site exists."""
+    await ctx.author.send((
+        "Reminder that this bot is made for a website!\n"
+        "Check it out! https://fadb.live/"
+    ))

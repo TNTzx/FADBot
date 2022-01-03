@@ -14,14 +14,14 @@ import requests as req
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import global_vars.variables as vrs
 import backend.main_library.asking.wait_for as w_f
 import backend.main_library.views as vw
-import backend.artist_related.library.ask_for_attr.views as a_f_a_v
 import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
-TIMEOUT = 60 * 10
+TIMEOUT = vrs.Timeouts.LONG
 
 
 async def check_has_required(choices):
@@ -148,7 +148,7 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
 
 async def ask_attribute(ctx: cmds.Context,
         title, description, output_type,
-        add_view: typ.Type[vw.View] = a_f_a_v.Blank,
+        add_view: typ.Type[vw.View] = vw.Blank,
         choices_dict: list[str] = None,
         skippable=False, skip_default=None) -> str | int | list[str] | dict | vw.View:
     """Returns the response for setting attributes."""
@@ -187,15 +187,15 @@ async def ask_attribute(ctx: cmds.Context,
         return embed
 
     class Merge(
-            a_f_a_v.ViewCancelSkip if skippable else a_f_a_v.ViewCancelOnly,
+            vw.ViewCancelSkip if skippable else vw.ViewCancelOnly,
             add_view):
         """Cancel Skip with custom view."""
 
     async def check_value(response: typ.Type[vw.View]):
         """Checks the value of a view."""
-        if response.value == a_f_a_v.OutputValues.cancel:
+        if response.value == vw.OutputValues.cancel:
             await s_e.cancel_function(ctx, send_author=True)
-        elif response.value == a_f_a_v.OutputValues.skip:
+        elif response.value == vw.OutputValues.skip:
             await ctx.author.send("Section skipped.")
             return skip_default
         return None

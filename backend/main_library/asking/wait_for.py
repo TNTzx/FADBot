@@ -21,7 +21,7 @@ import backend.exceptions.send_error as s_e
 import backend.main_library.other as m_o
 
 
-TIMEOUT = 60 * 10
+TIMEOUT = vrs.Timeouts.LONG
 
 TIMEOUT_MESSAGE = "Command timed out. Please use the command again."
 
