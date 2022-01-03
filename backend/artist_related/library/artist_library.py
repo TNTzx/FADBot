@@ -19,6 +19,7 @@ import nextcord.ext.commands as cmds
 import tldextract as tld
 
 import global_vars.variables as vrs
+import global_vars.loggers as lgr
 import backend.main_library.dataclass as dt
 import backend.main_library.message_pointer as m_p
 import backend.main_library.asking.wait_for as w_f
@@ -59,7 +60,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
     """
 
     def __init__(self, data=None):
-        super().__init__()
         self.name = "default name"
         self.proof = DEFAULT_IMAGE
         self.vadb_info = self.VADBInfo()
@@ -75,7 +75,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
         page: str
         """
         def __init__(self):
-            super().__init__()
             self.artist_id = None
             self.page = "https://fadb.live/"
 
@@ -84,7 +83,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
         logs: list[o_f.Log]
         """
         def __init__(self):
-            super().__init__()
             self.logs = self.Logs()
 
         class Logs(dt.DataclassSub):
@@ -92,7 +90,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
             pending: list[o_f.Log]
             editing: list[o_f.Log]"""
             def __init__(self):
-                super().__init__()
                 self.pending = [l_l.Log()]
                 self.editing = [l_l.Log()]
 
@@ -103,7 +100,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
         usage_rights: list[dict[str, Any]]
         """
         def __init__(self):
-            super().__init__()
             status_dict = {status.value: status.label for status in s_l.status_list}
             self.status: mot.Match = mot.Match(status_dict, 2)
 
@@ -122,7 +118,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
         socials: list[dict[str, Any]]
         """
         def __init__(self):
-            super().__init__()
             self.description = None
             self.notes = None
             self.aliases = [self.Alias()]
@@ -133,7 +128,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
         class Alias(dt.DataclassSub):
             """Stores an alias."""
             def __init__(self) -> None:
-                super().__init__()
                 self.name = None
 
         class Images(dt.DataclassSub):
@@ -142,7 +136,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
             banner_url: str
             """
             def __init__(self):
-                super().__init__()
                 self.avatar_url = DEFAULT_IMAGE
                 self.banner_url = DEFAULT_IMAGE
 
@@ -152,7 +145,6 @@ class Default(dt.StandardDataclass, ArtistStructure):
             genre: str
             """
             def __init__(self):
-                super().__init__()
                 self.tracks = 0
                 self.genre = None
 
@@ -234,6 +226,8 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
     async def generate_embed(self):
         """Generates an embed."""
+        log_message = f"Generating embed for {self.name}: {o_f.pr_print(self.get_dict())}"
+        lgr.log_artist_control.info(log_message)
 
         embed = nx.Embed()
         embed.title = f"Artist data for {self.name}:"
@@ -692,7 +686,6 @@ class VADB:
             default_class = Default
 
             def __init__(self, data=None):
-                super().__init__()
                 self.name = None
                 self.status = None
                 self.availability = None
@@ -714,7 +707,6 @@ class VADB:
             default_class = Default
 
             def __init__(self, datas=None):
-                super().__init__()
                 self.name = None
                 self.status = None
                 self.availability = None
@@ -758,7 +750,6 @@ class VADB:
             default_class = Default
 
             def __init__(self, datas=None):
-                super().__init__()
                 self.artist_id = None
 
             def dict_from_default(self, data: Default):
@@ -780,7 +771,6 @@ class VADB:
         default_class = Default
 
         def __init__(self, data=None):
-            super().__init__()
             self.id = None
             self.name = None
             self.aliases = None
@@ -796,7 +786,6 @@ class VADB:
         class Details(dt.DataclassSub):
             """Contains details."""
             def __init__(self, datas: dict = None):
-                super().__init__()
                 self.avatarUrl = None
                 self.bannerUrl = None
                 self.socials = None
@@ -830,7 +819,6 @@ class Firebase:
         default_class = Default
 
         def __init__(self, data=None):
-            super().__init__()
             self.artist_id = None
             self.data: Default = None
 

@@ -37,6 +37,7 @@ class OutputValues:
     cancel = m_ot.Unique()
     skip = m_ot.Unique()
     confirm = m_ot.Unique()
+    submit = m_ot.Unique()
 
 
 class Blank(View):
@@ -55,8 +56,16 @@ class ButtonConfirm(View):
     """Confirm button."""
     @nx.ui.button(label="Confirm", style=nx.ButtonStyle.green, row=IS_LAST_ROW)
     async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
-        "...cancel!"
+        "...confirm!"
         self.value = OutputValues.confirm
+        self.stop()
+
+class ButtonSubmit(View):
+    """Submit button."""
+    @nx.ui.button(label="Submit", style=nx.ButtonStyle.green, row=IS_LAST_ROW)
+    async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
+        "...submit!"
+        self.value = OutputValues.submit
         self.stop()
 
 class ButtonSkipEnabled(View):
@@ -84,3 +93,6 @@ class ViewCancelSkip(ButtonCancel, ButtonSkipEnabled):
 
 class ViewConfirmCancel(ButtonCancel, ButtonConfirm):
     """Confirm and cancel."""
+
+class ViewSubmitCancel(ButtonCancel, ButtonSubmit):
+    """Submit and cancel."""

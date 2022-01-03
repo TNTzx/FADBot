@@ -174,12 +174,12 @@ class ArtistControl(cmds.Cog):
             await parse_logs(artist_obj.discord_info.logs.editing)
 
         async def confirm_verify(artist_obj: a_l.Default):
-            TIMEOUT = vrs.Timeouts.SHORT
+            timeout = vrs.Timeouts.SHORT
 
             confirm = vw.ViewConfirmCancel()
             await ctx.send((
                 f"Are you sure that you want to `{action}` this `{_type} request`?\n"
-                f"This command times out in `{o_f.format_time(TIMEOUT)}`."
+                f"This command times out in `{o_f.format_time(timeout)}`."
             ))
             await ctx.send(embed=await artist_obj.generate_embed())
             message = await ctx.send(artist_obj.proof, view=confirm)
@@ -187,7 +187,7 @@ class ArtistControl(cmds.Cog):
             def check_button(interact: nx.Interaction):
                 return ctx.author.id == interact.user.id and interact.message.id == message.id
 
-            await vrs.global_bot.wait_for("interaction", check=check_button, timeout=TIMEOUT)
+            await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
 
             if confirm.value == vw.OutputValues.confirm:
                 return

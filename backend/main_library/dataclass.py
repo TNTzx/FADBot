@@ -16,9 +16,6 @@ import backend.other_functions as o_f
 class Dataclass():
     """Base class for dataclasses."""
 
-    def __init__(self, data=None):
-        pass
-
     def get_dict(self):
         """Gets the dictionary object of the function."""
         return o_f.get_dict_attr(self)
