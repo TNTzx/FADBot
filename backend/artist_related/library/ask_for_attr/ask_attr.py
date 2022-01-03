@@ -198,7 +198,7 @@ async def ask_attribute(ctx: cmds.Context,
         elif response.value == vw.OutputValues.skip:
             await ctx.author.send("Section skipped.")
             return skip_default
-        return None
+        return response
 
 
     while True:

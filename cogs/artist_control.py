@@ -5,6 +5,7 @@
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
+from async_timeout import asyncio
 import nextcord as nx
 import nextcord.ext.commands as cmds
 import requests as req
@@ -89,7 +90,7 @@ class ArtistControl(cmds.Cog):
     @i_u.sustained_command()
     async def artistrequestedit(self, ctx: cmds.Context, artist_id: int, *skips):
         if f_i.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
-            await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.", send_author=True)
+            await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.")
             return
 
         if not isinstance(ctx.channel, nx.channel.DMChannel):
@@ -99,21 +100,21 @@ class ArtistControl(cmds.Cog):
 
         await ctx.author.send("Getting artist...")
         artist = await a_ch.get_artist_by_id(ctx, artist_id)
+        artist.get_logs()
 
         if "no_init" not in skips:
             await artist.set_attribute(ctx, a_l.Default.Attributes.proof)
-            await artist.edit_loop(ctx)
-
-        await ctx.author.send("Sending `edit request`...")
-        a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
-
-        artist.get_logs()
+        
+        await artist.edit_loop(ctx)
 
         old_artist = a_l.get_artist_by_id_vadb(artist_id)
 
         if artist == old_artist:
             await s_e.send_error(ctx, "You didn't make any edits!", send_author=True)
             return
+
+        await ctx.author.send("Sending `edit request`...")
+        a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
 
         old_artist.states.status.value = 2
         a_l.VADB.Send.Edit(old_artist).send_data(old_artist.vadb_info.artist_id)
@@ -174,7 +175,7 @@ class ArtistControl(cmds.Cog):
             await parse_logs(artist_obj.discord_info.logs.editing)
 
         async def confirm_verify(artist_obj: a_l.Default):
-            timeout = vrs.Timeouts.SHORT
+            timeout = vrs.Timeouts.MEDIUM
 
             confirm = vw.ViewConfirmCancel()
             await ctx.send((
@@ -187,7 +188,10 @@ class ArtistControl(cmds.Cog):
             def check_button(interact: nx.Interaction):
                 return ctx.author.id == interact.user.id and interact.message.id == message.id
 
-            await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
+            try:
+                await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
+            except asyncio.TimeoutError:
+                await s_e.timeout_function(ctx, send_author=True)
 
             if confirm.value == vw.OutputValues.confirm:
                 return

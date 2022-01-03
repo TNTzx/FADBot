@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 import urllib.parse as ul
+import copy
 import requests as req
 import nextcord as nx
 import nextcord.ext.commands as cmds
@@ -215,8 +216,8 @@ class Default(dt.StandardDataclass, ArtistStructure):
         if self.__class__ != other.__class__:
             return False
 
-        self_new = self
-        other_new = other
+        self_new = copy.deepcopy(self)
+        other_new = copy.deepcopy(other)
 
         self_new.discord_info.logs = None
         other_new.discord_info.logs = None
@@ -570,7 +571,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                     await s_e.cancel_function(ctx, send_author=True)
                 elif isinstance(new_view.value[0], str):
                     await self.set_attribute(ctx, command_dict[new_view.value[0]],skippable=True)
-        
+
         while True:
             await edit()
             if await ask_c.ask_confirm(ctx):

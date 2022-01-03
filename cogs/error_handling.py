@@ -7,7 +7,7 @@
 
 import asyncio
 import traceback as tr
-# import nextcord as nx
+import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
@@ -60,11 +60,17 @@ class ErrorHandler(cmds.Cog):
             if hasattr(exc.original, "status"):
                 if exc.original.status == 403:
                     error_message = f"Forbidden from sending. Code {exc.original.code}: {exc.original.text}"
-                    lgr.log_global_exc.warning(error_message)
+                    lgr.log_discord_forbidden.warning(error_message)
                     return
 
             if isinstance(exc.original, asyncio.TimeoutError):
                 await s_e.send_error(ctx, "Command timed out. Please run the command again.")
+                return
+
+            if isinstance(exc.original, nx.NotFound):
+                error_message = f"Not found. Code {exc.original.code}: {exc.original.text}"
+                lgr.log_discord_forbidden.warning(error_message)
+                return
 
         if checkexc(cmds.CommandNotFound):
             return

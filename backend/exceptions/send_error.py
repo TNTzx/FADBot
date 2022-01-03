@@ -52,13 +52,21 @@ async def send_error(ctx: cmds.Context, suffix, exc="", other_data: nx.Message =
     return
 
 
-async def cancel_function(ctx: cmds.Context, send_author=False):
-    """Cancels the current function."""
-    message = "Command cancelled."
-
+async def error_handle(message: str, ctx:cmds.Context, send_author=False):
+    """Send an error message for a specific error. Exit everything afterwards."""
     if send_author:
         await ctx.author.send(message)
     else:
         await ctx.send(message)
 
     raise c_e.ExitFunction()
+
+
+
+async def cancel_function(ctx: cmds.Context, send_author=False):
+    """Cancels the current function."""
+    await error_handle("Command cancelled.", ctx, send_author=send_author)
+
+async def timeout_function(ctx: cmds.Context, send_author=False):
+    """Command timed out."""
+    await error_handle("Command timed out. Please use the command again.", ctx, send_author=send_author)
