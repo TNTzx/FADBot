@@ -11,7 +11,6 @@
 
 
 from __future__ import annotations
-from os import path
 import urllib.parse as ul
 import requests as req
 import nextcord as nx
@@ -23,9 +22,11 @@ import global_vars.variables as vrs
 import backend.main_library.dataclass as dt
 import backend.main_library.message_pointer as m_p
 import backend.main_library.asking.wait_for as w_f
+import backend.main_library.views as vw
 import backend.main_library.other as mot
-import backend.artist_related.library.ask_for_attr.ask_attr as ask_a
 import backend.artist_related.library.log_library as l_l
+import backend.artist_related.library.states_library as s_l
+import backend.artist_related.library.ask_for_attr.ask_attr as ask_a
 import backend.artist_related.library.ask_for_attr.views as a_f_a_v
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.vadb.vadb_interact as v_i
@@ -58,6 +59,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
     """
 
     def __init__(self, data=None):
+        super().__init__()
         self.name = "default name"
         self.proof = DEFAULT_IMAGE
         self.vadb_info = self.VADBInfo()
@@ -73,6 +75,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         page: str
         """
         def __init__(self):
+            super().__init__()
             self.artist_id = None
             self.page = "https://fadb.live/"
 
@@ -81,6 +84,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         logs: list[o_f.Log]
         """
         def __init__(self):
+            super().__init__()
             self.logs = self.Logs()
 
         class Logs(dt.DataclassSub):
@@ -88,6 +92,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             pending: list[o_f.Log]
             editing: list[o_f.Log]"""
             def __init__(self):
+                super().__init__()
                 self.pending = [l_l.Log()]
                 self.editing = [l_l.Log()]
 
@@ -98,20 +103,11 @@ class Default(dt.StandardDataclass, ArtistStructure):
         usage_rights: list[dict[str, Any]]
         """
         def __init__(self):
-            status_dict = {
-                0: "Completed",
-                1: "No Contact",
-                2: "Pending",
-                3: "Requested"
-            }
+            super().__init__()
+            status_dict = {status.value: status.label for status in s_l.status_list}
             self.status: mot.Match = mot.Match(status_dict, 2)
 
-            availability_dict = {
-                0: "Verified",
-                1: "Disallowed",
-                2: "Contact Required",
-                3: "Varies"
-            }
+            availability_dict = {avail.value: avail.label for avail in s_l.availability_list}
             self.availability: mot.Match = mot.Match(availability_dict, 2)
 
             self.usage_rights: list[dict[str, str]] = None
@@ -126,6 +122,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         socials: list[dict[str, Any]]
         """
         def __init__(self):
+            super().__init__()
             self.description = None
             self.notes = None
             self.aliases = [self.Alias()]
@@ -136,6 +133,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         class Alias(dt.DataclassSub):
             """Stores an alias."""
             def __init__(self) -> None:
+                super().__init__()
                 self.name = None
 
         class Images(dt.DataclassSub):
@@ -144,6 +142,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             banner_url: str
             """
             def __init__(self):
+                super().__init__()
                 self.avatar_url = DEFAULT_IMAGE
                 self.banner_url = DEFAULT_IMAGE
 
@@ -153,6 +152,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             genre: str
             """
             def __init__(self):
+                super().__init__()
                 self.tracks = 0
                 self.genre = None
 
@@ -411,23 +411,24 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 self.proof = proof
 
         elif check(attributes.availability):
+            options_list = [avail.get_option() for avail in s_l.availability_list]
+            class AvailabilityChoose(vw.View):
+                """Options!"""
+                @nx.ui.select(placeholder="Select availability...", options=options_list, row=0)
+                async def avail_choose(self, select: nx.ui.Select, interact: nx.Interaction):
+                    """a"""
+                    self.value = select.values
+                    self.stop()
+
             availability = await ask_a.ask_attribute(ctx,
                 "Is the artist verified, disallowed, or does it vary between songs?",
-                (
-                    "\"Verified\" means that the artist's songs are allowed to be used for custom PA levels.\n"
-                    "\"Disallowed\" means that the artist's songs cannot be used.\n"
-                    "\"Varies\" means that it depends per song, for example, remixes aren't allowed for use but all their other songs are allowed."
-                ),
-                ask_a.OutputTypes.text, choices=["Verified", "Disallowed", "Varies"],
-                skippable=skippable
+                "Select any from the dropdown!",
+                ask_a.OutputTypes.choice,
+                add_view = AvailabilityChoose,
+                skippable = skippable
             )
-            if availability is not None:
-                dictionary = {
-                    "verified": 0,
-                    "disallowed": 1,
-                    "varies": 3,
-                }
-                self.states.availability.value = dictionary[availability]
+            self.states.availability.value = availability.value
+
         elif check(attributes.usage_rights):
             usage_rights = await ask_a.ask_attribute(ctx,
                 "What are the usage rights for the artist?",
@@ -681,6 +682,7 @@ class VADB:
             default_class = Default
 
             def __init__(self, data=None):
+                super().__init__()
                 self.name = None
                 self.status = None
                 self.availability = None
@@ -702,6 +704,7 @@ class VADB:
             default_class = Default
 
             def __init__(self, datas=None):
+                super().__init__()
                 self.name = None
                 self.status = None
                 self.availability = None
@@ -745,6 +748,7 @@ class VADB:
             default_class = Default
 
             def __init__(self, datas=None):
+                super().__init__()
                 self.artist_id = None
 
             def dict_from_default(self, data: Default):
@@ -766,6 +770,7 @@ class VADB:
         default_class = Default
 
         def __init__(self, data=None):
+            super().__init__()
             self.id = None
             self.name = None
             self.aliases = None
@@ -781,6 +786,7 @@ class VADB:
         class Details(dt.DataclassSub):
             """Contains details."""
             def __init__(self, datas: dict = None):
+                super().__init__()
                 self.avatarUrl = None
                 self.bannerUrl = None
                 self.socials = None
@@ -814,6 +820,7 @@ class Firebase:
         default_class = Default
 
         def __init__(self, data=None):
+            super().__init__()
             self.artist_id = None
             self.data: Default = None
 

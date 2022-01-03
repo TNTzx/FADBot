@@ -36,7 +36,7 @@ async def check_has_dict(choices, choices_dict):
     return False
 
 
-async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, choices: list[str] = None, choices_dict: list[str] = None,):
+async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, choices_dict: list[str] = None,):
     """Reformats the response."""
     async def number():
         if not response.content.isnumeric():
@@ -45,11 +45,11 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
         return int(response.content)
 
     async def text():
-        if await check_has_required(choices):
-            if not response.content.lower() in [x.lower() for x in choices]:
-                await w_f.send_error(ctx, "You didn't send a choice in the list of choices!")
-                return None
-            return response.content.lower()
+        # if await check_has_required(choices):
+        #     if not response.content.lower() in [x.lower() for x in choices]:
+        #         await w_f.send_error(ctx, "You didn't send a choice in the list of choices!")
+        #         return None
+        #     return response.content.lower()
         if response.content == "":
             await w_f.send_error(ctx, "You didn't send anything!")
             return None
@@ -119,10 +119,10 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
                 if not len(item) == 2:
                     raise IndexError()
 
-                if not await check_has_dict(choices, choices_dict):
-                    entry_dict[item[0]] = item[1]
-                else:
-                    entry_dict[item[0]] = item[1].lower()
+                # if not await check_has_dict(choices, choices_dict):
+                #     entry_dict[item[0]] = item[1]
+                # else:
+                entry_dict[item[0]] = item[1].lower()
             except (KeyError, IndexError):
                 await w_f.send_error(ctx, "Your formatting is wrong!")
                 return None
@@ -149,8 +149,8 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
 async def ask_attribute(ctx: cmds.Context,
         title, description, output_type,
         add_view: typ.Type[vw.View] = a_f_a_v.Blank,
-        choices: list[str] = None, choices_dict: list[str] = None,
-        skippable=False, skip_default=None):
+        choices_dict: list[str] = None,
+        skippable=False, skip_default=None) -> str | int | list[str] | dict | vw.View:
     """Returns the response for setting attributes."""
 
     async def generate_embed():
@@ -165,16 +165,13 @@ async def ask_attribute(ctx: cmds.Context,
 
         field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
 
-        if not await check_has_required(choices):
+        if output_type == OutputTypes.choice:
             field_desc = (
                 "__Here is an example of what you have to send:__\n"
                 f"`{output_type['example']}`"
             )
         else:
-            field_desc = (
-                "Choose from one of the following choices: \n"
-                f"`{'`, `'.join(choices)}`"
-            )
+            field_desc = "Choose from the dropdown menu!"
 
         embed.add_field(name=field_name, value=field_desc, inline=False)
 
@@ -189,20 +186,20 @@ async def ask_attribute(ctx: cmds.Context,
 
         return embed
 
-    class SkipMerge(
+    class Merge(
             a_f_a_v.ViewCancelSkip if skippable else a_f_a_v.ViewCancelOnly,
             add_view):
         """Cancel Skip with custom view."""
 
 
     while True:
-        current_view = SkipMerge()
+        current_view = Merge()
         message = await ctx.author.send(
             embed = await generate_embed(),
             view = current_view
         )
 
-        if not await check_has_required(choices):
+        if not output_type == OutputTypes.choice:
             response_type, response = await w_f.wait_for_message_view(ctx, message, current_view, timeout=TIMEOUT)
             if response_type == w_f.OutputTypes.view:
                 if response.value == a_f_a_v.OutputValues.cancel:
@@ -211,7 +208,7 @@ async def ask_attribute(ctx: cmds.Context,
                     await ctx.author.send("Section skipped.")
                     return skip_default
 
-            response = await reformat(ctx, output_type, response, choices=choices, choices_dict=choices_dict)
+            response = await reformat(ctx, output_type, response, choices_dict=choices_dict)
             if response is not None:
                 break
         else:

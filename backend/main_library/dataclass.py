@@ -16,6 +16,9 @@ import backend.other_functions as o_f
 class Dataclass():
     """Base class for dataclasses."""
 
+    def __init__(self, data=None):
+        pass
+
     def get_dict(self):
         """Gets the dictionary object of the function."""
         return o_f.get_dict_attr(self)
@@ -27,7 +30,7 @@ class Dataclass():
                 obj: Dataclass | list[Dataclass] | mot.Match = getattr(self, key)
             except AttributeError as exc:
                 raise AttributeError(f"Attribute '{key}' not found for object of type '{self.__class__.__name__}'") from exc
-                
+
 
             if obj is not None:
                 if isinstance(obj, mot.Match):
@@ -51,7 +54,7 @@ class Dataclass():
 
     def __repr__(self) -> str:
         return f"Dataclass: {self.get_dict()}"
-    
+
     def __eq__(self, other: Dataclass):
         if self.__class__ != other.__class__:
             return False
@@ -72,9 +75,6 @@ def init_wrapper(init, end_init):
 
 class DataclassConvention(Dataclass):
     """Base class for standard and non-standard dataclasses."""
-
-    def __init__(self, data=None):
-        pass
 
     @abc.abstractmethod
     def end_init(self, data=None):
