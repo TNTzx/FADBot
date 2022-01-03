@@ -563,11 +563,9 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "Click on `Confirm` to finish editing the artist."
                 "Click on `Cancel` to cancel the command."
             ))
-
-            message = await ctx.author.send(
-                embed = await self.generate_embed(),
-                view = view
-            )
+            
+            await ctx.author.send(embed = await self.generate_embed())
+            message = await ctx.author.send(self.proof, view=view)
 
             new_view = await w_f.wait_for_view(ctx, message, view)
 
@@ -576,7 +574,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             elif new_view.value == a_f_a_v.OutputValues.cancel:
                 await s_e.cancel_function(ctx, send_author=True)
             elif isinstance(new_view.value[0], str):
-                await self.set_attribute(ctx, command_dict[new_view.value],skippable=True)
+                await self.set_attribute(ctx, command_dict[new_view.value[0]],skippable=True)
 
     async def trigger_all_set_attributes(self, ctx: cmds.Context):
         """Triggers all attributes."""
