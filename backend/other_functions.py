@@ -106,7 +106,7 @@ def subtract_list(minuend: list, subtrahend: list):
 
 def get_value_from_key(diction: dict, value):
     """Get the key using a value. INVERSE DICTIONARY!!!!!!!!"""
-    return diction.keys()[diction.values().index(value)]
+    return list(diction.keys())[list(diction.values()).index(value)]
 
 def pr_print(value, htchar='\t', lfchar='\n', indent=0):
     """Returns a string for pretty logging."""

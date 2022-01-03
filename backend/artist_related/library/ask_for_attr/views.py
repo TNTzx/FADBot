@@ -25,7 +25,6 @@ class Blank(vw.View):
 
 class ButtonCancel(vw.View):
     """Cancel button."""
-
     @nx.ui.button(label="Cancel", style=nx.ButtonStyle.red, row=IS_LAST_ROW)
     async def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
         "...cancel!"
@@ -35,7 +34,7 @@ class ButtonCancel(vw.View):
 class ButtonConfirm(vw.View):
     """Confirm button."""
     @nx.ui.button(label="Confirm", style=nx.ButtonStyle.green, row=IS_LAST_ROW)
-    async def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
+    async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
         "...cancel!"
         self.value = OutputValues.confirm
         self.stop()

@@ -52,13 +52,13 @@ async def send_error(ctx: cmds.Context, suffix, exc="", other_data: nx.Message =
     return
 
 
-async def exit_function(ctx: cmds.Context, send_author=False):
-    """Exits the current function."""
+async def cancel_function(ctx: cmds.Context, send_author=False):
+    """Cancels the current function."""
     message = "Command cancelled."
 
     if send_author:
         await ctx.author.send(message)
     else:
         await ctx.send(message)
-    
+
     raise c_e.ExitFunction()

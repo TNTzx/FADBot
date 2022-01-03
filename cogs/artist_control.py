@@ -192,7 +192,7 @@ class ArtistControl(cmds.Cog):
             if confirm.value == a_f_a_v.OutputValues.confirm:
                 return
 
-            await s_e.exit_function(ctx)
+            await s_e.cancel_function(ctx)
 
 
         def log_verify(artist_obj: a_l.Default):

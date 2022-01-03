@@ -165,7 +165,7 @@ async def ask_attribute(ctx: cmds.Context,
 
         field_name = f"You have to send {output_type['prefix']} {output_type['type']}!"
 
-        if output_type == OutputTypes.choice:
+        if not output_type == OutputTypes.choice:
             field_desc = (
                 "__Here is an example of what you have to send:__\n"
                 f"`{output_type['example']}`"
@@ -178,8 +178,8 @@ async def ask_attribute(ctx: cmds.Context,
         make_empty_field()
 
         skip_str = (
-            f"This command times out in {o_f.format_time(TIMEOUT)}.\n"
-            f"Click on the \"Skip\" button to skip this section." if skippable else ""
+            f"This command times out in {o_f.format_time(TIMEOUT)}.\n" +
+            ("Click on the \"Skip\" button to skip this section." if skippable else "") +
             "Click on the \"Cancel\" button to cancel the current command.\n"
         )
         embed.set_footer(text=skip_str)
@@ -190,6 +190,15 @@ async def ask_attribute(ctx: cmds.Context,
             a_f_a_v.ViewCancelSkip if skippable else a_f_a_v.ViewCancelOnly,
             add_view):
         """Cancel Skip with custom view."""
+
+    async def check_value(response: typ.Type[vw.View]):
+        """Checks the value of a view."""
+        if response.value == a_f_a_v.OutputValues.cancel:
+            await s_e.cancel_function(ctx, send_author=True)
+        elif response.value == a_f_a_v.OutputValues.skip:
+            await ctx.author.send("Section skipped.")
+            return skip_default
+        return None
 
 
     while True:
@@ -202,18 +211,14 @@ async def ask_attribute(ctx: cmds.Context,
         if not output_type == OutputTypes.choice:
             response_type, response = await w_f.wait_for_message_view(ctx, message, current_view, timeout=TIMEOUT)
             if response_type == w_f.OutputTypes.view:
-                if response.value == a_f_a_v.OutputValues.cancel:
-                    await s_e.exit_function(ctx, send_author=True)
-                elif response.value == a_f_a_v.OutputValues.skip:
-                    await ctx.author.send("Section skipped.")
-                    return skip_default
+                return await check_value(response)
 
             response = await reformat(ctx, output_type, response, choices_dict=choices_dict)
             if response is not None:
                 break
         else:
             response = await w_f.wait_for_view(ctx, message, current_view, timeout=TIMEOUT)
-            break
+            return await check_value(response)
 
     return response
 
