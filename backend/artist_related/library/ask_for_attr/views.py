@@ -16,6 +16,7 @@ class OutputValues:
     """Contains output values for stuff like Cancel and Skip."""
     cancel = m_ot.Unique()
     skip = m_ot.Unique()
+    confirm = m_ot.Unique()
 
 
 class Blank(vw.View):
@@ -31,9 +32,17 @@ class ButtonCancel(vw.View):
         self.value = OutputValues.cancel
         self.stop()
 
+class ButtonConfirm(vw.View):
+    """Confirm button."""
+    @nx.ui.button(label="Confirm", style=nx.ButtonStyle.green, row=IS_LAST_ROW)
+    async def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
+        "...cancel!"
+        self.value = OutputValues.confirm
+        self.stop()
+
 class ButtonSkipEnabled(vw.View):
     """Skip button. Enabled."""
-    @nx.ui.button(label="Skip", style=nx.ButtonStyle.green, row=IS_LAST_ROW)
+    @nx.ui.button(label="Skip", style=nx.ButtonStyle.blurple, row=IS_LAST_ROW)
     async def skip_enabled(self, button: nx.ui.Button, interact: nx.Interaction):
         """skip!"""
         self.value = OutputValues.skip
@@ -41,7 +50,7 @@ class ButtonSkipEnabled(vw.View):
 
 class ButtonSkipDisabled(vw.View):
     """Skip button. Disabled."""
-    @nx.ui.button(label="Skip", disabled=True, style=nx.ButtonStyle.green, row=IS_LAST_ROW)
+    @nx.ui.button(label="Skip", disabled=True, style=nx.ButtonStyle.blurple, row=IS_LAST_ROW)
     async def skip_disabled(self, button: nx.ui.Button, interact: nx.Interaction):
         """skip!"""
         self.value = OutputValues.skip
@@ -53,3 +62,6 @@ class ViewCancelOnly(ButtonCancel, ButtonSkipDisabled):
 
 class ViewCancelSkip(ButtonCancel, ButtonSkipEnabled):
     """Cancel button with skip."""
+
+class ViewConfirmCancel(ButtonCancel, ButtonConfirm):
+    """Confirm and cancel."""

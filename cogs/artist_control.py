@@ -17,6 +17,7 @@ import backend.command_related.is_using as i_u
 import backend.artist_related.checks as a_ch
 import backend.artist_related.library.artist_library as a_l
 import backend.artist_related.library.log_library as l_l
+import backend.artist_related.library.ask_for_attr.views as a_f_a_v
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.exceptions.send_error as s_e
 import backend.exceptions.custom_exc as c_e
@@ -173,24 +174,9 @@ class ArtistControl(cmds.Cog):
             await parse_logs(artist_obj.discord_info.logs.editing)
 
         async def confirm_verify(artist_obj: a_l.Default):
-            class Confirm(nx.ui.View):
-                def __init__(self):
-                    super().__init__()
-                    self.value = None
-
-                @nx.ui.button(label="Confirm", style=nx.ButtonStyle.green)
-                async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
-                    self.value = True
-                    self.stop()
-
-                @nx.ui.button(label="Cancel", style=nx.ButtonStyle.red)
-                async def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
-                    self.value = False
-                    self.stop()
-
             timeout = 60
 
-            confirm = Confirm()
+            confirm = a_f_a_v.ViewConfirmCancel()
             await ctx.send((
                 f"Are you sure that you want to `{action}` this `{_type} request`?\n"
                 f"This command times out in `{o_f.format_time(timeout)}`."
@@ -203,10 +189,10 @@ class ArtistControl(cmds.Cog):
 
             await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
 
-            if confirm.value:
+            if confirm.value == a_f_a_v.OutputValues.confirm:
                 return
-            await ctx.send("Cancelled.")
-            raise c_e.ExitFunction()
+
+            await s_e.exit_function(ctx)
 
 
         def log_verify(artist_obj: a_l.Default):

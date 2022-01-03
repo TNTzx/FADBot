@@ -64,13 +64,13 @@ async def wait_for_view(ctx: cmds.Context, original_message: nx.Message, view: t
     return view
 
 
-class MessageViewCheck:
+class OutputTypes:
     """A class containing identifiers for outputs of a message or a view."""
     message = m_o.Unique()
     view = m_o.Unique()
 
 async def wait_for_message_view(ctx: cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout=TIMEOUT):
-    """Waits for a message then returns that message. If instead it was a view interaction, return the view of that interaction."""
+    """Waits for a message then returns (MessageViewCheck.message, message). If instead it was a view interaction, return (MessageViewCheck.view, view) of that interaction."""
 
     events = [
         vrs.global_bot.wait_for("message", check=w_f_ch.check_message(ctx)),
@@ -90,8 +90,8 @@ async def wait_for_message_view(ctx: cmds.Context, original_message: nx.Message,
         task.cancel()
 
     if isinstance(result, nx.Message):
-        return MessageViewCheck.message, result
+        return OutputTypes.message, result
     if isinstance(result, nx.Interaction):
-        return MessageViewCheck.view, view
+        return OutputTypes.view, view
 
     raise c_e.InvalidResponse()

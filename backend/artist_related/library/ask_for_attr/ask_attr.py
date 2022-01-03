@@ -17,11 +17,11 @@ import nextcord.ext.commands as cmds
 import backend.main_library.asking.wait_for as w_f
 import backend.main_library.views as vw
 import backend.artist_related.library.ask_for_attr.views as a_f_a_v
-import backend.exceptions.custom_exc as c_e
+import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
-TIMEOUT = 60 * 10
+TIMEOUT = 5
 
 
 async def check_has_required(choices):
@@ -181,7 +181,7 @@ async def ask_attribute(ctx: cmds.Context,
         make_empty_field()
 
         skip_str = (
-            f"This command times out in `{o_f.format_time(TIMEOUT)}`.\n"
+            f"This command times out in {o_f.format_time(TIMEOUT)}.\n"
             f"Click on the \"Skip\" button to skip this section." if skippable else ""
             "Click on the \"Cancel\" button to cancel the current command.\n"
         )
@@ -189,31 +189,24 @@ async def ask_attribute(ctx: cmds.Context,
 
         return embed
 
-    def get_view_from_skippable():
-        if skippable:
-            class Merged(a_f_a_v.ViewCancelSkip, add_view):
-                """Cancel Skip with custom view."""
-        else:
-            class Merged(a_f_a_v.ViewCancelOnly, add_view):
-                """Cancel with custom view."""
-        return Merged
-
-    current_view_class = get_view_from_skippable()
+    class SkipMerge(
+            a_f_a_v.ViewCancelSkip if skippable else a_f_a_v.ViewCancelOnly,
+            add_view):
+        """Cancel Skip with custom view."""
 
 
     while True:
-        current_view = current_view_class()
+        current_view = SkipMerge()
         message = await ctx.author.send(
-            embed=await generate_embed(),
+            embed = await generate_embed(),
             view = current_view
         )
 
         if not await check_has_required(choices):
-            response_type, response = await w_f.wait_for_message_view(ctx, message, current_view)
-            if response_type == w_f.MessageViewCheck.view:
+            response_type, response = await w_f.wait_for_message_view(ctx, message, current_view, timeout=TIMEOUT)
+            if response_type == w_f.OutputTypes.view:
                 if response.value == a_f_a_v.OutputValues.cancel:
-                    await ctx.author.send("Command cancelled.")
-                    raise c_e.ExitFunction()
+                    await s_e.exit_function(ctx, send_author=True)
                 elif response.value == a_f_a_v.OutputValues.skip:
                     await ctx.author.send("Section skipped.")
                     return skip_default
@@ -222,9 +215,10 @@ async def ask_attribute(ctx: cmds.Context,
             if response is not None:
                 break
         else:
-            response = await w_f.wait_for_view(ctx, message, current_view)
+            response = await w_f.wait_for_view(ctx, message, current_view, timeout=TIMEOUT)
 
     return response
+
 
 class OutputTypes:
     """Available output types for the wait_for_response() function."""

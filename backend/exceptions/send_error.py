@@ -4,14 +4,15 @@
 
 import traceback
 import nextcord as nx
-import nextcord.ext.commands as commands
+import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
+import backend.exceptions.custom_exc as c_e
 
 
 ERROR_PREFIX = "**Error!**\n"
 
-async def send_error(ctx: commands.Context, suffix, exc="", other_data: nx.Message = None,
+async def send_error(ctx: cmds.Context, suffix, exc="", other_data: nx.Message = None,
         send_author=False, send_owner=False, send_console=False, cooldown_reset=False):
     """Sends an error to a context."""
 
@@ -49,3 +50,15 @@ async def send_error(ctx: commands.Context, suffix, exc="", other_data: nx.Messa
         else:
             await ctx.channel.send(text)
     return
+
+
+async def exit_function(ctx: cmds.Context, send_author=False):
+    """Exits the current function."""
+    message = "Command cancelled."
+
+    if send_author:
+        await ctx.author.send(message)
+    else:
+        await ctx.send(message)
+    
+    raise c_e.ExitFunction()

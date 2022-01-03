@@ -21,14 +21,16 @@ import tldextract as tld
 
 import global_vars.variables as vrs
 import backend.main_library.dataclass as dt
-import backend.main_library.other as mot
 import backend.main_library.message_pointer as m_p
 import backend.main_library.asking.wait_for as w_f
+import backend.main_library.other as mot
 import backend.artist_related.library.ask_for_attr.ask_attr as ask_a
 import backend.artist_related.library.log_library as l_l
+import backend.artist_related.library.ask_for_attr.views as a_f_a_v
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.vadb.vadb_interact as v_i
 import backend.exceptions.custom_exc as c_exc
+import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
@@ -383,16 +385,17 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
             search_result = search_for_artist(name)
             if search_result is not None:
-                await ctx.author.send((
+                view = a_f_a_v.ViewConfirmCancel()
+                message = await ctx.author.send((
                     "Other artist(s) found with this name. Please check if you have a duplicate submission.\n"
-                    "Use `##cancel` if you think you have a different artist, or type anything to continue.\n"
+                    "Use the `Confirm` button to continue, but make sure that the artist name is unique!\n"
+                    "Use the `Cancel` button if the artist is already listed below.\n"
                     "If you are submitting an artist with the same exact name as these results, try to add extra characters on the name to avoid duplicates."
-                    ), embed=generate_search_embed(search_result))
-                response = await w_f.wait_for_message(ctx)
-                response = await ask_a.reformat(ctx, ask_a.OutputTypes.text, response)
+                    ), embed=generate_search_embed(search_result), view=view)
 
-                if response == "##cancel":
-                    return
+                response = await w_f.wait_for_view(ctx, message, view)
+                if response.value == a_f_a_v.OutputValues.cancel:
+                    await s_e.exit_function(ctx, send_author=True)
 
             if name is not None:
                 self.name = name
@@ -406,6 +409,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             )
             if proof is not None:
                 self.proof = proof
+
         elif check(attributes.availability):
             availability = await ask_a.ask_attribute(ctx,
                 "Is the artist verified, disallowed, or does it vary between songs?",
