@@ -626,8 +626,8 @@ class Default(dt.StandardDataclass, ArtistStructure):
     async def post_log(self, log_type: l_l.LogTypes.Pending | l_l.LogTypes.Editing, user_id: int):
         """Posts logs to channels by type."""
         prefix = f"{log_type.title_str} The PA moderators will look into this."
-        await self.post_log_to_channels(prefix, f_i.get_data(["logData", "dump"]))
-        live_logs = await self.post_log_to_channels(prefix, f_i.get_data(["logData", "live"]), user_id=user_id)
+        await self.post_log_to_channels(prefix, l_l.LogChannelTypes.DUMP.get_all_channels())
+        live_logs = await self.post_log_to_channels(prefix, l_l.LogChannelTypes.LIVE.get_all_channels(), user_id=user_id)
         if log_type == l_l.LogTypes.PENDING:
             self.discord_info.logs.pending = live_logs
         elif log_type == l_l.LogTypes.EDITING:
