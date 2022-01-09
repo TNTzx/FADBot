@@ -5,6 +5,7 @@
 # pylint: disable=unused-argument
 # pylint: disable=no-self-use
 
+
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
@@ -13,6 +14,7 @@ import backend.command_related.command_wrapper as c_w
 import backend.command_related.choice_param as c_p
 import backend.main_library.checks as ch
 import backend.databases.firebase.firebase_interaction as f_i
+import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
 
 
@@ -71,19 +73,22 @@ class LogControl(cmds.Cog):
                 "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
             )
         },
-        aliases = ["llr"],
+        aliases = ["llus"],
         req_guild_admin = True,
         cooldown = 10, cooldown_type = cmds.BucketType.guild
     )
-    async def loglocationremove(self, ctx: cmds.Context, log_type: str):
+    async def loglocationunset(self, ctx: cmds.Context, log_type: str):
         await ctx.send("Unregistering log channel...")
 
         @c_p.choice_param_cmd(ctx, log_type, ["dump", "live"])
         async def log_type_choice():
-            f_i.override_data(
-                ["guildData", str(ctx.guild.id), "logs", "locations", log_type],
-                vrs.PLACEHOLDER_DATA
-            )
+            path_initial = ["guildData", str(ctx.guild.id), "logs", "locations", log_type]
+
+            if f_i.get_data(path_initial) == vrs.PLACEHOLDER_DATA:
+                await s_e.send_error(ctx, f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{vrs.CMD_PREFIX}loglocationset`!")
+                raise c_e.ExitFunction()
+
+            f_i.override_data(path_initial, vrs.PLACEHOLDER_DATA)
 
         await log_type_choice()
 
