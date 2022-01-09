@@ -12,7 +12,7 @@ import requests as req
 
 import global_vars.variables as vrs
 import global_vars.loggers as lgr
-import backend.main_library.choice_param as c_p
+import backend.command_related.choice_param as c_p
 import backend.main_library.views as vw
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
@@ -104,7 +104,7 @@ class ArtistControl(cmds.Cog):
 
         if "no_init" not in skips:
             await artist.set_attribute(ctx, a_l.Default.Attributes.proof)
-        
+
         await artist.edit_loop(ctx)
 
         old_artist = a_l.get_artist_by_id_vadb(artist_id)
@@ -169,7 +169,7 @@ class ArtistControl(cmds.Cog):
                 for user in users:
                     await user.send(dm_message, embed=await artist_obj.generate_embed())
 
-                await artist_obj.post_log_to_channels(logs_message, f_i.get_data(["logData", "dump"]))
+                await artist_obj.post_log_to_channels(logs_message, l_l.LogChannelTypes.DUMP.get_all_channels())
 
             await parse_logs(artist_obj.discord_info.logs.pending)
             await parse_logs(artist_obj.discord_info.logs.editing)
