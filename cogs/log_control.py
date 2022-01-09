@@ -13,7 +13,7 @@ import backend.command_related.command_wrapper as c_w
 import backend.command_related.choice_param as c_p
 import backend.main_library.checks as ch
 import backend.databases.firebase.firebase_interaction as f_i
-import backend.other_functions as o_f
+import backend.exceptions.send_error as s_e
 
 
 class LogControl(cmds.Cog):
@@ -42,8 +42,11 @@ class LogControl(cmds.Cog):
 
         path_initial = ["guildData", str(ctx.guild.id), "logs", "locations"]
         for channel_id_on in f_i.get_data(path_initial).values():
-            if int(channel_id_on) == channel_mention.id:
-                await ctx.send(f"This channel is already being used as another log channel! Unregister existing channels using `{vrs.CMD_PREFIX}loglocationremove`!")
+            if channel_id_on == vrs.PLACEHOLDER_DATA:
+                continue
+            if int(channel_id_on) == channel.id:
+                await s_e.send_error(ctx, f"This channel is already being used as another log channel! Unregister existing channels using `{vrs.CMD_PREFIX}loglocationremove`!")
+                return
 
 
         @c_p.choice_param_cmd(ctx, log_type, ["dump", "live"])
@@ -68,7 +71,7 @@ class LogControl(cmds.Cog):
                 "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
             )
         },
-        aliases = "llr",
+        aliases = ["llr"],
         req_guild_admin = True,
         cooldown = 10, cooldown_type = cmds.BucketType.guild
     )

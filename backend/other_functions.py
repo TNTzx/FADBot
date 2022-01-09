@@ -39,7 +39,12 @@ async def get_channel_from_mention(mention: str):
         get_id = mention[2:-1]
     except TypeError:
         return None
-    obj = vrs.global_bot.get_channel(int(get_id))
+
+    try:
+        obj = vrs.global_bot.get_channel(int(get_id))
+    except ValueError:
+        return None
+
     return obj
 
 

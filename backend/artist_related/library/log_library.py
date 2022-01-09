@@ -98,7 +98,7 @@ class Log(dt.DataclassSub):
     def __init__(self, datas: dict = None):
         self.message = self.LogMessages()
         self.user_id = None
-    
+
     class LogMessages(dt.DataclassSub):
         """A data structure to store messages of a log.
         "main": m_p.MessagePointer
