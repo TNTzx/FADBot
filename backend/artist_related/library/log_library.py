@@ -63,7 +63,7 @@ class LogChannelTypes:
             for guild_data in guild_datas.values():
                 log_channel_id = guild_data["logs"]["locations"][self.PATH_ADD]
 
-                if log_channel_id == ["placeholder"]:
+                if log_channel_id == vrs.PLACEHOLDER_DATA:
                     continue
 
                 log_channel = vrs.global_bot.get_channel(int(log_channel_id))
@@ -86,7 +86,7 @@ class LogChannelTypes:
     class Live(Base):
         """Logs where only pending requests are kept."""
         PATH_ADD = "live"
-    
+
     LIVE = Live()
 
 

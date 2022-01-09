@@ -8,9 +8,12 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import global_vars.variables as vrs
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.choice_param as c_p
-import backend.artist_related.library.log_library as l_l
+import backend.main_library.checks as ch
+import backend.databases.firebase.firebase_interaction as f_i
+import backend.other_functions as o_f
 
 
 class LogControl(cmds.Cog):
@@ -19,7 +22,45 @@ class LogControl(cmds.Cog):
 
     @c_w.command(
         category = c_w.Categories.artist_management,
-        description = "Sets the channel to put the logs on.",
+        description = "Registers the channel to put the logs on.",
+        parameters = {
+            "[dump | live]": (
+                "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
+                "`Dump` log channels contain new artist requests and accepts / declines to those requests.\n"
+                "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
+            ),
+            "channel mention": "The channel mention. Make sure it is highlighted blue for the bot to recognize it properly."
+        },
+        aliases = ["lls"],
+        req_guild_admin = True,
+        cooldown = 10, cooldown_type = cmds.BucketType.guild
+    )
+    async def loglocationset(self, ctx: cmds.Context, log_type: str, channel_mention: str):
+        channel = await ch.channel_from_mention(ctx, channel_mention)
+
+        await ctx.send("Registering log channel...")
+
+        path_initial = ["guildData", str(ctx.guild.id), "logs", "locations"]
+        for channel_id_on in f_i.get_data(path_initial).values():
+            if int(channel_id_on) == channel_mention.id:
+                await ctx.send(f"This channel is already being used as another log channel! Unregister existing channels using `{vrs.CMD_PREFIX}loglocationremove`!")
+
+
+        @c_p.choice_param_cmd(ctx, log_type, ["dump", "live"])
+        async def log_type_choice():
+            f_i.override_data(
+                path_initial + [log_type],
+                str(channel.id)
+            )
+
+        await log_type_choice()
+
+        await ctx.send(f"`{log_type.capitalize()}` log channel registered as {channel.mention}.")
+
+
+    @c_w.command(
+        category = c_w.Categories.artist_management,
+        description = "Unregisters the specified channel for logging.",
         parameters = {
             "[dump | live]": (
                 "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
@@ -27,11 +68,23 @@ class LogControl(cmds.Cog):
                 "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
             )
         },
-        req_guild_admin = True
+        aliases = "llr",
+        req_guild_admin = True,
+        cooldown = 10, cooldown_type = cmds.BucketType.guild
     )
-    async def loglocation(self, ctx: cmds.Context, log_type: str, channel: str):
-        pass
+    async def loglocationremove(self, ctx: cmds.Context, log_type: str):
+        await ctx.send("Unregistering log channel...")
 
+        @c_p.choice_param_cmd(ctx, log_type, ["dump", "live"])
+        async def log_type_choice():
+            f_i.override_data(
+                ["guildData", str(ctx.guild.id), "logs", "locations", log_type],
+                vrs.PLACEHOLDER_DATA
+            )
+
+        await log_type_choice()
+
+        await ctx.send(f"`{log_type.capitalize()}` log channel unregistered.")
 
 
 def setup(bot: nx.Client):
