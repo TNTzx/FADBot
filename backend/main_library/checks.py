@@ -5,7 +5,7 @@ If conditions are met, the object being checked will be returned."""
 # pylint: disable=line-too-long
 
 
-# import nextcord as nx
+import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import backend.exceptions.custom_exc as c_e
@@ -21,7 +21,9 @@ async def channel_from_mention(ctx: cmds.Context, channel_mention: str):
 
     channel = await o_f.get_channel_from_mention(channel_mention)
 
-    if channel is None:
+    if channel is None or \
+            not isinstance(channel, nx.TextChannel) or \
+            channel not in ctx.guild.text_channels:
         await send_not_found()
 
     return channel
