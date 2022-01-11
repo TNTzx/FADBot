@@ -73,11 +73,11 @@ async def check_pa_mod(ctx: cmds.Context, user_id: int):
     devs = f_i.get_data(['mainData', 'devs'])
 
     user_id = str(user_id)
-    guild_id = str(ctx.guild.id)
 
     if user_id in can_verify["users"] + devs:
         return True
     if isinstance(ctx.channel, nx.channel.TextChannel):
+        guild_id = str(ctx.guild.id)
         if guild_id in can_verify["servers"]:
             for role in ctx.author.roles:
                 if str(role.id) in can_verify["servers"][guild_id]:

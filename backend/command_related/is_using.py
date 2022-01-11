@@ -26,7 +26,10 @@ def add_is_using_command(path: list[str], author_id: int):
 
 def delete_is_using_command(path: list[str], author_id: int):
     """Deletes the user as one that is using the command."""
-    f_i.deduct_data(path, [str(author_id)])
+    try:
+        f_i.deduct_data(path, [str(author_id)])
+    except c_e.FirebaseNoEntry:
+        return
 
 def delete_all_is_using():
     """Deletes all entries on paths in sustained commands."""
@@ -56,7 +59,7 @@ def sustained_command():
             ctx: cmds.Context = args[1]
 
             if check_if_using_command(path, ctx.author.id):
-                await s_e.send_error(ctx, f"You're already using this command! Please cancel the command you're currently using, or wait until it times out!")
+                await s_e.send_error(ctx, "You're already using this command! Please cancel the command you're currently using, or wait until it times out!")
                 return
 
             add_is_using_command(path, ctx.author.id)
