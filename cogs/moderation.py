@@ -10,6 +10,7 @@
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
+import global_vars.loggers as lgr
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.choice_param as c_p
 import backend.main_library.views as vw
@@ -97,6 +98,8 @@ class Moderation(cmds.Cog):
                     "**You have been banned from using this bot.**\n"
                     "Appeal to an official Project Arrhythmia moderator if you wish to attempt to be unbanned."
                 ))
+
+                log_message = f"[BAN] {user_name} | {user.id}"
             else:
                 if not user_in_ban_list():
                     await s_e.send_error(ctx, "The user hasn't been banned yet!")
@@ -106,6 +109,10 @@ class Moderation(cmds.Cog):
                 f_i.deduct_data(path_initial, [user_id_str])
                 await ctx.send(f"User `{user_name}` has been unbanned from using this bot.")
                 await user.send("**You have been unbanned from using this bot.**")
+
+                log_message = f"[UNBAN] {user_name} | {user.id}"
+            
+            lgr.log_bot_bans.info(log_message)
 
 
         await action_choice()
