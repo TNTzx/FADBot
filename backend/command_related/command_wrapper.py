@@ -67,6 +67,56 @@ for attribute in dir(Categories):
         ListOfCommands.commands_all[getattr(Categories, attribute)] = []
 
 
+async def check_pa_mod(ctx: cmds.Context, user_id: int):
+    """Checks if a user is a PA Moderator by role or a dev."""
+    can_verify = f_i.get_data(['mainData', 'canVerify'])
+    devs = f_i.get_data(['mainData', 'devs'])
+
+    user_id = str(user_id)
+
+    if user_id in can_verify["users"] + devs:
+        return True
+    if isinstance(ctx.channel, nx.channel.TextChannel):
+        guild_id = str(ctx.guild.id)
+        if guild_id in can_verify["servers"]:
+            for role in ctx.author.roles:
+                if str(role.id) in can_verify["servers"][guild_id]:
+                    return True
+    return False
+
+async def check_admin(ctx: cmds.Context, user_id: int):
+    """Check if the user is a guild admin."""
+    user_id = str(user_id)
+    guild_id = str(ctx.guild.id)
+
+    try:
+        admin_role = f_i.get_data(['guildData', guild_id, 'adminRole'])
+        admin_role = int(admin_role)
+    except c_exc.FirebaseNoEntry:
+        return False
+
+    for role in ctx.author.roles:
+        if role.id == admin_role:
+            return True
+    return False
+
+async def check_owner(ctx: cmds.Context, user_id: int):
+    """Check if the user is a guild owner."""
+    return user_id == ctx.guild.owner.id
+
+async def check_dev(user_id: int):
+    """Check if a user is a dev."""
+    user_id = str(user_id)
+    devs = f_i.get_data(['mainData', 'devs'])
+    return user_id in devs
+
+async def check_ban(user_id: int):
+    """Checks if the user is banned from the bot."""
+    user_id = str(user_id)
+    bans = f_i.get_data(["userData", "bans"])
+    return user_id in bans
+
+
 def command(
         category=Categories.basic_commands,
         description="TNTz forgot to put a description lmao please ping him",
@@ -97,56 +147,31 @@ def command(
                 return
 
 
-            async def check_pa_mod():
-                can_verify = f_i.get_data(['mainData', 'canVerify'])
-                devs = f_i.get_data(['mainData', 'devs'])
-
-                if str(ctx.author.id) in can_verify["users"] + devs:
-                    return True
-                if isinstance(ctx.channel, nx.channel.TextChannel):
-                    if str(ctx.guild.id) in can_verify["servers"]:
-                        for role in ctx.author.roles:
-                            if str(role.id) in can_verify["servers"][str(ctx.guild.id)]:
-                                return True
-                return False
-
-            async def check_admin():
-                try:
-                    admin_role = f_i.get_data(['guildData', str(ctx.guild.id), 'adminRole'])
-                    admin_role = int(admin_role)
-                except c_exc.FirebaseNoEntry:
-                    return False
-
-                for role in ctx.author.roles:
-                    if role.id == admin_role:
-                        return True
-                return False
-
-            async def check_owner():
-                return ctx.author.id == ctx.guild.owner.id
-
-            async def check_dev():
-                devs = f_i.get_data(['mainData', 'devs'])
-                return str(ctx.author.id) in devs
+            if await check_ban(ctx.author.id):
+                await s_e.send_error(ctx, (
+                    "You have been banned from using the bot.\n"
+                    "Appeal to an official Project Arrhythmia moderator if you wish."
+                ))
+                return
 
 
             if req_dev:
-                if not await check_dev():
+                if not await check_dev(ctx.author.id):
                     await send_error("Only developers of this bot may do this command!")
                     return
 
             if req_pa_mod:
-                if not await check_pa_mod():
+                if not await check_pa_mod(ctx, ctx.author.id):
                     await send_error("Only moderators from official servers may do this command!")
                     return
 
             if req_guild_owner:
-                if not await check_owner():
+                if not await check_owner(ctx, ctx.author.id):
                     await send_error("Only the server owner can do this command!")
                     return
 
             if req_guild_admin:
-                if not await check_admin():
+                if not await check_admin(ctx, ctx.author.id):
                     await send_error("Only admins of this server may do this command!")
                     return
 

@@ -82,6 +82,10 @@ log_bot_status = setup_logger(
     "bot_status",
     filename = os.path.join(LogPaths.bot_control, form_filename(1, "bot_status"))
 )
+log_bot_bans = setup_logger(
+    "bot_bans",
+    filename = os.path.join(LogPaths.bot_control, form_filename(2, "bot_bans"))
+)
 
 
 log_artist_control = setup_logger(

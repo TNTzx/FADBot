@@ -110,7 +110,10 @@ def remove_none_in_list(_list: list):
 
 def subtract_list(minuend: list, subtrahend: list):
     """Subtract two lists."""
-    return [item for item in minuend if item not in subtrahend]
+    difference = [item for item in minuend if item not in subtrahend]
+    if difference == minuend:
+        raise ValueError("Unchanged list.")
+    return difference
 
 def get_value_from_key(diction: dict, value):
     """Get the key using a value. INVERSE DICTIONARY!!!!!!!!"""

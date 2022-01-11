@@ -16,7 +16,6 @@ async def send_error(ctx: cmds.Context, suffix, exc="", other_data: nx.Message =
         send_author=False, send_owner=False, send_console=False, cooldown_reset=False):
     """Sends an error to a context."""
 
-    bot: nx.Client = vrs.global_bot
     text = f"{ERROR_PREFIX}{ctx.author.mention}, {suffix}"
     tntz: nx.User = vrs.TNTz
 
@@ -45,7 +44,7 @@ async def send_error(ctx: cmds.Context, suffix, exc="", other_data: nx.Message =
         await ctx.author.send(text)
     else:
         if isinstance(ctx.message.channel, nx.DMChannel):
-            channel = bot.get_channel(ctx.message.channel.id)
+            channel = ctx.message.channel
             await channel.send(text)
         else:
             await ctx.channel.send(text)

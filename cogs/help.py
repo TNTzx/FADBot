@@ -30,11 +30,14 @@ class Help(cmds.Cog):
     async def help(self, ctx: cmds.Context, command=None):
         async def show_all():
             embed = nx.Embed(
-                title="Help!",
-                description=f"""**Command Prefix: `{vrs.CMD_PREFIX}`**
-                    {"This bot was made possible by Nao's website. Go check it out! [**VADB link**](https://fadb.live/)"}
-                    {"This bot is created by //TNTz."}""",
-                color=0xFFAEAE
+                title = "Help!",
+                description=(
+                    f"**Command Prefix: `{vrs.CMD_PREFIX}`**\n"
+                    "This bot was made possible by Nao's website. Go check it out! [**VADB link**](https://fadb.live/)\n"
+                    "This bot is created by //TNTz.\n\n"
+                    "Use `##help <command>` to view help for that command!"
+                ),
+                color = 0xFFAEAE
             )
             for category, names in c_w.ListOfCommands.commands_all.items():
 
