@@ -14,6 +14,7 @@ import backend.command_related.command_wrapper as c_w
 import backend.command_related.choice_param as c_p
 import backend.main_library.views as vw
 import backend.main_library.asking.wait_for as w_f
+import backend.main_library.checks as ch
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
@@ -54,7 +55,8 @@ class Moderation(cmds.Cog):
     )
     async def botban(self, ctx: cmds.Context, action: str, user_id: int):
         path_initial = ["userData", "bans"]
-        user = vrs.global_bot.get_user(user_id)
+
+        user = await ch.get_user_from_id(ctx, user_id)
 
         if ctx.author.id == user.id:
             await s_e.send_error(ctx, "You're banning yourself!! WHY????? **WHYYYYYY????????**")
@@ -91,6 +93,10 @@ class Moderation(cmds.Cog):
                 await send_confirm()
                 f_i.append_data(path_initial, [user_id_str])
                 await ctx.send(f"User `{user_name}` has been banned from using this bot.")
+                await user.send((
+                    "**You have been banned from using this bot.**\n"
+                    "Appeal to an official Project Arrhythmia moderator if you wish to attempt to be unbanned."
+                ))
             else:
                 if not user_in_ban_list():
                     await s_e.send_error(ctx, "The user hasn't been banned yet!")
@@ -99,6 +105,7 @@ class Moderation(cmds.Cog):
                 await send_confirm()
                 f_i.deduct_data(path_initial, [user_id_str])
                 await ctx.send(f"User `{user_name}` has been unbanned from using this bot.")
+                await user.send("**You have been unbanned from using this bot.**")
 
 
         await action_choice()

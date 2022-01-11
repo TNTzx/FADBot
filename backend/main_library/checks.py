@@ -8,6 +8,7 @@ If conditions are met, the object being checked will be returned."""
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import global_vars.variables as vrs
 import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
@@ -27,3 +28,13 @@ async def channel_from_mention(ctx: cmds.Context, channel_mention: str):
         await send_not_found()
 
     return channel
+
+async def get_user_from_id(ctx: cmds.Context, user_id: int):
+    """Takes in a user ID and returns the user. Sends an error if failed."""
+
+    user = vrs.global_bot.get_user(user_id)
+    if user is None:
+        await s_e.send_error(ctx, "The user does not exist.")
+        raise c_e.ExitFunction()
+
+    return user
