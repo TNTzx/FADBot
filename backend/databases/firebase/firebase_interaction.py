@@ -67,7 +67,11 @@ def append_data(path: list[str], data: list):
 def deduct_data(path: list[str], data: list):
     """Deletes data in a specific path. Only works with lists."""
     old_data = get_data(path)
-    new_data = o_f.subtract_list(old_data, data)
+
+    try:
+        new_data = o_f.subtract_list(old_data, data)
+    except ValueError as exc:
+        raise c_exc.FirebaseNoEntry("Not subtracted.") from exc
 
     log_message = f"Deducted data from path {path}: {o_f.pr_print(new_data)}"
     lgr.log_firebase.info(log_message)

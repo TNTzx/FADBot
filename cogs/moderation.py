@@ -9,9 +9,16 @@
 # import nextcord as nx
 import nextcord.ext.commands as cmds
 
-import backend.databases.firebase.firebase_interaction as f_i
+import global_vars.variables as vrs
 import backend.command_related.command_wrapper as c_w
+import backend.command_related.choice_param as c_p
+import backend.main_library.views as vw
+import backend.main_library.asking.wait_for as w_f
+import backend.databases.firebase.firebase_interaction as f_i
+import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
+import backend.other_functions as o_f
+
 
 class Moderation(cmds.Cog):
     def __init__(self, bot):
@@ -32,6 +39,70 @@ class Moderation(cmds.Cog):
 
         f_i.edit_data(['guildData', ctx.guild.id], {'adminRole': role_id})
         await ctx.send("The admin role for this server has been set.")
+
+
+    @c_w.command(
+        category = c_w.Categories.moderation,
+        description = "Bans or unbans a user from using the bot.",
+        parameters = {
+            "[\"ban\" / \"unban\"]": "`ban`s or `unban`s the user.",
+            "user id": "The ID of the user being `ban`ned or `unban`ned."
+        },
+        aliases = ["bb"],
+        req_pa_mod = True,
+        guild_only = False
+    )
+    async def botban(self, ctx: cmds.Context, action: str, user_id: int):
+        path_initial = ["userData", "bans"]
+        user = vrs.global_bot.get_user(user_id)
+
+        if ctx.author.id == user.id:
+            await s_e.send_error(ctx, "You're banning yourself!! WHY????? **WHYYYYYY????????**")
+            return
+
+        @c_p.choice_param_cmd(ctx, action, ["ban", "unban"])
+        async def action_choice():
+            user_name = f"{user.name}#{user.discriminator}"
+
+            async def send_confirm():
+                confirm_view = vw.ViewConfirmCancel()
+                confirm_message = await ctx.send((
+                        f"Are you sure you want to {action} the user `{user_name}`?\n"
+                        f"This command will time out in `{o_f.format_time(vrs.Timeouts.LONG)}`."
+                    ), view=confirm_view)
+
+                output_view = await w_f.wait_for_view(ctx, confirm_message, confirm_view)
+
+                if output_view.value == vw.OutputValues.cancel:
+                    await ctx.send("Command cancelled.")
+                    raise c_e.ExitFunction()
+
+
+            user_id_str = str(user_id)
+
+            def user_in_ban_list():
+                return user_id_str in f_i.get_data(path_initial)
+
+            if action == "ban":
+                if user_in_ban_list():
+                    await s_e.send_error(ctx, "The user is already banned!")
+                    raise c_e.ExitFunction()
+
+                await send_confirm()
+                f_i.append_data(path_initial, [user_id_str])
+                await ctx.send(f"User `{user_name}` has been banned from using this bot.")
+            else:
+                if not user_in_ban_list():
+                    await s_e.send_error(ctx, "The user hasn't been banned yet!")
+                    raise c_e.ExitFunction()
+
+                await send_confirm()
+                f_i.deduct_data(path_initial, [user_id_str])
+                await ctx.send(f"User `{user_name}` has been unbanned from using this bot.")
+
+
+        await action_choice()
+
 
 
 def setup(bot):
