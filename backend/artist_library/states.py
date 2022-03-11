@@ -26,9 +26,9 @@ class State(dt.Dataclass):
             emoji = self.choice_info.emoji
         )
 
-class ChoiceInfo(dt.DataclassSub):
+class ChoiceInfo(dt.Dataclass):
     """Info for choices in views."""
-    def __init__(self, description: str, emoji: str = None) -> None:
+    def __init__(self, description: str = "No description", emoji: str = None) -> None:
         self.description = description
         self.emoji = emoji
 
@@ -42,12 +42,12 @@ class Availability(State):
 
 class StateList():
     """A class for a list of states."""
-    state_list: list[State] = None
+    state_list: list[State] = []
 
     @classmethod
     def get_states_dict(cls):
         """Returns the list of states."""
-        return {status.value: status.label for status in cls.state_list}
+        return {state.value: state.label for state in cls.state_list}
 
 
 class StatusList(StateList):
