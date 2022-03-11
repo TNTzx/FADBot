@@ -14,8 +14,8 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
-import backend.main_library.dataclass as dt
-import backend.main_library.message_pointer as m_p
+import backend.utils.dataclass as dt
+import backend.utils.message_pointer as m_p
 import backend.databases.firebase.firebase_interaction as f_i
 
 

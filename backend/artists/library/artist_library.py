@@ -21,15 +21,15 @@ import tldextract as tld
 
 import global_vars.variables as vrs
 import global_vars.loggers as lgr
-import backend.main_library.dataclass as dt
-import backend.main_library.message_pointer as m_p
-import backend.main_library.asking.wait_for as w_f
-import backend.main_library.views as vw
-import backend.main_library.other as mot
-import backend.artist_related.library.log_library as l_l
-import backend.artist_related.library.states_library as s_l
-import backend.artist_related.library.ask_for_attr.ask_attr as ask_a
-import backend.artist_related.library.ask_for_attr.ask_confirm as ask_c
+import backend.utils.dataclass as dt
+import backend.utils.message_pointer as m_p
+import backend.utils.asking.wait_for as w_f
+import backend.utils.views as vw
+import backend.utils.other as mot
+import backend.artists.library.log_library as l_l
+import backend.artists.library.states_library as s_l
+import backend.artists.library.ask_for_attr.ask_attr as ask_a
+import backend.artists.library.ask_for_attr.ask_confirm as ask_c
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.vadb.vadb_interact as v_i
 import backend.exceptions.custom_exc as c_exc

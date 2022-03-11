@@ -9,7 +9,7 @@
 from __future__ import annotations
 import abc
 
-import backend.main_library.other as mot
+import backend.utils.other as mot
 import backend.other_functions as o_f
 
 

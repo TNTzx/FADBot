@@ -9,7 +9,7 @@
 
 import nextcord as nx
 
-import backend.main_library.dataclass as dt
+import backend.utils.dataclass as dt
 import global_vars.variables as vrs
 
 

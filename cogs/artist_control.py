@@ -13,12 +13,12 @@ import requests as req
 import global_vars.variables as vrs
 import global_vars.loggers as lgr
 import backend.command_related.choice_param as c_p
-import backend.main_library.views as vw
+import backend.utils.views as vw
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
-import backend.artist_related.checks as a_ch
-import backend.artist_related.library.artist_library as a_l
-import backend.artist_related.library.log_library as l_l
+import backend.artists.checks as a_ch
+import backend.artists.library.artist_library as a_l
+import backend.artists.library.log_library as l_l
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.exceptions.send_error as s_e
 import backend.exceptions.custom_exc as c_e

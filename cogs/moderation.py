@@ -13,9 +13,9 @@ import global_vars.variables as vrs
 import global_vars.loggers as lgr
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.choice_param as c_p
-import backend.main_library.views as vw
-import backend.main_library.asking.wait_for as w_f
-import backend.main_library.checks as ch
+import backend.utils.views as vw
+import backend.utils.asking.wait_for as w_f
+import backend.utils.checks as ch
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e

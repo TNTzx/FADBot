@@ -11,7 +11,7 @@ import requests as req
 # import nextcord as nx
 import nextcord.ext.commands as cmds
 
-import backend.artist_related.library.artist_library as a_l
+import backend.artists.library.artist_library as a_l
 import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
 
