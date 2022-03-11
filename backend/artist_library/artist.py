@@ -14,27 +14,6 @@ from . import states as st
 DEFAULT_IMAGE = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
 
 
-class ArtistDefault(dt.Dataclass):
-    """An artist."""
-    def __init__(
-            self,
-            name = "<default name>",
-            proof = DEFAULT_IMAGE,
-            vadb_info: VADBInfo = None,
-            states: States = None
-            ):
-        self.name = name
-        self.proof = proof
-
-        if vadb_info is None:
-            vadb_info = VADBInfo()
-        self.vadb_info = vadb_info
-
-        if states is None:
-            states = States()
-        self.vadb_info = states
-
-
 class VADBInfo(dt.Dataclass):
     """VADB info of the artist."""
     def __init__(
@@ -48,57 +27,107 @@ class VADBInfo(dt.Dataclass):
         return f"https://fadb.live/artist/{self.artist_id}"
 
 
+
+class UsageRight(dt.Dataclass):
+    """Defines a usage right."""
+    def __init__(self,
+        description: str | None = None,
+        is_verified: bool = True
+        ):
+        self.description = description
+        self.is_verified = is_verified
+
+
 class States(dt.Dataclass):
     """States."""
     def __init__(
             self,
             status: int = 2,
-            availability: int = 2
+            availability: int = 2,
+            usage_rights: list[UsageRight] | None = None
             ):
         self.status = other.Match(st.StateList.get_states_dict(), status)
         self.availability = other.Match(st.AvailabilityList.get_states_dict(), availability)
 
+        if usage_rights is None:
+            usage_rights = []
+        self.usage_rights = usage_rights
 
-class Details(dt.DataclassSub):
-    """Artist details."""
-    def __init__(
-            self,
-            description: str = "No description.",
-            notes: str = "No notes.",
-            aliases: list[Alias] = None,
-            image_info: ImageInfo = None,
-            music_info: MusicInfo = None,
-            socials: list[Social] = None
-            ):
-        self.description = description
-        self.notes = notes
-        self.aliases = aliases
-        self.images = image_info
-        self.music_info = music_info
-        self.socials = socials
 
 class Alias(dt.Dataclass):
     """Stores an alias."""
-    def __init__(self) -> None:
-        self.name = None
+    def __init__(self, name: str | None = None) -> None:
+        self.name = name
 
 class ImageInfo(dt.Dataclass):
     """Stores the images of the artist."""
-    def __init__(self):
-        self.avatar_url = DEFAULT_IMAGE
-        self.banner_url = DEFAULT_IMAGE
+    def __init__(
+            self,
+            avatar_url: str = DEFAULT_IMAGE,
+            banner_url = DEFAULT_IMAGE
+            ):
+        self.avatar_url = avatar_url
+        self.banner_url = banner_url
 
 class MusicInfo(dt.Dataclass):
     """Stores the information about the artist's music."""
-    def __init__(self):
-        self.tracks = 0
-        self.genre = None
+    def __init__(
+            self,
+            track_count: int = 0,
+            genre: str | None = None
+            ):
+        self.track_count = track_count
+        self.genre = genre
 
 class Social(dt.Dataclass):
     """Defines a social."""
-    def __init__(self, link: str = "https://fadb.live"):
+    def __init__(
+            self,
+            link: str = "https://fadb.live"
+        ):
         self.link = link
 
     def get_domain(self):
         """Gets the domain of the social link."""
         return tld.extract(self.link).domain
+
+class Details(dt.Dataclass):
+    """Artist details."""
+    def __init__(
+            self,
+            description: str | None = None,
+            notes: str | None = None,
+            aliases: list[Alias] | None = None,
+            image_info: ImageInfo = ImageInfo(),
+            music_info: MusicInfo = MusicInfo(),
+            socials: list[Social] | None = None
+            ):
+        self.description = description
+        self.notes = notes
+
+        if aliases is None:
+            aliases = []
+        self.aliases = aliases
+        self.image_info = image_info
+        self.music_info = music_info
+
+        if socials is None:
+            aliases = []
+        self.socials = socials
+
+
+class Artist(dt.Dataclass):
+    """An artist."""
+    def __init__(
+            self,
+            name: str | None = None,
+            proof: str = DEFAULT_IMAGE,
+            vadb_info: VADBInfo = VADBInfo(),
+            states: States = States(),
+            details: Details = Details()
+            ):
+        self.name = name
+        self.proof = proof
+        self.vadb_info = vadb_info
+        self.states = states
+        self.details = details

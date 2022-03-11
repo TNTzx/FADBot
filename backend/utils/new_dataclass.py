@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import typing as typ
 import abc
 
 
@@ -32,23 +31,8 @@ class MainDataclass(abc.ABC, DataclassConvertible):
         """Function that takes in an instance of a SubDataclass and returns the converted MainDataclass."""
 
 
-class SetMainDataclass():
-    """Sets the main dataclass."""
-    def __init__(self, main_dataclass: type):
-        self.main_dataclass = main_dataclass
-
-    def __call__(self, cls: SubDataclass):
-        class HasMainSubDataclass(cls):
-            """A dataclass being converted to or from."""
-            _main_dataclass = self.main_dataclass
-
-        return HasMainSubDataclass
-
-
 class SubDataclass(abc.ABC, DataclassConvertible):
-    """A dataclass being converted to or from. Make sure to have the @SetMainDataclass() decorator set up."""
-
-    _main_dataclass: typ.Type[MainDataclass] = None
+    """A dataclass being converted to or from."""
 
     @classmethod
     @abc.abstractmethod
