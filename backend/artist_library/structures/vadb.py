@@ -5,27 +5,33 @@ import backend.utils.new_dataclass as dt
 
 import backend.databases.vadb.vadb_interact as v_i
 
-from .. import artist
+from .. import artist_struct
+from . import artist
 
 
-class VADBArtist(dt.SubDataclass):
+class VADBArtist(artist_struct.ArtistStructure, dt.SubDataclass):
     """Parent class of VADB artists."""
+
+
+class HasBasicInfo(VADBArtist):
+    """Inherited to for basic info."""
     def __init__(
             self,
-            name: str = "<default name>",
+            name: str | None = None,
             status: int = 2,
             availability: int = 2
             ):
+        super().__init__()
         self.name = name
         self.status = status
         self.availability = availability
 
 
-class VADBCreate(VADBArtist):
+class VADBCreate(HasBasicInfo):
     """Creates a framework for creating an artist in VADB."""
     def send_data(self):
         """Creates the artist using the current instance."""
-        return v_i.make_request("POST", "/artist/", self.to_dict())
+        return v_i.make_request("POST", "/artist/", self.get_json_dict())
 
 
     def to_dict(self):
@@ -44,10 +50,11 @@ class VADBCreate(VADBArtist):
         )
 
 
-class VADBEdit(VADBArtist):
+class VADBEdit(HasBasicInfo):
     """Creates a framework for editing an artist in VADB."""
     def __init__(
             self,
+            artist_id: int = 0,
             name: str | None = None,
             status: int | None = 2,
             availability: int | None = 2,
@@ -62,6 +69,7 @@ class VADBEdit(VADBArtist):
             socials: list[artist.Social] = None
             ):
         super().__init__(name, status, availability)
+        self.artist_id = artist_id
         self.usage_rights = usage_rights
         self.aliases = aliases
         self.description = description
@@ -73,27 +81,33 @@ class VADBEdit(VADBArtist):
         self.socials = socials
 
 
+    def send_data(self):
+        """Edits the artist using the current instance."""
+        return v_i.make_request("POST", f"/artist/{self.artist_id}", self.get_json_dict())
+
+
     def to_dict(self):
         return {
             "name": self.name,
 
-            "status": data.states.status.value,
-            "availability": data.states.availability.value,
-            "usageRights": data.states.usage_rights,
+            "status": self.status,
+            "availability": self.availability,
+            "usageRights": self.usage_rights,
 
-            "aliases": [{"name": alias.name} for alias in data.details.aliases],
-            "description": data.details.description,
-            "notes": data.details.notes,
-            "tracks": data.details.music_info.tracks,
-            "genre": data.details.music_info.genre,
-            "avatarUrl": data.details.images.avatar_url,
-            "bannerUrl": data.details.images.banner_url,
-            "socials": data.details.socials
+            "aliases": [{"name": alias.name} for alias in self.aliases],
+            "description": self.description,
+            "notes": self.notes,
+            "tracks": self.track_count,
+            "genre": self.genre,
+            "avatarUrl": self.avatar_url,
+            "bannerUrl": self.banner_url,
+            "socials": self.socials
         }
 
     @classmethod
     def from_main(cls, data: artist.Artist):
         return cls(
+            artist_id = data.vadb_info.artist_id,
             name = data.name,
             status = data.states.status.value,
             availability = data.states.availability.value,
@@ -107,3 +121,33 @@ class VADBEdit(VADBArtist):
             banner_url = data.details.image_info.banner_url,
             socials = data.details.socials
         )
+
+
+class VADBDelete(VADBArtist):
+    """Contains a framework for completely obliterating an artist."""
+    def __init__(self, artist_id: int = 0):
+        self.artist_id = artist_id
+
+    @classmethod
+    def from_main(cls, data: artist.Artist) -> None:
+        return cls(artist_id = data.vadb_info.artist_id)
+
+    def send_data(self):
+        """Completely obliterates the artist from the database."""
+        return v_i.make_request("DELETE", f"/artist/{self.artist_id}")
+
+
+class VADBReceive(HasBasicInfo):
+    """Contains a framework for received artists from VADB."""
+    def __init__(self):
+        self.artist_id = None
+        self.name = None
+        self.aliases = None
+        self.description = None
+        self.tracks = None
+        self.genre = None
+        self.status = None
+        self.availability = None
+        self.notes = None
+        self.usage_rights = None
+        self.details = self.Details(None)

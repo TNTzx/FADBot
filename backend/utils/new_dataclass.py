@@ -9,11 +9,11 @@ import abc
 class Dataclass():
     """A dataclass."""
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """Function that returns a dictionary version of the object."""
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict) -> None:
         """Function that takes in a dictionary then returns the object-ified version."""
         raise TypeError(f"\"{cls.__name__}\" does not implement dictionary conversion.")
 
@@ -27,7 +27,7 @@ class MainDataclass(abc.ABC, DataclassConvertible):
 
     @classmethod
     @abc.abstractmethod
-    def from_sub(cls, data: SubDataclass):
+    def from_sub(cls, data: SubDataclass) -> None:
         """Function that takes in an instance of a SubDataclass and returns the converted MainDataclass."""
 
 
@@ -36,5 +36,5 @@ class SubDataclass(abc.ABC, DataclassConvertible):
 
     @classmethod
     @abc.abstractmethod
-    def from_main(cls, data: MainDataclass):
+    def from_main(cls, data: MainDataclass) -> None:
         """Function that takes in an instance of a MainDataclass and returns the converted SubDataclass."""

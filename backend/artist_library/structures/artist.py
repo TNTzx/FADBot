@@ -8,7 +8,7 @@ import tldextract as tld
 import backend.utils.new_dataclass as dt
 import backend.utils.other as other
 
-from . import states as st
+from .. import states as st
 
 
 DEFAULT_IMAGE = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
