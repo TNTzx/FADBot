@@ -18,6 +18,12 @@ class Dataclass():
         raise TypeError(f"\"{cls.__name__}\" does not implement dictionary conversion.")
 
 
+class APIDataclass(Dataclass):
+    """A dataclass with API support."""
+    def to_payload(self) -> dict | tuple | list:
+        """Function that returns the payload."""
+
+
 class DataclassConvertible(Dataclass):
     """Parent class for dataclasses that can be converted to."""
 

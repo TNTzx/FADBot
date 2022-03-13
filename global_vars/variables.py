@@ -36,15 +36,6 @@ def get_token():
 PLACEHOLDER_DATA = [["placeholder"]]
 
 
-# API
-API_LINK = "https://fadb.live/api"
-API_AUTH_TOKEN = os.environ["FadbAuthToken"]
-API_HEADERS = {
-    "Authorization": f"Basic {API_AUTH_TOKEN}",
-    "Content-Type": "application/x-www-form-urlencoded"
-}
-
-
 # Timeouts
 class Timeouts:
     """Class that contains common timeout durations."""
