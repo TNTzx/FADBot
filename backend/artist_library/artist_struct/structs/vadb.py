@@ -139,15 +139,58 @@ class VADBDelete(VADBArtist):
 
 class VADBReceive(HasBasicInfo):
     """Contains a framework for received artists from VADB."""
-    def __init__(self):
-        self.artist_id = None
-        self.name = None
-        self.aliases = None
-        self.description = None
-        self.tracks = None
-        self.genre = None
-        self.status = None
-        self.availability = None
-        self.notes = None
-        self.usage_rights = None
-        self.details = self.Details(None)
+    def __init__(
+            self,
+            artist_id: int = 0,
+            name: str | None = None,
+            status: int | None = 2,
+            availability: int | None = 2,
+            usage_rights: list[artist.UsageRight] | None = None,
+            aliases: list[artist.Alias] | None = None,
+            description: str | None = None,
+            notes: str | None = None,
+            track_count: int | None = 0,
+            genre: str | None = None,
+            avatar_url: str = artist.DEFAULT_IMAGE,
+            banner_url: str = artist.DEFAULT_IMAGE,
+            socials: list[artist.Social] = None
+            ):
+        super().__init__(name = name, status = status, availability = availability)
+        self.artist_id = artist_id
+        self.usage_rights = usage_rights
+        self.aliases = aliases
+        self.description = description
+        self.notes = notes
+        self.track_count = track_count
+        self.genre = genre
+        self.details = self.Details(avatar_url = avatar_url, banner_url = banner_url, socials = socials)
+
+    class Details(dt.Dataclass):
+        """Contains details."""
+        def __init__(
+                self,
+                avatar_url: str = artist.DEFAULT_IMAGE,
+                banner_url: str = artist.DEFAULT_IMAGE,
+                socials: list[artist.Social] = None
+                ):
+            self.avatar_url = avatar_url
+            self.banner_url = banner_url
+            self.socials = socials
+
+        @classmethod
+        def from_dict(cls, data: dict) -> None:
+            return cls(
+
+            )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> None:
+        return cls(
+
+        )
+
+
+    @classmethod
+    def get_from_id(cls, artist_id: int):
+        """Returns the result of an ID search."""
+        response = v_i.make_request("GET", f"/artist/{artist_id}")

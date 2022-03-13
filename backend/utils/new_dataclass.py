@@ -22,6 +22,12 @@ class APIDataclass(Dataclass):
     """A dataclass with API support."""
     def to_payload(self) -> dict | tuple | list:
         """Function that returns the payload."""
+        return self.to_dict()
+
+    @classmethod
+    def from_response(cls, data: dict):
+        """Function that returns an object-ified version of a dict."""
+        return cls.from_dict(data)
 
 
 class DataclassConvertible(Dataclass):
