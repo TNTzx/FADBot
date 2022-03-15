@@ -3,6 +3,8 @@
 
 import backend.utils.new_dataclass as dt
 
+from .. import artist_struct as a_s
+
 
 class VADBInfo(dt.Dataclass):
     """VADB info of the artist."""

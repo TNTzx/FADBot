@@ -7,10 +7,10 @@ import backend.databases.vadb.vadb_interact as v_i
 import backend.utils.new_dataclass as dt
 
 from . import artist
-from .. import artist_struct
+from . import artist_struct
 
 
-class VADBArtist(artist_struct.ArtistStructure, dt.SubDataclass, dt.APIDataclass):
+class VADBArtist(artist_struct.ArtistStruct, dt.SubDataclass, dt.APIDataclass):
     """Parent class of VADB artists."""
 
 
@@ -175,7 +175,7 @@ class VADBReceive(HasBasicInfo):
     @classmethod
     def from_dict_response(cls, response: dict):
         
-        return super().from_dict_response(response)
+        return super().from_obj_response(response)
 
 
     @classmethod

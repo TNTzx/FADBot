@@ -8,10 +8,9 @@ import tldextract as tld
 import backend.utils.new_dataclass as dt
 import backend.utils.other as util_other
 
-from . import vadb
+
 from .struct_exts import states as st
 from .struct_exts import image_info as img
-
 
 
 class MusicInfo(dt.Dataclass):

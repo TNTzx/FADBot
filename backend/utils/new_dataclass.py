@@ -14,12 +14,12 @@ class Dataclass():
         return str(self.to_one_obj())
 
     def to_one_obj(self) -> list | dict:
-        """Function that returns a dictionary version of the object."""
+        """Function that returns a list or dictionary version of the object."""
         return self.__dict__
 
     @classmethod
-    def from_obj(cls, data: list | dict) -> None:
-        """Function that takes in a dictionary then returns the object-ified version."""
+    def from_one_obj(cls, data: list | dict) -> None:
+        """Function that takes in a list or dictionary then returns the class instantiated version."""
         raise TypeError(f"\"{cls.__name__}\" does not implement dictionary conversion.")
 
 
@@ -35,12 +35,12 @@ class APIDataclass(Dataclass):
     @classmethod
     def from_response(cls, response: req.models.Response):
         """Function that returns an object-ified version of a response."""
-        return cls.from_dict_response(response.json())
+        return cls.from_obj_response(response.json())
 
     @classmethod
-    def from_dict_response(cls, response: dict):
+    def from_obj_response(cls, response: list | dict):
         """Function that returns an object-ified version of a dictionary of a response."""
-        return cls.from_obj(response)
+        return cls.from_one_obj(response)
 
 
 class DataclassConvertible(Dataclass):

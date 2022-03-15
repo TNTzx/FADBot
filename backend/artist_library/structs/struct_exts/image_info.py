@@ -12,6 +12,8 @@ import PIL.Image as PIL
 import backend.databases.vadb.vadb_interact as v_i
 import backend.utils.new_dataclass as dt
 
+from .. import artist_struct as a_s
+
 
 class Image(dt.APIDataclass):
     """Defines an image for uploading to VADB."""
@@ -56,7 +58,7 @@ class ImageTypes:
 
 DEFAULT_IMAGE = Image.from_url("https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg")
 
-class ImageInfo(dt.Dataclass):
+class ImageInfo(a_s.ArtistStruct):
     """Stores the images of the artist."""
     def __init__(
             self,
