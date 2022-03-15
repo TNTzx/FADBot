@@ -2,6 +2,10 @@
 
 
 from ... import artist_struct as a_s
+from . import aliases as al
+from . import image_info as i_i
+from . import music_info as m_i
+from . import socials as so
 
 
 class Details(a_s.ArtistStruct):
@@ -10,20 +14,14 @@ class Details(a_s.ArtistStruct):
             self,
             description: str | None = None,
             notes: str | None = None,
-            aliases: list[Alias] | None = None,
-            image_info: ImageInfo = ImageInfo(),
-            music_info: MusicInfo = MusicInfo(),
-            socials: list[Social] | None = None
+            aliases: al.Aliases = al.Aliases(),
+            image_info: i_i.ImageInfo = i_i.ImageInfo(),
+            music_info: m_i.MusicInfo = m_i.MusicInfo(),
+            socials: so.Socials = so.Socials()
             ):
         self.description = description
         self.notes = notes
-
-        if aliases is None:
-            aliases = []
         self.aliases = aliases
         self.image_info = image_info
         self.music_info = music_info
-
-        if socials is None:
-            aliases = []
         self.socials = socials

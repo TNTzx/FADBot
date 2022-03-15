@@ -138,7 +138,7 @@ class States(a_s.ArtistStruct):
             availability: int = 2,
             usage_rights: u_r.UsageRights = u_r.UsageRights()
             ):
-        self.status = util_other.Match(StateList.get_states_dict(), status)
+        self.status = util_other.Match(StatusList.get_states_dict(), status)
         self.availability = util_other.Match(AvailabilityList.get_states_dict(), availability)
 
         self.usage_rights = usage_rights

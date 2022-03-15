@@ -12,7 +12,7 @@ import PIL.Image as PIL
 import backend.databases.vadb.vadb_interact as v_i
 import backend.utils.new_dataclass as dt
 
-from .. import artist_struct as a_s
+from ... import artist_struct as a_s
 
 
 class Image(dt.APIDataclass):
@@ -28,6 +28,9 @@ class Image(dt.APIDataclass):
                 self.data = data_bytes.getvalue()
         else:
             self.data = data
+    
+    def __repr__(self):
+        return f"ImageData({self.name})"
 
     def to_payload(self) -> dict:
         return (self.name, self.data, "image/png")
