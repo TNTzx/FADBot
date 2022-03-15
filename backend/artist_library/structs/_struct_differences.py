@@ -10,7 +10,7 @@ vadb_receive = {
                 'name': 'ThisIsTheFatRat'
             }
         ],
-        'description': '''TheFatRat is enormously popular on YouTube, currently boasting one of the 
+        'description': '''TheFatRat is enormously popular on YouTube, currently boasting one of the
 largest followings and most engaging fan-bases on the web for an artist in his genre with 9 million fans worldwide, about 5 million on YouTube. TheFatRat’s forward-thinking approach to lift copyright restrictions on his music has led to him having been featured in 25 million videos - collectively accounting for over 
 30 billion unique views on YouTube alone. Over the years he has become one of the most top-charting acts in dance music, having had multiple singles remain in the iTunes top50 for over 3 years straight. He has had his music synched-to-screen for popular video games like the top-grossing DOTA 2, Rocket League and Game for Peace and has planted himself as the go-to artist for ESports brands like ESL and Dreamhack, playing 
 live arena events with 15K spectators.''',
