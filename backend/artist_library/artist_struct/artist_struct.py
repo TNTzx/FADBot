@@ -8,7 +8,7 @@ class ArtistStructure(dt.Dataclass):
     """Parent class for artist structures."""
     def get_json_dict(self):
         """Turns the data into a dictionary for sending."""
-        data: dict = self.to_dict()
+        data: dict = self.to_one_obj()
         for key, value in data.items():
             if isinstance(value, dict):
                 data[key] = str(value)

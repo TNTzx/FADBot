@@ -6,68 +6,13 @@ from __future__ import annotations
 import tldextract as tld
 
 import backend.utils.new_dataclass as dt
-import backend.utils.other as other
+import backend.utils.other as util_other
 
-from .. import states as st
-
-
-DEFAULT_IMAGE = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
-
-
-class VADBInfo(dt.Dataclass):
-    """VADB info of the artist."""
-    def __init__(
-            self,
-            artist_id: int = 0
-            ):
-        self.artist_id = artist_id
-
-    def get_page(self):
-        """Gets the page of the artist."""
-        return f"https://fadb.live/artist/{self.artist_id}"
+from . import vadb
+from .struct_exts import states as st
+from .struct_exts import image_info as img
 
 
-
-class UsageRight(dt.Dataclass):
-    """Defines a usage right."""
-    def __init__(self,
-        description: str | None = None,
-        is_verified: bool = True
-        ):
-        self.description = description
-        self.is_verified = is_verified
-
-
-class States(dt.Dataclass):
-    """States."""
-    def __init__(
-            self,
-            status: int = 2,
-            availability: int = 2,
-            usage_rights: list[UsageRight] | None = None
-            ):
-        self.status = other.Match(st.StateList.get_states_dict(), status)
-        self.availability = other.Match(st.AvailabilityList.get_states_dict(), availability)
-
-        if usage_rights is None:
-            usage_rights = []
-        self.usage_rights = usage_rights
-
-
-class Alias(dt.Dataclass):
-    """Stores an alias."""
-    def __init__(self, name: str | None = None) -> None:
-        self.name = name
-
-class ImageInfo(dt.Dataclass):
-    """Stores the images of the artist."""
-    def __init__(
-            self,
-            avatar_url: str = DEFAULT_IMAGE,
-            banner_url = DEFAULT_IMAGE
-            ):
-        self.avatar_url = avatar_url
-        self.banner_url = banner_url
 
 class MusicInfo(dt.Dataclass):
     """Stores the information about the artist's music."""
@@ -116,7 +61,7 @@ class Details(dt.Dataclass):
         self.socials = socials
 
 
-class Artist(dt.Dataclass):
+class Artist(dt.MainDataclass):
     """An artist."""
     def __init__(
             self,
@@ -131,3 +76,14 @@ class Artist(dt.Dataclass):
         self.vadb_info = vadb_info
         self.states = states
         self.details = details
+
+
+    def vadb_create(self):
+        """Creates the artist on VADB."""
+
+    @classmethod
+    def from_sub(
+            cls,
+            data: dt.SubDataclass
+            ) -> None:
+        pass

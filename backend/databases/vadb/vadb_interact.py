@@ -12,6 +12,7 @@ from . import file as apifile
 
 # API
 API_LINK = "https://fadb.live/api"
+API_IMAGE_LINK = "https://fadb.live/images"
 API_AUTH_TOKEN = os.environ["FadbAuthToken"]
 API_HEADERS = {
     "Authorization": f"Basic {API_AUTH_TOKEN}",
@@ -31,7 +32,14 @@ def clean_payload(payload: dict):
     return new_payload
 
 
-def make_request(request_type, path, payload: dict = None, files: apifile.APIFileList = None):
+def make_request(
+        request_type, path,
+        payload: dict = None,
+        to_dict = False,
+
+        files: apifile.APIFileList = None,
+        stream = False,
+        ) -> None | requests.models.Response | dict:
     """Interacts with the VADB API."""
     if payload is None:
         payload = {}
@@ -53,13 +61,18 @@ def make_request(request_type, path, payload: dict = None, files: apifile.APIFil
     response = requests.request(
         request_type, url, headers = API_HEADERS,
         data = new_payload,
-        files = files
+        files = files,
+        stream = stream
     )
 
     response.raise_for_status()
-    final_response = response.json()
+    if to_dict:
+        response = response.json()
 
-    log_message = f"Received {o_f.pr_print(final_response)}"
+        log_message = f"Received {o_f.pr_print(response)}"
+    else:
+        log_message = f"Received {response}"
+
     lgr.log_vadb.info(log_message)
 
-    return final_response
+    return response

@@ -6,6 +6,9 @@ from __future__ import annotations
 import nextcord as nx
 
 import backend.utils.new_dataclass as dt
+import backend.utils.other as util_other
+
+from . import usage_rights as u_r
 
 
 class State(dt.Dataclass):
@@ -124,3 +127,17 @@ class AvailabilityList(StateList):
             )
         ),
     ]
+
+
+class States(dt.Dataclass):
+    """States."""
+    def __init__(
+            self,
+            status: int = 2,
+            availability: int = 2,
+            usage_rights: u_r.UsageRights = u_r.UsageRights()
+            ):
+        self.status = util_other.Match(StateList.get_states_dict(), status)
+        self.availability = util_other.Match(AvailabilityList.get_states_dict(), availability)
+
+        self.usage_rights = usage_rights

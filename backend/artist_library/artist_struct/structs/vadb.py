@@ -1,15 +1,16 @@
 """A VADB-friendly API using the main `Artist` class."""
 
 
-import backend.utils.new_dataclass as dt
+import requests as req
 
 import backend.databases.vadb.vadb_interact as v_i
+import backend.utils.new_dataclass as dt
 
-from .. import artist_struct
 from . import artist
+from .. import artist_struct
 
 
-class VADBArtist(artist_struct.ArtistStructure, dt.SubDataclass):
+class VADBArtist(artist_struct.ArtistStructure, dt.SubDataclass, dt.APIDataclass):
     """Parent class of VADB artists."""
 
 
@@ -30,16 +31,7 @@ class HasBasicInfo(VADBArtist):
 class VADBCreate(HasBasicInfo):
     """Creates a framework for creating an artist in VADB."""
     def send_data(self):
-        """Creates the artist using the current instance."""
         return v_i.make_request("POST", "/artist/", self.get_json_dict())
-
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "status": self.status,
-            "availability": self.availability
-        }
 
     @classmethod
     def from_main(cls, data: artist.Artist):
@@ -82,7 +74,6 @@ class VADBEdit(HasBasicInfo):
 
 
     def send_data(self):
-        """Edits the artist using the current instance."""
         return v_i.make_request("POST", f"/artist/{self.artist_id}", self.get_json_dict())
 
 
@@ -127,14 +118,14 @@ class VADBDelete(VADBArtist):
     """Contains a framework for completely obliterating an artist."""
     def __init__(self, artist_id: int = 0):
         self.artist_id = artist_id
+    
+    def send_data(self):
+        return v_i.make_request("DELETE", f"/artist/{self.artist_id}")
+
 
     @classmethod
     def from_main(cls, data: artist.Artist) -> None:
         return cls(artist_id = data.vadb_info.artist_id)
-
-    def send_data(self):
-        """Completely obliterates the artist from the database."""
-        return v_i.make_request("DELETE", f"/artist/{self.artist_id}")
 
 
 class VADBReceive(HasBasicInfo):
@@ -165,7 +156,7 @@ class VADBReceive(HasBasicInfo):
         self.genre = genre
         self.details = self.Details(avatar_url = avatar_url, banner_url = banner_url, socials = socials)
 
-    class Details(dt.Dataclass):
+    class Details(dt.APIDataclass):
         """Contains details."""
         def __init__(
                 self,
@@ -178,19 +169,17 @@ class VADBReceive(HasBasicInfo):
             self.socials = socials
 
         @classmethod
-        def from_dict(cls, data: dict) -> None:
-            return cls(
-
-            )
+        def from_dict_response(cls, response: dict):
+            pass
 
     @classmethod
-    def from_dict(cls, data: dict) -> None:
-        return cls(
-
-        )
+    def from_dict_response(cls, response: dict):
+        
+        return super().from_dict_response(response)
 
 
     @classmethod
     def get_from_id(cls, artist_id: int):
         """Returns the result of an ID search."""
         response = v_i.make_request("GET", f"/artist/{artist_id}")
+        
