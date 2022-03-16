@@ -1,5 +1,8 @@
 """"These are struct differences. This is just meant for taking notes, don't import this!"""
 
+
+
+
 vadb_receive = {
     'code': 200,
     'data': {

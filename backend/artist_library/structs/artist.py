@@ -6,21 +6,12 @@ from __future__ import annotations
 import typing as typ
 import requests as req
 
-import backend.databases.vadb.vadb_interact as v_i
+import backend.databases.vadb as vadb
+import backend.other_functions as o_f
 
+from . import struct_exts as exts
 from . import exceptions as a_exc
 from . import artist_struct as a_s
-
-from .struct_exts.details import image_info as i_i
-from .struct_exts import vadb_info as v_inf
-from .struct_exts.states import states as st
-from .struct_exts.states import usage_rights as u_r
-from .struct_exts.details import details as det
-from .struct_exts.details import aliases as al
-from .struct_exts.details import music_info as m_i
-from .struct_exts.details import socials as so
-
-import backend.other_functions as o_f
 
 
 def none_if_empty(obj: typ.Iterable):
@@ -36,16 +27,32 @@ class Artist(a_s.ArtistStruct):
     def __init__(
             self,
             name: str | None = None,
-            proof: str = i_i.DEFAULT_IMAGE,
-            vadb_info: v_inf.VADBInfo = v_inf.VADBInfo(),
-            states: st.States = st.States(),
-            details: det.Details = det.Details()
+            proof: str = exts.pack_details.mod_image_info.DEFAULT_PROOF,
+            vadb_info: exts.VADBInfo = exts.VADBInfo(),
+            states: exts.pack_states.States = exts.pack_states.States(),
+            details: exts.pack_details.Details = exts.pack_details.Details()
             ):
         self.name = name
         self.proof = proof
         self.vadb_info = vadb_info
         self.states = states
         self.details = details
+
+
+    def send_create(self):
+        """Creates the artist in VADB and replaces this `Artist`'s ID with the response from VADB."""
+        payload = {
+            "name": self.name,
+            "status": self.states.status.value,
+            "availability": self.states.availability.value
+        }
+        response = vadb.v_i.make_request(vadb.endp.Endpoints.artist_create(), payload = payload, to_dict = True)
+
+        response_data = response["data"]
+        self.vadb_info.artist_id = response_data["id"]
+
+
+
 
 
     @classmethod
@@ -63,42 +70,42 @@ class Artist(a_s.ArtistStruct):
             return cls(
                 name = none_if_empty(data["name"]),
                 proof = None, # please nao have a proof field :(
-                vadb_info = v_inf.VADBInfo(
+                vadb_info = exts.VADBInfo(
                     artist_id = artist_id
                 ),
-                states = st.States(
+                states = exts.pack_states.States(
                     status = data["status"],
                     availability = data["availability"],
-                    usage_rights = u_r.UsageRights(
+                    usage_rights = exts.pack_states.UsageRights(
                         usage_rights = none_if_empty([
-                            u_r.UsageRight(
+                            exts.pack_states.UsageRight(
                                 description = usage_right["name"],
                                 is_verified = usage_right["value"]
                             ) for usage_right in data["usageRights"]
                         ])
                     )
                 ),
-                details = det.Details(
+                details = exts.pack_details.Details(
                     description = none_if_empty(data["description"]),
                     notes = none_if_empty(data["notes"]),
-                    aliases = al.Aliases(
+                    aliases = exts.pack_details.Aliases(
                         aliases = none_if_empty([
-                            al.Alias(
+                            exts.details.Alias(
                                 name = alias["name"]
                             ) for alias in data["aliases"]
                         ])
                     ),
-                    image_info = i_i.ImageInfo(
-                        avatar = i_i.Image.from_artist(artist_id, i_i.ImageTypes.avatar),
-                        banner = i_i.Image.from_artist(artist_id, i_i.ImageTypes.banner)
+                    image_info = exts.pack_details.ImageInfo(
+                        avatar = exts.pack_details.Avatar.from_artist(artist_id),
+                        banner = exts.pack_details.Banner.from_artist(artist_id)
                     ),
-                    music_info = m_i.MusicInfo(
+                    music_info = exts.pack_details.MusicInfo(
                         track_count = data["tracks"],
                         genre = none_if_empty(data["genre"])
                     ),
-                    socials = so.Socials(
+                    socials = exts.pack_details.Socials(
                         socials = none_if_empty([
-                            so.Social(
+                            exts.pack_details.Social(
                                 link = social["link"]
                             ) for social in data["details"]["socials"]
                         ])
@@ -113,6 +120,6 @@ class Artist(a_s.ArtistStruct):
     def from_artist_id(cls, artist_id: int):
         """Returns the `Artist` from an ID from VADB."""
         try:
-            return cls.from_vadb_receive(v_i.make_request("GET", f"/artist/{artist_id}"))
+            return cls.from_vadb_receive(vadb.v_i.make_request(vadb.endp.Endpoints.artist_get(artist_id)))
         except req.HTTPError as exc:
             raise a_exc.VADBNoArtistID(artist_id) from exc
