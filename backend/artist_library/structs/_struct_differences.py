@@ -1,9 +1,21 @@
 """"These are struct differences. This is just meant for taking notes, don't import this!"""
 
 
+vadb_send_create = {
+	"name": ...,
+	"status": ...,
+	"availability": ...
+}
+
+vadb_receive_create = {
+	"code": 200,
+	"data": {
+		"id": ...
+	}
+}
 
 
-vadb_receive = {
+vadb_receive_get = {
     'code': 200,
     'data': {
         'id': 18,

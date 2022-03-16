@@ -59,7 +59,7 @@ class Image(a_s.ArtistStruct):
     @classmethod
     def from_artist(cls, artist_id: int):
         """Gets the avatar / banner of an artist."""
-        return cls.from_url(f"{v_i.API_IMAGE_LINK}/{cls.vadb_link_ext}/{artist_id}")
+        return cls.from_url(f"{v_i.consts.API_IMAGE_LINK}/{cls.vadb_link_ext}/{artist_id}")
 
 
 class Proof(Image):
