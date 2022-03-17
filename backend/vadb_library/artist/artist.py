@@ -47,12 +47,26 @@ class Artist(a_s.ArtistStruct):
             "status": self.states.status.value,
             "availability": self.states.availability.value
         }
-        response = api.make_request(api.Endpoints.artist_create(), payload = payload, to_dict = True)
+        response = api.make_request(api.Endpoints.artist_create(), payload = payload)
 
-        response_data = response["data"]
+        response_json = response.json()
+        response_data = response_json["data"]
         self.vadb_info.artist_id = response_data["id"]
 
+        return response
 
+
+    def send_edit(self, artist_id: int = None):
+        """Edits the artist in VADB with this object's artist ID unless specified."""
+        if artist_id is None:
+            artist_id = self.vadb_info.artist_id
+
+        payload = ...
+        files = ...
+
+        response = api.make_request(api.Endpoints.artist_update(artist_id), payload = payload, files = files)
+
+        return response
 
 
 
