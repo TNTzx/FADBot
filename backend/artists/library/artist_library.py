@@ -31,7 +31,7 @@ import backend.artists.library.states_library as s_l
 import backend.artists.library.ask_for_attr.ask_attr as ask_a
 import backend.artists.library.ask_for_attr.ask_confirm as ask_c
 import backend.databases.firebase.firebase_interaction as f_i
-import backend.databases.vadb.vadb_interact as v_i
+import backend.databases.api.vadb_interact as v_i
 import backend.exceptions.custom_exc as c_exc
 import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f

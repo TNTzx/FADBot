@@ -1,0 +1,1 @@
+"""States of an artist."""

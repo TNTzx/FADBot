@@ -3,7 +3,7 @@
 
 import requests as req
 
-import backend.databases.vadb.vadb_interact as v_i
+import backend.databases.api.vadb_interact as v_i
 import backend.utils.new_dataclass as dt
 
 from . import artist

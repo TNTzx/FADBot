@@ -10,8 +10,7 @@ import requests as req
 
 import PIL.Image as PIL
 
-import backend.databases.vadb.vadb_interact as v_i
-import backend.utils.new_dataclass as dt
+from .... import api
 
 from ... import artist_struct as a_s
 
@@ -59,7 +58,7 @@ class Image(a_s.ArtistStruct):
     @classmethod
     def from_artist(cls, artist_id: int):
         """Gets the avatar / banner of an artist."""
-        return cls.from_url(f"{v_i.consts.API_IMAGE_LINK}/{cls.vadb_link_ext}/{artist_id}")
+        return cls.from_url(f"{api.consts.API_IMAGE_LINK}/{cls.vadb_link_ext}/{artist_id}")
 
 
 class Proof(Image):
@@ -74,10 +73,10 @@ class Banner(Image):
     vadb_link_ext = vadb_key = "banner"
 
 
-DEFAULT_URL = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
-DEFAULT_PROOF = Proof.from_url(DEFAULT_URL)
-DEFAULT_AVATAR = Avatar.from_url(DEFAULT_URL)
-DEFAULT_BANNER = Banner.from_url(DEFAULT_URL)
+DEFAULT_IMAGE_URL = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
+DEFAULT_PROOF = Proof.from_url(DEFAULT_IMAGE_URL)
+DEFAULT_AVATAR = Avatar.from_url(DEFAULT_IMAGE_URL)
+DEFAULT_BANNER = Banner.from_url(DEFAULT_IMAGE_URL)
 
 
 class ImageInfo(a_s.ArtistStruct):

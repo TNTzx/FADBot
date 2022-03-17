@@ -6,8 +6,9 @@ from __future__ import annotations
 import typing as typ
 import requests as req
 
-import backend.databases.vadb as vadb
 import backend.other_functions as o_f
+
+from .. import api
 
 from . import struct_exts as exts
 from . import exceptions as a_exc
@@ -27,10 +28,10 @@ class Artist(a_s.ArtistStruct):
     def __init__(
             self,
             name: str | None = None,
-            proof: str = exts.pack_details.mod_image_info.DEFAULT_PROOF,
+            proof: str = exts.DEFAULT_PROOF,
             vadb_info: exts.VADBInfo = exts.VADBInfo(),
-            states: exts.pack_states.States = exts.pack_states.States(),
-            details: exts.pack_details.Details = exts.pack_details.Details()
+            states: exts.States = exts.States(),
+            details: exts.Details = exts.Details()
             ):
         self.name = name
         self.proof = proof
@@ -46,7 +47,7 @@ class Artist(a_s.ArtistStruct):
             "status": self.states.status.value,
             "availability": self.states.availability.value
         }
-        response = vadb.v_i.make_request(vadb.endp.Endpoints.artist_create(), payload = payload, to_dict = True)
+        response = api.make_request(api.Endpoints.artist_create(), payload = payload, to_dict = True)
 
         response_data = response["data"]
         self.vadb_info.artist_id = response_data["id"]
@@ -56,7 +57,7 @@ class Artist(a_s.ArtistStruct):
 
 
     @classmethod
-    def from_vadb_receive(cls, response: req.models.Response):
+    def from_vadb_receive(cls: Artist, response: req.models.Response):
         try:
             response.raise_for_status()
         except req.HTTPError as exc:
@@ -73,39 +74,39 @@ class Artist(a_s.ArtistStruct):
                 vadb_info = exts.VADBInfo(
                     artist_id = artist_id
                 ),
-                states = exts.pack_states.States(
+                states = exts.States(
                     status = data["status"],
                     availability = data["availability"],
-                    usage_rights = exts.pack_states.UsageRights(
+                    usage_rights = exts.UsageRights(
                         usage_rights = none_if_empty([
-                            exts.pack_states.UsageRight(
+                            exts.UsageRight(
                                 description = usage_right["name"],
                                 is_verified = usage_right["value"]
                             ) for usage_right in data["usageRights"]
                         ])
                     )
                 ),
-                details = exts.pack_details.Details(
+                details = exts.Details(
                     description = none_if_empty(data["description"]),
                     notes = none_if_empty(data["notes"]),
-                    aliases = exts.pack_details.Aliases(
+                    aliases = exts.Aliases(
                         aliases = none_if_empty([
-                            exts.details.Alias(
+                            exts.Alias(
                                 name = alias["name"]
                             ) for alias in data["aliases"]
                         ])
                     ),
-                    image_info = exts.pack_details.ImageInfo(
-                        avatar = exts.pack_details.Avatar.from_artist(artist_id),
-                        banner = exts.pack_details.Banner.from_artist(artist_id)
+                    image_info = exts.ImageInfo(
+                        avatar = exts.Avatar.from_artist(artist_id),
+                        banner = exts.Banner.from_artist(artist_id)
                     ),
-                    music_info = exts.pack_details.MusicInfo(
+                    music_info = exts.MusicInfo(
                         track_count = data["tracks"],
                         genre = none_if_empty(data["genre"])
                     ),
-                    socials = exts.pack_details.Socials(
+                    socials = exts.Socials(
                         socials = none_if_empty([
-                            exts.pack_details.Social(
+                            exts.Social(
                                 link = social["link"]
                             ) for social in data["details"]["socials"]
                         ])
@@ -120,6 +121,6 @@ class Artist(a_s.ArtistStruct):
     def from_artist_id(cls, artist_id: int):
         """Returns the `Artist` from an ID from VADB."""
         try:
-            return cls.from_vadb_receive(vadb.v_i.make_request(vadb.endp.Endpoints.artist_get(artist_id)))
+            return cls.from_vadb_receive(api.make_request(api.endp.Endpoints.artist_get(artist_id)))
         except req.HTTPError as exc:
             raise a_exc.VADBNoArtistID(artist_id) from exc
