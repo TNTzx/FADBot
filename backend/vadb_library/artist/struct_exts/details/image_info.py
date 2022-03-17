@@ -17,7 +17,7 @@ from ... import artist_struct as a_s
 
 class Image(a_s.ArtistStruct):
     """Defines an image for uploading to VADB."""
-    def __init__(self, name: str, data: PIL.Image | bytes):
+    def __init__(self, name: str, data: PIL.Image | bytes, original_url: str = None):
         self.name = name
 
         self.pil_image = data
@@ -28,6 +28,8 @@ class Image(a_s.ArtistStruct):
                 self.data = data_bytes.getvalue()
         else:
             self.data = data
+        
+        self.original_url = original_url
 
     def __repr__(self):
         return f"ImageData({self.name})"
@@ -52,7 +54,8 @@ class Image(a_s.ArtistStruct):
         data = PIL.open(response.raw)
         return cls(
             name = name,
-            data = data
+            data = data,
+            original_url = url
         )
 
     @classmethod

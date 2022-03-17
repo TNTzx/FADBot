@@ -26,8 +26,8 @@ vadb_edit_send = {
 	"availability": int,
 	"description": str,
 	"notes": str,
-	"avatar": None,
-	"banner": None,
+	"avatar": ("file"),
+	"banner": ("file"),
 	"tracks": int,
 	"genre": str,
 	"usageRights": [
@@ -42,6 +42,15 @@ vadb_edit_send = {
 			"type": str
 		}, ...
 	],
+}
+
+vadb_edit_receive = {
+    "code": 200,
+    "data": {
+        "changed": [
+            ...
+        ]
+    }
 }
 
 

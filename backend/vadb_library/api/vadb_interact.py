@@ -39,7 +39,7 @@ def make_request(
 
     log_message_main = (
         f"{endpoint.request_type} -> {endpoint.link}: "
-        f"payload = {o_f.pr_print(payload)}, files = {o_f.pr_print(files)}"
+        f"payload = {o_f.pr_print(payload)}, files = {o_f.pr_print([x[0] for x in files]) if files is not None else None}"
     )
 
     log_message = f"Send {log_message_main}"
