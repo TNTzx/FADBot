@@ -380,7 +380,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
 
                 response = await w_f.wait_for_view(ctx, message, view)
                 if response.value == vw.OutputValues.cancel:
-                    await s_e.cancel_function(ctx, send_author=True)
+                    await s_e.cancel_command(ctx, send_author=True)
 
             if name is not None:
                 self.name = name
@@ -568,7 +568,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 if new_view.value == vw.OutputValues.confirm:
                     break
                 elif new_view.value == vw.OutputValues.cancel:
-                    await s_e.cancel_function(ctx, send_author=True)
+                    await s_e.cancel_command(ctx, send_author=True)
                 elif isinstance(new_view.value[0], str):
                     await self.set_attribute(ctx, command_dict[new_view.value[0]],skippable=True)
 

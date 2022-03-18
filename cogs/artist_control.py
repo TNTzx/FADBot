@@ -175,7 +175,7 @@ class ArtistControl(cmds.Cog):
             await parse_logs(artist_obj.discord_info.logs.editing)
 
         async def confirm_verify(artist_obj: a_l.Default):
-            timeout = vrs.Timeouts.MEDIUM
+            timeout = vrs.Timeouts.medium
 
             confirm = vw.ViewConfirmCancel()
             await ctx.send((
@@ -191,12 +191,12 @@ class ArtistControl(cmds.Cog):
             try:
                 await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
             except asyncio.TimeoutError:
-                await s_e.timeout_function(ctx, send_author=True)
+                await s_e.timeout_command(ctx, send_author=True)
 
             if confirm.value == vw.OutputValues.confirm:
                 return
 
-            await s_e.cancel_function(ctx)
+            await s_e.cancel_command(ctx)
 
 
         def log_verify(artist_obj: a_l.Default):

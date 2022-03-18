@@ -21,7 +21,7 @@ import backend.exceptions.send_error as s_e
 import backend.utils.other as m_o
 
 
-TIMEOUT = vrs.Timeouts.LONG
+TIMEOUT = vrs.Timeouts.long
 
 TIMEOUT_MESSAGE = "Command timed out. Please use the command again."
 
@@ -36,7 +36,7 @@ async def wait_for_message(ctx: cmds.Context, timeout=TIMEOUT):
     try:
         response: nx.Message = await vrs.global_bot.wait_for("message", check=w_f_ch.check_message(ctx), timeout=timeout)
     except asyncio.TimeoutError:
-        await s_e.timeout_function(ctx)
+        await s_e.timeout_command(ctx)
     return response
 
 
@@ -58,7 +58,7 @@ async def wait_for_view(ctx: cmds.Context, original_message: nx.Message, view: t
     try:
         await vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx, original_message), timeout=timeout)
     except asyncio.TimeoutError:
-        await s_e.timeout_function(ctx)
+        await s_e.timeout_command(ctx)
     return view
 
 
