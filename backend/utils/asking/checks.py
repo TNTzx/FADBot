@@ -4,7 +4,8 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-def check_message(ctx: cmds.Context):
+
+def check_message_dm(ctx: cmds.Context):
     """Check for messages. Call to get wrapper.
     Returns True if:
     - Author is the same for command initiator and message sender.

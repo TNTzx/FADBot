@@ -62,10 +62,10 @@ async def error_handle(message: str, ctx:cmds.Context, send_author=False):
 
 
 
-async def cancel_function(ctx: cmds.Context, send_author=False):
-    """Cancels the current function."""
+async def cancel_command(ctx: cmds.Context, send_author=False):
+    """Cancels the current command."""
     await error_handle("Command cancelled.", ctx, send_author=send_author)
 
-async def timeout_function(ctx: cmds.Context, send_author=False):
+async def timeout_command(ctx: cmds.Context, send_author=False):
     """Command timed out."""
     await error_handle("Command timed out. Please use the command again.", ctx, send_author=send_author)

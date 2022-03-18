@@ -8,6 +8,7 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import backend.utils.views as vw
+import backend.utils.asking.wait_for as w_f
 import backend.exceptions.send_error as s_e
 import global_vars.variables as vrs
 
@@ -18,8 +19,10 @@ async def check_response(ctx: cmds.Context, view: vw.View):
     """Checks the response of the user if they went back, cancelled, etc."""
     if view.value == vw.OutputValues.cancel:
         await s_e.cancel_command(ctx, send_author=True)
-    elif view.value == vw.OutputValues.skip or:
+    elif view.value == vw.OutputValues.skip:
         await ctx.author.send("Section skipped.")
+    elif view.value == vw.OutputValues.back:
+        await ctx.author.send("Going back to menu...")
     else:
         raise NotImplementedError("Not implemented response.")
 
@@ -77,14 +80,36 @@ class FormSection(abc.ABC):
 
         return embed
 
-    
 
-    def send_section(self, ctx: cmds.Context, section_state: states.SectionState = states.SectionStates.default, extra_view: typ.Type[vw.View] = vw.Blank):
+    def reformat_input(self, ctx: cmds.Context, response: nx.Message):
+        """Validates the input."""
+        raise ValueError()
+
+
+    async def send_section(self, ctx: cmds.Context, section_state: states.SectionState = states.SectionStates.default, extra_view: typ.Type[vw.View] = vw.Blank):
         """Sends the section to the user then returns the output."""
         class ViewMerged(section_state.view_cls, extra_view):
             """Merged views."""
-        
-        while 
+
+        while True:
+            current_view = ViewMerged()
+            message = await ctx.author.send(
+                embed = await self.generate_embed(section_state),
+                view = current_view
+            )
+
+            response_type, response = await w_f.wait_for_message_view(ctx, message, current_view, timeout = vrs.Timeouts.long)
+
+            if response_type == w_f.OutputTypes.view:
+                check_response(ctx, response)
+
+                return response
+            elif response_type == w_f.OutputTypes.message:
+                try:
+                    return self.reformat_input(ctx, response)
+                except ValueError:
+                    pass
+
 
 
 class ViewInput(FormSection):
@@ -93,17 +118,21 @@ class ViewInput(FormSection):
 class TextInput(FormSection):
     """A `FormSection` with a text input."""
 
-    def reformat_text(self, text: str):
-        """Reformats the text input."""
-
 
 class NumberSection(TextInput):
     """A number section."""
     text_ext = "a number"
+        
 
 class RawTextSection(TextInput):
     """A text section."""
     text_ext = "some text"
+
+    def reformat_input(self, ctx: cmds.Context, response: nx.Message):
+        if response.content == "":
+            w_f.send_error(ctx, "You didn't send text!")
+            raise ValueError()
+        return response.content
 
 class LinksSection(TextInput):
     """A links section."""

@@ -21,7 +21,7 @@ import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
-TIMEOUT = vrs.Timeouts.LONG
+TIMEOUT = vrs.Timeouts.long
 
 
 async def check_has_required(choices):
@@ -194,7 +194,7 @@ async def ask_attribute(ctx: cmds.Context,
     async def check_value(response: typ.Type[vw.View]):
         """Checks the value of a view."""
         if response.value == vw.OutputValues.cancel:
-            await s_e.cancel_function(ctx, send_author=True)
+            await s_e.cancel_command(ctx, send_author=True)
         elif response.value == vw.OutputValues.skip:
             await ctx.author.send("Section skipped.")
             return skip_default

@@ -71,7 +71,7 @@ class Moderation(cmds.Cog):
                 confirm_view = vw.ViewConfirmCancel()
                 confirm_message = await ctx.send((
                         f"Are you sure you want to {action} the user `{user_name}`?\n"
-                        f"This command will time out in `{o_f.format_time(vrs.Timeouts.LONG)}`."
+                        f"This command will time out in `{o_f.format_time(vrs.Timeouts.long)}`."
                     ), view=confirm_view)
 
                 output_view = await w_f.wait_for_view(ctx, confirm_message, confirm_view)

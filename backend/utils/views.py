@@ -38,6 +38,7 @@ class OutputValues:
     skip = m_ot.Unique()
     confirm = m_ot.Unique()
     submit = m_ot.Unique()
+    back = m_ot.Unique()
 
 
 class Blank(View):
@@ -84,6 +85,14 @@ class ButtonSkipDisabled(View):
         self.value = OutputValues.skip
         self.stop()
 
+class ButtonBack(View):
+    """Back button."""
+    @nx.ui.button(label = "Back", style = nx.ButtonStyle.blurple, row = IS_LAST_ROW)
+    def back(self, button: nx.ui.Button, interact: nx.Interaction):
+        """back!"""
+        self.value = OutputValues.back
+        self.stop()
+
 
 class ViewCancelOnly(ButtonCancel, ButtonSkipDisabled):
     """Cancel button only."""
@@ -96,3 +105,6 @@ class ViewConfirmCancel(ButtonCancel, ButtonConfirm):
 
 class ViewSubmitCancel(ButtonCancel, ButtonSubmit):
     """Submit and cancel."""
+
+class ViewBackCancel(ButtonCancel, ButtonBack):
+    """Back and cancel."""

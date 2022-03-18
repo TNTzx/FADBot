@@ -11,7 +11,7 @@ import backend.utils.views as vw
 import backend.utils.asking.wait_for as w_f
 
 
-TIMEOUT = vrs.Timeouts.MEDIUM
+TIMEOUT = vrs.Timeouts.medium
 
 async def ask_confirm(ctx: cmds.Context):
     """Asks to confirm an action."""
