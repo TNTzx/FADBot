@@ -5,7 +5,7 @@ import datetime
 import pytz
 
 import global_vars.variables as vrs
-import global_vars.loggers as lgr
+import backend.logging.loggers as lgr
 
 
 def start_loop():

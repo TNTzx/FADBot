@@ -4,7 +4,6 @@
 import os
 import io
 
-import typing as typ
 import urllib.parse as urlparse
 import requests as req
 
@@ -17,32 +16,26 @@ from ... import artist_struct as a_s
 
 class Image(a_s.ArtistStruct):
     """Defines an image for uploading to VADB."""
-    def __init__(self, name: str, data: PIL.Image | bytes, original_url: str = None):
+    def __init__(self, name: str, pil_image: PIL.Image, original_url: str = None):
         self.name = name
 
-        self.pil_image = data
+        with io.BytesIO() as data_bytes:
+            pil_image.save(data_bytes, format = "PNG")
+            self.data = data_bytes.getvalue()
 
-        if isinstance(data, PIL.Image):
-            with io.BytesIO() as data_bytes:
-                data.save(data_bytes, format = "PNG")
-                self.data = data_bytes.getvalue()
-        else:
-            self.data = data
-        
         self.original_url = original_url
 
     def __repr__(self):
         return f"ImageData({self.name})"
 
 
+    def get_pil_image(self):
+        """Gets the PIL Image from data."""
+        return PIL.open(io.BytesIO(self.data))
+
+
     vadb_link_ext: str = None
     vadb_key: str = None
-
-    def to_payload(self) -> dict:
-        return (
-            self.vadb_key,
-            (self.name, self.data, "image/png")
-        )
 
 
     @classmethod
@@ -51,10 +44,10 @@ class Image(a_s.ArtistStruct):
         url_parse = urlparse.urlparse(url)
         name = os.path.basename(url_parse.path)
         response = req.get(url, stream = True)
-        data = PIL.open(response.raw)
+        pil_image = PIL.open(response.raw)
         return cls(
             name = name,
-            data = data,
+            pil_image = pil_image,
             original_url = url
         )
 
@@ -97,4 +90,6 @@ class ImageInfo(a_s.ArtistStruct):
         return [self.avatar, self.banner]
 
     def to_payload(self) -> dict | tuple | list:
-        return [image.to_payload() for image in self._to_image_list()]
+        return {
+            image.vadb_key: image.data for image in self._to_image_list()
+        }

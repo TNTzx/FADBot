@@ -8,7 +8,7 @@ import logging as log
 
 
 formatter = log.Formatter("[%(asctime)s | %(filename)s + %(funcName)s] [%(name)s | %(levelname)s]:   %(message)s")
-logs_path = os.path.join(os.path.split(__file__)[0], "..", "logs")
+logs_path = os.path.join(os.path.split(__file__)[0], "..", "..", "logs")
 
 def check_if_create_path(path):
     """Checks if a path exists. If it doesn't, it gets created."""

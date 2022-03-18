@@ -4,7 +4,7 @@
 import json
 import requests
 
-import global_vars.loggers as lgr
+import backend.logging.loggers as lgr
 import backend.other_functions as o_f
 
 from . import consts

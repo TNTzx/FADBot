@@ -4,7 +4,7 @@ import collections as cl
 import threading as thread
 
 import global_vars.variables as vrs
-import global_vars.loggers as lgr
+import backend.logging.loggers as lgr
 import backend.exceptions.custom_exc as c_exc
 import backend.databases.firebase.firebase_reset_token as f_r_t
 import backend.other_functions as o_f

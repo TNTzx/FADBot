@@ -14,7 +14,7 @@ class Social(a_s.ArtistStruct):
             ):
         self.link = link
 
-    def get_domain(self):
+    def get_domain(self) -> str:
         """Gets the domain of the social link."""
         return tld.extract(self.link).domain
 

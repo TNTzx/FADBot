@@ -20,7 +20,7 @@ import nextcord.ext.commands as cmds
 import tldextract as tld
 
 import global_vars.variables as vrs
-import global_vars.loggers as lgr
+import backend.logging.loggers as lgr
 import backend.utils.dataclass as dt
 import backend.utils.message_pointer as m_p
 import backend.utils.asking.wait_for as w_f

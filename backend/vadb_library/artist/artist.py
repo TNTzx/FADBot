@@ -9,35 +9,11 @@ import requests as req
 import backend.other_functions as o_f
 
 from .. import api
+from ..other import clean_iter
 
 from . import struct_exts as exts
 from . import exceptions as a_exc
 from . import artist_struct as a_s
-
-
-def none_if_empty(obj: typ.Iterable):
-    """Returns None if the iterable and the iterables inside it is empty or has only None, else return the iterable."""
-    def check_if_not_empty(obj: typ.Iterable):
-        """Returns False if this iterable is empty, If it's not an iterable, return True."""
-        try:
-            len(obj)
-        except TypeError:
-            return True
-
-        if isinstance(obj, str):
-            if len(obj) > 0:
-                return True
-
-        for item in obj:
-            if check_if_not_empty(item):
-                return True
-
-        return False
-
-    if check_if_not_empty(obj):
-        return obj
-    
-    return None
 
 
 class Artist(a_s.ArtistStruct):
@@ -80,7 +56,7 @@ class Artist(a_s.ArtistStruct):
 
         payload = {
             "name": self.name,
-            "aliases": none_if_empty([
+            "aliases": clean_iter.clean_iterable([
                 {
                     "name": alias.name
                 } for alias in self.details.aliases.aliases
@@ -91,13 +67,13 @@ class Artist(a_s.ArtistStruct):
             "notes": self.details.notes,
             "tracks": self.details.music_info.track_count,
             "genre": self.details.music_info.genre,
-            "usageRights": none_if_empty([
+            "usageRights": clean_iter.clean_iterable([
                 {
                     "name": usage_right.description,
                     "value": usage_right.is_verified
                 } for usage_right in self.states.usage_rights.usage_rights
             ]),
-            "socials": none_if_empty([
+            "socials": clean_iter.clean_iterable([
                 {
                     "link": social.link,
                     "type": social.get_domain()
@@ -125,7 +101,7 @@ class Artist(a_s.ArtistStruct):
 
         try:
             return cls(
-                name = none_if_empty(data["name"]),
+                name = clean_iter.clean_iterable(data["name"]),
                 proof = None, # please nao have a proof field :(
                 vadb_info = exts.VADBInfo(
                     artist_id = artist_id
@@ -134,7 +110,7 @@ class Artist(a_s.ArtistStruct):
                     status = data["status"],
                     availability = data["availability"],
                     usage_rights = exts.UsageRights(
-                        usage_rights = none_if_empty([
+                        usage_rights = clean_iter.clean_iterable([
                             exts.UsageRight(
                                 description = usage_right["name"],
                                 is_verified = usage_right["value"]
@@ -143,10 +119,10 @@ class Artist(a_s.ArtistStruct):
                     )
                 ),
                 details = exts.Details(
-                    description = none_if_empty(data["description"]),
-                    notes = none_if_empty(data["notes"]),
+                    description = clean_iter.clean_iterable(data["description"]),
+                    notes = clean_iter.clean_iterable(data["notes"]),
                     aliases = exts.Aliases(
-                        aliases = none_if_empty([
+                        aliases = clean_iter.clean_iterable([
                             exts.Alias(
                                 name = alias["name"]
                             ) for alias in data["aliases"]
@@ -158,10 +134,10 @@ class Artist(a_s.ArtistStruct):
                     ),
                     music_info = exts.MusicInfo(
                         track_count = data["tracks"],
-                        genre = none_if_empty(data["genre"])
+                        genre = clean_iter.clean_iterable(data["genre"])
                     ),
                     socials = exts.Socials(
-                        socials = none_if_empty([
+                        socials = clean_iter.clean_iterable([
                             exts.Social(
                                 link = social["link"]
                             ) for social in data["details"]["socials"]

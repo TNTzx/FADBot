@@ -7,7 +7,7 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
-import global_vars.loggers as lgr
+import backend.logging.loggers as lgr
 
 
 def log_something(log_str: str):

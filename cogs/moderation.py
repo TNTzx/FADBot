@@ -10,7 +10,7 @@
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
-import global_vars.loggers as lgr
+import backend.logging.loggers as lgr
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.choice_param as c_p
 import backend.utils.views as vw

@@ -10,10 +10,13 @@ class VADBInfo(dt.Dataclass):
     """VADB info of the artist."""
     def __init__(
             self,
-            artist_id: int = 0
+            artist_id: int = None
             ):
         self.artist_id = artist_id
 
     def get_page_link(self):
         """Gets the page of the artist."""
-        return f"https://fadb.live/artist/{self.artist_id}"
+        if self.artist_id is not None:
+            return f"https://fadb.live/artist/{self.artist_id}"
+        
+        return None
