@@ -21,7 +21,7 @@ class Artist(a_s.ArtistStruct):
     def __init__(
             self,
             name: str | None = None,
-            proof: str = exts.DEFAULT_PROOF,
+            proof: exts.Proof = exts.DEFAULT_PROOF,
             vadb_info: exts.VADBInfo = exts.VADBInfo(),
             states: exts.States = exts.States(),
             details: exts.Details = exts.Details()
