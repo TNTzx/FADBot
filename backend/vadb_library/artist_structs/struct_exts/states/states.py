@@ -53,6 +53,11 @@ class StateList():
         """Returns the list of states."""
         return {state.value: state.label for state in cls.state_list}
 
+    @classmethod
+    def get_states_options(cls):
+        """Returns the options list."""
+        return [state.get_option() for state in cls.state_list]
+
 
 class StatusList(StateList):
     """Contains the status list."""
