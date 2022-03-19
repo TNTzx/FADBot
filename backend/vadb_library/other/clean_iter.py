@@ -29,7 +29,7 @@ def check_if_not_empty(obj: dict | list | tuple | str):
     return False
 
 
-def clean_iterable(obj: dict | list | tuple | str):
+def clean_iterable(obj: dict | list | tuple | str | None):
     """Returns None if the iterable and the iterables inside it is empty or has only None, else return the iterable that doesn't have blank stuff."""
 
     def clean_dict(dictionary: dict):
@@ -73,6 +73,8 @@ def clean_iterable(obj: dict | list | tuple | str):
         return None
 
 
+    if obj is None:
+        return None
     if isinstance(obj, dict):
         return clean_dict(obj)
     if isinstance(obj, list):

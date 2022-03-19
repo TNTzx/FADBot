@@ -2,7 +2,10 @@
 
 
 import abc
+from multiprocessing.sharedctypes import Value
 import typing as typ
+
+import requests as req
 
 import nextcord as nx
 import nextcord.ext.commands as cmds
@@ -37,7 +40,7 @@ class FormSection(abc.ABC):
             description: str,
             required: bool,
             example: str = None,
-            notes: str = None
+            notes: str = None,
             ):
         self.title = title
         self.description = description
@@ -66,7 +69,7 @@ class FormSection(abc.ABC):
         emb_req_desc = []
         if self.example is not None:
             emb_req_desc.append((
-                "__Here is an example of what you have to send:__\n"
+                "__Examples:__\n"
                 f"`{self.example}`"
             ))
         if self.notes is not None:
@@ -81,7 +84,7 @@ class FormSection(abc.ABC):
         return embed
 
 
-    def reformat_input(self, ctx: cmds.Context, response: nx.Message):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message):
         """Validates the input."""
         raise ValueError()
 
@@ -122,33 +125,113 @@ class TextInput(FormSection):
 class NumberSection(TextInput):
     """A number section."""
     text_ext = "a number"
-        
+
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message):
+        if not response.content.isnumeric():
+            await w_f.send_error(ctx, "That's not a number!")
+            return None
+        return int(response.content)
+
 
 class RawTextSection(TextInput):
     """A text section."""
     text_ext = "some text"
 
-    def reformat_input(self, ctx: cmds.Context, response: nx.Message):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message):
         if response.content == "":
             w_f.send_error(ctx, "You didn't send text!")
             raise ValueError()
         return response.content
 
+
 class LinksSection(TextInput):
     """A links section."""
     text_ext = "some links"
+
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message):
+        async def check_link(url):
+            try:
+                req.head(url)
+            except req.exceptions.RequestException as exc:
+                await w_f.send_error(ctx, (
+                    f"`{url}` is not a valid link! Here's the error:\n"
+                    f"```{str(exc)}```"
+                ))
+                raise ValueError() from exc
+            return url
+
+        links = response.content.split("\n")
+        for link in links:
+            link = await check_link(link)
+        return links
 
 class ImageSection(TextInput):
     """An image section."""
     text_ext = "an image"
 
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message):
+        async def check_image(image_url):
+            supported_formats = ["png", "jpg", "jpeg"]
+
+            try:
+                image_request = req.head(image_url)
+            except req.exceptions.RequestException as exc:
+                await w_f.send_error(ctx, (
+                    f"You didn't send a valid image/link! Here's the error:\n"
+                    f"```{str(exc)}```"
+                ))
+                return None
+
+            if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
+                await w_f.send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
+                return None
+
+            return image_url
+
+        async def attachments():
+            return await check_image(response.attachments[0].url)
+
+        async def link():
+            return await check_image(response.content)
+
+
+        if not len(response.attachments) == 0:
+            return await attachments()
+        else:
+            return await link()
+
+
 class ListSection(TextInput):
     """A list section."""
     text_ext = "a list"
 
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message):
+        return response.content.split("\n")
+
+
 class DictSection(TextInput):
     """A dictionary section."""
     text_ext = "a dictionary"
+
+    def __init__(
+            self, title: str, description: str, required: bool, example: str = None, notes: str = None,
+            allowed_key_func: typ.Callable = None, allowed_val_func: typ.Callable = None
+            ):
+        super().__init__(title, description, required, example, notes)
+        self.allowed_key_func = allowed_key_func
+        self.allowed_val_func = allowed_val_func
+
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message):
+        diction = {}
+        try:
+            entry = response.content.split("\n")
+            for item in entry:
+                key_value = item.split(":")
+                key_value = [x.lstrip(' ') for x in key_value]
+                diction[key_value[0]] = key_value[1]
+        except (ValueError, IndexError) as exc:
+            w_f.send_error(ctx, "Your formatting is wrong!")
+            raise ValueError() from exc
 
 class ChoiceSection(ViewInput):
     """A choice section."""
@@ -158,4 +241,4 @@ class ChoiceSection(ViewInput):
 
 class FormSections():
     """Contains all form sections."""
-    name = RawTextSection()
+    

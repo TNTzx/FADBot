@@ -19,9 +19,8 @@ class Image(a_s.ArtistStruct):
     def __init__(self, name: str, pil_image: PIL.Image, original_url: str = None):
         self.name = name
 
-        with io.BytesIO() as data_bytes:
-            pil_image.save(data_bytes, format = "PNG")
-            self.data = data_bytes.getvalue()
+        self.data = io.BytesIO()
+        pil_image.save(self.data, format = "png")
 
         self.original_url = original_url
 
@@ -31,7 +30,11 @@ class Image(a_s.ArtistStruct):
 
     def get_pil_image(self):
         """Gets the PIL Image from data."""
-        return PIL.open(io.BytesIO(self.data))
+        return PIL.open(self.data)
+
+    def get_mime_type(self):
+        """Gets the mime type."""
+        return PIL.MIME[self.get_pil_image().format]
 
 
     vadb_link_ext: str = None
@@ -91,5 +94,9 @@ class ImageInfo(a_s.ArtistStruct):
 
     def to_payload(self) -> dict | tuple | list:
         return {
-            image.vadb_key: image.data for image in self._to_image_list()
+            image.vadb_key: (
+                image.name,
+                image.data,
+                image.get_mime_type()
+            ) for image in self._to_image_list()
         }

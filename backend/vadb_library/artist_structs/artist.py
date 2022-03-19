@@ -56,29 +56,35 @@ class Artist(a_s.ArtistStruct):
 
         payload = {
             "name": self.name,
-            "aliases": clean_iter.clean_iterable([
-                {
-                    "name": alias.name
-                } for alias in self.details.aliases.aliases
-            ]),
+            "aliases": (
+                clean_iter.clean_iterable([
+                    {
+                        "name": alias.name
+                    } for alias in self.details.aliases.aliases
+                ]) if self.details.aliases.aliases is not None else None
+            ),
             "status": self.states.status.value,
             "availability": self.states.availability.value,
             "description": self.details.description,
             "notes": self.details.notes,
             "tracks": self.details.music_info.track_count,
             "genre": self.details.music_info.genre,
-            "usageRights": clean_iter.clean_iterable([
-                {
-                    "name": usage_right.description,
-                    "value": usage_right.is_verified
-                } for usage_right in self.states.usage_rights.usage_rights
-            ]),
-            "socials": clean_iter.clean_iterable([
-                {
-                    "link": social.link,
-                    "type": social.get_domain()
-                } for social in self.details.socials.socials
-            ]),
+            "usageRights": (
+                clean_iter.clean_iterable([
+                    {
+                        "name": usage_right.description,
+                        "value": usage_right.is_verified
+                    } for usage_right in self.states.usage_rights.usage_rights
+                ]) if self.states.usage_rights.usage_rights is not None else None
+            ),
+            "socials": (
+                clean_iter.clean_iterable([
+                    {
+                        "link": social.link,
+                        "type": social.get_domain()
+                    } for social in self.details.socials.socials
+                ]) if self.details.socials.socials is not None else None
+            ),
         }
         files = self.details.image_info.to_payload()
 

@@ -118,10 +118,6 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
             try:
                 if not len(item) == 2:
                     raise IndexError()
-
-                # if not await check_has_dict(choices, choices_dict):
-                #     entry_dict[item[0]] = item[1]
-                # else:
                 entry_dict[item[0]] = item[1].lower()
             except (KeyError, IndexError):
                 await w_f.send_error(ctx, "Your formatting is wrong!")

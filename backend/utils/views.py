@@ -88,7 +88,7 @@ class ButtonSkipDisabled(View):
 class ButtonBack(View):
     """Back button."""
     @nx.ui.button(label = "Back", style = nx.ButtonStyle.blurple, row = IS_LAST_ROW)
-    def back(self, button: nx.ui.Button, interact: nx.Interaction):
+    async def back(self, button: nx.ui.Button, interact: nx.Interaction):
         """back!"""
         self.value = OutputValues.back
         self.stop()
