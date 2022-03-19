@@ -95,7 +95,7 @@ USAGE_RIGHTS = UsageRights(
     title = "usage rights",
     description = "The artist's usage rights. Used to include and exclude specific songs.",
     example = (
-        "Remixes: Unverified\n"
+        "Remixes: Disallowed\n"
         "Other songs: Verified"
     ),
     default_section_state = states.SectionStates.skippable

@@ -247,15 +247,15 @@ class DictSection(TextInput):
             raise InvalidResponse() from exc
 
 
-        async def check(func: typ.Callable[[typ.Any], bool] | None, dict_view: list):
+        async def check(type_: str, func: typ.Callable[[typ.Any], bool] | None, dict_view: list):
             if func is not None:
                 for item in dict_view:
                     if not func(item):
-                        await w_f.send_error(ctx, f"`{item}` is not a valid key")
+                        await w_f.send_error(ctx, f"`{item}` is not a valid {type_}.")
                         raise InvalidResponse()
 
-        await check(self.allowed_key_func, list(diction.keys()))
-        await check(self.allowed_val_func, list(diction.values()))
+        await check("key", self.allowed_key_func, list(diction.keys()))
+        await check("value", self.allowed_val_func, list(diction.values()))
 
         return diction
 

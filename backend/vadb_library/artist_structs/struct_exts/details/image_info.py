@@ -16,16 +16,19 @@ from ... import artist_struct as a_s
 
 class Image(a_s.ArtistStruct):
     """Defines an image for uploading to VADB."""
-    def __init__(self, name: str, pil_image: PIL.Image, original_url: str = None):
-        self.name = name
-
-        self.data = io.BytesIO()
-        pil_image.save(self.data, format = "png")
+    def __init__(self, pil_image: PIL.Image, original_url: str = None):
+        with io.BytesIO() as b_io:
+            pil_image.save(b_io, format = "PNG")
+            b_io.seek(0)
+            self.data = b_io.getvalue()
 
         self.original_url = original_url
 
     def __repr__(self):
         return f"ImageData({self.name})"
+
+
+    name: str = None
 
 
     def get_pil_image(self):
@@ -44,12 +47,9 @@ class Image(a_s.ArtistStruct):
     @classmethod
     def from_url(cls, url: str):
         """Gets an Image from a URL."""
-        url_parse = urlparse.urlparse(url)
-        name = os.path.basename(url_parse.path)
         response = req.get(url, stream = True)
         pil_image = PIL.open(response.raw)
         return cls(
-            name = name,
             pil_image = pil_image,
             original_url = url
         )
@@ -66,10 +66,12 @@ class Proof(Image):
 class Avatar(Image):
     """Artist avatar."""
     vadb_link_ext = vadb_key = "avatar"
+    name = "avatar.png"
 
 class Banner(Image):
     """Artist banner."""
     vadb_link_ext = vadb_key = "banner"
+    name = "banner.png"
 
 
 DEFAULT_IMAGE_URL = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
