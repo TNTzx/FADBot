@@ -75,6 +75,9 @@ class FormSection():
 
         make_empty_field(embed)
 
+        embed.add_field(name = "**Description:**", value = self.description, inline = False)
+
+
         emb_req = f"You have to send {self.text_ext}!"
 
         emb_req_desc = []
@@ -86,7 +89,7 @@ class FormSection():
         if self.notes is not None:
             emb_req_desc.append(f"__Note:__\n{self.notes}")
 
-        embed.add_field(name = emb_req, value = "\n".join(emb_req_desc))
+        embed.add_field(name = emb_req, value = "\n".join(emb_req_desc), inline = False)
 
         make_empty_field(embed)
 

@@ -17,6 +17,9 @@ from ... import artist_struct as a_s
 class Image(a_s.ArtistStruct):
     """Defines an image for uploading to VADB."""
     def __init__(self, pil_image: PIL.Image, original_url: str = None):
+        if pil_image.width >= self.max_image_size[0] or pil_image.height >= self.max_image_size[1]:
+            pil_image = pil_image.resize((200, 200))
+
         with io.BytesIO() as b_io:
             pil_image.save(b_io, format = "PNG")
             b_io.seek(0)
@@ -28,12 +31,12 @@ class Image(a_s.ArtistStruct):
         return f"ImageData({self.name})"
 
 
-    name: str = None
-
+    name: str
+    max_image_size: tuple[int, int] = (2000, 2000)
 
     def get_pil_image(self):
         """Gets the PIL Image from data."""
-        return PIL.open(self.data)
+        return PIL.open(io.BytesIO(self.data))
 
     def get_mime_type(self):
         """Gets the mime type."""
@@ -66,12 +69,14 @@ class Proof(Image):
 class Avatar(Image):
     """Artist avatar."""
     vadb_link_ext = vadb_key = "avatar"
-    name = "avatar.png"
+    name = "image.png"
+    max_image_size = (200, 200)
 
 class Banner(Image):
     """Artist banner."""
     vadb_link_ext = vadb_key = "banner"
-    name = "banner.png"
+    name = "image.png"
+    max_image_size = (1920, 1080)
 
 
 DEFAULT_IMAGE_URL = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
