@@ -18,7 +18,7 @@ class Image(a_s.ArtistStruct):
     """Defines an image for uploading to VADB."""
     def __init__(self, pil_image: PIL.Image, original_url: str = None):
         if pil_image.width >= self.max_image_size[0] or pil_image.height >= self.max_image_size[1]:
-            pil_image = pil_image.resize((200, 200))
+            pil_image = pil_image.resize(self.max_image_size)
 
         with io.BytesIO() as b_io:
             pil_image.save(b_io, format = "PNG")
