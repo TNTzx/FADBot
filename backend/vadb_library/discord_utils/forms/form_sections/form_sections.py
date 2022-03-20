@@ -44,7 +44,7 @@ class Availability(f_s.ChoiceSection):
                 self.stop()
 
         response = await self.send_section(ctx, section_state = section_state, extra_view = AvailabilityView)
-        ...
+        artist.states.availability.value = response
 
 value_state_dict = {
     "Verified": True,
@@ -201,14 +201,14 @@ class FormSections():
 
 
     @classmethod
-    def all_form_sections(cls):
+    def get_all_form_sections(cls):
         """Returns all form sections."""
         return f_s.FormSection.form_sections
 
     @classmethod
     def get_all_options(cls):
         """Returns all options of each form section."""
-        return [form_section.generate_option() for form_section in cls.all_form_sections()]
+        return [form_section.generate_option() for form_section in cls.get_all_form_sections()]
 
     @classmethod
     def get_options_view(cls, placeholder: str = "Select attribute..."):
@@ -222,3 +222,12 @@ class FormSections():
                 self.stop()
 
         return ViewFormSections
+
+    @classmethod
+    def get_section_from_title(cls, title: str):
+        """Gets the section from the title."""
+        for section in cls.get_all_form_sections():
+            if section.title == title:
+                return section
+        
+        raise ValueError(f"\"{title}\" not found.")

@@ -28,10 +28,10 @@ class Image(a_s.ArtistStruct):
         self.original_url = original_url
 
     def __repr__(self):
-        return f"ImageData({self.name})"
+        return f"ImageData({self.get_pil_image()})"
 
 
-    name: str
+    name: str = "image.png"
     max_image_size: tuple[int, int] = (2000, 2000)
 
     def get_pil_image(self):
@@ -69,13 +69,11 @@ class Proof(Image):
 class Avatar(Image):
     """Artist avatar."""
     vadb_link_ext = vadb_key = "avatar"
-    name = "image.png"
     max_image_size = (200, 200)
 
 class Banner(Image):
     """Artist banner."""
     vadb_link_ext = vadb_key = "banner"
-    name = "image.png"
     max_image_size = (1920, 1080)
 
 

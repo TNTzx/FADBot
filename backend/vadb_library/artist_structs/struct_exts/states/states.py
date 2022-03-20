@@ -27,6 +27,7 @@ class State(dt.Dataclass):
         return nx.SelectOption(
             label = self.label,
             description = self.choice_info.description,
+            value = self.value,
             emoji = self.choice_info.emoji
         )
 
@@ -57,6 +58,15 @@ class StateList():
     def get_states_options(cls):
         """Returns the options list."""
         return [state.get_option() for state in cls.state_list]
+    
+    @classmethod
+    def get_state_from_value(cls, value: int):
+        """Gets the state from a value."""
+        for state in cls.state_list:
+            if state.value == value:
+                return state
+        
+        raise ValueError(f"{value} not in state values.")
 
 
 class StatusList(StateList):

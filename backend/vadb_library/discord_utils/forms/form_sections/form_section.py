@@ -109,7 +109,8 @@ class FormSection():
         """Generates a `ChoiceOption` object for this form section."""
         return nx.SelectOption(
             label = self.title.capitalize(),
-            value = self.description
+            description = self.description,
+            value = self.title
         )
 
 
@@ -138,12 +139,10 @@ class FormSection():
             if response_type == w_f.OutputTypes.view:
                 await check_response(ctx, response)
 
-                return response
-            if response_type == w_f.OutputTypes.message:
-                try:
-                    return await self.reformat_input(ctx, response)
-                except InvalidResponse:
-                    continue
+            try:
+                return await self.reformat_input(ctx, response)
+            except InvalidResponse:
+                continue
 
 
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
@@ -283,4 +282,4 @@ class ChoiceSection(ViewInput):
     text_ext = "a choice"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
-        new_response = response.value[0]
+        return response.value[0]

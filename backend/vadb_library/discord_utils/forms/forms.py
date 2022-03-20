@@ -4,6 +4,7 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import backend.exceptions.send_error as s_e
 import backend.utils.asking.wait_for as w_f
 import backend.utils.views as vw
 import backend.other_functions as o_f
@@ -35,6 +36,7 @@ class FormArtist():
         view_cls = f_s.FormSections.get_options_view("Select attribute to edit...")
         artist_info_bundle = bundle.InfoBundle(self.artist)
 
+
         while True:
             while True:
                 new_view = view_cls()
@@ -50,11 +52,22 @@ class FormArtist():
                     view = new_view
                 )
 
-                response_type = await w_f.wait_for_view(
+                response = await w_f.wait_for_view(
                     ctx,
                     message_bundle.message_proof,
                     view = new_view,
                     timeout = TIMEOUT
                 )
 
-                response_type.value
+
+                if response.value == vw.OutputValues.confirm:
+                    break
+                if response.value == vw.OutputValues.cancel:
+                    await s_e.cancel_command(ctx, send_author = True)
+
+                form_section = f_s.FormSections.get_section_from_title(response.value[0])
+
+                await self.edit_with_section(ctx, section = form_section, section_state = f_s.SectionStates.editing)
+
+            ...
+            break
