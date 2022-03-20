@@ -4,6 +4,8 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import backend.utils.views as vw
+
 from .. import artist_structs as art
 from . import embeds
 
@@ -19,10 +21,10 @@ class InfoBundle():
         return embeds.generate_embed(self.artist)
 
 
-    async def send_message(self, channel: cmds.Context | nx.TextChannel | nx.DMChannel, prefix: str = None):
-        """Sends the message to a text channel."""
+    async def send_message(self, channel: cmds.Context | nx.TextChannel | nx.DMChannel, prefix: str = None, view: vw.View = None):
+        """Sends the message to a text channel. The view is attached to `message_proof`."""
         message_embed = await channel.send(prefix, embed = self.get_embed())
-        message_proof = await channel.send(self.artist.proof.original_url)
+        message_proof = await channel.send(self.artist.proof.original_url, view = view)
         return InfoBundleMessages(message_embed, message_proof)
 
 

@@ -1,6 +1,8 @@
 """"Contains logic for form sections."""
 
 
+from __future__ import annotations
+
 import typing as typ
 
 import requests as req
@@ -40,6 +42,9 @@ async def check_response(ctx: cmds.Context, view: vw.View):
 
 class FormSection():
     """A form section."""
+    form_sections: list[FormSection] = []
+
+
     text_ext: str = None
 
     def __init__(
@@ -55,6 +60,8 @@ class FormSection():
         self.example = example
         self.notes = notes
         self.default_section_state = default_section_state
+
+        self.__class__.form_sections.append(self)
 
 
     def generate_embed(self, section_state: states.SectionState = None):
@@ -96,6 +103,14 @@ class FormSection():
         embed.set_footer(text = section_state.footer)
 
         return embed
+
+
+    def generate_option(self):
+        """Generates a `ChoiceOption` object for this form section."""
+        return nx.SelectOption(
+            label = self.title.capitalize(),
+            value = self.description
+        )
 
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
@@ -212,8 +227,8 @@ class ImageSection(TextInput):
 
         if not len(response.attachments) == 0:
             return await check_image(response.attachments[0].url)
-        else:
-            return await check_image(response.content)
+
+        return await check_image(response.content)
 
 
 class ListSection(TextInput):

@@ -3,13 +3,6 @@
 
 from .form_section import FormSection, ExitSection
 
-from .form_sections import \
-    NAME, PROOF, \
-    AVAILABILITY, USAGE_RIGHTS, \
-    DESCRIPTION, ALIASES, \
-    AVATAR, BANNER, \
-    TRACK_COUNT, GENRE, \
-    SOCIALS, \
-    NOTES
+from .form_sections import FormSections
 
 from .section_states import SectionState, SectionStates

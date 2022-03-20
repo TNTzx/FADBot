@@ -1,6 +1,10 @@
 """Form sections."""
 
 
+from __future__ import annotations
+
+import enum
+
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
@@ -116,22 +120,22 @@ class Notes(f_s.RawTextSection):
 
 class FormSections():
     """All form sections."""
-    NAME = Name(
+    name = Name(
         title = "name",
         description = "The artist's name.",
         example = "TheFatRat",
         notes = "You must send the most commonly used name of the artist. You can set other aliases in the `aliases` field.",
     )
-    PROOF = Proof(
+    proof = Proof(
         title = "proof",
         description = "The proof that you have for sending this request.",
         notes = "Screenshot your proof that you contacted the artist. Send it here."
     )
-    AVAILABILITY = Availability(
+    availability = Availability(
         title = "availability",
         description = "Describes the artist's availability.",
     )
-    USAGE_RIGHTS = UsageRights(
+    usage_rights = UsageRights(
         title = "usage rights",
         description = "The artist's usage rights. Used to include and exclude specific songs.",
         example = (
@@ -140,13 +144,13 @@ class FormSections():
         ),
         default_section_state = states.SectionStates.skippable
     )
-    DESCRIPTION = Description(
+    description = Description(
         title = "description",
         description = "The artist's description.",
         example = "This is an artist well known for making music listened by everyone.",
         default_section_state = states.SectionStates.skippable
     )
-    ALIASES = Aliases(
+    aliases = Aliases(
         title = "aliases",
         description = "Other names the artist may go by.",
         example = (
@@ -156,29 +160,29 @@ class FormSections():
         ),
         default_section_state = states.SectionStates.skippable
     )
-    AVATAR = Avatar(
+    avatar = Avatar(
         title = "avatar",
         description = "The artist's avatar.",
         default_section_state = states.SectionStates.skippable
     )
-    BANNER = Banner(
+    banner = Banner(
         title = "banner",
         description = "The artist's banner.",
         default_section_state = states.SectionStates.skippable
     )
-    TRACK_COUNT = TrackCount(
+    track_count = TrackCount(
         title = "track count",
         description = "The amount of tracks the artist has produced.",
         notes = "This number doesn't need to be accurate.",
         default_section_state = states.SectionStates.skippable
     )
-    GENRE = Genre(
+    genre = Genre(
         title = "genre",
         description = "The artist's genre.",
         notes = "If you don't know what genre to put, press \"Skip\".",
         default_section_state = states.SectionStates.skippable
     )
-    SOCIALS = Socials(
+    socials = Socials(
         title = "socials",
         description = "The artist's social links.",
         example = (
@@ -188,9 +192,33 @@ class FormSections():
         ),
         default_section_state = states.SectionStates.skippable
     )
-    NOTES = Notes(
+    notes = Notes(
         title = "notes",
         description = "Other notes you want to put in.",
         example = "Artist may disallow at one point...",
         default_section_state = states.SectionStates.skippable
     )
+
+
+    @classmethod
+    def all_form_sections(cls):
+        """Returns all form sections."""
+        return f_s.FormSection.form_sections
+
+    @classmethod
+    def get_all_options(cls):
+        """Returns all options of each form section."""
+        return [form_section.generate_option() for form_section in cls.all_form_sections()]
+
+    @classmethod
+    def get_options_view(cls, placeholder: str = "Select attribute..."):
+        """Returns the `View` of all options."""
+        class ViewFormSections(vw.ViewConfirmCancel):
+            """A view for choices."""
+            @nx.ui.select(placeholder = placeholder, options = cls.get_all_options())
+            async def command_select(self, select: nx.ui.Select, interact: nx.Interaction):
+                """Selects!"""
+                self.value = select.values
+                self.stop()
+
+        return ViewFormSections
