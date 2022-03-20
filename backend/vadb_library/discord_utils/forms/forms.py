@@ -20,3 +20,7 @@ class FormArtist():
             await section.edit_artist_with_section(ctx, self.artist, section_state = section_state)
         except f_s.ExitSection:
             return
+    
+
+    async def edit_loop(self, ctx: cmds.Context):
+        """Edits the artist using dropdowns to select a section."""
