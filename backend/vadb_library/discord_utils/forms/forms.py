@@ -37,7 +37,7 @@ class FormArtist():
 
     async def edit_loop(self, ctx: cmds.Context):
         """Edits the artist using dropdowns to select a section."""
-        TIMEOUT = vrs.Timeouts.medium
+        timeout = vrs.Timeouts.medium
 
         view_cls = f_s.FormSections.get_options_view("Select attribute to edit...")
         artist_info_bundle = bundle.InfoBundle(self.artist)
@@ -53,7 +53,7 @@ class FormArtist():
                         "Select from the dropdown menu to edit that property.\n"
                         "Click on `Confirm` to finish editing the artist.\n"
                         "Click on `Cancel` to cancel the command.\n\n"
-                        f"This command will timeout in `{o_f.format_time(TIMEOUT)}`."
+                        f"This command will timeout in `{o_f.format_time(timeout)}`."
                     ),
                     view = new_view
                 )
@@ -62,7 +62,7 @@ class FormArtist():
                     ctx,
                     message_bundle.message_proof,
                     view = new_view,
-                    timeout = TIMEOUT
+                    timeout = timeout
                 )
 
 

@@ -16,18 +16,11 @@ from ... import artist_struct as a_s
 
 class Image(a_s.ArtistStruct):
     """Defines an image for uploading to VADB."""
-    def __init__(self, pil_image: PIL.Image, original_url: str = None):
-        if pil_image.width >= self.max_image_size[0] or pil_image.height >= self.max_image_size[1]:
-            pil_image = pil_image.resize(self.max_image_size)
-
-        pil_image.convert()
-
-        self.pil_image = pil_image
-
+    def __init__(self, original_url: str = None):
         self.original_url = original_url
 
     def __repr__(self):
-        return f"ImageData({self.pil_image()})"
+        return f"ImageData({self.get_pil_image()})"
 
 
     name: str = "image.png"
@@ -36,10 +29,21 @@ class Image(a_s.ArtistStruct):
     max_image_size: tuple[int, int] = (2000, 2000)
 
 
+    def get_pil_image(self):
+        """Gets the PIL image."""
+        response = req.get(self.original_url, stream = True)
+        pil_image = PIL.open(response.raw)
+
+        if pil_image.width >= self.max_image_size[0] or pil_image.height >= self.max_image_size[1]:
+            pil_image = pil_image.resize(self.max_image_size)
+
+        return pil_image
+
+
     def get_data(self):
         """Gets the data from the PIL image."""
         with io.BytesIO() as b_io:
-            self.pil_image.save(b_io, format = self.default_format)
+            self.get_pil_image().save(b_io, format = self.default_format)
             b_io.seek(0)
             return b_io.getvalue()
 
@@ -49,19 +53,9 @@ class Image(a_s.ArtistStruct):
 
 
     @classmethod
-    def from_url(cls, url: str):
-        """Gets an Image from a URL."""
-        response = req.get(url, stream = True)
-        pil_image = PIL.open(response.raw)
-        return cls(
-            pil_image = pil_image,
-            original_url = url
-        )
-
-    @classmethod
     def from_artist(cls, artist_id: int):
         """Gets the avatar / banner of an artist."""
-        return cls.from_url(f"{api.consts.API_IMAGE_LINK}/{cls.vadb_link_ext}/{artist_id}")
+        return cls(f"{api.consts.API_IMAGE_LINK}/{cls.vadb_link_ext}/{artist_id}")
 
 
 class Proof(Image):
@@ -79,9 +73,9 @@ class Banner(Image):
 
 
 DEFAULT_IMAGE_URL = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
-DEFAULT_PROOF = Proof.from_url(DEFAULT_IMAGE_URL)
-DEFAULT_AVATAR = Avatar.from_url(DEFAULT_IMAGE_URL)
-DEFAULT_BANNER = Banner.from_url(DEFAULT_IMAGE_URL)
+DEFAULT_PROOF = Proof(DEFAULT_IMAGE_URL)
+DEFAULT_AVATAR = Avatar(DEFAULT_IMAGE_URL)
+DEFAULT_BANNER = Banner(DEFAULT_IMAGE_URL)
 
 
 class ImageInfo(a_s.ArtistStruct):

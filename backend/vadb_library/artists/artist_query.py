@@ -14,7 +14,10 @@ from . import exceptions as a_exc
 class ArtistQuery():
     """Artist query."""
     def __init__(self, artists: list[artist.Artist] = None):
-        self.artists = artists
+        if len(artists) == 0:
+            self.artists = None
+        else:
+            self.artists = artists
 
 
     @classmethod
@@ -25,13 +28,9 @@ class ArtistQuery():
         except req.exceptions.HTTPError as exc:
             raise a_exc.VADBNoSearchResult(search_term) from exc
 
-
-        async def from_vadb_data(artist_data: dict):
-            """From VADB data, but async."""
-            return artist.Artist.from_vadb_data(artist_data)
-
-        async def gather():
-            return await asyncio.gather(*[from_vadb_data(artist_data) for artist_data in response])
         return cls(
-            artists = asyncio.run(gather())
+            artists = [
+                    artist.Artist.from_vadb_data(artist_data)
+                    for artist_data in response
+            ]
         )

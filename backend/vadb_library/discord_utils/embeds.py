@@ -145,8 +145,12 @@ def generate_embed_multiple(
         f"**{artist.vadb_info.artist_id}**: {artist.name}"
         for artist in artists.artists
     ]
+    embed.add_field(
+        name = "_ _",
+        value = "\n".join(emb_artists)
+    )
 
     if footer is not None:
         embed.set_footer(text = footer)
-    
-    return emb_artists
+
+    return embed

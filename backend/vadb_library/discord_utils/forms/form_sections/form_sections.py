@@ -21,6 +21,8 @@ class Name(f_s.RawTextSection):
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         response = await super().reformat_input(ctx, response)
 
+        await ctx.send("Trying to find possible existing artists. This might take a while...")
+
         searched_artists = a_s.ArtistQuery.from_vadb_search(response)
         if len(searched_artists.artists) > 0:
             embed = embeds.generate_embed_multiple(
@@ -65,7 +67,7 @@ class Name(f_s.RawTextSection):
 class Proof(f_s.ImageSection):
     """Artist proof."""
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.proof = a_s.Proof.from_url(await self.send_section(ctx, section_state = section_state))
+        artist.proof = a_s.Proof(await self.send_section(ctx, section_state = section_state))
 
 class Availability(f_s.ChoiceSection):
     """Artist availability."""
@@ -123,12 +125,12 @@ class Aliases(f_s.ListSection):
 class Avatar(f_s.ImageSection):
     """Artist's avatar."""
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.details.image_info.avatar = a_s.Avatar.from_url(await self.send_section(ctx, section_state = section_state))
+        artist.details.image_info.avatar = a_s.Avatar(await self.send_section(ctx, section_state = section_state))
 
 class Banner(f_s.ImageSection):
     """Artist's banner."""
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.details.image_info.banner = a_s.Banner.from_url(await self.send_section(ctx, section_state = section_state))
+        artist.details.image_info.banner = a_s.Banner(await self.send_section(ctx, section_state = section_state))
 
 class TrackCount(f_s.NumberSection):
     """Artist's track count."""
