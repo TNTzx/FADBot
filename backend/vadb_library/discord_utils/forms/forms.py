@@ -10,7 +10,7 @@ import backend.utils.views as vw
 import backend.other_functions as o_f
 import global_vars.variables as vrs
 
-from ... import artist_structs as art
+from ... import artists as art
 from .. import artist_info_bundle as bundle
 from . import form_sections as f_s
 

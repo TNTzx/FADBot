@@ -15,7 +15,7 @@ import backend.utils.asking.wait_for as w_f
 import backend.exceptions.send_error as s_e
 import global_vars.variables as vrs
 
-from .... import artist_structs as a_s
+from .... import artists as a_s
 from . import section_states as states
 
 
@@ -36,8 +36,6 @@ async def check_response(ctx: cmds.Context, view: vw.View):
     elif view.value == vw.OutputValues.back:
         await ctx.author.send("Going back to menu...")
         raise ExitSection()
-    else:
-        raise NotImplementedError("Not implemented response.")
 
 
 class FormSection():
@@ -87,18 +85,19 @@ class FormSection():
 
         emb_req = f"You have to send {self.text_ext}!"
 
-        emb_req_desc = []
-        if self.example is not None:
-            emb_req_desc.append((
-                "__Examples:__\n"
-                f"`{self.example}`"
-            ))
-        if self.notes is not None:
-            emb_req_desc.append(f"__Note:__\n{self.notes}")
+        if self.example is not None and self.notes is not None:
+            emb_req_desc = []
+            if self.example is not None:
+                emb_req_desc.append((
+                    "__Examples:__\n"
+                    f"`{self.example}`"
+                ))
+            if self.notes is not None:
+                emb_req_desc.append(f"__Note:__\n{self.notes}")
 
-        embed.add_field(name = emb_req, value = "\n".join(emb_req_desc), inline = False)
+            embed.add_field(name = emb_req, value = "\n".join(emb_req_desc), inline = False)
 
-        make_empty_field(embed)
+            make_empty_field(embed)
 
         embed.set_footer(text = section_state.footer)
 
@@ -114,7 +113,9 @@ class FormSection():
         )
 
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(
+            self, ctx: cmds.Context, response: nx.Message | vw.View
+            ) -> str | int | dict | list | vw.View:
         """Validates the input."""
         raise InvalidResponse()
 

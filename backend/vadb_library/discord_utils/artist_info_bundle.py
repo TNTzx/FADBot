@@ -6,7 +6,7 @@ import nextcord.ext.commands as cmds
 
 import backend.utils.views as vw
 
-from .. import artist_structs as art
+from .. import artists as art
 from . import embeds
 
 

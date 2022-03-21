@@ -49,7 +49,7 @@ class Endpoints():
         """`GET` Endpoint for getting a search term."""
         search_term_url = ul.quote_plus(search_term)
         search_term_url = search_term_url.replace("+", "%20")
-        Endpoint(RequestTypes.get, append_to_api_link(f"/search/{search_term_url}"))
+        return Endpoint(RequestTypes.get, append_to_api_link(f"/search/{search_term_url}"))
 
 
     @classmethod

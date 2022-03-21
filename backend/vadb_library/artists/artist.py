@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-import typing as typ
+import asyncio
 import requests as req
 
 import backend.other_functions as o_f
@@ -95,14 +95,8 @@ class Artist(a_s.ArtistStruct):
 
 
     @classmethod
-    def from_vadb_receive(cls, response: req.models.Response):
-        try:
-            response.raise_for_status()
-        except req.HTTPError as exc:
-            raise a_exc.VADBError("Response not okay.") from exc
-
-        data = response.json()["data"]
-
+    def from_vadb_data(cls, data: dict):
+        """Returns an `Artist` from a VADB data structure."""
         artist_id = data["id"]
 
         try:
@@ -159,6 +153,24 @@ class Artist(a_s.ArtistStruct):
     def from_artist_id(cls, artist_id: int):
         """Returns the `Artist` from an ID from VADB."""
         try:
-            return cls.from_vadb_receive(api.make_request(api.Endpoints.artist_get(artist_id)))
+            return cls.from_vadb_data(api.make_request(api.Endpoints.artist_get(artist_id)).json()["data"])
         except req.HTTPError as exc:
             raise a_exc.VADBNoArtistID(artist_id) from exc
+
+
+    @classmethod
+    def from_vadb_search(cls, search_term: str):
+        """Returns a list of `Artist`s from a search."""
+        try:
+            response = api.make_request(api.Endpoints.artist_search(search_term)).json()["data"]
+        except req.exceptions.HTTPError as exc:
+            raise a_exc.VADBNoSearchResult(search_term) from exc
+        
+
+        async def from_vadb_data(artist_data: dict):
+            """From VADB data, but async."""
+            return cls.from_vadb_data(artist_data)
+
+        async def gather():
+            return await asyncio.gather(*[from_vadb_data(artist_data) for artist_data in response])
+        return asyncio.run(gather())

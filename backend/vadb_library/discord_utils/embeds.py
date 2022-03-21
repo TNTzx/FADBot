@@ -8,7 +8,7 @@ import backend.logging.loggers as lgr
 import backend.utils.other as mot
 import backend.other_functions as o_f
 
-from .. import artist_structs as art
+from .. import artists as art
 from .. import api
 
 

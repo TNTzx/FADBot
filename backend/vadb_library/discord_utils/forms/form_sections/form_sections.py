@@ -10,7 +10,7 @@ import nextcord.ext.commands as cmds
 
 import backend.utils.views as vw
 
-from .... import artist_structs as a_s
+from .... import artists as a_s
 from . import form_section as f_s
 from . import section_states as states
 
@@ -20,7 +20,7 @@ class Name(f_s.RawTextSection):
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
         input = await super().reformat_input(ctx, response)
 
-        ...
+        
 
         return input
 
@@ -44,7 +44,7 @@ class Availability(f_s.ChoiceSection):
                 self.stop()
 
         response = await self.send_section(ctx, section_state = section_state, extra_view = AvailabilityView)
-        artist.states.availability.value = response
+        artist.states.availability.value = int(response)
 
 value_state_dict = {
     "Verified": True,
