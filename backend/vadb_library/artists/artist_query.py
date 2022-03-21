@@ -15,17 +15,6 @@ class ArtistQuery():
     """Artist query."""
     def __init__(self, artists: list[artist.Artist] = None):
         self.artists = artists
-
-    def generate_embed(self,
-            title: str = None,
-            description: str = None
-            ):
-        """Generates an embed for multiple artists."""
-        embed = nx.Embed(
-            color = 0xFF0000,
-            title = title,
-            description = description
-        )
     
 
     @classmethod

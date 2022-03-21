@@ -108,3 +108,6 @@ class ViewSubmitCancel(ButtonCancel, ButtonSubmit):
 
 class ViewBackCancel(ButtonCancel, ButtonBack):
     """Back and cancel."""
+
+class ViewConfirmBackCancel(ButtonCancel, ButtonBack, ButtonConfirm):
+    """Confirm, back, and cancel."""

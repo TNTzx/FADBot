@@ -114,7 +114,8 @@ class FormSection():
 
 
     async def reformat_input(
-            self, ctx: cmds.Context, response: nx.Message | vw.View
+            self, ctx: cmds.Context, response: nx.Message | vw.View,
+            section_state: states.SectionState = None
             ) -> str | int | dict | list | vw.View:
         """Validates the input."""
         raise InvalidResponse()
@@ -141,7 +142,7 @@ class FormSection():
                 await check_response(ctx, response)
 
             try:
-                return await self.reformat_input(ctx, response)
+                return await self.reformat_input(ctx, response, section_state)
             except InvalidResponse:
                 continue
 
@@ -162,7 +163,7 @@ class NumberSection(TextInput):
     """A number section."""
     text_ext = "a number"
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         if not response.content.isnumeric():
             await w_f.send_error(ctx, "That's not a number!")
             return None
@@ -173,7 +174,7 @@ class RawTextSection(TextInput):
     """A text section."""
     text_ext = "some text"
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         if response.content == "":
             await w_f.send_error(ctx, "You didn't send text!")
             raise InvalidResponse()
@@ -184,7 +185,7 @@ class LinksSection(TextInput):
     """A links section."""
     text_ext = "some links"
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         async def check_link(url):
             try:
                 req.head(url)
@@ -205,7 +206,7 @@ class ImageSection(TextInput):
     """An image section."""
     text_ext = "an image / image url"
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         async def check_image(image_url):
             supported_formats = ["png", "jpg", "jpeg"]
 
@@ -235,7 +236,7 @@ class ListSection(TextInput):
     """A list section."""
     text_ext = "a list"
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         return response.content.split("\n")
 
 
@@ -252,7 +253,7 @@ class DictSection(TextInput):
         self.allowed_key_func = allowed_key_func
         self.allowed_val_func = allowed_val_func
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         diction = {}
         try:
             entry = response.content.split("\n")
@@ -282,5 +283,5 @@ class ChoiceSection(ViewInput):
     """A choice section."""
     text_ext = "a choice"
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         return response.value[0]

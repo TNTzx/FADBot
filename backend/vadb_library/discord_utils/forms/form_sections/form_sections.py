@@ -3,32 +3,58 @@
 
 from __future__ import annotations
 
-import enum
-
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import backend.exceptions.send_error as s_e
+import backend.utils.asking.wait_for as w_f
 import backend.utils.views as vw
 
 from .... import artists as a_s
+from ... import embeds
 from . import form_section as f_s
 from . import section_states as states
 
 
 class Name(f_s.RawTextSection):
     """The artist name."""
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         response = await super().reformat_input(ctx, response)
 
         searched_artists = a_s.ArtistQuery.from_vadb_search(response)
         if len(searched_artists.artists) > 0:
-            searched_artists.generate_embed(
+            embed = embeds.generate_embed_multiple(
+                searched_artists,
                 title = "Possible Existing Artists Found!",
                 description = (
                     "Existing artists may have possibly be on the database already!\n",
                     "Please confirm that you are not submitting a duplicate!"
+                ),
+                footer = (
+                    "Click on \"Confirm\" to confirm that you are not submitting a duplicate entry.\n"
+                    "Click on \"Back\" to go back and enter a different artist name.\n"
+                    "Click on \"Cancel\" to cancel the current command."
                 )
             )
+
+            view = vw.ViewConfirmBackCancel()
+
+            message = await ctx.send(
+                "Possible existing artists found!",
+                embed = embed,
+                view = view
+            )
+
+            result_view = await w_f.wait_for_view(ctx, message, view)
+            result = result_view.value
+
+            if result == vw.OutputValues.confirm:
+                pass
+            if result == vw.OutputValues.back:
+                await ctx.send("Returning...")
+                self.send_section(ctx, section_state = section_state)
+            if result == vw.OutputValues.cancel:
+                await s_e.cancel_command(ctx, send_author=True)
 
 
         return response
@@ -65,7 +91,7 @@ class UsageRights(f_s.DictSection):
     def __init__(self, title: str, description: str, example: str = None, notes: str = None, default_section_state: states.SectionState = states.SectionStates.default):
         super().__init__(title, description, example, notes, default_section_state = default_section_state, allowed_val_func = lambda value: value in list(value_state_dict.keys()))
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
+    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         diction = await super().reformat_input(ctx, response)
         return {
             key: value_state_dict[value] for key, value in diction.items()

@@ -126,3 +126,27 @@ def generate_embed(artist: art.Artist):
     embed.colour = color_match.get_name()
 
     return embed
+
+
+def generate_embed_multiple(
+        artists: art.ArtistQuery,
+        title: str = None,
+        description: str = None,
+        footer: str = None
+        ):
+    """Generates an embed for multiple artists."""
+    embed = nx.Embed(
+        color = 0xFF0000,
+        title = title,
+        description = description
+    )
+
+    emb_artists = [
+        f"**{artist.vadb_info.artist_id}**: {artist.name}"
+        for artist in artists.artists
+    ]
+
+    if footer is not None:
+        embed.set_footer(text = footer)
+    
+    return emb_artists
