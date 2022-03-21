@@ -29,7 +29,7 @@ class Name(f_s.RawTextSection):
                 searched_artists,
                 title = "Possible Existing Artists Found!",
                 description = (
-                    "Existing artists may have possibly be on the database already!\n",
+                    "Existing artists may have possibly be on the database already!\n"
                     "Please confirm that you are not submitting a duplicate!"
                 ),
                 footer = (
@@ -54,7 +54,7 @@ class Name(f_s.RawTextSection):
                 pass
             if result == vw.OutputValues.back:
                 await ctx.send("Returning...")
-                self.send_section(ctx, section_state = section_state)
+                await self.send_section(ctx, section_state = section_state)
             if result == vw.OutputValues.cancel:
                 await s_e.cancel_command(ctx, send_author=True)
 
