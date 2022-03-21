@@ -165,7 +165,7 @@ class Artist(a_s.ArtistStruct):
             response = api.make_request(api.Endpoints.artist_search(search_term)).json()["data"]
         except req.exceptions.HTTPError as exc:
             raise a_exc.VADBNoSearchResult(search_term) from exc
-        
+
 
         async def from_vadb_data(artist_data: dict):
             """From VADB data, but async."""

@@ -20,27 +20,28 @@ class Image(a_s.ArtistStruct):
         if pil_image.width >= self.max_image_size[0] or pil_image.height >= self.max_image_size[1]:
             pil_image = pil_image.resize(self.max_image_size)
 
-        with io.BytesIO() as b_io:
-            pil_image.save(b_io, format = "PNG")
-            b_io.seek(0)
-            self.data = b_io.getvalue()
+        pil_image.convert()
+
+        self.pil_image = pil_image
 
         self.original_url = original_url
 
     def __repr__(self):
-        return f"ImageData({self.get_pil_image()})"
+        return f"ImageData({self.pil_image()})"
 
 
     name: str = "image.png"
+    default_mime_type = "image/png"
+    default_format = "PNG"
     max_image_size: tuple[int, int] = (2000, 2000)
 
-    def get_pil_image(self):
-        """Gets the PIL Image from data."""
-        return PIL.open(io.BytesIO(self.data))
 
-    def get_mime_type(self):
-        """Gets the mime type."""
-        return PIL.MIME[self.get_pil_image().format]
+    def get_data(self):
+        """Gets the data from the PIL image."""
+        with io.BytesIO() as b_io:
+            self.pil_image.save(b_io, format = self.default_format)
+            b_io.seek(0)
+            return b_io.getvalue()
 
 
     vadb_link_ext: str = None
@@ -101,7 +102,7 @@ class ImageInfo(a_s.ArtistStruct):
         return {
             image.vadb_key: (
                 image.name,
-                image.data,
-                image.get_mime_type()
+                image.get_data(),
+                image.default_mime_type
             ) for image in self._to_image_list()
         }
