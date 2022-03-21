@@ -18,11 +18,20 @@ from . import section_states as states
 class Name(f_s.RawTextSection):
     """The artist name."""
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View):
-        input = await super().reformat_input(ctx, response)
+        response = await super().reformat_input(ctx, response)
 
-        
+        searched_artists = a_s.ArtistQuery.from_vadb_search(response)
+        if len(searched_artists.artists) > 0:
+            searched_artists.generate_embed(
+                title = "Possible Existing Artists Found!",
+                description = (
+                    "Existing artists may have possibly be on the database already!\n",
+                    "Please confirm that you are not submitting a duplicate!"
+                )
+            )
 
-        return input
+
+        return response
 
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
         artist.name = await self.send_section(ctx, section_state = section_state)

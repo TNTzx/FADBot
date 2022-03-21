@@ -156,21 +156,3 @@ class Artist(a_s.ArtistStruct):
             return cls.from_vadb_data(api.make_request(api.Endpoints.artist_get(artist_id)).json()["data"])
         except req.HTTPError as exc:
             raise a_exc.VADBNoArtistID(artist_id) from exc
-
-
-    @classmethod
-    def from_vadb_search(cls, search_term: str):
-        """Returns a list of `Artist`s from a search."""
-        try:
-            response = api.make_request(api.Endpoints.artist_search(search_term)).json()["data"]
-        except req.exceptions.HTTPError as exc:
-            raise a_exc.VADBNoSearchResult(search_term) from exc
-
-
-        async def from_vadb_data(artist_data: dict):
-            """From VADB data, but async."""
-            return cls.from_vadb_data(artist_data)
-
-        async def gather():
-            return await asyncio.gather(*[from_vadb_data(artist_data) for artist_data in response])
-        return asyncio.run(gather())

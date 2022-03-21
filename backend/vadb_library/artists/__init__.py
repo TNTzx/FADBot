@@ -3,7 +3,6 @@
 
 from .artist import Artist
 
-
 from .struct_exts import VADBInfo
 
 from .struct_exts.details.details import Details
@@ -22,3 +21,5 @@ from .struct_exts.states.states import \
         Status, StatusList, \
         Availability, AvailabilityList
 from .struct_exts.states.usage_rights import UsageRight, UsageRights
+
+from .artist_query import ArtistQuery
