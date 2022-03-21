@@ -15,11 +15,11 @@ class ArtistQuery():
     """Artist query."""
     def __init__(self, artists: list[artist.Artist] = None):
         self.artists = artists
-    
+
 
     @classmethod
     def from_vadb_search(cls, search_term: str):
-        """Returns a list of `Artist`s from a search."""
+        """Creates an `ArtistQuery` from a search term."""
         try:
             response = api.make_request(api.Endpoints.artist_search(search_term)).json()["data"]
         except req.exceptions.HTTPError as exc:
