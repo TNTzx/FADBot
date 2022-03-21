@@ -27,7 +27,13 @@ class FormArtist():
             await section.edit_artist_with_section(ctx, self.artist, section_state = section_state)
         except f_s.ExitSection:
             return
-    
+
+
+    async def edit_with_all_sections(self, ctx: cmds.Context, section_state: f_s.SectionState = None):
+        """Edits the artist with all form sections."""
+        for section in f_s.FormSections.get_all_form_sections():
+            await self.edit_with_section(ctx, section, section_state)
+
 
     async def edit_loop(self, ctx: cmds.Context):
         """Edits the artist using dropdowns to select a section."""
