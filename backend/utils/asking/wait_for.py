@@ -63,7 +63,7 @@ class ExampleView(nx.ui.View):
 async def wait_for_view(ctx: cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout=TIMEOUT):
     """Waits for an interaction."""
     try:
-        await vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx, original_message), timeout=timeout)
+        await vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx.author.id, original_message.id), timeout=timeout)
     except asyncio.TimeoutError:
         await s_e.timeout_command(ctx)
     return view
