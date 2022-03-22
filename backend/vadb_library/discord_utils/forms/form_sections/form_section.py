@@ -66,7 +66,7 @@ class FormSection():
         if section_state is None:
             section_state = self.default_section_state
 
-        emb_title = f"Current Section: {self.title.capitalize()}"
+        emb_title = f"Current Section: {self.title.title()}"
 
         if section_state != states.SectionStates.default:
             emb_title = f"{emb_title} ({section_state.name})"
@@ -79,18 +79,21 @@ class FormSection():
 
         embed.add_field(
             name = f"You have to send {self.text_ext}!",
-            value = f"**Instructions:**\n{self.instructions}"
+            value = f"**Instructions:**\n{self.instructions}",
+            inline = False
         )
 
         if self.example is not None:
             embed.add_field(
                 name = "Example:",
-                value = f"`{self.example}`"
+                value = f"`{self.example}`",
+                inline = False
             )
         if self.notes is not None:
             embed.add_field(
                 name = "Notes:",
-                value = f"`{self.notes}`"
+                value = self.notes,
+                inline = False
             )
 
 
@@ -153,7 +156,7 @@ class FormSection():
 
             try:
                 final_response = await self.reformat_input(ctx, response, section_state)
-                await ctx.author.send(f"`{self.title.capitalize()}` is now set.")
+                await ctx.author.send(f"**Artist's {self.title} is now set.**")
                 return final_response
             except f_exc.InvalidSectionResponse:
                 continue

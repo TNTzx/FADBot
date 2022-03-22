@@ -178,7 +178,7 @@ class FormSections():
         notes = "You must send the most commonly used name of the artist. You can set other aliases in the `aliases` field.",
     )
     proof = Proof(
-        title = "proof",
+        title = "proof of contact",
         description = "The proof that you have for sending this request.",
         notes = "Screenshot your proof that you contacted the artist. Send it here."
     )
