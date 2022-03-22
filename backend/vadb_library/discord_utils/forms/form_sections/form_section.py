@@ -16,14 +16,8 @@ import backend.exceptions.send_error as s_e
 import global_vars.variables as vrs
 
 from .... import artists as a_s
+from .. import form_exc as f_exc
 from . import section_states as states
-
-
-class InvalidResponse(Exception):
-    """Invalid Response."""
-
-class ExitSection(Exception):
-    """Section exited."""
 
 
 async def check_response(ctx: cmds.Context, view: vw.View):
@@ -32,10 +26,10 @@ async def check_response(ctx: cmds.Context, view: vw.View):
         await s_e.cancel_command(ctx, send_author=True)
     elif view.value == vw.OutputValues.skip:
         await ctx.author.send("Section skipped.")
-        raise ExitSection()
+        raise f_exc.ExitSection()
     elif view.value == vw.OutputValues.back:
         await ctx.author.send("Going back to menu...")
-        raise ExitSection()
+        raise f_exc.ExitSection()
 
 
 class FormSection():
@@ -118,7 +112,7 @@ class FormSection():
             section_state: states.SectionState = None
             ) -> str | int | dict | list | vw.View:
         """Validates the input."""
-        raise InvalidResponse()
+        raise f_exc.InvalidSectionResponse()
 
 
     async def send_section(self, ctx: cmds.Context, section_state: states.SectionState = None, extra_view: typ.Type[vw.View] = vw.Blank):
@@ -143,8 +137,10 @@ class FormSection():
 
             try:
                 return await self.reformat_input(ctx, response, section_state)
-            except InvalidResponse:
+            except f_exc.InvalidSectionResponse:
                 continue
+            except f_exc.ExitSection:
+                break
 
 
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
@@ -165,7 +161,7 @@ class NumberSection(TextInput):
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         if not response.content.isnumeric():
-            await w_f.send_error(ctx, "That's not a number!")
+            await w_f.send_error(ctx, "That's not a number!", send_author = True)
             return None
         return int(response.content)
 
@@ -176,8 +172,8 @@ class RawTextSection(TextInput):
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         if response.content == "":
-            await w_f.send_error(ctx, "You didn't send text!")
-            raise InvalidResponse()
+            await w_f.send_error(ctx, "You didn't send text!", send_author = True)
+            raise f_exc.InvalidSectionResponse()
         return response.content
 
 
@@ -193,8 +189,10 @@ class LinksSection(TextInput):
                 await w_f.send_error(ctx, (
                     f"`{url}` is not a valid link! Here's the error:\n"
                     f"```{str(exc)}```"
-                ))
-                raise InvalidResponse() from exc
+                    ),
+                    send_author = True
+                )
+                raise f_exc.InvalidSectionResponse() from exc
             return url
 
         links = response.content.split("\n")
@@ -216,11 +214,13 @@ class ImageSection(TextInput):
                 await w_f.send_error(ctx, (
                     f"You didn't send a valid image/link! Here's the error:\n"
                     f"```{str(exc)}```"
-                ))
+                    ),
+                    send_author = True
+                )
                 return None
 
             if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
-                await w_f.send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
+                await w_f.send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.", send_author = True)
                 return None
 
             return image_url
@@ -262,16 +262,16 @@ class DictSection(TextInput):
                 key_value = [x.lstrip(' ') for x in key_value]
                 diction[key_value[0]] = key_value[1]
         except (ValueError, IndexError) as exc:
-            await w_f.send_error(ctx, "Your formatting is wrong!")
-            raise InvalidResponse() from exc
+            await w_f.send_error(ctx, "Your formatting is wrong!", send_author = True)
+            raise f_exc.InvalidSectionResponse() from exc
 
 
         async def check(type_: str, func: typ.Callable[[typ.Any], bool] | None, dict_view: list):
             if func is not None:
                 for item in dict_view:
                     if not func(item):
-                        await w_f.send_error(ctx, f"`{item}` is not a valid {type_}.")
-                        raise InvalidResponse()
+                        await w_f.send_error(ctx, f"`{item}` is not a valid {type_}.", send_author = True)
+                        raise f_exc.InvalidSectionResponse()
 
         await check("key", self.allowed_key_func, list(diction.keys()))
         await check("value", self.allowed_val_func, list(diction.values()))

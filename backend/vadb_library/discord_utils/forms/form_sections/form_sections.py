@@ -13,6 +13,7 @@ import backend.utils.views as vw
 from .... import artists as a_s
 from .... import excepts
 from ... import embeds
+from .. import form_exc as f_exc
 from . import form_section as f_s
 from . import section_states as states
 
@@ -21,9 +22,6 @@ class Name(f_s.RawTextSection):
     """The artist name."""
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         response = await super().reformat_input(ctx, response)
-
-        async def go_back():
-            await self.send_section(ctx, section_state = section_state)
 
         await ctx.send("Checking if there are already possible existing artists. This might take a while...")
 
@@ -35,9 +33,8 @@ class Name(f_s.RawTextSection):
             return response
 
         if searched_artists.artists[0].name == response:
-            await s_e.send_error(ctx, "An artist with that name already exists.", send_author = True)
-            await go_back()
-
+            await w_f.send_error(ctx, "An artist with that name already exists.", send_author = True)
+            raise f_exc.InvalidSectionResponse()
 
 
         embed = embeds.generate_embed_multiple(
@@ -67,14 +64,15 @@ class Name(f_s.RawTextSection):
 
         if result == vw.OutputValues.confirm:
             await ctx.send("Proceeding...")
+            raise f_exc.ExitSection()
         if result == vw.OutputValues.back:
             await ctx.send("Returning...")
-            await go_back()
+            raise f_exc.InvalidSectionResponse()
         if result == vw.OutputValues.cancel:
             await s_e.cancel_command(ctx, send_author=True)
         
 
-        raise f_s.InvalidResponse()
+        raise f_exc.InvalidSectionResponse()
 
 
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:

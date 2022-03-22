@@ -40,7 +40,7 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
     """Reformats the response."""
     async def number():
         if not response.content.isnumeric():
-            await w_f.send_error(ctx, "That's not a number!")
+            await w_f.send_error(ctx, "That's not a number!", send_author = True)
             return None
         return int(response.content)
 
@@ -51,7 +51,7 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
         #         return None
         #     return response.content.lower()
         if response.content == "":
-            await w_f.send_error(ctx, "You didn't send anything!")
+            await w_f.send_error(ctx, "You didn't send anything!", send_author = True)
             return None
         return response.content
 
@@ -63,7 +63,9 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
                 await w_f.send_error(ctx, (
                     "You didn't send valid links! Here's the error:\n"
                     f"```{str(exc)}```"
-                ))
+                    ),
+                    send_author = True
+                )
                 return None
             return url
 
@@ -84,11 +86,13 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
                 await w_f.send_error(ctx, (
                     f"You didn't send a valid image/link! Here's the error:\n"
                     f"```{str(exc)}```"
-                ))
+                    ),
+                    send_author = True
+                )
                 return None
 
             if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
-                await w_f.send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.")
+                await w_f.send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.", send_author = True)
                 return None
 
             return image_url
@@ -120,11 +124,11 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
                     raise IndexError()
                 entry_dict[item[0]] = item[1].lower()
             except (KeyError, IndexError):
-                await w_f.send_error(ctx, "Your formatting is wrong!")
+                await w_f.send_error(ctx, "Your formatting is wrong!", send_author = True)
                 return None
 
             if not item[1].lower() in [x.lower() for x in choices_dict]:
-                await w_f.send_error(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join(choices_dict)}`")
+                await w_f.send_error(ctx, f"Check if the right side of the colons contain these values: `{'`, `'.join(choices_dict)}`", send_author = True)
                 return None
         return entry_dict
 

@@ -26,9 +26,9 @@ TIMEOUT = vrs.Timeouts.long
 TIMEOUT_MESSAGE = "Command timed out. Please use the command again."
 
 
-async def send_error(ctx, suffix):
+async def send_error(ctx, suffix, send_author = False):
     """Sends an error, but with a syntax."""
-    await s_e.send_error(ctx, f"{suffix} Try again.", send_author=True)
+    await s_e.send_error(ctx, f"{suffix} Try again.", send_author = send_author)
 
 
 async def wait_for_message(ctx: cmds.Context, timeout=TIMEOUT):
