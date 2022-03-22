@@ -119,6 +119,7 @@ class FormSection():
         raise f_exc.InvalidSectionResponse()
 
 
+    # TODO try to make this be able to send anywhere, not just author
     async def send_section(
             self,
             ctx: cmds.Context,
@@ -241,8 +242,6 @@ class ImageSection(TextInput):
     text_ext = "an image / image url"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
-        await check_if_content_empty(ctx, response)
-
         async def check_image(image_url):
             supported_formats = ["png", "jpg", "jpeg"]
 
