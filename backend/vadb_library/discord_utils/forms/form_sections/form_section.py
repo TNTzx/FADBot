@@ -156,12 +156,13 @@ class FormSection():
 
             try:
                 final_response = await self.reformat_input(ctx, response, section_state)
-                await ctx.author.send(f"**Artist's {self.title} is now set.**")
-                return final_response
             except f_exc.InvalidSectionResponse:
                 continue
             except f_exc.ExitSection:
-                break
+                pass
+
+            await ctx.author.send(f"**Artist's {self.title} is now set.**")
+            return final_response
 
 
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
@@ -349,7 +350,7 @@ class DictSection(TextInput):
 class ChoiceSection(ViewInput):
     """A choice section."""
     text_ext = "a choice"
-    instruction = "Select an item in the choices below!"
+    instructions = "Select an item in the choices below!"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         if isinstance(response, nx.Message):

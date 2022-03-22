@@ -79,7 +79,7 @@ async def wait_for_message_view(ctx: cmds.Context, original_message: nx.Message,
 
     events = [
         vrs.global_bot.wait_for("message", check=w_f_ch.check_message(ctx.author.id, ctx.channel.id)),
-        vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx.author.id, original_message))
+        vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx.author.id, original_message.id))
     ]
 
     done, pending = await asyncio.wait(events, timeout=timeout, return_when=asyncio.FIRST_COMPLETED)
