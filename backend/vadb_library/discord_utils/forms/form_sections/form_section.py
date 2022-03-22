@@ -168,11 +168,20 @@ class TextInput(FormSection):
     """A `FormSection` with a text input."""
 
 
+async def check_if_content_empty(ctx: cmds.Context, response: nx.Message):
+    """Checks if the response is empty, as if sending an attachment with no message. If it is empty, raise InvalidSectionResponse."""
+    if response.content == "":
+        await w_f.send_error(ctx, "You didn't send anything!", send_author = True)
+        raise f_exc.InvalidSectionResponse("No message content found.")
+
+
 class NumberSection(TextInput):
     """A number section."""
     text_ext = "a number"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+        await check_if_content_empty(ctx, response)
+
         try:
             number = int(response.content)
         except ValueError as exc:
@@ -192,9 +201,8 @@ class RawTextSection(TextInput):
     text_ext = "some text"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
-        if response.content == "":
-            await w_f.send_error(ctx, "You didn't send text!", send_author = True)
-            raise f_exc.InvalidSectionResponse()
+        await check_if_content_empty(ctx, response)
+
         return response.content
 
 
@@ -203,6 +211,8 @@ class LinksSection(TextInput):
     text_ext = "some links"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+        await check_if_content_empty(ctx, response)
+
         async def check_link(url):
             try:
                 req.head(url)
@@ -227,6 +237,8 @@ class ImageSection(TextInput):
     text_ext = "an image / image url"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+        await check_if_content_empty(ctx, response)
+
         async def check_image(image_url):
             supported_formats = ["png", "jpg", "jpeg"]
 
@@ -259,8 +271,10 @@ class ListSection(TextInput):
     text_ext = "a list"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+        await check_if_content_empty(ctx, response)
+
         if response.content == "":
-            await w_f.send_error(ctx, "You didn't send a list!")
+            await w_f.send_error(ctx, "You didn't send a list!", send_author = True)
             raise f_exc.InvalidSectionResponse()
         return response.content.split("\n")
 
@@ -279,6 +293,8 @@ class DictSection(TextInput):
         self.allowed_val_func = allowed_val_func
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+        await check_if_content_empty(ctx, response)
+
         diction = {}
         try:
             entry = response.content.split("\n")
@@ -310,7 +326,7 @@ class ChoiceSection(ViewInput):
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         if isinstance(response, nx.Message):
-            await w_f.send_error(ctx, "You didn't send a choice!")
+            await w_f.send_error(ctx, "You didn't send a choice!", send_author = True)
             raise f_exc.InvalidSectionResponse()
 
         return response.value[0]
