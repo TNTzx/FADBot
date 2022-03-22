@@ -64,11 +64,11 @@ class FormSection():
         def make_empty_field(embed: nx.Embed):
             """Makes an empty field on the embed."""
             embed.add_field(name="_ _", value="_ _", inline=False)
+        
+        emb_title = f"Current Section: {self.title.capitalize()}"
 
-        if section_state == states.SectionStates.default:
-            emb_title = self.title.capitalize()
-        else:
-            emb_title = f"{self.title.capitalize()} ({section_state.name})"
+        if section_state != states.SectionStates.default:
+            emb_title = f"{emb_title} ({section_state.name})"
 
         embed = nx.Embed(color = vrs.COLOR_PA, title = emb_title)
 
@@ -79,19 +79,21 @@ class FormSection():
 
         emb_req = f"You have to send {self.text_ext}!"
 
-        if self.example is not None and self.notes is not None:
+        if self.example is not None or self.notes is not None:
             emb_req_desc = []
             if self.example is not None:
                 emb_req_desc.append((
-                    "__Examples:__\n"
+                    "**Examples:**\n"
                     f"`{self.example}`"
                 ))
             if self.notes is not None:
-                emb_req_desc.append(f"__Note:__\n{self.notes}")
+                emb_req_desc.append(f"**Note:**\n{self.notes}")
 
             embed.add_field(name = emb_req, value = "\n".join(emb_req_desc), inline = False)
 
             make_empty_field(embed)
+        else:
+            embed.add_field(name = emb_req, value = "_ _")
 
         embed.set_footer(text = section_state.footer)
 
@@ -162,7 +164,7 @@ class NumberSection(TextInput):
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         if not response.content.isnumeric():
             await w_f.send_error(ctx, "That's not a number!", send_author = True)
-            return None
+            raise f_exc.InvalidSectionResponse()
         return int(response.content)
 
 
@@ -217,11 +219,11 @@ class ImageSection(TextInput):
                     ),
                     send_author = True
                 )
-                return None
+                raise f_exc.InvalidSectionResponse() from exc
 
             if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
                 await w_f.send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.", send_author = True)
-                return None
+                raise f_exc.InvalidSectionResponse()
 
             return image_url
 

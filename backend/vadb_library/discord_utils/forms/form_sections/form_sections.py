@@ -70,7 +70,7 @@ class Name(f_s.RawTextSection):
             raise f_exc.InvalidSectionResponse()
         if result == vw.OutputValues.cancel:
             await s_e.cancel_command(ctx, send_author=True)
-        
+
 
         raise f_exc.InvalidSectionResponse()
 

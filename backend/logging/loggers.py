@@ -25,7 +25,7 @@ def form_filename(sort_num: int, filename: str, extension=".txt"):
 
 def setup_file_handler(filename):
     """Make a file handler!"""
-    handler = log.FileHandler(os.path.join(logs_path, filename), mode="w")
+    handler = log.FileHandler(os.path.join(logs_path, filename), mode="w", encoding='utf8')
     handler.setFormatter(formatter)
 
     return handler
