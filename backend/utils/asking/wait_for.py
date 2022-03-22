@@ -37,7 +37,11 @@ async def send_error(ctx, suffix, send_author = False):
 async def wait_for_message(ctx: cmds.Context, timeout=TIMEOUT):
     """Wait for a message then return the response."""
     try:
-        response: nx.Message = await vrs.global_bot.wait_for("message", check=w_f_ch.check_message_dm(ctx), timeout=timeout)
+        response: nx.Message = await vrs.global_bot.wait_for(
+            "message",
+            check = w_f_ch.check_message(ctx.author.id, ctx.channel.id),
+            timeout = timeout
+        )
     except asyncio.TimeoutError:
         await s_e.timeout_command(ctx)
     return response
@@ -74,8 +78,8 @@ async def wait_for_message_view(ctx: cmds.Context, original_message: nx.Message,
     """Waits for a message then returns (MessageViewCheck.message, message). If instead it was a view interaction, return (MessageViewCheck.view, view) of that interaction."""
 
     events = [
-        vrs.global_bot.wait_for("message", check=w_f_ch.check_message_dm(ctx)),
-        vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx, original_message))
+        vrs.global_bot.wait_for("message", check=w_f_ch.check_message(ctx.author.id, ctx.channel.id)),
+        vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx.author.id, original_message))
     ]
 
     done, pending = await asyncio.wait(events, timeout=timeout, return_when=asyncio.FIRST_COMPLETED)

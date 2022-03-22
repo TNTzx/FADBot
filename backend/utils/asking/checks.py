@@ -5,22 +5,23 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 
-def check_message_dm(ctx: cmds.Context):
+
+def check_message(author_id: int, text_channel_id: int):
     """Check for messages. Call to get wrapper.
     Returns True if:
     - Author is the same for command initiator and message sender.
-    - Channel sent is a DMChannel."""
+    - Channel of message sent is the same as text channel."""
 
     def wrap(msg: nx.Message):
-        return ctx.author.id == msg.author.id and isinstance(msg.channel, nx.channel.DMChannel)
+        return author_id == msg.author.id and msg.channel.id == text_channel_id
     return wrap
 
-def check_interaction(ctx: cmds.Context, original_message: nx.Message):
+def check_interaction(author_id: int, original_message: nx.Message):
     """Checks for interactions. Call to get wrapper.
     Returns True if:
     - Author is the same for command initiator and interaction sender.
-    - Interaction happened on the original_message."""
+    - Interaction happened on the `original_message`."""
 
     def wrap(interact: nx.Interaction):
-        return ctx.author.id == interact.user.id and interact.message.id == original_message.id
+        return author_id == interact.user.id and interact.message.id == original_message.id
     return wrap

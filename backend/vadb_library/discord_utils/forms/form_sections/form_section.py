@@ -110,7 +110,9 @@ class FormSection():
 
 
     async def reformat_input(
-            self, ctx: cmds.Context, response: nx.Message | vw.View,
+            self,
+            ctx: cmds.Context,
+            response: nx.Message | vw.View,
             section_state: states.SectionState = None
             ) -> str | int | dict | list | vw.View:
         """Validates the input."""

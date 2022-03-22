@@ -23,13 +23,13 @@ class Name(f_s.RawTextSection):
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         response = await super().reformat_input(ctx, response)
 
-        await ctx.send("Checking if there are already possible existing artists. This might take a while...")
+        await ctx.author.send("Checking if there are already possible existing artists. This might take a while...")
 
 
         try:
             searched_artists = a_s.ArtistQuery.from_vadb_search(response)
         except excepts.VADBNoSearchResult:
-            await ctx.send("No existing artist found! Proceeding...")
+            await ctx.author.send("No existing artist found! Proceeding...")
             return response
 
         if searched_artists.artists[0].name == response:
@@ -53,7 +53,7 @@ class Name(f_s.RawTextSection):
 
         view = vw.ViewConfirmBackCancel()
 
-        message = await ctx.send(
+        message = await ctx.author.send(
             "Possible existing artists found!",
             embed = embed,
             view = view
