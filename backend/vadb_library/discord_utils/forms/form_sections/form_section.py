@@ -40,6 +40,7 @@ class FormSection():
 
     text_ext: str = None
     timeout: int = vrs.Timeouts.long
+    instructions: str = None
 
     def __init__(
             self,
@@ -76,25 +77,24 @@ class FormSection():
         embed.add_field(name = "**Description:**", value = self.description, inline = False)
 
 
-        emb_req = f"You have to send {self.text_ext}!"
+        embed.add_field(
+            name = f"You have to send {self.text_ext}!",
+            value = f"**Instructions:**\n{self.instructions}"
+        )
 
-        if self.example is not None or self.notes is not None:
-            emb_req_desc = []
-            if self.example is not None:
-                emb_req_desc.append((
-                    "**Examples:**\n"
-                    f"`{self.example}`"
-                ))
-            if self.notes is not None:
-                emb_req_desc.append(f"**Note:**\n{self.notes}")
-
-            embed.add_field(name = emb_req, value = "\n".join(emb_req_desc), inline = False)
-        else:
-            embed.add_field(name = emb_req, value = "_ _")
+        if self.example is not None:
+            embed.add_field(
+                name = "Example:",
+                value = f"`{self.example}`"
+            )
+        if self.notes is not None:
+            embed.add_field(
+                name = "Notes:",
+                value = f"`{self.notes}`"
+            )
 
 
         emb_footer_extra = f"This command times out in {o_f.format_time(timeout)}."
-
         embed.set_footer(text = f"{section_state.footer}\n\n{emb_footer_extra}")
 
         return embed
@@ -183,6 +183,7 @@ async def check_if_content_empty(ctx: cmds.Context, response: nx.Message):
 class NumberSection(TextInput):
     """A number section."""
     text_ext = "a number"
+    instructions = "Send a number!"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         await check_if_content_empty(ctx, response)
@@ -204,6 +205,7 @@ class NumberSection(TextInput):
 class RawTextSection(TextInput):
     """A text section."""
     text_ext = "some text"
+    instructions = "Send any plain text!"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         await check_if_content_empty(ctx, response)
@@ -214,6 +216,10 @@ class RawTextSection(TextInput):
 class LinksSection(TextInput):
     """A links section."""
     text_ext = "some links"
+    instructions = (
+        "Send a link!\n"
+        "You can also send more than one link by separating each link with a newline (using `CTRL + Enter` on PC, or just `Enter` on mobile)."
+    )
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         await check_if_content_empty(ctx, response)
@@ -240,6 +246,10 @@ class LinksSection(TextInput):
 class ImageSection(TextInput):
     """An image section."""
     text_ext = "an image / image url"
+    instructions = (
+        "Send an image!\n"
+        "You can send an image using an attachment (uploading the file directly to Discord) or using a direct URL link of the image!"
+    )
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         async def check_image(image_url):
@@ -272,6 +282,10 @@ class ImageSection(TextInput):
 class ListSection(TextInput):
     """A list section."""
     text_ext = "a list"
+    instructions = (
+        "Send a list!\n"
+        "Separate each item in the list with a newline (using `CTRL + Enter` on PC, or just `Enter` on mobile)."
+    )
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         await check_if_content_empty(ctx, response)
@@ -285,6 +299,12 @@ class ListSection(TextInput):
 class DictSection(TextInput):
     """A dictionary section."""
     text_ext = "a dictionary"
+    instructions = (
+        "Send a dictionary!\n"
+        "A dictionary pairs a certain value to another value, like how a real dictionary book pairs a word with its definition.\n"
+        "The value on the left of the colon (`:`) is the *key*, and the value on the right of the colon is its *value*."
+        "Separate each item in the dictionary with a newline (using `CTRL + Enter` on PC, or just `Enter` on mobile)."
+    )
 
     def __init__(
             self, title: str, description: str, example: str = None, notes: str = None,
@@ -314,7 +334,7 @@ class DictSection(TextInput):
             if func is not None:
                 for item in dict_view:
                     if not func(item):
-                        await w_f.send_error(ctx, f"`{item}` is not a valid {type_}.", send_author = True)
+                        await w_f.send_error(ctx, f"`{item}` is not a valid {type_}. Please check if you have capitalized it.", send_author = True)
                         raise f_exc.InvalidSectionResponse()
 
         await check("key", self.allowed_key_func, list(diction.keys()))
@@ -326,6 +346,7 @@ class DictSection(TextInput):
 class ChoiceSection(ViewInput):
     """A choice section."""
     text_ext = "a choice"
+    instruction = "Select an item in the choices below!"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         if isinstance(response, nx.Message):

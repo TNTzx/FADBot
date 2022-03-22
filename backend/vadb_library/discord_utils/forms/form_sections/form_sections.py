@@ -193,6 +193,11 @@ class FormSections():
             "Remixes: Disallowed\n"
             "Other songs: Verified"
         ),
+        notes = (
+            "The *value*s (which are the ones to the right of the colon (`:`)) must be either `\"Verified\"` or `\"Disallowed\"`.\n"
+            "`\"Verified\"` means this selection of songs or this song is verified and can be used for PA level making.\n"
+            "`\"Disallowed\"` means it cannot be used for PA level creation."
+        ),
         default_section_state = states.SectionStates.skippable
     )
     description = Description(
