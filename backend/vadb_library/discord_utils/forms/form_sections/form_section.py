@@ -149,7 +149,9 @@ class FormSection():
                 await check_response(ctx, response)
 
             try:
-                return await self.reformat_input(ctx, response, section_state)
+                final_response = await self.reformat_input(ctx, response, section_state)
+                await ctx.author.send(f"`{self.title.capitalize()}` is now set.")
+                return final_response
             except f_exc.InvalidSectionResponse:
                 continue
             except f_exc.ExitSection:
