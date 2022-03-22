@@ -11,7 +11,7 @@ import backend.utils.asking.wait_for as w_f
 import backend.utils.views as vw
 
 from .... import artists as a_s
-from .... import exceptions as a_exc
+from .... import exceptions
 from ... import embeds
 from . import form_section as f_s
 from . import section_states as states
@@ -30,7 +30,7 @@ class Name(f_s.RawTextSection):
 
         try:
             searched_artists = a_s.ArtistQuery.from_vadb_search(response)
-        except a_exc.VADBNoSearchResult:
+        except exceptions.VADBNoSearchResult:
             await ctx.send("No existing artist found! Proceeding...")
             return response
 
