@@ -6,9 +6,9 @@ import requests as req
 
 import nextcord as nx
 
+from .. import exceptions as a_exc
 from .. import api
 from . import artist
-from . import exceptions as a_exc
 
 
 class ArtistQuery():

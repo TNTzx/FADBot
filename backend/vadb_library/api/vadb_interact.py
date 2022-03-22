@@ -60,7 +60,7 @@ def make_request(
         response = response.json()
         log_message = f"Received {o_f.pr_print(response)}"
     else:
-        log_message = f"Received {response}"
+        log_message = f"Received {response.json()}"
 
     lgr.log_vadb.info(log_message)
 

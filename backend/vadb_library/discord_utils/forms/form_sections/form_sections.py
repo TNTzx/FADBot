@@ -11,6 +11,7 @@ import backend.utils.asking.wait_for as w_f
 import backend.utils.views as vw
 
 from .... import artists as a_s
+from .... import exceptions as a_exc
 from ... import embeds
 from . import form_section as f_s
 from . import section_states as states
@@ -21,45 +22,60 @@ class Name(f_s.RawTextSection):
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         response = await super().reformat_input(ctx, response)
 
-        await ctx.send("Trying to find possible existing artists. This might take a while...")
+        async def go_back():
+            await self.send_section(ctx, section_state = section_state)
 
-        searched_artists = a_s.ArtistQuery.from_vadb_search(response)
-        if len(searched_artists.artists) > 0:
-            embed = embeds.generate_embed_multiple(
-                searched_artists,
-                title = "Possible Existing Artists Found!",
-                description = (
-                    "Existing artists may have possibly be on the database already!\n"
-                    "Please confirm that you are not submitting a duplicate!"
-                ),
-                footer = (
-                    "Click on \"Confirm\" to confirm that you are not submitting a duplicate entry.\n"
-                    "Click on \"Back\" to go back and enter a different artist name.\n"
-                    "Click on \"Cancel\" to cancel the current command."
-                )
+        await ctx.send("Checking if there are already possible existing artists. This might take a while...")
+
+
+        try:
+            searched_artists = a_s.ArtistQuery.from_vadb_search(response)
+        except a_exc.VADBNoSearchResult:
+            await ctx.send("No existing artist found! Proceeding...")
+            return response
+
+        if searched_artists.artists[0].name == response:
+            await s_e.send_error(ctx, "An artist with that name already exists.", send_author = True)
+            await go_back()
+
+
+
+        embed = embeds.generate_embed_multiple(
+            searched_artists,
+            title = "Possible Existing Artists Found!",
+            description = (
+                "Existing artists may have possibly be on the database already!\n"
+                "Please confirm that you are not submitting a duplicate!"
+            ),
+            footer = (
+                "Click on \"Confirm\" to confirm that you are not submitting a duplicate entry.\n"
+                "Click on \"Back\" to go back and enter a different artist name.\n"
+                "Click on \"Cancel\" to cancel the current command."
             )
+        )
 
-            view = vw.ViewConfirmBackCancel()
+        view = vw.ViewConfirmBackCancel()
 
-            message = await ctx.send(
-                "Possible existing artists found!",
-                embed = embed,
-                view = view
-            )
+        message = await ctx.send(
+            "Possible existing artists found!",
+            embed = embed,
+            view = view
+        )
 
-            result_view = await w_f.wait_for_view(ctx, message, view)
-            result = result_view.value
+        result_view = await w_f.wait_for_view(ctx, message, view)
+        result = result_view.value
 
-            if result == vw.OutputValues.confirm:
-                pass
-            if result == vw.OutputValues.back:
-                await ctx.send("Returning...")
-                await self.send_section(ctx, section_state = section_state)
-            if result == vw.OutputValues.cancel:
-                await s_e.cancel_command(ctx, send_author=True)
+        if result == vw.OutputValues.confirm:
+            await ctx.send("Proceeding...")
+        if result == vw.OutputValues.back:
+            await ctx.send("Returning...")
+            await go_back()
+        if result == vw.OutputValues.cancel:
+            await s_e.cancel_command(ctx, send_author=True)
+        
 
+        raise f_s.InvalidResponse()
 
-        return response
 
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
         artist.name = await self.send_section(ctx, section_state = section_state)

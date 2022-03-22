@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import requests as req
 
 import backend.other_functions as o_f
@@ -11,8 +10,8 @@ import backend.other_functions as o_f
 from .. import api
 from ..other import clean_iter
 
+from .. import exceptions as a_exc
 from . import struct_exts as exts
-from . import exceptions as a_exc
 from . import artist_struct as a_s
 
 
@@ -40,7 +39,14 @@ class Artist(a_s.ArtistStruct):
             "status": self.states.status.value,
             "availability": self.states.availability.value
         }
-        response = api.make_request(api.Endpoints.artist_create(), payload = payload)
+
+        try:
+            response = api.make_request(api.Endpoints.artist_create(), payload = payload)
+        except req.HTTPError as exc:
+            if api.exc.check_artist_already_exists(exc.response):
+                raise a_exc.VADBAlreadyExistingArtist(self.name) from exc
+            else:
+                raise a_exc.VADBInvalidResponse
 
         response_json = response.json()
         response_data = response_json["data"]
@@ -88,7 +94,14 @@ class Artist(a_s.ArtistStruct):
         }
         files = self.details.image_info.to_payload()
 
-        response = api.make_request(api.Endpoints.artist_update(artist_id), payload = payload, files = files)
+        try:
+            response = api.make_request(api.Endpoints.artist_update(artist_id), payload = payload, files = files)
+        except req.HTTPError as exc:
+            if api.exc.check_artist_already_exists(exc.response):
+                raise a_exc.VADBAlreadyExistingArtist(self.name) from exc
+            else:
+                raise a_exc.VADBInvalidResponse
+
 
         return response
 
