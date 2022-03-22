@@ -10,10 +10,11 @@ import requests as req
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import global_vars.variables as vrs
 import backend.utils.views as vw
 import backend.utils.asking.wait_for as w_f
 import backend.exceptions.send_error as s_e
-import global_vars.variables as vrs
+import backend.other_functions as o_f
 
 from .... import artists as a_s
 from .. import form_exc as f_exc
@@ -38,6 +39,7 @@ class FormSection():
 
 
     text_ext: str = None
+    timeout: int = vrs.Timeouts.long
 
     def __init__(
             self,
@@ -56,8 +58,10 @@ class FormSection():
         self.__class__.form_sections.append(self)
 
 
-    def generate_embed(self, section_state: states.SectionState = None):
+    def generate_embed(self, section_state: states.SectionState = None, timeout: int = None):
         """Generates the embed for this section."""
+        if timeout is None:
+            timeout = self.timeout
         if section_state is None:
             section_state = self.default_section_state
 
@@ -88,7 +92,10 @@ class FormSection():
         else:
             embed.add_field(name = emb_req, value = "_ _")
 
-        embed.set_footer(text = section_state.footer)
+
+        emb_footer_extra = f"This command times out in {o_f.format_time(timeout)}."
+
+        embed.set_footer(text = f"{section_state.footer}\n\n{emb_footer_extra}")
 
         return embed
 
@@ -110,8 +117,16 @@ class FormSection():
         raise f_exc.InvalidSectionResponse()
 
 
-    async def send_section(self, ctx: cmds.Context, section_state: states.SectionState = None, extra_view: typ.Type[vw.View] = vw.Blank):
+    async def send_section(
+            self,
+            ctx: cmds.Context,
+            section_state: states.SectionState = None,
+            extra_view: typ.Type[vw.View] = vw.Blank,
+            timeout: int = None
+            ):
         """Sends the section to the user then returns the output."""
+        if timeout is None:
+            timeout = self.timeout
         if section_state is None:
             section_state = self.default_section_state
 
@@ -121,11 +136,14 @@ class FormSection():
         while True:
             current_view = ViewMerged()
             message = await ctx.author.send(
-                embed = self.generate_embed(section_state),
+                embed = self.generate_embed(
+                    section_state = section_state,
+                    timeout = timeout
+                ),
                 view = current_view
             )
 
-            response_type, response = await w_f.wait_for_message_view(ctx, message, current_view, timeout = vrs.Timeouts.long)
+            response_type, response = await w_f.wait_for_message_view(ctx, message, current_view, timeout = timeout)
 
             if response_type == w_f.OutputTypes.view:
                 await check_response(ctx, response)
@@ -155,10 +173,18 @@ class NumberSection(TextInput):
     text_ext = "a number"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
-        if not response.content.isnumeric():
+        try:
+            number = int(response.content)
+        except ValueError as exc:
             await w_f.send_error(ctx, "That's not a number!", send_author = True)
+            raise f_exc.InvalidSectionResponse() from exc
+
+        if number > (1 * (10 ** 6)):
+            await w_f.send_error(ctx, "That's way too large!", send_author = True)
             raise f_exc.InvalidSectionResponse()
-        return int(response.content)
+
+
+        return number
 
 
 class RawTextSection(TextInput):
@@ -194,6 +220,7 @@ class LinksSection(TextInput):
         for link in links:
             link = await check_link(link)
         return links
+
 
 class ImageSection(TextInput):
     """An image section."""
@@ -232,6 +259,9 @@ class ListSection(TextInput):
     text_ext = "a list"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+        if response.content == "":
+            await w_f.send_error(ctx, "You didn't send a list!")
+            raise f_exc.InvalidSectionResponse()
         return response.content.split("\n")
 
 
