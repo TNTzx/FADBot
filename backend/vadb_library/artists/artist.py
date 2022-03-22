@@ -10,7 +10,7 @@ import backend.other_functions as o_f
 from .. import api
 from ..other import clean_iter
 
-from .. import exceptions
+from .. import excepts
 from . import struct_exts as exts
 from . import artist_struct as a_s
 
@@ -44,9 +44,9 @@ class Artist(a_s.ArtistStruct):
             response = api.make_request(api.Endpoints.artist_create(), payload = payload)
         except req.HTTPError as exc:
             if api.exc.check_artist_already_exists(exc.response):
-                raise exceptions.VADBAlreadyExistingArtist(self.name) from exc
+                raise excepts.VADBAlreadyExistingArtist(self.name) from exc
 
-            raise exceptions.VADBInvalidResponse()
+            raise excepts.VADBInvalidResponse()
 
         response_json = response.json()
         response_data = response_json["data"]
@@ -98,9 +98,9 @@ class Artist(a_s.ArtistStruct):
             response = api.make_request(api.Endpoints.artist_update(artist_id), payload = payload, files = files)
         except req.HTTPError as exc:
             if api.exc.check_artist_already_exists(exc.response):
-                raise exceptions.VADBAlreadyExistingArtist(self.name) from exc
+                raise excepts.VADBAlreadyExistingArtist(self.name) from exc
             else:
-                raise exceptions.VADBInvalidResponse
+                raise excepts.VADBInvalidResponse
 
 
         return response
@@ -159,7 +159,7 @@ class Artist(a_s.ArtistStruct):
                 )
             )
         except Exception as exc:
-            raise exceptions.VADBInvalidResponse(f"Invalid response: {o_f.pr_print(data)}.") from exc
+            raise excepts.VADBInvalidResponse(f"Invalid response: {o_f.pr_print(data)}.") from exc
 
 
     @classmethod
@@ -168,4 +168,4 @@ class Artist(a_s.ArtistStruct):
         try:
             return cls.from_vadb_data(api.make_request(api.Endpoints.artist_get(artist_id)).json()["data"])
         except req.HTTPError as exc:
-            raise exceptions.VADBNoArtistID(artist_id) from exc
+            raise excepts.VADBNoArtistID(artist_id) from exc

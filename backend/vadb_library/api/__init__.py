@@ -6,4 +6,4 @@ from . import consts
 from .vadb_interact import make_request
 from .endpoints import Endpoint, Endpoints
 
-from . import exceptions as exc
+from . import api_exc as exc

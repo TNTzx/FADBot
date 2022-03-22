@@ -6,7 +6,7 @@ import requests as req
 
 import nextcord as nx
 
-from .. import exceptions
+from .. import excepts
 from .. import api
 from . import artist
 
@@ -26,7 +26,7 @@ class ArtistQuery():
         try:
             response = api.make_request(api.Endpoints.artist_search(search_term)).json()["data"]
         except req.exceptions.HTTPError as exc:
-            raise exceptions.VADBNoSearchResult(search_term) from exc
+            raise excepts.VADBNoSearchResult(search_term) from exc
 
         return cls(
             artists = [
