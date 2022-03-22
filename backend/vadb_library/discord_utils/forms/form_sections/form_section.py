@@ -61,10 +61,6 @@ class FormSection():
         if section_state is None:
             section_state = self.default_section_state
 
-        def make_empty_field(embed: nx.Embed):
-            """Makes an empty field on the embed."""
-            embed.add_field(name="_ _", value="_ _", inline=False)
-        
         emb_title = f"Current Section: {self.title.capitalize()}"
 
         if section_state != states.SectionStates.default:
@@ -72,7 +68,6 @@ class FormSection():
 
         embed = nx.Embed(color = vrs.COLOR_PA, title = emb_title)
 
-        make_empty_field(embed)
 
         embed.add_field(name = "**Description:**", value = self.description, inline = False)
 
@@ -90,8 +85,6 @@ class FormSection():
                 emb_req_desc.append(f"**Note:**\n{self.notes}")
 
             embed.add_field(name = emb_req, value = "\n".join(emb_req_desc), inline = False)
-
-            make_empty_field(embed)
         else:
             embed.add_field(name = emb_req, value = "_ _")
 
@@ -286,4 +279,8 @@ class ChoiceSection(ViewInput):
     text_ext = "a choice"
 
     async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+        if isinstance(response, nx.Message):
+            await w_f.send_error(ctx, "You didn't send a choice!")
+            raise f_exc.InvalidSectionResponse()
+
         return response.value[0]

@@ -11,14 +11,17 @@
 
 import typing as typ
 import asyncio
+import enum
+
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import global_vars.variables as vrs
-import backend.utils.asking.checks as w_f_ch
 import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
 import backend.utils.other as m_o
+
+from . import checks as w_f_ch
 
 
 TIMEOUT = vrs.Timeouts.long
@@ -62,10 +65,10 @@ async def wait_for_view(ctx: cmds.Context, original_message: nx.Message, view: t
     return view
 
 
-class OutputTypes:
+class OutputTypes(enum.Enum):
     """A class containing identifiers for outputs of a message or a view."""
-    message = m_o.Unique()
-    view = m_o.Unique()
+    message = "message"
+    view = "view"
 
 async def wait_for_message_view(ctx: cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout=TIMEOUT):
     """Waits for a message then returns (MessageViewCheck.message, message). If instead it was a view interaction, return (MessageViewCheck.view, view) of that interaction."""
