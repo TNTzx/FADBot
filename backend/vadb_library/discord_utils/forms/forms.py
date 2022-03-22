@@ -12,6 +12,7 @@ import global_vars.variables as vrs
 
 from ... import artists as art
 from .. import artist_info_bundle as bundle
+from . import form_exc as f_exc
 from . import form_sections as f_s
 
 
@@ -25,7 +26,7 @@ class FormArtist():
         """Edits the artist on Discord with a form section."""
         try:
             await section.edit_artist_with_section(ctx, self.artist, section_state = section_state)
-        except f_s.ExitSection:
+        except f_exc.ExitSection:
             return
 
 

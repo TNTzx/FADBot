@@ -1,7 +1,7 @@
 """Contains forms."""
 
 
-from .form_section import FormSection, ExitSection
+from .form_section import FormSection
 
 from .form_sections import FormSections
 
