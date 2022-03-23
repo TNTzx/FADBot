@@ -42,8 +42,9 @@ async def wait_for_message(ctx: cmds.Context, timeout=TIMEOUT):
             check = w_f_ch.check_message(ctx.author.id, ctx.channel.id),
             timeout = timeout
         )
-    except asyncio.TimeoutError:
+    except asyncio.TimeoutError as exc:
         await s_e.send_error(ctx, TIMEOUT_MESSAGE)
+        raise c_e.ExitFunction() from exc
     return response
 
 
@@ -64,8 +65,9 @@ async def wait_for_view(ctx: cmds.Context, original_message: nx.Message, view: t
     """Waits for an interaction."""
     try:
         await vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx.author.id, original_message.id), timeout=timeout)
-    except asyncio.TimeoutError:
+    except asyncio.TimeoutError as exc:
         await s_e.send_error(ctx, TIMEOUT_MESSAGE)
+        raise c_e.ExitFunction() from exc
     return view
 
 

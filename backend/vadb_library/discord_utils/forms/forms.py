@@ -38,7 +38,7 @@ class FormArtist():
 
     async def edit_loop(self, ctx: cmds.Context):
         """Edits the artist using dropdowns to select a section."""
-        timeout = 1
+        timeout = vrs.Timeouts.long
 
         view_cls = f_s.FormSections.get_options_view("Select attribute to edit...")
         artist_info_bundle = bundle.InfoBundle(self.artist)
@@ -53,8 +53,8 @@ class FormArtist():
 
             embed.set_footer(
                 text = (
-                    "Click on \"Confirm\" to confirm that you have finished editing the artist."
-                    "Click on \"Back\" to go back and resume editing the artist."
+                    "Click on \"Confirm\" to confirm that you have finished editing the artist.\n"
+                    "Click on \"Back\" to go back and resume editing the artist.\n"
                     "Click on \"Cancel\" to cancel the current command.\n\n"
                     f"This command will timeout in {o_f.format_time(timeout)}."
                 )
