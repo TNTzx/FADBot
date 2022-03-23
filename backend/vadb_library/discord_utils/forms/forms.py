@@ -43,7 +43,25 @@ class FormArtist():
         view_cls = f_s.FormSections.get_options_view("Select attribute to edit...")
         artist_info_bundle = bundle.InfoBundle(self.artist)
 
-        await ctx.author.send()
+        def generate_confirm_embed():
+            embed = nx.Embed(
+                title = "Confirm editing artist",
+                description = (
+                    "Are you sure that the entered information for this artist is correct?"
+                )
+            )
+
+            embed.set_footer((
+                "Click on \"Confirm\" to confirm that you have finished editing the artist."
+                "Click on \"Back\" to go back and resume editing the artist."
+                "Click on \"Cancel\" to cancel the current command.\n\n"
+                f"This command will timeout in `{o_f.format_time(timeout)}`."
+            ))
+
+            return embed
+
+
+        await ctx.author.send("**Editing an artist...**")
 
 
         while True:
@@ -74,9 +92,25 @@ class FormArtist():
                 if response.value == vw.OutputValues.cancel:
                     await s_e.cancel_command(ctx, send_author = True)
 
-                form_section = f_s.FormSections.get_section_from_title(response.value[0])
+                title = response.value[0]
+                await ctx.author.send(f"Editing artist's __{title}__...")
+                form_section = f_s.FormSections.get_section_from_title(title)
 
                 await self.edit_with_section(ctx, section = form_section, section_state = f_s.SectionStates.editing)
 
-            ...
-            break
+
+            view = vw.ViewConfirmBackCancel()
+
+            message = await ctx.send(embed = generate_confirm_embed(), view = view)
+
+            response = await w_f.wait_for_view(ctx, message, view)
+
+            if response.value == vw.OutputValues.confirm:
+                break
+            if response.value == vw.OutputValues.back:
+                continue
+            if response.value == vw.OutputValues.cancel:
+                await s_e.cancel_command(ctx)
+
+
+        await ctx.author.send("Artist edited successfully.")
