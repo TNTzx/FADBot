@@ -38,7 +38,7 @@ class FormArtist():
 
     async def edit_loop(self, ctx: cmds.Context):
         """Edits the artist using dropdowns to select a section."""
-        timeout = vrs.Timeouts.long
+        timeout = 1
 
         view_cls = f_s.FormSections.get_options_view("Select attribute to edit...")
         artist_info_bundle = bundle.InfoBundle(self.artist)
@@ -111,7 +111,7 @@ class FormArtist():
             if response.value == vw.OutputValues.back:
                 continue
             if response.value == vw.OutputValues.cancel:
-                await s_e.cancel_command(ctx)
+                await s_e.cancel_command(ctx, send_author = True)
 
 
         await ctx.author.send("Artist edited successfully.")

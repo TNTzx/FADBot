@@ -135,7 +135,7 @@ class FormSection():
         if section_state is None:
             section_state = self.default_section_state
 
-        await ctx.author.send(f"Proceeding to editing __{self.title}__...")
+        await ctx.author.send(f"Now editing __{self.title}__...")
 
         class ViewMerged(section_state.view_cls, extra_view):
             """Merged views."""
@@ -157,12 +157,13 @@ class FormSection():
 
             try:
                 final_response = await self.reformat_input(ctx, response, section_state)
+                await ctx.author.send(f"**Artist's __{self.title}__ is now set.**")
             except f_exc.InvalidSectionResponse:
                 continue
             except f_exc.ExitSection:
-                pass
+                await ctx.author.send(f"**Artist's __{self.title}__ is not changed.**")
 
-            await ctx.author.send(f"**Artist's __{self.title}__ is now set.**")
+            
             return final_response
 
 
