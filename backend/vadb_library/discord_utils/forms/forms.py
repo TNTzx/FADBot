@@ -43,6 +43,8 @@ class FormArtist():
         view_cls = f_s.FormSections.get_options_view("Select attribute to edit...")
         artist_info_bundle = bundle.InfoBundle(self.artist)
 
+        await ctx.author.send()
+
 
         while True:
             while True:

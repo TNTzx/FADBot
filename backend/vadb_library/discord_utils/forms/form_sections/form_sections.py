@@ -63,10 +63,10 @@ class Name(f_s.RawTextSection):
         result = result_view.value
 
         if result == vw.OutputValues.confirm:
-            await ctx.send("Proceeding...")
+            await ctx.author.send("Proceeding...")
             raise f_exc.ExitSection()
         if result == vw.OutputValues.back:
-            await ctx.send("Returning...")
+            await ctx.author.send("Returning...")
             raise f_exc.InvalidSectionResponse()
         if result == vw.OutputValues.cancel:
             await s_e.cancel_command(ctx, send_author=True)

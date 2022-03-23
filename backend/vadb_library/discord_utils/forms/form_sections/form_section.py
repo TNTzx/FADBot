@@ -122,7 +122,6 @@ class FormSection():
         raise f_exc.InvalidSectionResponse()
 
 
-    # TODO try to make this be able to send anywhere, not just author
     async def send_section(
             self,
             ctx: cmds.Context,
