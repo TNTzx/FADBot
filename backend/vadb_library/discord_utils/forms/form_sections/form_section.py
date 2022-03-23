@@ -13,6 +13,7 @@ import nextcord.ext.commands as cmds
 import global_vars.variables as vrs
 import backend.utils.views as vw
 import backend.utils.asking.wait_for as w_f
+import backend.utils.embed_utils as emb_utils
 import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
@@ -77,24 +78,33 @@ class FormSection():
         embed.add_field(name = "**Description:**", value = self.description, inline = False)
 
 
+        emb_utils.make_horizontal_rule(embed)
+
+
         embed.add_field(
             name = f"You have to send {self.text_ext}!",
             value = f"**Instructions:**\n{self.instructions}",
             inline = False
         )
 
-        if self.example is not None:
-            embed.add_field(
-                name = "Example:",
-                value = f"`{self.example}`",
-                inline = False
-            )
-        if self.notes is not None:
-            embed.add_field(
-                name = "Notes:",
-                value = self.notes,
-                inline = False
-            )
+        if (self.example is not None) or (self.notes is not None):
+            emb_utils.make_horizontal_rule(embed)
+
+            if self.example is not None:
+                embed.add_field(
+                    name = "Example:",
+                    value = f"`{self.example}`",
+                    inline = False
+                )
+            if self.notes is not None:
+                embed.add_field(
+                    name = "Notes:",
+                    value = self.notes,
+                    inline = False
+                )
+
+
+        emb_utils.make_horizontal_rule(embed)
 
 
         emb_footer_extra = f"This command times out in {o_f.format_time(timeout)}."
@@ -307,8 +317,8 @@ class DictSection(TextInput):
     text_ext = "a dictionary"
     instructions = (
         "Send a dictionary!\n"
-        "A dictionary pairs a certain value to another value, like how a real dictionary book pairs a word with its definition.\n"
-        "The value on the left of the colon (`:`) is the *key*, and the value on the right of the colon is its *value*."
+        "A dictionary pairs certain text to another text, like how a real dictionary book pairs a word with its definition.\n"
+        "The text on the left of the colon (`:`) is the **key**, and the item on the right of the colon is its **value**.\n"
         "Separate each item in the dictionary with a newline (using `CTRL + Enter` on PC, or just `Enter` on mobile)."
     )
 

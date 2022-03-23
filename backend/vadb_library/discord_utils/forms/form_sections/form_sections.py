@@ -188,13 +188,15 @@ class FormSections():
     )
     usage_rights = UsageRights(
         title = "usage rights",
-        description = "The artist's usage rights. Used to include and exclude specific songs.",
+        description = "The artist's statement of including / excluding specific songs or albums.",
         example = (
+            "Spider Man 2 Pizza Theme: Verified\n"
             "Remixes: Disallowed\n"
+            "Under label \"Inconsolata Records\": Disallowed\n"
             "Other songs: Verified"
         ),
         notes = (
-            "The *value*s (which are the ones to the right of the colon (`:`)) must be either `\"Verified\"` or `\"Disallowed\"`.\n"
+            "The **value**s (which are the text to the right of the colon (`:`)) must be either `\"Verified\"` or `\"Disallowed\"`.\n"
             "`\"Verified\"` means this selection of songs or this song is verified and can be used for PA level making.\n"
             "`\"Disallowed\"` means it cannot be used for PA level creation."
         ),
