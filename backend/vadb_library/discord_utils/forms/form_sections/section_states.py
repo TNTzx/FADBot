@@ -36,7 +36,7 @@ class SectionStates():
         name = "editing",
         view_cls = vw.ViewBackCancel,
         footer = (
-            "Click on the \"Back\" button to go back to the generated embed."
+            "Click on the \"Back\" button to go back and edit another attribute.\n"
             "Click on the \"Cancel\" button to cancel the current command."
         )
     )

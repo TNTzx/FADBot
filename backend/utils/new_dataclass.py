@@ -11,7 +11,7 @@ import requests as req
 class Dataclass():
     """A dataclass."""
     def __repr__(self) -> str:
-        return str(self.to_json())
+        return f"{self.__class__.__name__}({self.to_json()})"
 
     def to_json(self) -> list | dict:
         """Function that returns a list or dictionary version of the object."""

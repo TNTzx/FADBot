@@ -20,7 +20,7 @@ class Image(a_s.ArtistStruct):
         self.original_url = original_url
 
     def __repr__(self):
-        return f"ImageData({self.get_pil_image()})"
+        return f"ImageData({self.original_url})"
 
 
     name: str = "image.png"
