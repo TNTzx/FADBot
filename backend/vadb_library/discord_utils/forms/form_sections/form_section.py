@@ -163,7 +163,7 @@ class FormSection():
             except f_exc.ExitSection:
                 await ctx.author.send(f"**Artist's __{self.title}__ is not changed.**")
 
-            
+
             return final_response
 
 

@@ -43,7 +43,7 @@ async def wait_for_message(ctx: cmds.Context, timeout=TIMEOUT):
             timeout = timeout
         )
     except asyncio.TimeoutError:
-        await s_e.timeout_command(ctx)
+        await s_e.send_error(ctx, TIMEOUT_MESSAGE)
     return response
 
 
@@ -65,7 +65,7 @@ async def wait_for_view(ctx: cmds.Context, original_message: nx.Message, view: t
     try:
         await vrs.global_bot.wait_for("interaction", check=w_f_ch.check_interaction(ctx.author.id, original_message.id), timeout=timeout)
     except asyncio.TimeoutError:
-        await s_e.timeout_command(ctx)
+        await s_e.send_error(ctx, TIMEOUT_MESSAGE)
     return view
 
 
