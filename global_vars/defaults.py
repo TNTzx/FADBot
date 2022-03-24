@@ -1,6 +1,6 @@
 """Where defaults for the Firebase Database reside."""
 
-import global_vars.variables as vrs
+import backend.firebase as firebase
 
 
 default = {
