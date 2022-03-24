@@ -13,7 +13,7 @@ import global_vars.variables as vrs
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.choice_param as c_p
 import backend.utils.checks as ch
-import backend.databases.firebase.firebase_interaction as f_i
+import backend.firebase as firebase
 import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
 
@@ -43,8 +43,8 @@ class LogControl(cmds.Cog):
         await ctx.send("Registering log channel...")
 
         path_initial = ["guildData", str(ctx.guild.id), "logs", "locations"]
-        for channel_id_on in f_i.get_data(path_initial).values():
-            if channel_id_on == vrs.PLACEHOLDER_DATA:
+        for channel_id_on in firebase.get_data(path_initial).values():
+            if channel_id_on == firebase.PLACEHOLDER_DATA:
                 continue
             if int(channel_id_on) == channel.id:
                 await s_e.send_error(ctx, f"This channel is already being used as another log channel! Unregister existing channels using `{vrs.CMD_PREFIX}loglocationremove`!")
@@ -53,7 +53,7 @@ class LogControl(cmds.Cog):
 
         @c_p.choice_param_cmd(ctx, log_type, ["dump", "live"])
         async def log_type_choice():
-            f_i.override_data(
+            firebase.override_data(
                 path_initial + [log_type],
                 str(channel.id)
             )
@@ -84,11 +84,11 @@ class LogControl(cmds.Cog):
         async def log_type_choice():
             path_initial = ["guildData", str(ctx.guild.id), "logs", "locations", log_type]
 
-            if f_i.get_data(path_initial) == vrs.PLACEHOLDER_DATA:
+            if firebase.get_data(path_initial) == firebase.PLACEHOLDER_DATA:
                 await s_e.send_error(ctx, f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{vrs.CMD_PREFIX}loglocationset`!")
                 raise c_e.ExitFunction()
 
-            f_i.override_data(path_initial, vrs.PLACEHOLDER_DATA)
+            firebase.override_data(path_initial, firebase.PLACEHOLDER_DATA)
 
         await log_type_choice()
 

@@ -34,7 +34,7 @@ def delete_is_using_command(path: list[str], author_id: int):
 def delete_all_is_using():
     """Deletes all entries on paths in sustained commands."""
     for sustained_cmd in LIST_OF_SUSTAINED_CMDS:
-        f_i.override_data(sustained_cmd.path, vrs.PLACEHOLDER_DATA)
+        f_i.override_data(sustained_cmd.path, firebase.PLACEHOLDER_DATA)
 
 
 class SustainedCommand:
@@ -52,7 +52,7 @@ def sustained_command():
         path = ["commandData", "isUsingCommand", str(func.__name__)]
 
         if not f_i.is_data_exists(path):
-            f_i.override_data(path, vrs.PLACEHOLDER_DATA)
+            f_i.override_data(path, firebase.PLACEHOLDER_DATA)
 
         @fc.wraps(func)
         async def wrapper(*args, **kwargs):

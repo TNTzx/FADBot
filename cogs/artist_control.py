@@ -19,7 +19,7 @@ import backend.command_related.is_using as i_u
 import backend.artists.checks as a_ch
 import backend.artists.library.artist_library as a_l
 import backend.artists.library.log_library as l_l
-import backend.databases.firebase.firebase_interaction as f_i
+import backend.firebase as firebase
 import backend.exceptions.send_error as s_e
 import backend.exceptions.custom_exc as c_e
 import backend.other_functions as o_f
@@ -89,7 +89,7 @@ class ArtistControl(cmds.Cog):
     )
     @i_u.sustained_command()
     async def artistrequestedit(self, ctx: cmds.Context, artist_id: int, *skips):
-        if f_i.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
+        if firebase.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
             await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.")
             return
 

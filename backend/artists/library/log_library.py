@@ -16,7 +16,7 @@ import nextcord.ext.commands as cmds
 import global_vars.variables as vrs
 import backend.utils.dataclass as dt
 import backend.utils.message_pointer as m_p
-import backend.databases.firebase.firebase_interaction as f_i
+import backend.firebase as firebase
 
 
 class LogTypes:
@@ -58,12 +58,12 @@ class LogChannelTypes:
         def get_all_channels(self):
             """Gets all channels from all servers in this LogChannelType."""
             log_channels: list[nx.TextChannel] = []
-            guild_datas = f_i.get_data(["guildData"])
+            guild_datas = firebase.get_data(["guildData"])
 
             for guild_data in guild_datas.values():
                 log_channel_id = guild_data["logs"]["locations"][self.PATH_ADD]
 
-                if log_channel_id == vrs.PLACEHOLDER_DATA:
+                if log_channel_id == firebase.PLACEHOLDER_DATA:
                     continue
 
                 log_channel = vrs.global_bot.get_channel(int(log_channel_id))

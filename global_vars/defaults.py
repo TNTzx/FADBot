@@ -16,8 +16,8 @@ default = {
             "adminRole": 0,
             "logs": {
                 "locations": {
-                    "dump": vrs.PLACEHOLDER_DATA,
-                    "live": vrs.PLACEHOLDER_DATA
+                    "dump": firebase.PLACEHOLDER_DATA,
+                    "live": firebase.PLACEHOLDER_DATA
                 }
             }
         }

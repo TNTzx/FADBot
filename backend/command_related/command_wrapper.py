@@ -11,7 +11,7 @@ import functools as fc
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-import backend.databases.firebase.firebase_interaction as f_i
+import backend.firebase as firebase
 import backend.exceptions.send_error as s_e
 import backend.exceptions.custom_exc as c_exc
 
@@ -69,8 +69,8 @@ for attribute in dir(Categories):
 
 async def check_pa_mod(ctx: cmds.Context, user_id: int):
     """Checks if a user is a PA Moderator by role or a dev."""
-    can_verify = f_i.get_data(['mainData', 'canVerify'])
-    devs = f_i.get_data(['mainData', 'devs'])
+    can_verify = firebase.get_data(['mainData', 'canVerify'])
+    devs = firebase.get_data(['mainData', 'devs'])
 
     user_id = str(user_id)
 
@@ -90,7 +90,7 @@ async def check_admin(ctx: cmds.Context, user_id: int):
     guild_id = str(ctx.guild.id)
 
     try:
-        admin_role = f_i.get_data(['guildData', guild_id, 'adminRole'])
+        admin_role = firebase.get_data(['guildData', guild_id, 'adminRole'])
         admin_role = int(admin_role)
     except c_exc.FirebaseNoEntry:
         return False
@@ -107,13 +107,13 @@ async def check_owner(ctx: cmds.Context, user_id: int):
 async def check_dev(user_id: int):
     """Check if a user is a dev."""
     user_id = str(user_id)
-    devs = f_i.get_data(['mainData', 'devs'])
+    devs = firebase.get_data(['mainData', 'devs'])
     return user_id in devs
 
 async def check_ban(user_id: int):
     """Checks if the user is banned from the bot."""
     user_id = str(user_id)
-    bans = f_i.get_data(["userData", "bans"])
+    bans = firebase.get_data(["userData", "bans"])
     return user_id in bans
 
 

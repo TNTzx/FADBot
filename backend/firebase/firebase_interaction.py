@@ -5,10 +5,10 @@ import threading as thread
 
 import backend.logging.loggers as lgr
 import backend.exceptions.custom_exc as c_exc
-import backend.databases.firebase.firebase_reset_token as f_r_t
 import backend.other_functions as o_f
 
 from . import fb_consts as consts
+from . import firebase_reset_token as f_r_t
 
 
 def get_from_path(path: list[str]):
