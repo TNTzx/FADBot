@@ -43,8 +43,10 @@ class LogTypes():
         return LogType.__subclasses__()
 
 
-class DumpLogs(LogType):
+class DumpLogType(LogType):
     """Dump logs, used for dumping logs without deleting."""
+    name = firebase_name = "dump"
 
-class LiveLogs(LogType):
+class LiveLogType(LogType):
     """Live logs, used for dumping logs with deletion after being used."""
+    name = firebase_name = "live"
