@@ -3,16 +3,17 @@
 import collections as cl
 import threading as thread
 
-import global_vars.variables as vrs
 import backend.logging.loggers as lgr
 import backend.exceptions.custom_exc as c_exc
 import backend.databases.firebase.firebase_reset_token as f_r_t
 import backend.other_functions as o_f
 
+from . import fb_consts as consts
+
 
 def get_from_path(path: list[str]):
     """Returns the database child of a path."""
-    final = vrs.db
+    final = consts.db
     for key in path:
         if not isinstance(key, str):
             key = str(key)
@@ -22,7 +23,7 @@ def get_from_path(path: list[str]):
 
 def get_data(path: list[str]):
     """Gets the data."""
-    result = get_from_path(path).get(token=vrs.get_token()).val()
+    result = get_from_path(path).get(token = consts.get_token()).val()
     if not result is None:
         value = result
         if isinstance(value, cl.OrderedDict):
@@ -52,7 +53,7 @@ def override_data(path: list[str], data: dict):
 
     log_message = f"Overriden data from path {path}: {o_f.pr_print(data)}"
     lgr.log_firebase.info(log_message)
-    path_parse.set(data, token=vrs.get_token())
+    path_parse.set(data, token = consts.get_token())
 
 # Append
 def append_data(path: list[str], data: list):
@@ -77,6 +78,7 @@ def deduct_data(path: list[str], data: list):
     lgr.log_firebase.info(log_message)
     override_data(path, new_data)
 
+
 # Edit
 def edit_data(path: list[str], data: dict):
     """Edits data in a path. Use key-value pairs. Won't replace data in path."""
@@ -87,7 +89,7 @@ def edit_data(path: list[str], data: dict):
 
     log_message = f"Edited data from path {path}: {o_f.pr_print(data)}"
     lgr.log_firebase.info(log_message)
-    path_parse.update(data, token=vrs.get_token())
+    path_parse.update(data, token = consts.get_token())
 
 
 # Delete
@@ -100,7 +102,7 @@ def delete_data(path: list[str]):
 
     log_message = f"Deleted data from path {path}."
     lgr.log_firebase.info(log_message)
-    path_parse.remove(token=vrs.get_token())
+    path_parse.remove(token = consts.get_token())
 
 
 new_token = thread.Thread(target=f_r_t.start_loop)

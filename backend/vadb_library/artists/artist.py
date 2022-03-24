@@ -11,7 +11,7 @@ from .. import api
 from ..other import clean_iter
 
 from .. import excepts
-from . import struct_exts as exts
+from . import artist_exts as exts
 from . import artist_struct as a_s
 
 
