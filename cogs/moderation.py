@@ -16,7 +16,7 @@ import backend.command_related.choice_param as c_p
 import backend.utils.views as vw
 import backend.utils.asking.wait_for as w_f
 import backend.utils.checks as ch
-import backend.databases.firebase.firebase_interaction as f_i
+import backend.firebase as firebase
 import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
@@ -39,7 +39,7 @@ class Moderation(cmds.Cog):
             await s_e.send_error(ctx, "You didn't send a valid role ID!")
             return
 
-        f_i.edit_data(['guildData', ctx.guild.id], {'adminRole': role_id})
+        firebase.edit_data(['guildData', ctx.guild.id], {'adminRole': role_id})
         await ctx.send("The admin role for this server has been set.")
 
 
@@ -84,7 +84,7 @@ class Moderation(cmds.Cog):
             user_id_str = str(user_id)
 
             def user_in_ban_list():
-                return user_id_str in f_i.get_data(path_initial)
+                return user_id_str in firebase.get_data(path_initial)
 
             if action == "ban":
                 if user_in_ban_list():
@@ -92,7 +92,7 @@ class Moderation(cmds.Cog):
                     raise c_e.ExitFunction()
 
                 await send_confirm()
-                f_i.append_data(path_initial, [user_id_str])
+                firebase.append_data(path_initial, [user_id_str])
                 await ctx.send(f"User `{user_name}` has been banned from using this bot.")
                 await user.send((
                     "**You have been banned from using this bot.**\n"
@@ -106,7 +106,7 @@ class Moderation(cmds.Cog):
                     raise c_e.ExitFunction()
 
                 await send_confirm()
-                f_i.deduct_data(path_initial, [user_id_str])
+                firebase.deduct_data(path_initial, [user_id_str])
                 await ctx.send(f"User `{user_name}` has been unbanned from using this bot.")
                 await user.send("**You have been unbanned from using this bot.**")
 
