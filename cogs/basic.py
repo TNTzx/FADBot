@@ -13,16 +13,16 @@ import backend.logging.loggers as lgr
 import global_vars.defaults as defaults
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
-import backend.databases.firebase.firebase_interaction as f_i
+import backend.firebase as firebase
 import backend.exceptions.custom_exc as c_e
 
 
 async def add_new_to_database():
     """Updates the database for joined servers."""
-    guild_data: dict = f_i.get_data(['guildData'])
+    guild_data: dict = firebase.get_data(['guildData'])
     for guild_client in vrs.global_bot.guilds:
         if not str(guild_client.id) in guild_data.keys():
-            f_i.edit_data(['guildData'], {str(guild_client.id): defaults.default["guildData"]["guildId"]})
+            firebase.edit_data(['guildData'], {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
 
 class Hello(cmds.Cog):
@@ -61,7 +61,7 @@ class Hello(cmds.Cog):
         category=c_w.Categories.basic_commands,
         description="Hello...?"
     )
-    async def hello(self, ctx):
+    async def hello(self, ctx: cmds.Context):
         await ctx.send("...what? I- hmm. Thanks for the... erm... hello... I guess?")
 
 
@@ -69,7 +69,7 @@ class Hello(cmds.Cog):
         category=c_w.Categories.basic_commands,
         description="Ping...?"
     )
-    async def ping(self, ctx):
+    async def ping(self, ctx: cmds.Context):
         await ctx.send(f"Pong! <@{ctx.author.id}>")
 
 
@@ -80,7 +80,7 @@ class Hello(cmds.Cog):
         req_dev=True,
         show_help=False
     )
-    async def causeerror(self, ctx):
+    async def causeerror(self, ctx: cmds.Context):
         raise c_e.ExitFunction()
 
 def setup(bot):
