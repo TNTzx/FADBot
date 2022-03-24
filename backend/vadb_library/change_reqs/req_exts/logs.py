@@ -29,23 +29,26 @@ class LogType():
     def set_channel(cls, guild: nx.Guild, channel: nx.TextChannel):
         """Sets the guild's channel as this `LogType`."""
         firebase.override_data(get_log_path(guild) + ["locations", cls.firebase_name], str(channel.id))
-    
+
     @classmethod
-    async def get_all_channels(cls):
+    def get_all_channels(cls):
         """Gets all channels from each guild in this `LogType`."""
         guilds_data: dict = firebase.get_data(["guildData"])
         channel_ids = [guild_data["logs"]["locations"][cls.firebase_name] for guild_data in guilds_data.values()]
         channels = []
         for channel_id in channel_ids:
-            channel = await vrs.global_bot.get_channel(int(channel_id))
+            if channel_id == firebase.PLACEHOLDER_DATA:
+                continue
+
+            channel = vrs.global_bot.get_channel(int(channel_id))
             if isinstance(channel, nx.TextChannel):
                 channels.append(channel)
-        
+
         if len(channels) == 0:
             raise req_exc.LogChannelsNotFound(f"Log channels not found for log type \"{cls.name}\".")
-        
+
         return channels
-            
+
 
     # TODO send logs
     @classmethod
