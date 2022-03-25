@@ -62,4 +62,3 @@ class MessagePointer(dt.Dataclass):
             channel_id = message.channel.id,
             message_id = message.id
         )
-

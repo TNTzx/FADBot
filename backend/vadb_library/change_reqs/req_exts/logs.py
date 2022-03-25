@@ -24,15 +24,15 @@ class LogType():
 
     def __init__(self, info_message_bundles: list[disc_utils.InfoMessageBundle]):
         self.info_message_bundles = info_message_bundles
-    
+
 
     def to_json_firebase(self):
-        """"""
-
+        """Makes a JSON for this `LogType`."""
+        return [message_bundle.to_json_firebase() for message_bundle in self.info_message_bundles]
 
     @classmethod
     def from_json_firebase(cls, json: dict):
-        """Make a `LogType` using the data from Firebase.
+        """Make a `LogType` using the JSON from Firebase.
         ```
         [
             InfoMessageBundle(), ...
@@ -46,11 +46,13 @@ class LogType():
         )
 
 
-
     @classmethod
     def set_channel(cls, guild: nx.Guild, channel: nx.TextChannel):
         """Sets the guild's channel as this `LogType`."""
-        firebase.override_data(get_log_path(guild) + ["locations", cls.firebase_name], str(channel.id))
+        main_path = get_log_path(guild) + ["locations", cls.firebase_name]
+        if channel.id == int(firebase.get_data(main_path)):
+            raise req_exc.LogChannelAlreadySet(f"Log channel \"{channel.name}\" already set for guild id {guild.id}.")
+        firebase.override_data(main_path, str(channel.id))
 
     @classmethod
     def get_all_channels(cls) -> list[nx.TextChannel] | None:
