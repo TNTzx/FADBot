@@ -156,7 +156,6 @@ class Artist(artist_struct.ArtistStruct):
         return response
 
 
-
     @classmethod
     def vadb_from_get_json(cls, json: dict | list ):
         """Returns an `Artist` from a VADB data structure.
@@ -207,7 +206,9 @@ class Artist(artist_struct.ArtistStruct):
             return cls(
                 name = clean_iter.clean_iterable(data["name"]),
                 proof = None,   # please nao have a proof field :(
-                vadb_info = artist_exts.VADBInfo.vadb_from_get_json(artist_id),
+                vadb_info = artist_exts.VADBInfo(
+                    artist_id = artist_id
+                ),
                 states = artist_exts.States(
                     status = data["status"],
                     availability = data["availability"],

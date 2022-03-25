@@ -1,5 +1,6 @@
 """VADB library."""
 
+from .main import *
 
 from .api import *
 

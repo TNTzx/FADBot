@@ -18,10 +18,3 @@ class VADBInfo(artist_struct.ArtistStruct):
             return f"https://fadb.live/artist/{self.artist_id}"
 
         return None
-
-
-    @classmethod
-    def vadb_from_get_json(cls, json: dict | list | int | str) -> None:
-        return cls(
-            artist_id = json
-        )
