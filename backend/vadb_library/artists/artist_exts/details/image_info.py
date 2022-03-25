@@ -11,10 +11,10 @@ import PIL.Image as PIL
 
 from .... import api
 
-from ... import artist_struct as a_s
+from ... import artist_struct as artist_struct
 
 
-class Image(a_s.ArtistStruct):
+class Image(artist_struct.ArtistStruct):
     """Defines an image for uploading to VADB."""
     def __init__(self, original_url: str = None):
         self.original_url = original_url
@@ -78,7 +78,7 @@ DEFAULT_AVATAR = Avatar(DEFAULT_IMAGE_URL)
 DEFAULT_BANNER = Banner(DEFAULT_IMAGE_URL)
 
 
-class ImageInfo(a_s.ArtistStruct):
+class ImageInfo(artist_struct.ArtistStruct):
     """Stores the images of the artist."""
     def __init__(
             self,

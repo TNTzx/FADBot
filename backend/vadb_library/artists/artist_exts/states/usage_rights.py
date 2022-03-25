@@ -3,7 +3,7 @@
 
 import backend.utils.new_dataclass as dt
 
-from ... import artist_struct as a_s
+from ... import artist_struct as artist_struct
 
 
 class UsageRight(dt.Dataclass):

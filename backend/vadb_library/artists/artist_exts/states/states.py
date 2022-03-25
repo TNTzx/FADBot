@@ -8,7 +8,7 @@ import nextcord as nx
 import backend.utils.new_dataclass as dt
 import backend.utils.other as util_other
 
-from ... import artist_struct as a_s
+from ... import artist_struct as artist_struct
 from . import usage_rights as u_r
 
 
@@ -145,7 +145,7 @@ class AvailabilityList(StateList):
     ]
 
 
-class States(a_s.ArtistStruct):
+class States(artist_struct.ArtistStruct):
     """States."""
     def __init__(
             self,

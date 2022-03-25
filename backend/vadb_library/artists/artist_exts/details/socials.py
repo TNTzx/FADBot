@@ -3,10 +3,10 @@
 
 import tldextract as tld
 
-from ... import artist_struct as a_s
+from ... import artist_struct as artist_struct
 
 
-class Social(a_s.ArtistStruct):
+class Social(artist_struct.ArtistStruct):
     """Defines a social."""
     def __init__(
                 self,
@@ -19,7 +19,7 @@ class Social(a_s.ArtistStruct):
         return tld.extract(self.link).domain
 
 
-class Socials(a_s.ArtistStruct):
+class Socials(artist_struct.ArtistStruct):
     """Defines a social list."""
     def __init__(
                 self,
