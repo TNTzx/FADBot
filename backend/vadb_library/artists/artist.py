@@ -32,13 +32,17 @@ class Artist(artist_struct.ArtistStruct):
         self.details = details
 
 
-    def send_create(self):
-        """Creates the artist in VADB and replaces this `Artist`'s ID with the response from VADB."""
-        payload = {
+    def vadb_to_create_json(self) -> dict | list:
+        super().vadb_to_create_json()
+        return {
             "name": self.name,
             "status": self.states.status.value,
             "availability": self.states.availability.value
         }
+
+    def vadb_create(self):
+        """Creates the artist in VADB and replaces this `Artist`'s ID with the response from VADB."""
+        payload = self.vadb_to_create_json()
 
         try:
             response = api.make_request(api.Endpoints.artist_create(), payload = payload)
@@ -55,7 +59,35 @@ class Artist(artist_struct.ArtistStruct):
         return response
 
 
-    def send_edit(self, artist_id: int = None):
+    def vadb_to_edit_json(self) -> dict | list:
+        return {
+            "name": self.name,
+            "aliases": self.details.aliases.vadb_to_edit_json(),
+            "status": self.states.status.value,
+            "availability": self.states.availability.value,
+            "description": self.details.description,
+            "notes": self.details.notes,
+            "tracks": self.details.music_info.track_count,
+            "genre": self.details.music_info.genre,
+            "usageRights": (
+                clean_iter.clean_iterable([
+                    {
+                        "name": usage_right.description,
+                        "value": usage_right.is_verified
+                    } for usage_right in self.states.usage_rights.usage_rights
+                ]) if self.states.usage_rights.usage_rights is not None else None
+            ),
+            "socials": (
+                clean_iter.clean_iterable([
+                    {
+                        "link": social.link,
+                        "type": social.get_domain()
+                    } for social in self.details.socials.socials
+                ]) if self.details.socials.socials is not None else None
+            ),
+        }
+
+    def vadb_edit(self, artist_id: int = None):
         """Edits the artist in VADB with this object's artist ID unless specified."""
         if artist_id is None:
             artist_id = self.vadb_info.artist_id
@@ -99,8 +131,8 @@ class Artist(artist_struct.ArtistStruct):
         except req.HTTPError as exc:
             if api.exc.check_artist_already_exists(exc.response):
                 raise excepts.VADBAlreadyExistingArtist(self.name) from exc
-            else:
-                raise excepts.VADBInvalidResponse
+
+            raise excepts.VADBInvalidResponse from exc
 
 
         return response
@@ -108,7 +140,7 @@ class Artist(artist_struct.ArtistStruct):
 
 
     @classmethod
-    def from_vadb_data(cls, data: dict):
+    def vadb_from_json(cls, data: dict):
         """Returns an `Artist` from a VADB data structure."""
         artist_id = data["id"]
 
@@ -163,9 +195,9 @@ class Artist(artist_struct.ArtistStruct):
 
 
     @classmethod
-    def from_artist_id(cls, artist_id: int):
+    def vadb_from_id(cls, artist_id: int):
         """Returns the `Artist` from an ID from VADB."""
         try:
-            return cls.from_vadb_data(api.make_request(api.Endpoints.artist_get(artist_id)).json()["data"])
+            return cls.vadb_from_json(api.make_request(api.Endpoints.artist_get(artist_id)).json()["data"])
         except req.HTTPError as exc:
             raise excepts.VADBNoArtistID(artist_id) from exc

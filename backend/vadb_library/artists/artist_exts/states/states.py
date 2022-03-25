@@ -65,7 +65,7 @@ class StateList():
         for state in cls.state_list:
             if state.value == value:
                 return state
-        
+
         raise ValueError(f"{value} not in state values.")
 
 

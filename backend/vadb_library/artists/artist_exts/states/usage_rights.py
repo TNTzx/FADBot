@@ -3,10 +3,10 @@
 
 import backend.utils.new_dataclass as dt
 
-from ... import artist_struct as artist_struct
+from ... import artist_struct
 
 
-class UsageRight(dt.Dataclass):
+class UsageRight(artist_struct.ArtistStruct):
     """Defines a usage right."""
     def __init__(
             self,
@@ -17,7 +17,18 @@ class UsageRight(dt.Dataclass):
         self.is_verified = is_verified
 
 
-class UsageRights(dt.Dataclass):
+    def vadb_to_edit_json(self) -> dict | list:
+        return {
+            "name": self.description,
+            "value": self.is_verified
+        }
+
+
+class UsageRights(artist_struct.ArtistStruct):
     """Defines a list of usage rights."""
     def __init__(self, usage_rights: list[UsageRight] | None = None):
         self.usage_rights = usage_rights
+
+
+    def vadb_to_edit_json(self) -> dict | list:
+        return [usage_right.vadb_to_edit_json() for usage_right in self.usage_rights]

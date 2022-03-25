@@ -1,8 +1,7 @@
 """Contains a class for artist structures."""
 
 
-import abc
-import requests as req
+import typing as typ
 
 import backend.utils.new_dataclass as dt
 
@@ -18,6 +17,15 @@ class ArtistStruct(dt.Dataclass):
 
     #     return data
 
+    def vadb_to_create_json(self) -> dict | list:
+        """Creates a JSON from this `ArtistStruct` for use in creating an artist in VADB."""
+
+    def vadb_to_edit_json(self) -> dict | list:
+        """Creates a JSON from this `ArtistStruct` for use in editing an artist in VADB."""
+
+    def vadb_to_delete_json(self) -> dict | list:
+        """Creates a JSON from this `ArtistStruct` for use in deleting an artist in VADB."""
+
     @classmethod
-    def from_vadb_receive(cls, response: req.models.Response) -> None:
-        """Returns an object from this class from VADB's response."""
+    def vadb_from_get_json(cls, json: dict | list) -> None:
+        """Creates an `ArtistStruct` from the JSON received from VADB."""
