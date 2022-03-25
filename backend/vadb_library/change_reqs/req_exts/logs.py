@@ -75,7 +75,6 @@ class LogType():
         return channels
 
 
-    # TODO send logs
     @classmethod
     async def send_logs(cls, artist: art.Artist, prefix: str):
         """Sends the logs then returns the LogType with all messages."""
@@ -107,3 +106,7 @@ class DumpLogType(LogType):
 class LiveLogType(LogType):
     """Live logs, used for dumping logs with deletion after being used."""
     name = firebase_name = "live"
+
+    def delete_logs(self):
+        """Deletes all logs from discord."""
+        for 
