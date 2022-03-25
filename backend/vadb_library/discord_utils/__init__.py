@@ -1,7 +1,7 @@
 """Contains Discord utilities."""
 
 
-from .artist_info_bundle import InfoBundle, InfoBundleMessages
+from .artist_info_bundle import InfoBundle, InfoMessageBundle
 
 from .embeds import generate_embed, generate_embed_multiple
 

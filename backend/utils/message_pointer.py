@@ -15,14 +15,10 @@ import global_vars.variables as vrs
 
 class MessagePointer(dt.Dataclass):
     """Class that contains channel and message ids to represent a message."""
-    def __init__(self, datas: dict = None, channel_id = "0", message_id = "0"):
-        if datas is None:
-            datas = {
-                "channel_id": channel_id,
-                "message_id": message_id
-            }
-        self.channel_id = str(datas["channel_id"])
-        self.message_id = str(datas["message_id"])
+    def __init__(self, channel_id: int, message_id: int):
+        self.channel_id = channel_id
+        self.message_id = message_id
+
 
     async def get_message(self):
         """Gets the message from discord and returns it."""
@@ -34,3 +30,36 @@ class MessagePointer(dt.Dataclass):
             return None
 
         return message
+
+
+    def to_data_firebase(self):
+        """Returns a dictionary from this `MessagePointer`."""
+        return {
+            "channelId": str(self.channel_id),
+            "messageId": str(self.message_id)
+        }
+
+    @classmethod
+    def from_data_firebase(cls, data: dict):
+        """Returns a `MessagePointer` from the data.
+        ```
+        {
+            "channelId": str
+            "messageId": str,
+        }
+        ```
+        """
+        return cls(
+            channel_id = int(data["channelId"]),
+            message_id = int(data["messageId"])
+        )
+
+
+    @classmethod
+    def from_message(cls, message: nx.Message):
+        """Returns a `MessagePointer` from a message."""
+        return cls(
+            channel_id = message.channel.id,
+            message_id = message.id
+        )
+
