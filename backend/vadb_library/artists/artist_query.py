@@ -30,7 +30,7 @@ class ArtistQuery():
 
         return cls(
             artists = [
-                artist.Artist.vadb_from_json(artist_data)
+                artist.Artist.vadb_from_get_json(artist_data)
                 for artist_data in response
             ]
         )
