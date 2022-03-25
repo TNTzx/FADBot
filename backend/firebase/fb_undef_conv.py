@@ -35,7 +35,7 @@ def undef_conversion(json: dict | list | tuple | str, from_undef: None, to_undef
                 diction[key] = to_undef
 
             if iter_check and check_if_iterable(value):
-                diction[key] = undef_conversion(diction, from_undef, to_undef, iter_check)
+                diction[key] = undef_conversion(value, from_undef, to_undef, iter_check)
 
         return diction
 
