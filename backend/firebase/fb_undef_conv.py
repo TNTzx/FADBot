@@ -22,6 +22,13 @@ def is_empty_or_undef(json: dict | list | tuple | str, undef, iter_check = True)
         if len(json) == 0:
             return True
 
+        if isinstance(json, (list, tuple)):
+            for item in json:
+                if not is_empty_or_undef(item, undef, iter_check):
+                    return False
+
+            return True
+
         return False
 
     return False
@@ -73,3 +80,12 @@ def undef_conversion(json: dict | list | tuple | str, from_undef: None, to_undef
 
 
     return json
+
+
+def none_and_empty_to_null(json: dict | list | tuple | str):
+    """Converts all `None` and empty iterables to `NULL_DATA` in JSON."""
+    return undef_conversion(json, None, fb_consts.NULL_DATA)
+
+def null_and_empty_to_none(json: dict | list | tuple | str):
+    """Converts all `NULL_DATA` and empty iterables to `None` in JSON."""
+    return undef_conversion(json, fb_consts.NULL_DATA, None)
