@@ -36,16 +36,16 @@ class InfoMessageBundle():
         self.message_proof = message_proof
 
 
-    def to_data_firebase(self):
+    def to_json_firebase(self):
         """Returns a dictionary for this `InfoMessageBundle`."""
         return {
-            "message_embed_pointer": m_p.MessagePointer.from_message(self.message_embed).to_data_firebase(),
-            "message_proof_pointer": m_p.MessagePointer.from_message(self.message_proof).to_data_firebase()
+            "message_embed_pointer": m_p.MessagePointer.from_message(self.message_embed).to_json_firebase(),
+            "message_proof_pointer": m_p.MessagePointer.from_message(self.message_proof).to_json_firebase()
         }
 
 
     @classmethod
-    async def from_data_firebase(cls, data: dict):
+    async def from_json_firebase(cls, data: dict):
         """Returns an `InfoMessageBundle` for the data.
         ```
         {
@@ -54,10 +54,10 @@ class InfoMessageBundle():
         }
         ```
         """
-        async def pointer_from_data(pointer_json: dict):
-            return await m_p.MessagePointer.from_data_firebase(pointer_json).get_message()
+        async def pointer_from_json(pointer_json: dict):
+            return await m_p.MessagePointer.from_json_firebase(pointer_json).get_message()
 
         return cls(
-            message_embed = await pointer_from_data(data["message_embed_pointer"]),
-            message_proof = await pointer_from_data(data["message_proof_pointer"])
+            message_embed = await pointer_from_json(data["message_embed_pointer"]),
+            message_proof = await pointer_from_json(data["message_proof_pointer"])
         )

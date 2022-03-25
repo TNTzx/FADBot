@@ -32,7 +32,7 @@ class MessagePointer(dt.Dataclass):
         return message
 
 
-    def to_data_firebase(self):
+    def to_json_firebase(self):
         """Returns a dictionary from this `MessagePointer`."""
         return {
             "channelId": str(self.channel_id),
@@ -40,7 +40,7 @@ class MessagePointer(dt.Dataclass):
         }
 
     @classmethod
-    def from_data_firebase(cls, data: dict):
+    def from_json_firebase(cls, data: dict):
         """Returns a `MessagePointer` from the data.
         ```
         {
