@@ -107,6 +107,7 @@ class LiveLogType(LogType):
     """Live logs, used for dumping logs with deletion after being used."""
     name = firebase_name = "live"
 
-    def delete_logs(self):
+    async def delete_logs(self):
         """Deletes all logs from discord."""
-        for 
+        for message_bundle in self.info_message_bundles:
+            await message_bundle.delete_bundle()

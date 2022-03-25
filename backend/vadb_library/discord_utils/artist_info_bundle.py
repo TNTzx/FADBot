@@ -43,7 +43,6 @@ class InfoMessageBundle():
             "message_proof_pointer": m_p.MessagePointer.from_message(self.message_proof).to_json_firebase()
         }
 
-
     @classmethod
     async def from_json_firebase(cls, data: dict):
         """Returns an `InfoMessageBundle` for the data.
@@ -61,3 +60,17 @@ class InfoMessageBundle():
             message_embed = await pointer_from_json(data["message_embed_pointer"]),
             message_proof = await pointer_from_json(data["message_proof_pointer"])
         )
+
+
+    def get_messages(self):
+        """
+        Gets the messages from this `InfoMessageBundle` as a tuple.
+        `(message_embed, message_proof)`
+        """
+        return (self.message_embed, self.message_proof)
+
+
+    async def delete_bundle(self):
+        """Deletes this `InfoMessageBundle` from Discord."""
+        for message in self.get_messages():
+            await message.delete()
