@@ -251,7 +251,6 @@ class Artist(artist_struct.ArtistStruct):
         except Exception as exc:
             raise excepts.VADBInvalidResponse(f"Invalid response: {o_f.pr_print(data)}.") from exc
 
-
     @classmethod
     def vadb_from_id(cls, artist_id: int):
         """Returns the `Artist` from an ID from VADB."""
@@ -259,3 +258,10 @@ class Artist(artist_struct.ArtistStruct):
             return cls.vadb_from_get_json(api.make_request(api.Endpoints.artist_get(artist_id)).json())
         except req.HTTPError as exc:
             raise excepts.VADBNoArtistID(artist_id) from exc
+
+
+    def firebase_to_json(self):
+        return {
+            "name": self.name,
+            "proof_url": self.proof.firebase_to_json()
+        }

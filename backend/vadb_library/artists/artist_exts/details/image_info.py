@@ -16,17 +16,18 @@ from ... import artist_struct as artist_struct
 
 class Image(artist_struct.ArtistStruct):
     """Defines an image for uploading to VADB."""
+    name: str = "image.png"
+    default_mime_type = "image/png"
+    default_format = "PNG"
+    max_image_size: tuple[int, int] = (2000, 2000)
+    vadb_link_ext: str = None
+    vadb_key: str = None
+
     def __init__(self, original_url: str = None):
         self.original_url = original_url
 
     def __repr__(self):
         return f"ImageData({self.original_url})"
-
-
-    name: str = "image.png"
-    default_mime_type = "image/png"
-    default_format = "PNG"
-    max_image_size: tuple[int, int] = (2000, 2000)
 
 
     def get_pil_image(self):
@@ -39,17 +40,16 @@ class Image(artist_struct.ArtistStruct):
 
         return pil_image
 
-
     def get_data(self):
         """Gets the data from the PIL image."""
         with io.BytesIO() as b_io:
             self.get_pil_image().save(b_io, format = self.default_format)
             b_io.seek(0)
             return b_io.getvalue()
+    
 
-
-    vadb_link_ext: str = None
-    vadb_key: str = None
+    def firebase_to_json(self):
+        return self.original_url
 
 
     @classmethod
