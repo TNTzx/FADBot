@@ -1,10 +1,7 @@
 """Artist query object."""
 
 
-import asyncio
 import requests as req
-
-import nextcord as nx
 
 from .. import excepts
 from .. import api
