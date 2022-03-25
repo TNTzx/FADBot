@@ -10,6 +10,7 @@ import backend.firebase as firebase
 from ... import discord_utils as disc_utils
 from ... import artists as art
 from .. import req_exc
+from .. import req_struct
 
 
 def get_log_path(guild: nx.Guild):
@@ -17,7 +18,7 @@ def get_log_path(guild: nx.Guild):
     return ["guildData", str(guild.id), "logs"]
 
 
-class LogType():
+class LogType(req_struct.RequestStruct):
     """Parent class for log types."""
     name: str = None
     firebase_name: str = None
@@ -111,3 +112,14 @@ class LiveLogType(LogType):
         """Deletes all logs from discord."""
         for message_bundle in self.info_message_bundles:
             await message_bundle.delete_bundle()
+
+
+class LogBundle(req_struct.RequestStructs):
+    """Contains all types of logs."""
+    def __init__(self, dump_logs: DumpLogType = None, live_logs: LiveLogType = None):
+        self.dump_logs = dump_logs
+        self.live_logs = live_logs
+
+
+    def to_json_firebase(self):
+        """Turns this `LogBundle` to a JSON for Firebase."""

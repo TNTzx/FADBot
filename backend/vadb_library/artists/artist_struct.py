@@ -7,7 +7,7 @@ import requests as req
 import backend.utils.new_dataclass as dt
 
 
-class ArtistStruct(dt.APIDataclass):
+class ArtistStruct(dt.Dataclass):
     """Parent class for artist structures."""
     # def get_json_dict(self):
     #     """Turns the data into a dictionary for sending."""
