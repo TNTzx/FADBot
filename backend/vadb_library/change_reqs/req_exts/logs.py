@@ -24,16 +24,26 @@ class LogType():
 
     def __init__(self, info_message_bundles: list[disc_utils.InfoMessageBundle]):
         self.info_message_bundles = info_message_bundles
+    
+
+    def to_json_firebase(self):
+        """"""
 
 
     @classmethod
-    def from_data_firebase(cls, data: dict):
-        """Make a LogType using the data from Firebase.
+    def from_json_firebase(cls, json: dict):
+        """Make a `LogType` using the data from Firebase.
         ```
         [
             InfoMessageBundle(), ...
         ]
         ```"""
+        return cls(
+            info_message_bundles = [
+                disc_utils.InfoMessageBundle.from_json_firebase(message_bundle_data)
+                for message_bundle_data in json
+            ]
+        )
 
 
 
