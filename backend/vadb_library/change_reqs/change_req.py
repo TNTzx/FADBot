@@ -14,8 +14,11 @@ class ChangeRequest(req_struct.RequestStruct):
     def __init__(
                 self,
                 artist: art.Artist,
+                log_bundle: req_exts.LogBundle
             ):
-        ...
+        self.artist = artist
+        self.log_bundle = log_bundle
+
 
     # TODO these methods
     def to_json_firebase(self):

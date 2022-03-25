@@ -3,7 +3,7 @@
 
 import backend.utils.new_dataclass as dt
 
-from ... import artist_struct as a_s
+from ... import artist_struct
 
 
 class Alias(dt.Dataclass):
@@ -12,7 +12,7 @@ class Alias(dt.Dataclass):
         self.name = name
 
 
-class Aliases(a_s.ArtistStruct):
+class Aliases(artist_struct.ArtistStruct):
     """Stores a list of aliases."""
     def __init__(self, aliases: list[Alias] | None = None):
         self.aliases = aliases

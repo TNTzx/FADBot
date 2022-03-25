@@ -3,7 +3,7 @@
 
 import backend.utils.new_dataclass as dt
 
-from .. import artist_struct as a_s
+from .. import artist_struct
 
 
 class VADBInfo(dt.Dataclass):
@@ -18,5 +18,5 @@ class VADBInfo(dt.Dataclass):
         """Gets the page of the artist."""
         if self.artist_id is not None:
             return f"https://fadb.live/artist/{self.artist_id}"
-        
+
         return None

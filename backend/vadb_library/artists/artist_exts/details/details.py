@@ -1,14 +1,14 @@
 """Details."""
 
 
-from ... import artist_struct as a_s
+from ... import artist_struct
 from . import aliases as al
 from . import image_info as i_i
 from . import music_info as m_i
 from . import socials as so
 
 
-class Details(a_s.ArtistStruct):
+class Details(artist_struct.ArtistStruct):
     """Artist details."""
     def __init__(
             self,

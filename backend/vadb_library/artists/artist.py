@@ -11,19 +11,19 @@ from .. import api
 from ..other import clean_iter
 
 from .. import excepts
-from . import artist_exts as exts
-from . import artist_struct as a_s
+from . import artist_exts
+from . import artist_struct
 
 
-class Artist(a_s.ArtistStruct):
+class Artist(artist_struct.ArtistStruct):
     """An artist."""
     def __init__(
             self,
             name: str | None = None,
-            proof: exts.Proof = exts.DEFAULT_PROOF,
-            vadb_info: exts.VADBInfo = exts.VADBInfo(),
-            states: exts.States = exts.States(),
-            details: exts.Details = exts.Details()
+            proof: artist_exts.Proof = artist_exts.DEFAULT_PROOF,
+            vadb_info: artist_exts.VADBInfo = artist_exts.VADBInfo(),
+            states: artist_exts.States = artist_exts.States(),
+            details: artist_exts.Details = artist_exts.Details()
             ):
         self.name = name
         self.proof = proof
@@ -116,42 +116,42 @@ class Artist(a_s.ArtistStruct):
             return cls(
                 name = clean_iter.clean_iterable(data["name"]),
                 proof = None, # please nao have a proof field :(
-                vadb_info = exts.VADBInfo(
+                vadb_info = artist_exts.VADBInfo(
                     artist_id = artist_id
                 ),
-                states = exts.States(
+                states = artist_exts.States(
                     status = data["status"],
                     availability = data["availability"],
-                    usage_rights = exts.UsageRights(
+                    usage_rights = artist_exts.UsageRights(
                         usage_rights = clean_iter.clean_iterable([
-                            exts.UsageRight(
+                            artist_exts.UsageRight(
                                 description = usage_right["name"],
                                 is_verified = usage_right["value"]
                             ) for usage_right in data["usageRights"]
                         ])
                     )
                 ),
-                details = exts.Details(
+                details = artist_exts.Details(
                     description = clean_iter.clean_iterable(data["description"]),
                     notes = clean_iter.clean_iterable(data["notes"]),
-                    aliases = exts.Aliases(
+                    aliases = artist_exts.Aliases(
                         aliases = clean_iter.clean_iterable([
-                            exts.Alias(
+                            artist_exts.Alias(
                                 name = alias["name"]
                             ) for alias in data["aliases"]
                         ])
                     ),
-                    image_info = exts.ImageInfo(
-                        avatar = exts.Avatar.from_artist(artist_id),
-                        banner = exts.Banner.from_artist(artist_id)
+                    image_info = artist_exts.ImageInfo(
+                        avatar = artist_exts.Avatar.from_artist(artist_id),
+                        banner = artist_exts.Banner.from_artist(artist_id)
                     ),
-                    music_info = exts.MusicInfo(
+                    music_info = artist_exts.MusicInfo(
                         track_count = data["tracks"],
                         genre = clean_iter.clean_iterable(data["genre"])
                     ),
-                    socials = exts.Socials(
+                    socials = artist_exts.Socials(
                         socials = clean_iter.clean_iterable([
-                            exts.Social(
+                            artist_exts.Social(
                                 link = social["link"]
                             ) for social in data["details"]["socials"]
                         ])
