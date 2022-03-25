@@ -3,7 +3,6 @@
 
 import backend.utils.new_dataclass as dt
 
-from ....other import clean_iter
 from ... import artist_struct
 
 
@@ -27,4 +26,4 @@ class Aliases(artist_struct.ArtistStruct):
         if self.aliases is None:
             return None
 
-        return clean_iter.clean_iterable([alias.vadb_to_edit_json() for alias in self.aliases])
+        return [alias.vadb_to_edit_json() for alias in self.aliases]

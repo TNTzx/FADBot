@@ -25,3 +25,4 @@ def get_token():
 
 
 PLACEHOLDER_DATA = [["placeholder"]]
+NULL_DATA = [["null"]]

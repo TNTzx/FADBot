@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import requests as req
 
+import backend.firebase as firebase
 import backend.other_functions as o_f
 
 from .. import api
@@ -263,5 +264,6 @@ class Artist(artist_struct.ArtistStruct):
     def firebase_to_json(self):
         return {
             "name": self.name,
-            "proof_url": self.proof.firebase_to_json()
+            "proof_url": self.proof.firebase_to_json(),
+            "vadb_info": self.vadb_info.firebase_to_json()
         }

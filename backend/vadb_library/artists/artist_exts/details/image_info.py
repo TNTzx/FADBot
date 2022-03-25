@@ -11,7 +11,7 @@ import PIL.Image as PIL
 
 from .... import api
 
-from ... import artist_struct as artist_struct
+from ... import artist_struct
 
 
 class Image(artist_struct.ArtistStruct):

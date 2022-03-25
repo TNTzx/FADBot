@@ -18,3 +18,9 @@ class VADBInfo(artist_struct.ArtistStruct):
             return f"https://fadb.live/artist/{self.artist_id}"
 
         return None
+
+
+    def firebase_to_json(self):
+        return {
+            "artist_id": self.artist_id
+        }

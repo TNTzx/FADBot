@@ -114,7 +114,7 @@ class LiveLogType(LogType):
             await message_bundle.delete_bundle()
 
 
-class LogBundle(req_struct.RequestStructs):
+class LogBundle(req_struct.RequestStruct):
     """Contains all types of logs."""
     def __init__(self, dump_logs: DumpLogType = None, live_logs: LiveLogType = None):
         self.dump_logs = dump_logs
