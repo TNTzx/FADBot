@@ -69,14 +69,7 @@ class Artist(artist_struct.ArtistStruct):
             "notes": self.details.notes,
             "tracks": self.details.music_info.track_count,
             "genre": self.details.music_info.genre,
-            "usageRights": (
-                clean_iter.clean_iterable([
-                    {
-                        "name": usage_right.description,
-                        "value": usage_right.is_verified
-                    } for usage_right in self.states.usage_rights.usage_rights
-                ]) if self.states.usage_rights.usage_rights is not None else None
-            ),
+            "usageRights": self.states.usage_rights.vadb_to_edit_json(),
             "socials": (
                 clean_iter.clean_iterable([
                     {

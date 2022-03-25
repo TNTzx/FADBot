@@ -19,6 +19,13 @@ class Social(artist_struct.ArtistStruct):
         return tld.extract(self.link).domain
 
 
+    def vadb_to_edit_json(self) -> dict | list:
+        return {
+            "link": self.link,
+            "type": self.get_domain()
+        }
+
+
 class Socials(artist_struct.ArtistStruct):
     """Defines a social list."""
     def __init__(
@@ -26,3 +33,11 @@ class Socials(artist_struct.ArtistStruct):
                 socials: list[Social] | None = None
             ):
         self.socials = socials
+
+
+    def vadb_to_edit_json(self) -> dict | list:
+        if self.socials is None:
+            return None
+
+        return [social.vadb_to_edit_json() for social in self.socials]
+

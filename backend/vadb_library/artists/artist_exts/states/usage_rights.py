@@ -31,4 +31,7 @@ class UsageRights(artist_struct.ArtistStruct):
 
 
     def vadb_to_edit_json(self) -> dict | list:
+        if self.usage_rights is None:
+            return None
+
         return [usage_right.vadb_to_edit_json() for usage_right in self.usage_rights]
