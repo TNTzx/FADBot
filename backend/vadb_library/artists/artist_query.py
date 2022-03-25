@@ -24,7 +24,7 @@ class ArtistQuery():
     def from_vadb_search(cls, search_term: str):
         """Creates an `ArtistQuery` from a search term."""
         try:
-            response = api.make_request(api.Endpoints.artist_search(search_term)).json()["data"]
+            response = api.make_request(api.Endpoints.artist_search(search_term)).json()
         except req.exceptions.HTTPError as exc:
             raise excepts.VADBNoSearchResult(search_term) from exc
 

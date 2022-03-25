@@ -27,5 +27,5 @@ class ArtistStruct(dt.Dataclass):
         """Creates a JSON from this `ArtistStruct` for use in deleting an artist in VADB."""
 
     @classmethod
-    def vadb_from_get_json(cls, json: dict | list) -> None:
+    def vadb_from_get_json(cls, json: dict | list | int | str) -> None:
         """Creates an `ArtistStruct` from the JSON received from VADB."""

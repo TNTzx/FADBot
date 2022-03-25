@@ -1,12 +1,10 @@
 """Stores VADB-related info."""
 
 
-import backend.utils.new_dataclass as dt
-
 from .. import artist_struct
 
 
-class VADBInfo(dt.Dataclass):
+class VADBInfo(artist_struct.ArtistStruct):
     """VADB info of the artist."""
     def __init__(
             self,
@@ -20,3 +18,10 @@ class VADBInfo(dt.Dataclass):
             return f"https://fadb.live/artist/{self.artist_id}"
 
         return None
+
+
+    @classmethod
+    def vadb_from_get_json(cls, json: dict | list | int | str) -> None:
+        return cls(
+            artist_id = json
+        )
