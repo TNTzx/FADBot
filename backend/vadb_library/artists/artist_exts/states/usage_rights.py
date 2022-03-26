@@ -22,6 +22,13 @@ class UsageRight(artist_struct.ArtistStruct):
             "name": self.description,
             "value": self.is_verified
         }
+    
+
+    def firebase_to_json(self):
+        return {
+            "description": self.description,
+            "is_verified": self.is_verified
+        }
 
 
 class UsageRights(artist_struct.ArtistStruct):
@@ -35,3 +42,10 @@ class UsageRights(artist_struct.ArtistStruct):
             return None
 
         return [usage_right.vadb_to_edit_json() for usage_right in self.usage_rights]
+
+
+    def firebase_to_json(self):
+        if self.usage_rights is None:
+            return None
+
+        return [usage_right.firebase_to_json() for usage_right in self.usage_rights]

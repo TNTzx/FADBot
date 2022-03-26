@@ -265,5 +265,6 @@ class Artist(artist_struct.ArtistStruct):
         return {
             "name": self.name,
             "proof_url": self.proof.firebase_to_json(),
-            "vadb_info": self.vadb_info.firebase_to_json()
+            "vadb_info": self.vadb_info.firebase_to_json(),
+            "states": self.states.firebase_to_json()
         }

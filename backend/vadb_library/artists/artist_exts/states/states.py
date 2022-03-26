@@ -157,3 +157,11 @@ class States(artist_struct.ArtistStruct):
         self.availability = util_other.Match(AvailabilityList.get_states_dict(), availability)
 
         self.usage_rights = usage_rights
+
+
+    def firebase_to_json(self):
+        return {
+            "status": self.status.value,
+            "availability": self.availability.value,
+            "usage_rights": self.usage_rights.firebase_to_json()
+        }

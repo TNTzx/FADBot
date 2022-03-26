@@ -46,7 +46,7 @@ class Image(artist_struct.ArtistStruct):
             self.get_pil_image().save(b_io, format = self.default_format)
             b_io.seek(0)
             return b_io.getvalue()
-    
+
 
     def firebase_to_json(self):
         return self.original_url
