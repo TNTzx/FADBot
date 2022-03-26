@@ -32,4 +32,5 @@ class Details(artist_struct.ArtistStruct):
             "description": self.description,
             "notes": self.notes,
             "aliases": self.aliases.firebase_from_json()
+            # TODO next: image
         }
