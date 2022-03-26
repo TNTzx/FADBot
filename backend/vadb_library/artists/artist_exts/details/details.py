@@ -25,3 +25,11 @@ class Details(artist_struct.ArtistStruct):
         self.image_info = image_info
         self.music_info = music_info
         self.socials = socials
+    
+
+    def firebase_to_json(self):
+        return {
+            "description": self.description,
+            "notes": self.notes,
+            "aliases": self.aliases.firebase_from_json()
+        }
