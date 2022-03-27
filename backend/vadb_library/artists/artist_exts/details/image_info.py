@@ -49,7 +49,9 @@ class Image(artist_struct.ArtistStruct):
 
 
     def firebase_to_json(self):
-        return self.original_url
+        return {
+            "url": self.original_url
+        }
 
 
     @classmethod
@@ -99,4 +101,11 @@ class ImageInfo(artist_struct.ArtistStruct):
                 image.get_data(),
                 image.default_mime_type
             ) for image in self._to_image_list()
+        }
+
+
+    def firebase_to_json(self):
+        return {
+            "avatar": self.avatar.firebase_to_json(),
+            "banner": self.banner.firebase_to_json()
         }
