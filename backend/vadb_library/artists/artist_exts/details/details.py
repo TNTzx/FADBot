@@ -32,5 +32,7 @@ class Details(artist_struct.ArtistStruct):
             "description": self.description,
             "notes": self.notes,
             "aliases": self.aliases.firebase_to_json(),
-            "image_info": self.image_info.firebase_to_json()
+            "image_info": self.image_info.firebase_to_json(),
+            "music_info": self.music_info.firebase_to_json(),
+            "socials": self.socials.firebase_to_json()
         }

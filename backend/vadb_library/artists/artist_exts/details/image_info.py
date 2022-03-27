@@ -95,6 +95,7 @@ class ImageInfo(artist_struct.ArtistStruct):
         return [self.avatar, self.banner]
 
     def to_payload(self) -> dict | tuple | list:
+        """Returns payload for this `ImageInfo`."""
         return {
             image.vadb_key: (
                 image.name,

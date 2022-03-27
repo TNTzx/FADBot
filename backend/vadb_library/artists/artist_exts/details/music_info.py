@@ -13,3 +13,10 @@ class MusicInfo(artist_struct.ArtistStruct):
             ):
         self.track_count = track_count
         self.genre = genre
+    
+
+    def firebase_to_json(self):
+        return {
+            "track_count": self.track_count,
+            "genre": self.genre
+        }

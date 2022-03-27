@@ -3,7 +3,7 @@
 
 import tldextract as tld
 
-from ... import artist_struct as artist_struct
+from ... import artist_struct
 
 
 class Social(artist_struct.ArtistStruct):
@@ -26,6 +26,12 @@ class Social(artist_struct.ArtistStruct):
         }
 
 
+    def firebase_to_json(self):
+        return {
+            "link": self.link
+        }
+
+
 class Socials(artist_struct.ArtistStruct):
     """Defines a social list."""
     def __init__(
@@ -40,4 +46,11 @@ class Socials(artist_struct.ArtistStruct):
             return None
 
         return [social.vadb_to_edit_json() for social in self.socials]
+
+
+    def firebase_to_json(self):
+        if self.socials is None:
+            return None
+
+        return [social.firebase_to_json() for social in self.socials]
 
