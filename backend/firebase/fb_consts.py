@@ -24,5 +24,5 @@ def get_token():
     return fb_token
 
 
-PLACEHOLDER_DATA = [["placeholder"]]
-NULL_DATA = [["null"]]
+PLACEHOLDER_DATA = "//placeholder//"
+NULL_DATA = "//null//"

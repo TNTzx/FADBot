@@ -13,9 +13,9 @@ def check_if_iterable(obj):
 
     return True
 
-def is_empty_or_undef(json: dict | list | tuple | str, undef, iter_check = True):
-    "Returns `True` if the JSON is empty (if `iter_check` is `True`) or the undefined value, `False` otherwise."
-    if json == undef:
+def is_empty_or_undef(json: dict | list | tuple | str, undef: tuple, iter_check = True):
+    "Returns `True` if the JSON is empty (if `iter_check` is `True`) or is one of the undefined values, `False` otherwise."
+    if json in undef:
         return True
 
     if iter_check and check_if_iterable(json):
@@ -34,7 +34,7 @@ def is_empty_or_undef(json: dict | list | tuple | str, undef, iter_check = True)
     return False
 
 
-def undef_conversion(json: dict | list | tuple | str, from_undef: None, to_undef: None, iter_check = True):
+def undef_conversion(json: dict | list | tuple | str, from_undef: tuple[None, ...], to_undef: None, iter_check = True):
     """Converts an undefined value to another undefined value in a JSON."""
     def conv_dict(diction: dict):
         for key, value in diction.items():
@@ -84,8 +84,8 @@ def undef_conversion(json: dict | list | tuple | str, from_undef: None, to_undef
 
 def none_and_empty_to_null(json: dict | list | tuple | str):
     """Converts all `None` and empty iterables to `NULL_DATA` in JSON."""
-    return undef_conversion(json, None, fb_consts.NULL_DATA)
+    return undef_conversion(json, (None,), fb_consts.NULL_DATA)
 
 def null_and_empty_to_none(json: dict | list | tuple | str):
     """Converts all `NULL_DATA` and empty iterables to `None` in JSON."""
-    return undef_conversion(json, fb_consts.NULL_DATA, None)
+    return undef_conversion(json, (fb_consts.NULL_DATA, fb_consts.PLACEHOLDER_DATA), None)

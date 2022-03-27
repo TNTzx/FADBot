@@ -23,11 +23,11 @@ class FBEndpoint():
         current_parent = self.parent
 
         while True:
-            path.append(current_parent.name)
-            current_parent = current_parent.parent
-
             if current_parent.parent is None:
                 break
+
+            path.append(current_parent.name)
+            current_parent = current_parent.parent
 
         return list(reversed(path))
 
