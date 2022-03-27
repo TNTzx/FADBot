@@ -39,7 +39,6 @@ def get_data(path: list[str]):
     return json
 
 
-# Check if data already exists
 def is_data_exists(path: list[str]):
     """Checks if the path exists."""
     try:
@@ -49,7 +48,6 @@ def is_data_exists(path: list[str]):
         return False
 
 
-# Create
 def override_data(path: list[str], json: dict):
     """Overrides the data at a specific path."""
     path_parse = get_from_path(path)
@@ -61,7 +59,6 @@ def override_data(path: list[str], json: dict):
     path_parse.set(json, token = consts.get_token())
 
 
-# Append
 def append_data(path: list[str], json: list):
     """Adds data to a specific path. Only works with lists."""
     new_data = get_data(path)
