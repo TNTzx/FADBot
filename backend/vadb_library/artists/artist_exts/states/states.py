@@ -161,7 +161,15 @@ class States(artist_struct.ArtistStruct):
 
     def firebase_to_json(self):
         return {
-            "status": self.status.value,
-            "availability": self.availability.value,
+            "status_value": self.status.value,
+            "availability_value": self.availability.value,
             "usage_rights": self.usage_rights.firebase_to_json()
         }
+
+    @classmethod
+    def firebase_from_json(cls, json: dict | list | ...):
+        return cls(
+            status = json.get("status_value"),
+            availability = json.get("availability_value"),
+            usage_rights = u_r.UsageRights.firebase_from_json("usage_rights")
+        )

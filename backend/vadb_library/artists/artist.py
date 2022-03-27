@@ -269,3 +269,14 @@ class Artist(artist_struct.ArtistStruct):
             "states": self.states.firebase_to_json(),
             "details": self.details.firebase_to_json()
         }
+
+
+    @classmethod
+    def firebase_from_json(cls, json: dict | list | ...):
+        return cls(
+            name = json.get("name"),
+            proof = artist_exts.Proof.firebase_from_json(json.get("proof")),
+            vadb_info = artist_exts.VADBInfo.firebase_from_json(json.get("vadb_info")),
+            states = artist_exts.States.firebase_from_json(json.get("states")),
+            details = artist_exts.Details()
+        )

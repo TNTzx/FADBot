@@ -53,6 +53,12 @@ class Image(artist_struct.ArtistStruct):
             "url": self.original_url
         }
 
+    @classmethod
+    def firebase_from_json(cls, json: dict | list | ...):
+        return cls(
+            original_url = json.get("url")
+        )
+
 
     @classmethod
     def from_artist(cls, artist_id: int):
