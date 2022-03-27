@@ -53,7 +53,7 @@ class Root(endpoint.FBEndpointRoot):
                 self.e_can_verify = self.CanVerify(self)
 
 
-            class ChangeRequests(endpoint.FBEndpointParent):
+            class ChangeRequests(endpoint.FBEndpointEnd):
                 """Contains the change requests."""
                 def __init__(self, parent: endpoint.FBEndpoint):
                     super().__init__(name = "change_requests", parent = parent)
@@ -64,8 +64,18 @@ class Root(endpoint.FBEndpointRoot):
                 def __init__(self, parent: endpoint.FBEndpoint):
                     super().__init__(name = "can_verify", parent = parent)
 
-                class ServerRoles(endpoint.FBEndpointParent):
+                    self.e_server_roles = self.ServerRoles(self)
+                    self.e_users = self.Users(self)
+
+                class ServerRoles(endpoint.FBEndpointEnd):
                     """Contains a list of servers and a list of their roles that have the privilege of being able to verify."""
+                    def __init__(self, parent: endpoint.FBEndpoint):
+                        super().__init__(name = "server_roles", parent = parent)
+
+                class Users(endpoint.FBEndpointEnd):
+                    """Contains a list of IDs of users that can verify."""
+                    def __init__(self, parent: endpoint.FBEndpoint):
+                        super().__init__(name = "users", parent = parent)
 
 
     class DiscordData(endpoint.FBEndpointParent):
@@ -86,13 +96,13 @@ class Root(endpoint.FBEndpointRoot):
                 self.e_is_using_command = self.IsUsingCommand(self)
 
 
-            class IsUsingCommand(endpoint.FBEndpointParent):
+            class IsUsingCommand(endpoint.FBEndpointEnd):
                 """Storage for the `is_using` implementation for commands."""
                 def __init__(self, parent: endpoint.FBEndpoint):
                     super().__init__(name = "is_using_command", parent = parent)
 
 
-        class GuildData(endpoint.FBEndpointParent):
+        class GuildData(endpoint.FBEndpointEnd):
             """Contains guild-specific data."""
             def __init__(self, parent: endpoint.FBEndpoint):
                 super().__init__(name = "guild_data", parent = parent)
@@ -106,7 +116,7 @@ class Root(endpoint.FBEndpointRoot):
                 self.e_banned_users = self.BannedUsers(self)
 
 
-            class BannedUsers(endpoint.FBEndpointParent):
+            class BannedUsers(endpoint.FBEndpointEnd):
                 """Contains a list of banned users."""
                 def __init__(self, parent: endpoint.FBEndpoint):
                     super().__init__(name = "banned_users", parent = parent)
