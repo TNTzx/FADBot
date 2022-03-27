@@ -38,7 +38,7 @@ class Details(artist_struct.ArtistStruct):
         }
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         return cls(
             description = json.get("description"),
             notes = json.get("notes"),

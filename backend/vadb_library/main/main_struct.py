@@ -11,6 +11,6 @@ class FBStruct(dt.Dataclass):
         raise ValueError("\"firebase_to_json\" not supported for this FBStruct.")
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         """Returns the `FBStruct` of this JSON."""
         raise ValueError("\"firebase_from_json\" not supported for this FBStruct.")

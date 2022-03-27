@@ -26,7 +26,7 @@ class VADBInfo(artist_struct.ArtistStruct):
         }
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         return cls(
             artist_id = json.get("artist_id")
         )

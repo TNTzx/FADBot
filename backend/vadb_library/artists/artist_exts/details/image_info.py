@@ -54,7 +54,7 @@ class Image(artist_struct.ArtistStruct):
         }
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         return cls(
             original_url = json.get("url")
         )
@@ -118,7 +118,7 @@ class ImageInfo(artist_struct.ArtistStruct):
         }
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         return cls(
             avatar = Image.firebase_from_json(json.get("avatar")),
             banner = Image.firebase_from_json(json.get("banner"))

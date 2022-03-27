@@ -206,7 +206,7 @@ class Artist(artist_struct.ArtistStruct):
         try:
             return cls(
                 name = clean_iter.clean_iterable(data["name"]),
-                proof = None,   # please nao have a proof field :(
+                # proof = please nao have a proof field :(,
                 vadb_info = artist_exts.VADBInfo(
                     artist_id = artist_id
                 ),
@@ -271,7 +271,7 @@ class Artist(artist_struct.ArtistStruct):
         }
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         return cls(
             name = json.get("name"),
             proof = artist_exts.Proof.firebase_from_json(json.get("proof")),

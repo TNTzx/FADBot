@@ -32,7 +32,7 @@ class Social(artist_struct.ArtistStruct):
         }
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         return cls(
             link = json.get("link")
         )
@@ -61,7 +61,7 @@ class Socials(artist_struct.ArtistStruct):
         return [social.firebase_to_json() for social in self.socials]
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         return cls(
             socials = [
                 Socials.firebase_from_json(social_json) for social_json in json

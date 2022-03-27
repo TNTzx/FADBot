@@ -31,7 +31,7 @@ class UsageRight(artist_struct.ArtistStruct):
         }
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         return cls(
             description = json.get("description"),
             is_verified = json.get("is_verified")
@@ -58,7 +58,7 @@ class UsageRights(artist_struct.ArtistStruct):
         return [usage_right.firebase_to_json() for usage_right in self.usage_rights]
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         if json is None:
             return cls()
 

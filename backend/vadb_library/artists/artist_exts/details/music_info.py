@@ -22,7 +22,7 @@ class MusicInfo(artist_struct.ArtistStruct):
         }
 
     @classmethod
-    def firebase_from_json(cls, json: dict | list | ...):
+    def firebase_from_json(cls, json: dict | list):
         return cls(
             track_count = json.get("track_count"),
             genre = json.get("genre")
