@@ -12,6 +12,7 @@ class Root(endpoint.FBEndpointRoot):
         self.e_main_data = self.MainData(self)
         self.e_artist_data = self.ArtistData(self)
         self.e_discord_data = self.DiscordData(self)
+        self.e_test = self.Test(self)
 
 
     class MainData(endpoint.FBEndpointParent):

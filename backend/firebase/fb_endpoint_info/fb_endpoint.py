@@ -13,10 +13,12 @@ class FBEndpoint():
         self.name = name
         self.parent = parent
 
+    def __repr__(self):
+        return f"FBEndpoint({self.name})"
+
 
     def get_path(self):
         """Gets the path to this endpoint."""
-
         path = [self.name]
         current_parent = self.parent
 
@@ -24,7 +26,7 @@ class FBEndpoint():
             path.append(current_parent.name)
             current_parent = current_parent.parent
 
-            if current_parent is None:
+            if current_parent.parent is None:
                 break
 
         return list(reversed(path))
