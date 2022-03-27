@@ -36,3 +36,14 @@ class Details(artist_struct.ArtistStruct):
             "music_info": self.music_info.firebase_to_json(),
             "socials": self.socials.firebase_to_json()
         }
+
+    @classmethod
+    def firebase_from_json(cls, json: dict | list | ...):
+        return cls(
+            description = json.get("description"),
+            notes = json.get("notes"),
+            aliases = al.Aliases.firebase_from_json("aliases"),
+            image_info: i_i.ImageInfo = i_i.ImageInfo(),
+            music_info: m_i.MusicInfo = m_i.MusicInfo(),
+            socials: so.Socials = so.Socials()
+        )

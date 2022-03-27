@@ -278,5 +278,5 @@ class Artist(artist_struct.ArtistStruct):
             proof = artist_exts.Proof.firebase_from_json(json.get("proof")),
             vadb_info = artist_exts.VADBInfo.firebase_from_json(json.get("vadb_info")),
             states = artist_exts.States.firebase_from_json(json.get("states")),
-            details = artist_exts.Details()
+            details = artist_exts.Details.firebase_from_json(json.get("details"))
         )
