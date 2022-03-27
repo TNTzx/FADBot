@@ -42,8 +42,8 @@ class Details(artist_struct.ArtistStruct):
         return cls(
             description = json.get("description"),
             notes = json.get("notes"),
-            aliases = al.Aliases.firebase_from_json("aliases"),
-            image_info: i_i.ImageInfo = i_i.ImageInfo(),
-            music_info: m_i.MusicInfo = m_i.MusicInfo(),
-            socials: so.Socials = so.Socials()
+            aliases = al.Aliases.firebase_from_json(json.get("aliases")),
+            image_info = i_i.ImageInfo.firebase_from_json(json.get("image_info")),
+            music_info = m_i.MusicInfo.firebase_from_json(json.get("music_info")),
+            socials = so.Socials.firebase_from_json(json.get("socials"))
         )
