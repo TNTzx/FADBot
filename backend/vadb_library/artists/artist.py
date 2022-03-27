@@ -270,7 +270,6 @@ class Artist(artist_struct.ArtistStruct):
             "details": self.details.firebase_to_json()
         }
 
-
     @classmethod
     def firebase_from_json(cls, json: dict | list | ...):
         return cls(
