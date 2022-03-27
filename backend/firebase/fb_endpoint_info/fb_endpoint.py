@@ -3,6 +3,9 @@
 
 from __future__ import annotations
 
+from .. import fb_interact
+from .. import fb_exc
+
 
 class FBEndpoint():
     """The base class of all Firebase endpoints."""
@@ -12,9 +15,7 @@ class FBEndpoint():
 
 
     def get_path(self):
-        """Gets the path to this endpoint. Append another path if you need."""
-        if append is None:
-            append = []
+        """Gets the path to this endpoint."""
 
         path = [self.name]
         current_parent = self.parent
@@ -43,7 +44,6 @@ class FBEndpointParent(FBEndpoint):
 
 class FBEndpointEnd(FBEndpointParent):
     """An ending Firebase endpoint."""
-
     def get_default_data(self):
         """Gets the default data for this `FBEndpointEnd`. Used to create stuff."""
         raise ValueError("get_default_data not implemented.")

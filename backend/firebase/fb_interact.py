@@ -4,12 +4,12 @@ import collections as cl
 import threading as thread
 
 import backend.logging.loggers as lgr
-import backend.exceptions.custom_exc as c_exc
 import backend.other_functions as o_f
 
 from . import fb_consts as consts
 from . import fb_undef_conv as undef_conv
 from . import firebase_reset_token as f_r_t
+from . import fb_exc
 
 
 def get_from_path(path: list[str]):
@@ -26,7 +26,7 @@ def get_data(path: list[str]):
     """Gets the data."""
     result = get_from_path(path).get(token = consts.get_token()).val()
     if result is None:
-        raise c_exc.FirebaseNoEntry(f"Data doesn't exist for '{path}'.")
+        raise fb_exc.FBNoPath(f"Data doesn't exist for '{path}'.")
 
     json = result
     if isinstance(json, cl.OrderedDict):
@@ -45,7 +45,7 @@ def is_data_exists(path: list[str]):
     try:
         get_data(path)
         return True
-    except c_exc.FirebaseNoEntry:
+    except fb_exc.FBNoPath:
         return False
 
 
@@ -81,7 +81,7 @@ def deduct_data(path: list[str], json: list):
     try:
         new_data = o_f.subtract_list(old_data, json)
     except ValueError as exc:
-        raise c_exc.FirebaseNoEntry("Not subtracted.") from exc
+        raise fb_exc.FBNoPath("Not subtracted.") from exc
 
     new_data = undef_conv.none_and_empty_to_null(new_data)
 
@@ -94,7 +94,7 @@ def deduct_data(path: list[str], json: list):
 def edit_data(path: list[str], json: dict):
     """Edits data in a path. Use key-value pairs. Won't replace data in path."""
     if not is_data_exists(path):
-        raise c_exc.FirebaseNoEntry(f"Data can't be found for '{path}'.")
+        raise fb_exc.FBNoPath(f"Data can't be found for '{path}'.")
 
     path_parse = get_from_path(path)
 
@@ -109,7 +109,7 @@ def edit_data(path: list[str], json: dict):
 def delete_data(path: list[str]):
     """Deletes the path."""
     if not is_data_exists(path):
-        raise c_exc.FirebaseNoEntry(f"Data being deleted doesn't exist for '{path}'.")
+        raise fb_exc.FBNoPath(f"Data being deleted doesn't exist for '{path}'.")
 
     path_parse = get_from_path(path)
 
