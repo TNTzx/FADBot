@@ -7,8 +7,8 @@ import backend.logging.loggers as lgr
 import backend.other_functions as o_f
 
 from . import fb_consts as consts
-from . import fb_undef_conv as undef_conv
-from . import firebase_reset_token as f_r_t
+from . import fb_utils
+from . import fb_reset_token as f_r_t
 from . import fb_exc
 
 
@@ -32,7 +32,7 @@ def get_data(path: list[str]):
     if isinstance(json, cl.OrderedDict):
         json = dict(result)
 
-    json = undef_conv.null_and_empty_to_none(json)
+    json = fb_utils.null_and_empty_to_none(json)
 
     log_message = f"Received data from path {path}: {o_f.pr_print(json)}"
     lgr.log_firebase.info(log_message)
@@ -52,7 +52,7 @@ def override_data(path: list[str], json: dict):
     """Overrides the data at a specific path."""
     path_parse = get_from_path(path)
 
-    json = undef_conv.none_and_empty_to_null(json)
+    json = fb_utils.none_and_empty_to_null(json)
 
     log_message = f"Overriden data from path {path}: {o_f.pr_print(json)}"
     lgr.log_firebase.info(log_message)
@@ -64,7 +64,7 @@ def append_data(path: list[str], json: list):
     new_data = get_data(path)
     new_data += json
 
-    new_data = undef_conv.none_and_empty_to_null(new_data)
+    new_data = fb_utils.none_and_empty_to_null(new_data)
 
     log_message = f"Appended data from path {path}: {o_f.pr_print(new_data)}"
     lgr.log_firebase.info(log_message)
@@ -80,7 +80,7 @@ def deduct_data(path: list[str], json: list):
     except ValueError as exc:
         raise fb_exc.FBNoPath("Not subtracted.") from exc
 
-    new_data = undef_conv.none_and_empty_to_null(new_data)
+    new_data = fb_utils.none_and_empty_to_null(new_data)
 
     log_message = f"Deducted data from path {path}: {o_f.pr_print(new_data)}"
     lgr.log_firebase.info(log_message)
@@ -88,14 +88,17 @@ def deduct_data(path: list[str], json: list):
 
 
 # Edit
-def edit_data(path: list[str], json: dict):
-    """Edits data in a path. Use key-value pairs. Won't replace data in path."""
+def edit_data(path: list[str], json: dict | list):
+    """Edits data in a path. Use a `dict` or a `list`. Won't replace data in path."""
     if not is_data_exists(path):
         raise fb_exc.FBNoPath(f"Data can't be found for '{path}'.")
 
     path_parse = get_from_path(path)
 
-    json = undef_conv.none_and_empty_to_null(json)
+    if isinstance(json, list):
+        json = fb_utils.list_to_dict(json)
+
+    json = fb_utils.none_and_empty_to_null(json)
 
     log_message = f"Edited data from path {path}: {o_f.pr_print(json)}"
     lgr.log_firebase.info(log_message)

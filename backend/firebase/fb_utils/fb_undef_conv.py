@@ -1,7 +1,7 @@
 """Has functions for converting `None` -> `NULL_DATA`."""
 
 
-from . import fb_consts
+from .. import fb_consts
 
 
 def check_if_iterable(obj):
