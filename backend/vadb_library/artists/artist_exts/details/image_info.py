@@ -26,9 +26,6 @@ class Image(artist_struct.ArtistStruct):
     def __init__(self, original_url: str = None):
         self.original_url = original_url
 
-    def __repr__(self):
-        return f"ImageData({self.original_url})"
-
 
     def get_pil_image(self):
         """Gets the PIL image."""

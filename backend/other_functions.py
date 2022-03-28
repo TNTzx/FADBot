@@ -119,6 +119,7 @@ def get_value_from_key(diction: dict, value):
     """Get the key using a value. INVERSE DICTIONARY!!!!!!!!"""
     return list(diction.keys())[list(diction.values()).index(value)]
 
+
 def pr_print(value, htchar='\t', lfchar='\n', indent=0):
     """Returns a string for pretty logging."""
     nlch = lfchar + htchar * (indent + 1)

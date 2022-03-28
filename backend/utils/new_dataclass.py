@@ -7,11 +7,13 @@ import abc
 
 import requests as req
 
+import backend.other_functions as o_f
+
 
 class Dataclass():
     """A dataclass."""
     def __repr__(self) -> str:
-        return f"DT | {self.__class__.__name__}({self.to_json()})"
+        return f"Dataclass|{self.__class__.__name__}|({o_f.pr_print(self.to_json())})"
 
     def to_json(self) -> list | dict:
         """Function that returns a list or dictionary version of the object."""
