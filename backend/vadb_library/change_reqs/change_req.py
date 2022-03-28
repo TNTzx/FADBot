@@ -21,12 +21,12 @@ class ChangeRequest(req_struct.RequestStruct):
 
 
     # TODO these methods
-    def to_json_firebase(self):
-        """Returns JSON to send to Firebase."""
+    def firebase_to_json(self):
+        return super().firebase_to_json()
 
     @classmethod
-    def from_json_firebase(cls, json: dict):
-        """Returns a `ChangeRequest` from the JSON from firebase."""
+    def firebase_from_json(cls, json: dict | list):
+        return super().firebase_from_json(json)
 
 
     # TODO also these methods
