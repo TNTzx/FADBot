@@ -1,4 +1,4 @@
-"""The main structures."""
+"""Contains the Firebase Structure object."""
 
 
 import backend.utils.new_dataclass as dt

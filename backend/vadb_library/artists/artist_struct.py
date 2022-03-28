@@ -3,19 +3,11 @@
 
 import typing as typ
 
-from .. import main
+import backend.firebase as firebase
 
 
-class ArtistStruct(main.FBStruct):
+class ArtistStruct(firebase.FBStruct):
     """Parent class for artist structures."""
-    # def get_json_dict(self):
-    #     """Turns the data into a dictionary for sending."""
-    #     data: dict = self.to_one_obj()
-    #     for key, value in data.items():
-    #         if isinstance(value, dict):
-    #             data[key] = str(value)
-
-    #     return data
 
     def vadb_to_create_json(self):
         """Creates a JSON from this `ArtistStruct` for use in creating an artist in VADB."""
