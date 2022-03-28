@@ -171,5 +171,5 @@ class States(artist_struct.ArtistStruct):
         return cls(
             status = json.get("status_value"),
             availability = json.get("availability_value"),
-            usage_rights = u_r.UsageRights.firebase_from_json("usage_rights")
+            usage_rights = u_r.UsageRights.firebase_from_json(json.get("usage_rights"))
         )

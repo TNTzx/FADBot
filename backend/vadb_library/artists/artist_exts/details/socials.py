@@ -62,8 +62,11 @@ class Socials(artist_struct.ArtistStruct):
 
     @classmethod
     def firebase_from_json(cls, json: dict | list):
+        if json is None:
+            return cls()
+
         return cls(
             socials = [
-                Socials.firebase_from_json(social_json) for social_json in json
+                Social.firebase_from_json(social_json) for social_json in json
             ]
         )

@@ -18,11 +18,11 @@ class Alias(artist_struct.ArtistStruct):
 
     def firebase_to_json(self):
         return self.vadb_to_edit_json()
-    
+
     @classmethod
     def firebase_from_json(cls, json: dict | list):
         return cls(
-            name = json.get["name"]
+            name = json.get("name")
         )
 
 
@@ -52,6 +52,6 @@ class Aliases(artist_struct.ArtistStruct):
 
         return cls(
             aliases = [
-                Aliases.firebase_from_json(alias_json) for alias_json in json
+                Alias.firebase_from_json(alias_json) for alias_json in json
             ]
         )
