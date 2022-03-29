@@ -18,7 +18,10 @@ from . import form_sections as f_s
 
 class FormArtist():
     """Structure for editing the artist using a form on Discord."""
-    def __init__(self, artist: art.Artist):
+    def __init__(
+            self,
+            artist: art.Artist = art.Artist()
+            ):
         self.artist = artist
 
 
