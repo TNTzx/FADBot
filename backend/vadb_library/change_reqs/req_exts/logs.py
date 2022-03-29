@@ -141,8 +141,6 @@ class LogBundle(req_struct.ChangeRequestStructure):
 
     @classmethod
     def firebase_from_json(cls, json: dict | list):
-        def log_type_from_json(key: str):
-            return 
         return cls(
             dump_logs = DumpLogType.firebase_from_json(json.get("dump_logs")),
             live_logs = LiveLogType.firebase_from_json(json.get("live_logs"))

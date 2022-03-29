@@ -102,12 +102,20 @@ async def check_dev(user_id: int):
     """Check if a user is a dev."""
     user_id = str(user_id)
     devs = firebase.get_data(firebase.ENDPOINTS.e_main.e_privileges.e_devs.get_path())
+
+    if devs is None:
+        return False
+
     return user_id in devs
 
 async def check_ban(user_id: int):
     """Checks if the user is banned from the bot."""
     user_id = str(user_id)
     bans = firebase.get_data(firebase.ENDPOINTS.e_discord.e_users_general.e_banned_users.get_path())
+
+    if bans is None:
+        return False
+
     return user_id in bans
 
 
