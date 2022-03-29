@@ -53,6 +53,7 @@ class Moderation(cmds.Cog):
         guild_only = False
     )
     async def botban(self, ctx: cmds.Context, action: str, user_id: int):
+        """Bans or unbans a person from using the bot."""
         path_initial = firebase.ENDPOINTS.e_discord.e_users_general.e_banned_users.get_path()
 
         user = await ch.get_user_from_id(ctx, user_id)
@@ -82,7 +83,7 @@ class Moderation(cmds.Cog):
             user_id_str = str(user_id)
 
             def user_in_ban_list():
-                return user_id_str in firebase.get_data(path_initial)
+                return user_id_str in firebase.get_data(path_initial, default = [])
 
             if action == "ban":
                 if user_in_ban_list():

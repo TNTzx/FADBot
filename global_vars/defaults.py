@@ -13,7 +13,7 @@ default = {
     },
     "guildData": {
         "guildId": {
-            "adminRole": 0,
+            "admin_role": 0,
             "logs": {
                 "locations": {
                     "dump": firebase.PLACEHOLDER_DATA,
