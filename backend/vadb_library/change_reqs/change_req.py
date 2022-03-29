@@ -8,6 +8,8 @@ from . import req_exts
 
 class ChangeRequest(req_struct.ChangeRequestStructure):
     """Parent class for all requests."""
+    type_: str = None
+
     def __init__(
             self,
             artist: art.Artist,
@@ -31,15 +33,10 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         )
 
 
-    def send_request_discord(self):
-        """Sends the request over to Discord."""
-        
-
-
-    # TODO also these methods
-    def send_request(self):
+    async def send_request_pending(self):
         """Sends the request for approval."""
-        
+        self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.artist, self.type_)
+
 
     def approve_request(self):
         """Approves the request."""

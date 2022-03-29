@@ -93,6 +93,15 @@ class LogType(req_struct.ChangeRequestStructure):
         return cls(message_bundles = message_bundles)
 
 
+    @classmethod
+    async def send_request_pending_logs(cls, artist: art.Artist, req_type: str):
+        """Sends the logs to the channels in this `LogType` then returns this `LogType`."""
+        return cls.send_logs(
+            artist,
+            f"This {req_type} request is being processed. Please wait for this request to be approved."
+        )
+
+
 
 
 class LogTypes():
@@ -129,12 +138,21 @@ class LogBundle(req_struct.ChangeRequestStructure):
             "dump_logs": self.dump_logs.firebase_to_json(),
             "live_logs": self.live_logs.firebase_to_json()
         }
-    
+
     @classmethod
     def firebase_from_json(cls, json: dict | list):
         def log_type_from_json(key: str):
-            return DumpLogType.firebase_from_json(json.get(key))
+            return 
         return cls(
-            dump_logs = log_type_from_json("dump_logs"),
-            live_logs = log_type_from_json("live_logs")
+            dump_logs = DumpLogType.firebase_from_json(json.get("dump_logs")),
+            live_logs = LiveLogType.firebase_from_json(json.get("live_logs"))
+        )
+
+
+    @classmethod
+    async def send_request_pending_logs(cls, artist: art.Artist, req_type: str):
+        """Sends the logs to these log types then returns a `LogBundle` of these messages."""
+        return cls(
+            dump_logs = await DumpLogType.send_request_pending_logs(artist, req_type),
+            live_logs = await LiveLogType.send_request_pending_logs(artist, req_type)
         )
