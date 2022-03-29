@@ -96,7 +96,7 @@ class LogType(req_struct.ChangeRequestStructure):
     @classmethod
     async def send_request_pending_logs(cls, artist: art.Artist, req_type: str):
         """Sends the logs to the channels in this `LogType` then returns this `LogType`."""
-        return cls.send_logs(
+        return await cls.send_logs(
             artist,
             f"This {req_type} request is being processed. Please wait for this request to be approved."
         )
