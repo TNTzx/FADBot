@@ -1,14 +1,12 @@
 """Contains logic for requests."""
 
 
-import backend.firebase as firebase
-
 from .. import artists as art
-from . import change_req_struct
+from . import req_struct
 from . import req_exts
 
 
-class ChangeRequest(firebase.FBStruct):
+class ChangeRequest(req_struct.ChangeRequestStructure):
     """Parent class for all requests."""
     def __init__(
             self,

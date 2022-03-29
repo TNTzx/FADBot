@@ -1,4 +1,7 @@
 """Extensions for requests."""
 
 
-from .logs import *
+from .logs import \
+    LogType, LogTypes, \
+    LogBundle, \
+    DumpLogType, LiveLogType

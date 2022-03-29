@@ -1,6 +1,7 @@
 """Change requests."""
 
 
-from .change_req_struct import ChangeRequestStructure
-from .change_req import *
+from .change_req import \
+    ChangeRequest, \
+    AddRequest, EditRequest
 from .req_exts import *

@@ -18,7 +18,7 @@ def get_log_path(guild: nx.Guild):
     return ["guildData", str(guild.id), "logs"]
 
 
-class LogType(req_struct.RequestStruct):
+class LogType(req_struct.ChangeRequestStructure):
     """Parent class for log types."""
     name: str = None
     firebase_name: str = None
@@ -99,7 +99,7 @@ class LiveLogType(LogType):
             await message_bundle.delete_bundle()
 
 
-class LogBundle(req_struct.RequestStruct):
+class LogBundle(req_struct.ChangeRequestStructure):
     """Contains all types of logs."""
     def __init__(self, dump_logs: DumpLogType = None, live_logs: LiveLogType = None):
         self.dump_logs = dump_logs
