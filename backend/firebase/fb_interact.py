@@ -62,7 +62,7 @@ def override_data(path: list[str], json: dict):
 
 def append_data(path: list[str], json: list):
     """Adds data to a specific path. Only works with lists."""
-    new_data = get_data(path)
+    new_data = get_data(path, default = [])
     new_data += json
 
     new_data = fb_utils.none_and_empty_to_null(new_data)
@@ -74,7 +74,7 @@ def append_data(path: list[str], json: list):
 
 def deduct_data(path: list[str], json: list):
     """Deletes data in a specific path. Only works with lists."""
-    old_data = get_data(path)
+    old_data = get_data(path, default = [])
 
     try:
         new_data = o_f.subtract_list(old_data, json)

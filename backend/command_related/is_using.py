@@ -12,7 +12,7 @@ import backend.exceptions.send_error as s_e
 
 def check_if_using_command(path: list[str], author_id: int):
     """Returns true if the user is using the command."""
-    users_using = firebase.get_data(path)
+    users_using = firebase.get_data(path, default = [])
     return str(author_id) in list(users_using)
 
 def add_is_using_command(path: list[str], author_id: int):
@@ -47,7 +47,7 @@ def sustained_command():
         path = firebase.ENDPOINTS.e_discord.e_commands.e_is_using.get_path() + [str(func.__name__)]
 
         if not firebase.is_data_exists(path):
-            firebase.override_data(path, firebase.PLACEHOLDER_DATA)
+            firebase.override_data(path, [firebase.PLACEHOLDER_DATA])
 
         @fc.wraps(func)
         async def wrapper(*args, **kwargs):

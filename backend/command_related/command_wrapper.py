@@ -86,7 +86,7 @@ async def check_admin(ctx: cmds.Context, user_id: int):
     try:
         admin_role = firebase.get_data(firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [guild_id, 'admin_role'])
         admin_role = int(admin_role)
-    except c_exc.FirebaseNoEntry:
+    except firebase.FBNoPath:
         return False
 
     for role in ctx.author.roles:
