@@ -22,7 +22,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             "artist": self.artist.firebase_to_json(),
             "log_bundle": self.log_bundle.firebase_to_json()
         }
-    
+
     @classmethod
     def firebase_from_json(cls, json: dict | list):
         return cls(
@@ -31,10 +31,15 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         )
 
 
+    def send_request_discord(self):
+        """Sends the request over to Discord."""
+        
+
 
     # TODO also these methods
     def send_request(self):
         """Sends the request for approval."""
+        
 
     def approve_request(self):
         """Approves the request."""

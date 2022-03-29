@@ -90,7 +90,7 @@ class LogType(req_struct.ChangeRequestStructure):
             message_bundle = await info_artist.send_message(channel = channel, prefix = prefix)
             message_bundles.append(message_bundle)
 
-        return cls(info_message_bundles = message_bundles)
+        return cls(message_bundles = message_bundles)
 
 
 
