@@ -69,8 +69,8 @@ for attribute in dir(Categories):
 
 async def check_pa_mod(ctx: cmds.Context, user_id: int):
     """Checks if a user is a PA Moderator by role or a dev."""
-    can_verify = firebase.get_data(['mainData', 'canVerify'])
-    devs = firebase.get_data(['mainData', 'devs'])
+    can_verify = firebase.get_data(firebase.ENDPOINTS.e_artist.e_change_req.e_can_verify.get_path())
+    devs = firebase.get_data(firebase.ENDPOINTS.e_main.e_privileges.e_devs.get_path())
 
     user_id = str(user_id)
 
@@ -78,9 +78,9 @@ async def check_pa_mod(ctx: cmds.Context, user_id: int):
         return True
     if isinstance(ctx.channel, nx.channel.TextChannel):
         guild_id = str(ctx.guild.id)
-        if guild_id in can_verify["servers"]:
+        if guild_id in can_verify["server_roles"]:
             for role in ctx.author.roles:
-                if str(role.id) in can_verify["servers"][guild_id]:
+                if str(role.id) in can_verify["server_roles"][guild_id]:
                     return True
     return False
 
@@ -90,7 +90,7 @@ async def check_admin(ctx: cmds.Context, user_id: int):
     guild_id = str(ctx.guild.id)
 
     try:
-        admin_role = firebase.get_data(['guildData', guild_id, 'adminRole'])
+        admin_role = firebase.get_data(firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [guild_id, 'admin_role'])
         admin_role = int(admin_role)
     except c_exc.FirebaseNoEntry:
         return False
@@ -107,13 +107,13 @@ async def check_owner(ctx: cmds.Context, user_id: int):
 async def check_dev(user_id: int):
     """Check if a user is a dev."""
     user_id = str(user_id)
-    devs = firebase.get_data(['mainData', 'devs'])
+    devs = firebase.get_data(firebase.ENDPOINTS.e_main.e_privileges.e_devs.get_path())
     return user_id in devs
 
 async def check_ban(user_id: int):
     """Checks if the user is banned from the bot."""
     user_id = str(user_id)
-    bans = firebase.get_data(["userData", "bans"])
+    bans = firebase.get_data(firebase.ENDPOINTS.e_discord.e_users_general.e_banned_users.get_path())
     return user_id in bans
 
 

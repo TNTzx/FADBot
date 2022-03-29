@@ -1,10 +1,5 @@
 """Module that contains functions to check, add, and delete users using a command."""
 
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-statements
-# pylint: disable=line-too-long
-# pylint: disable=unused-argument
 
 import functools as fc
 import nextcord.ext.commands as cmds
@@ -49,7 +44,7 @@ LIST_OF_SUSTAINED_CMDS: list[SustainedCommand] = []
 def sustained_command():
     """A decorator factory for sustained commands."""
     def decorator(func):
-        path = ["commandData", "isUsingCommand", str(func.__name__)]
+        path = firebase.ENDPOINTS.e_discord.e_commands.e_is_using.get_path() + [str(func.__name__)]
 
         if not firebase.is_data_exists(path):
             firebase.override_data(path, firebase.PLACEHOLDER_DATA)

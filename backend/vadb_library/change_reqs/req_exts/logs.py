@@ -61,7 +61,7 @@ class LogType(req_struct.ChangeRequestStructure):
     @classmethod
     def get_all_channels(cls) -> list[nx.TextChannel] | None:
         """Gets all channels from each guild in this `LogType`."""
-        guilds_data: dict = firebase.get_data(["guildData"])
+        guilds_data: dict = firebase.get_data(firebase.ENDPOINTS.e_discord.e_guilds.get_path())
         channel_ids = [guild_data["logs"]["locations"][cls.firebase_name] for guild_data in guilds_data.values()]
         channels = []
         for channel_id in channel_ids:
