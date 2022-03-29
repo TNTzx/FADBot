@@ -22,21 +22,22 @@ def get_from_path(path: list[str]):
     return final
 
 
-def get_data(path: list[str]):
-    """Gets the data."""
+def get_data(path: list[str], default = consts.NOT_FOUND_DATA):
+    """Gets the data. Returns `default` if not found, else raise an `FBNoPath` exception."""
     result = get_from_path(path).get(token = consts.get_token()).val()
+    result = fb_utils.null_and_empty_to_none(result)
     if result is None:
-        raise fb_exc.FBNoPath(f"Data doesn't exist for '{path}'.")
+        if default == consts.NOT_FOUND_DATA:
+            raise fb_exc.FBNoPath(f"Data doesn't exist for '{path}', or is a placeholder, or None.")
 
-    json = result
-    if isinstance(json, cl.OrderedDict):
-        json = dict(result)
+        return default
 
-    json = fb_utils.null_and_empty_to_none(json)
+    if isinstance(result, cl.OrderedDict):
+        result = dict(result)
 
-    log_message = f"Received data from path {path}: {o_f.pr_print(json)}"
+    log_message = f"Received data from path {path}: {o_f.pr_print(result)}"
     lgr.log_firebase.info(log_message)
-    return json
+    return result
 
 
 def is_data_exists(path: list[str]):

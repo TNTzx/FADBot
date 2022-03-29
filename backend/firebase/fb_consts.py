@@ -26,3 +26,4 @@ def get_token():
 
 PLACEHOLDER_DATA = "//placeholder//"
 NULL_DATA = "//null//"
+NOT_FOUND_DATA = "//notfound//"
