@@ -43,6 +43,16 @@ class MessageBundle(firebase.FBStruct):
             "message_pointer_proof": self.message_pointer_proof.firebase_from_json()
         }
 
+    @classmethod
+    def firebase_from_json(cls, json: dict | list):
+        def pointer_from_json(key: str):
+            return m_p.MessagePointer.firebase_from_json(json.get(key))
+
+        return cls(
+            message_pointer_embed = pointer_from_json("message_pointer_embed"),
+            message_pointer_proof = pointer_from_json("message_pointer_proof")
+        )
+
 
     def get_messages(self):
         """
@@ -55,4 +65,4 @@ class MessageBundle(firebase.FBStruct):
     async def delete_bundle(self):
         """Deletes this `InfoMessageBundle` from Discord."""
         for message in self.get_messages():
-            await message.delete()
+            await message.delete_message()

@@ -11,7 +11,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     def __init__(
             self,
             artist: art.Artist,
-            log_bundle: req_exts.LogBundle
+            log_bundle: req_exts.LogBundle = req_exts.LogBundle()
             ):
         self.artist = artist
         self.log_bundle = log_bundle
@@ -22,6 +22,13 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             "artist": self.artist.firebase_to_json(),
             "log_bundle": self.log_bundle.firebase_to_json()
         }
+    
+    @classmethod
+    def firebase_from_json(cls, json: dict | list):
+        return cls(
+            artist = art.Artist.firebase_from_json(json.get("artist")),
+            log_bundle = req_exts.LogBundle.firebase_from_json(json.get("log_bundle"))
+        )
 
 
 

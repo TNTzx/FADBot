@@ -5,7 +5,6 @@ import nextcord as nx
 
 import backend.firebase as firebase
 
-import backend.utils.dataclass as dt
 import global_vars.variables as vrs
 
 
@@ -14,13 +13,20 @@ class MessagePointer(firebase.FBStruct):
     def __init__(self, channel_id: int, message_id: int):
         self.channel_id = channel_id
         self.message_id = message_id
-    
+
 
     def firebase_to_json(self):
         return {
             "channel_id": str(self.channel_id),
             "message_id": str(self.message_id)
         }
+
+    @classmethod
+    def firebase_from_json(cls, json: dict | list):
+        return cls(
+            channel_id = json.get("channel_id"),
+            message_id = json.get("message_id")
+        )
 
 
     @classmethod
@@ -42,3 +48,9 @@ class MessagePointer(firebase.FBStruct):
             return None
 
         return message
+
+
+    async def delete_message(self):
+        """Deletes this message."""
+        message = await self.get_message()
+        message.delete()

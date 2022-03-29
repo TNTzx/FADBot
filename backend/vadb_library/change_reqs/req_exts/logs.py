@@ -23,12 +23,30 @@ class LogType(req_struct.ChangeRequestStructure):
     name: str = None
     firebase_name: str = None
 
-    def __init__(self, info_message_bundles: list[disc_utils.MessageBundle]):
-        self.message_bundles = info_message_bundles
+    def __init__(
+            self,
+            message_bundles: list[disc_utils.MessageBundle] = None
+        ):
+        self.message_bundles = message_bundles
 
 
     def firebase_to_json(self):
+        if self.message_bundles is None:
+            return None
+
         return [message_bundle.firebase_to_json() for message_bundle in self.message_bundles]
+
+    @classmethod
+    def firebase_from_json(cls, json: dict | list):
+        if json is None:
+            return cls()
+
+        return cls(
+            message_bundles = [
+                disc_utils.MessageBundle.firebase_from_json(message_bundle_json)
+                for message_bundle_json in json
+            ]
+        )
 
 
 
@@ -111,3 +129,12 @@ class LogBundle(req_struct.ChangeRequestStructure):
             "dump_logs": self.dump_logs.firebase_to_json(),
             "live_logs": self.live_logs.firebase_to_json()
         }
+    
+    @classmethod
+    def firebase_from_json(cls, json: dict | list):
+        def log_type_from_json(key: str):
+            return DumpLogType.firebase_from_json(json.get(key))
+        return cls(
+            dump_logs = log_type_from_json("dump_logs"),
+            live_logs = log_type_from_json("live_logs")
+        )
