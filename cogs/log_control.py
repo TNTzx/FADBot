@@ -39,7 +39,7 @@ class LogControl(cmds.Cog):
 
         path_initial = firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [str(ctx.guild.id), "logs", "locations"]
         for channel_id_on in firebase.get_data(path_initial).values():
-            if channel_id_on == firebase.PLACEHOLDER_DATA:
+            if channel_id_on is None:
                 continue
             if int(channel_id_on) == channel.id:
                 await s_e.send_error(ctx, f"This channel is already being used as another log channel! Unregister existing channels using `{vrs.CMD_PREFIX}loglocationremove`!")
