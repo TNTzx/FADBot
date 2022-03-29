@@ -1,7 +1,5 @@
 """Contains logging variables."""
 
-# pylint: disable=line-too-long
-# pylint: disable=too-few-public-methods
 
 import os
 import logging as log

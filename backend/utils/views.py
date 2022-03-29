@@ -1,7 +1,5 @@
 """A module that contains a class where views will be inherited to."""
 
-# pylint: disable=unused-argument
-
 
 import nextcord as nx
 

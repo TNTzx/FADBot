@@ -1,11 +1,5 @@
 """Contains other important classes."""
 
-# pylint: disable=line-too-long
-# pylint: disable=unused-argument
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-public-methods
-
 
 class Match:
     """Structure that contains a dictionary and a value to match it with."""

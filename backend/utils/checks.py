@@ -2,9 +2,6 @@
 If conditions are met, the object being checked will be returned."""
 
 
-# pylint: disable=line-too-long
-
-
 import nextcord as nx
 import nextcord.ext.commands as cmds
 

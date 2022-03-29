@@ -1,9 +1,5 @@
-# pylint: disable=missing-module-docstring
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
-# pylint: disable=line-too-long
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
+"""Artist control.""""
+
 
 from async_timeout import asyncio
 import nextcord as nx

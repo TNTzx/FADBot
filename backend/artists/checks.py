@@ -1,14 +1,8 @@
 """Contains checks and logic for artist parsing."""
 
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-statements
-# pylint: disable=line-too-long
-# pylint: disable=unused-argument
-
 
 import requests as req
-# import nextcord as nx
+import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import backend.artists.library.artist_library as a_l

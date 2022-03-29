@@ -1,14 +1,5 @@
 """Module that contains the classes for the artist data structures."""
 
-# pylint: disable=line-too-long
-# pylint: disable=unused-argument
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-public-methods
-# pylint: disable=useless-super-delegation
-# pylint: disable=unused-import
-# pylint: disable=invalid-name
-
 
 from __future__ import annotations
 import urllib.parse as ul

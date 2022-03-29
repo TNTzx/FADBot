@@ -1,13 +1,5 @@
 """Module that contains functions for waiting for responses."""
 
-# pylint: disable=line-too-long
-# pylint: disable=no-else-raise
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-locals
-# pylint: disable=too-many-statements
-# pylint: disable=unused-argument
-
 
 import typing as typ
 import asyncio
@@ -19,7 +11,6 @@ import nextcord.ext.commands as cmds
 import global_vars.variables as vrs
 import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
-import backend.utils.other as m_o
 
 from . import checks as w_f_ch
 

@@ -1,9 +1,5 @@
-# pylint: disable=missing-module-docstring
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
-# pylint: disable=line-too-long
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
+"""Contains commands run on startup, guild join, etc."""
+
 
 import nextcord as nx
 import nextcord.ext.commands as cmds

@@ -1,10 +1,10 @@
 """Module that contains decorators for choice parameters."""
 
-# pylint: disable=line-too-long
 
 import nextcord.ext.commands as cmds
 
 import backend.exceptions.send_error as s_e
+
 
 def choice_param(arg, choices: list):
     """A decorator to dictate that there is a choice for a parameter."""
@@ -15,6 +15,7 @@ def choice_param(arg, choices: list):
             return func(*args, **kwargs)
         return wrapper
     return decorator
+
 
 def choice_param_cmd(ctx: cmds.Context, arg, choices: list):
     """A decorator to dictate that there is a choice for a parameter. Used for commands. Is a coroutine."""

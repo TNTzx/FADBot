@@ -1,10 +1,5 @@
-# pylint: disable=missing-module-docstring
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
-# pylint: disable=line-too-long
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
-# pylint: disable=too-many-branches
+"""Contains bot control commands."""
+
 
 import os
 import sys
