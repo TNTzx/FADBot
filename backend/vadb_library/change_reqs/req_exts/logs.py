@@ -23,28 +23,13 @@ class LogType(req_struct.RequestStruct):
     name: str = None
     firebase_name: str = None
 
-    def __init__(self, info_message_bundles: list[disc_utils.InfoMessageBundle]):
-        self.info_message_bundles = info_message_bundles
+    def __init__(self, info_message_bundles: list[disc_utils.MessageBundle]):
+        self.message_bundles = info_message_bundles
 
 
-    def to_json_firebase(self):
-        """Makes a JSON for this `LogType`."""
-        return [message_bundle.to_json_firebase() for message_bundle in self.info_message_bundles]
+    def firebase_to_json(self):
+        return [message_bundle.firebase_to_json() for message_bundle in self.message_bundles]
 
-    @classmethod
-    def from_json_firebase(cls, json: dict):
-        """Make a `LogType` using the JSON from Firebase.
-        ```
-        [
-            InfoMessageBundle(), ...
-        ]
-        ```"""
-        return cls(
-            info_message_bundles = [
-                disc_utils.InfoMessageBundle.from_json_firebase(message_bundle_data)
-                for message_bundle_data in json
-            ]
-        )
 
 
     @classmethod
@@ -110,7 +95,7 @@ class LiveLogType(LogType):
 
     async def delete_logs(self):
         """Deletes all logs from discord."""
-        for message_bundle in self.info_message_bundles:
+        for message_bundle in self.message_bundles:
             await message_bundle.delete_bundle()
 
 
@@ -121,5 +106,8 @@ class LogBundle(req_struct.RequestStruct):
         self.live_logs = live_logs
 
 
-    def to_json_firebase(self):
-        """Turns this `LogBundle` to a JSON for Firebase."""
+    def firebase_to_json(self):
+        return {
+            "dump_logs": self.dump_logs.firebase_to_json(),
+            "live_logs": self.live_logs.firebase_to_json()
+        }

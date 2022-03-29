@@ -158,7 +158,7 @@ class Artist(artist_struct.ArtistStruct):
 
 
     @classmethod
-    def vadb_from_get_json(cls, json: dict | list ):
+    def vadb_from_get_json(cls, json: dict | list):
         """Returns an `Artist` from a VADB data structure.
         Receive:
         ```

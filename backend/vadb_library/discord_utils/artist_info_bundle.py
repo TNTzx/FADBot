@@ -4,6 +4,7 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import backend.firebase as firebase
 import backend.utils.message_pointer as m_p
 import backend.utils.views as vw
 
@@ -26,40 +27,21 @@ class InfoBundle():
         """Sends the message to a text channel. The view is attached to `message_proof`."""
         message_embed = await channel.send(prefix, embed = self.get_embed())
         message_proof = await channel.send(self.artist.proof.original_url, view = view)
-        return InfoMessageBundle(message_embed, message_proof)
+        return MessageBundle(message_embed, message_proof)
 
 
-class InfoMessageBundle():
+class MessageBundle(firebase.FBStruct):
     """Stores the information on both the embed and proof messages."""
-    def __init__(self, message_embed: nx.Message, message_proof: nx.Message):
-        self.message_embed = message_embed
-        self.message_proof = message_proof
+    def __init__(self, message_pointer_embed: m_p.MessagePointer, message_pointer_proof: m_p.MessagePointer):
+        self.message_pointer_embed = message_pointer_embed
+        self.message_pointer_proof = message_pointer_proof
 
 
-    def to_json_firebase(self):
-        """Returns a dictionary for this `InfoMessageBundle`."""
+    def firebase_to_json(self):
         return {
-            "message_embed_pointer": m_p.MessagePointer.from_message(self.message_embed).to_json_firebase(),
-            "message_proof_pointer": m_p.MessagePointer.from_message(self.message_proof).to_json_firebase()
+            "message_pointer_embed": self.message_pointer_embed.firebase_to_json(),
+            "message_pointer_proof": self.message_pointer_proof.firebase_from_json()
         }
-
-    @classmethod
-    async def from_json_firebase(cls, data: dict):
-        """Returns an `InfoMessageBundle` for the data.
-        ```
-        {
-            "message_embed_pointer": MessagePointer(),
-            "message_proof_pointer": MessagePointer()
-        }
-        ```
-        """
-        async def pointer_from_json(pointer_json: dict):
-            return await m_p.MessagePointer.from_json_firebase(pointer_json).get_message()
-
-        return cls(
-            message_embed = await pointer_from_json(data["message_embed_pointer"]),
-            message_proof = await pointer_from_json(data["message_proof_pointer"])
-        )
 
 
     def get_messages(self):
@@ -67,7 +49,7 @@ class InfoMessageBundle():
         Gets the messages from this `InfoMessageBundle` as a tuple.
         `(message_embed, message_proof)`
         """
-        return (self.message_embed, self.message_proof)
+        return (self.message_pointer_embed, self.message_pointer_proof)
 
 
     async def delete_bundle(self):

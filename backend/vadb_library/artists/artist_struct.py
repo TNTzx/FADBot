@@ -1,9 +1,11 @@
 """Contains a class for artist structures."""
 
 
-import typing as typ
-
 import backend.firebase as firebase
+
+
+class OtherStruct(firebase.FBStruct):
+    pass
 
 
 class ArtistStruct(firebase.FBStruct):

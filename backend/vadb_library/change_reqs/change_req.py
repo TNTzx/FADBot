@@ -1,32 +1,30 @@
 """Contains logic for requests."""
 
 
+import backend.firebase as firebase
+
 from .. import artists as art
-from . import req_struct
+from . import change_req_struct
 from . import req_exts
 
 
-# TODO alrighty time to go ham, gonna need logs, accepting and denying requests, etc.
-# go ham future tent :patpatpat:
-
-class ChangeRequest(req_struct.RequestStruct):
+class ChangeRequest(firebase.FBStruct):
     """Parent class for all requests."""
     def __init__(
-                self,
-                artist: art.Artist,
-                log_bundle: req_exts.LogBundle
+            self,
+            artist: art.Artist,
+            log_bundle: req_exts.LogBundle
             ):
         self.artist = artist
         self.log_bundle = log_bundle
 
 
-    # TODO these methods
     def firebase_to_json(self):
-        return super().firebase_to_json()
+        return {
+            "artist": self.artist.firebase_to_json(),
+            "log_bundle": self.log_bundle.firebase_to_json()
+        }
 
-    @classmethod
-    def firebase_from_json(cls, json: dict | list):
-        return super().firebase_from_json(json)
 
 
     # TODO also these methods

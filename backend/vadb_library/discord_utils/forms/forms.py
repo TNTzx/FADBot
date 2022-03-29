@@ -82,7 +82,7 @@ class FormArtist():
 
                 response = await w_f.wait_for_view(
                     ctx,
-                    message_bundle.message_proof,
+                    message_bundle.message_pointer_proof,
                     view = new_view,
                     timeout = timeout
                 )
