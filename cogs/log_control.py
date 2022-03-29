@@ -1,9 +1,4 @@
-# pylint: disable=missing-module-docstring
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
-# pylint: disable=line-too-long
-# pylint: disable=unused-argument
-# pylint: disable=no-self-use
+"""Contains controls for logging artist requests."""
 
 
 import nextcord as nx
@@ -42,7 +37,7 @@ class LogControl(cmds.Cog):
 
         await ctx.send("Registering log channel...")
 
-        path_initial = ["guildData", str(ctx.guild.id), "logs", "locations"]
+        path_initial = firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [str(ctx.guild.id), "logs", "locations"]
         for channel_id_on in firebase.get_data(path_initial).values():
             if channel_id_on == firebase.PLACEHOLDER_DATA:
                 continue
@@ -82,7 +77,7 @@ class LogControl(cmds.Cog):
 
         @c_p.choice_param_cmd(ctx, log_type, ["dump", "live"])
         async def log_type_choice():
-            path_initial = ["guildData", str(ctx.guild.id), "logs", "locations", log_type]
+            path_initial = firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [str(ctx.guild.id), "logs", "locations", log_type]
 
             if firebase.get_data(path_initial) == firebase.PLACEHOLDER_DATA:
                 await s_e.send_error(ctx, f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{vrs.CMD_PREFIX}loglocationset`!")

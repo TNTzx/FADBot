@@ -15,7 +15,7 @@ from .. import req_struct
 
 def get_log_path(guild: nx.Guild):
     """Gets the path for logs."""
-    return ["guildData", str(guild.id), "logs"]
+    return firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [str(guild.id), "logs"]
 
 
 class LogType(req_struct.ChangeRequestStructure):

@@ -25,6 +25,8 @@ import backend.exceptions.custom_exc as c_e
 import backend.other_functions as o_f
 
 
+# FIXME fix me :(
+
 class ArtistControl(cmds.Cog):
     def __init__(self, bot):
         self.bot = bot

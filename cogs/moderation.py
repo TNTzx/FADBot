@@ -39,7 +39,10 @@ class Moderation(cmds.Cog):
             await s_e.send_error(ctx, "You didn't send a valid role ID!")
             return
 
-        firebase.edit_data(['guildData', ctx.guild.id], {'adminRole': role_id})
+        firebase.edit_data(
+            firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [ctx.guild.id],
+            {'adminRole': role_id}
+        )
         await ctx.send("The admin role for this server has been set.")
 
 
@@ -55,7 +58,7 @@ class Moderation(cmds.Cog):
         guild_only = False
     )
     async def botban(self, ctx: cmds.Context, action: str, user_id: int):
-        path_initial = ["userData", "bans"]
+        path_initial = firebase.ENDPOINTS.e_discord.e_users_general.e_banned_users.get_path()
 
         user = await ch.get_user_from_id(ctx, user_id)
 

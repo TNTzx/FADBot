@@ -9,9 +9,9 @@ class Root(endpoint.FBEndpointRoot):
     def __init__(self):
         super().__init__()
 
-        self.e_main_data = self.MainData(self)
-        self.e_artist_data = self.ArtistData(self)
-        self.e_discord_data = self.DiscordData(self)
+        self.e_main = self.MainData(self)
+        self.e_artist = self.ArtistData(self)
+        self.e_discord = self.DiscordData(self)
         self.e_test = self.Test(self)
 
 
@@ -49,7 +49,7 @@ class Root(endpoint.FBEndpointRoot):
             def __init__(self, parent: endpoint.FBEndpoint):
                 super().__init__(name = "change_request", parent = parent)
 
-                self.e_change_requests = self.ChangeRequests(self)
+                self.e_ch_reqs = self.ChangeRequests(self)
                 self.e_can_verify = self.CanVerify(self)
 
 
@@ -83,9 +83,9 @@ class Root(endpoint.FBEndpointRoot):
         def __init__(self, parent: endpoint.FBEndpoint):
             super().__init__(name = "discord_data", parent = parent)
 
-            self.e_command_data = self.CommandData(self)
-            self.e_guild_data = self.GuildData(self)
-            self.e_user_general_data = self.UserGeneralData(self)
+            self.e_commands = self.CommandData(self)
+            self.e_guilds = self.GuildData(self)
+            self.e_users_general = self.UserGeneralData(self)
 
 
         class CommandData(endpoint.FBEndpointParent):
@@ -93,7 +93,7 @@ class Root(endpoint.FBEndpointRoot):
             def __init__(self, parent: endpoint.FBEndpoint):
                 super().__init__(name = "command_data", parent = parent)
 
-                self.e_is_using_command = self.IsUsingCommand(self)
+                self.e_is_using = self.IsUsingCommand(self)
 
 
             class IsUsingCommand(endpoint.FBEndpointEnd):

@@ -19,10 +19,12 @@ import backend.exceptions.custom_exc as c_e
 
 async def add_new_to_database():
     """Updates the database for joined servers."""
-    guild_data: dict = firebase.get_data(['guildData'])
+    endpoint = firebase.ENDPOINTS.e_discord.e_guilds.get_path()
+    guild_data: dict = firebase.get_data(endpoint)
     for guild_client in vrs.global_bot.guilds:
         if not str(guild_client.id) in guild_data.keys():
-            firebase.edit_data(['guildData'], {str(guild_client.id): defaults.default["guildData"]["guildId"]})
+            # TODO needing default values here
+            firebase.edit_data(endpoint, {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
 
 class Hello(cmds.Cog):
