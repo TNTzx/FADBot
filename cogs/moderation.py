@@ -36,7 +36,7 @@ class Moderation(cmds.Cog):
 
         firebase.edit_data(
             firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [ctx.guild.id],
-            {'adminRole': role_id}
+            {'admin_role': role_id}
         )
         await ctx.send("The admin role for this server has been set.")
 

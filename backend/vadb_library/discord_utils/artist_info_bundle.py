@@ -27,7 +27,10 @@ class InfoBundle():
         """Sends the message to a text channel. The view is attached to `message_proof`."""
         message_embed = await channel.send(prefix, embed = self.get_embed())
         message_proof = await channel.send(self.artist.proof.original_url, view = view)
-        return MessageBundle(message_embed, message_proof)
+        return MessageBundle(
+            message_pointer_embed = m_p.MessagePointer.from_message(message_embed),
+            message_pointer_proof = m_p.MessagePointer.from_message(message_proof)
+        )
 
 
 class MessageBundle(firebase.FBStruct):

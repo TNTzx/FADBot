@@ -63,18 +63,25 @@ for attribute in dir(Categories):
 
 async def check_pa_mod(ctx: cmds.Context, user_id: int):
     """Checks if a user is a PA Moderator by role or a dev."""
-    can_verify = firebase.get_data(firebase.ENDPOINTS.e_artist.e_change_req.e_can_verify.get_path())
+    can_verify_roles = firebase.get_data(
+        firebase.ENDPOINTS.e_artist.e_change_req.e_can_verify.e_server_roles.get_path(),
+        default = []
+    )
+    can_verify_users = firebase.get_data(
+        firebase.ENDPOINTS.e_artist.e_change_req.e_can_verify.e_users.get_path(),
+        default = []
+    )
     devs = firebase.get_data(firebase.ENDPOINTS.e_main.e_privileges.e_devs.get_path())
 
     user_id = str(user_id)
 
-    if user_id in can_verify["users"] + devs:
+    if user_id in can_verify_users + devs:
         return True
     if isinstance(ctx.channel, nx.channel.TextChannel):
         guild_id = str(ctx.guild.id)
-        if guild_id in can_verify["server_roles"]:
+        if guild_id in can_verify_roles:
             for role in ctx.author.roles:
-                if str(role.id) in can_verify["server_roles"][guild_id]:
+                if str(role.id) in can_verify_roles[guild_id]:
                     return True
     return False
 
