@@ -110,7 +110,10 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     async def approve_request(self, ctx: cmds.Context):
         """Approves the request."""
 
-    async def set_approve_status(self, ctx: cmds.Context, is_approved: bool, reason: str = "[No reason]"):
+    async def decline_request(self, ctx: cmds.Context):
+        """Denies the request."""
+
+    async def set_approve_status(self, ctx: cmds.Context, is_approved: bool, reason: str = None):
         """Sets the approve status of this request."""
         self.artist.states.status.value = 0
 
@@ -119,10 +122,18 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         if is_approved:
             await ctx.send(f"Approving {self.type_} request...")
             self.approve_request(ctx)
-            self.artist.vadb_create_edit()
             await ctx.send(f"{self.type_.capitalize()} request approved!")
-        
-        self.log_bundle.delete
+            await self.user_sender.send(f"Your {self.type_} request has been approved!")
+        else:
+            if reason is None:
+                raise TypeError("Reason not provided.")
+
+            await ctx.send(f"Declining {self.type_} request...")
+            self.decline_request(ctx)
+            await ctx.send(f"{self.type_.capitalize()} request declined for the following reason: `{reason}`")
+            await self.user_sender.send(f"Your {self.type_} request has been declined for the following reason: `{reason}`")
+
+        await self.log_bundle.delete_live_logs()
 
 
 class AddRequest(ChangeRequest):
