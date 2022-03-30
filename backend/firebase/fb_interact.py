@@ -24,11 +24,19 @@ def get_from_path(path: list[str]):
 
 def get_data(path: list[str], default = consts.NOT_FOUND_DATA):
     """Gets the data. Returns `default` if not found, else raise an `FBNoPath` exception."""
+    default_not_overridden = default == consts.NOT_FOUND_DATA
     result = get_from_path(path).get(token = consts.get_token()).val()
-    result = fb_utils.null_and_empty_to_none(result)
+
+    if fb_utils.placeholder_empty_to_none(result) is None:
+        if default_not_overridden:
+            return None
+        
+        return default
+
+    result = fb_utils.null_placeholder_empty_to_none(result)
     if result is None:
         if default == consts.NOT_FOUND_DATA:
-            raise fb_exc.FBNoPath(f"Data doesn't exist for '{path}', or is a placeholder, or None.")
+            raise fb_exc.FBNoPath(f"Data doesn't exist for '{path}', or is None.")
 
         return default
 
@@ -53,7 +61,7 @@ def override_data(path: list[str], json: dict):
     """Overrides the data at a specific path."""
     path_parse = get_from_path(path)
 
-    json = fb_utils.none_and_empty_to_null(json)
+    json = fb_utils.none_empty_to_null(json)
 
     log_message = f"Overriden data from path {path}: {o_f.pr_print(json)}"
     lgr.log_firebase.info(log_message)
@@ -65,7 +73,7 @@ def append_data(path: list[str], json: list):
     new_data = get_data(path, default = [])
     new_data += json
 
-    new_data = fb_utils.none_and_empty_to_null(new_data)
+    new_data = fb_utils.none_empty_to_null(new_data)
 
     log_message = f"Appended data from path {path}: {o_f.pr_print(new_data)}"
     lgr.log_firebase.info(log_message)
@@ -81,7 +89,7 @@ def deduct_data(path: list[str], json: list):
     except ValueError as exc:
         raise fb_exc.FBNoPath("Not subtracted.") from exc
 
-    new_data = fb_utils.none_and_empty_to_null(new_data)
+    new_data = fb_utils.none_empty_to_null(new_data)
 
     log_message = f"Deducted data from path {path}: {o_f.pr_print(new_data)}"
     lgr.log_firebase.info(log_message)
@@ -99,7 +107,7 @@ def edit_data(path: list[str], json: dict | list):
     if isinstance(json, list):
         json = fb_utils.list_to_dict(json)
 
-    json = fb_utils.none_and_empty_to_null(json)
+    json = fb_utils.none_empty_to_null(json)
 
     log_message = f"Edited data from path {path}: {o_f.pr_print(json)}"
     lgr.log_firebase.info(log_message)

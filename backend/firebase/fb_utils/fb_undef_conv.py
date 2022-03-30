@@ -82,10 +82,14 @@ def undef_conversion(json: dict | list | tuple | str, from_undef: tuple[None, ..
     return json
 
 
-def none_and_empty_to_null(json: dict | list | tuple | str):
+def none_empty_to_null(json: dict | list | tuple | str):
     """Converts all `None` and empty iterables to `NULL_DATA` in JSON."""
     return undef_conversion(json, (None,), fb_consts.NULL_DATA)
 
-def null_and_empty_to_none(json: dict | list | tuple | str):
-    """Converts all `NULL_DATA` and empty iterables to `None` in JSON."""
+def placeholder_empty_to_none(json: dict | list | tuple | str):
+    """Converts all `PLACEHOLDER_DATA` and empty iterables to `None` in JSON. """
+    return undef_conversion(json, (fb_consts.PLACEHOLDER_DATA,), None)
+
+def null_placeholder_empty_to_none(json: dict | list | tuple | str):
+    """Converts all `NULL_DATA`, `PLACEHOLDER_DATA`, and empty iterables to `None` in JSON."""
     return undef_conversion(json, (fb_consts.NULL_DATA, fb_consts.PLACEHOLDER_DATA), None)
