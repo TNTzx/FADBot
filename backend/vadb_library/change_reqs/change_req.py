@@ -1,7 +1,10 @@
 """Contains logic for requests."""
 
 
+import nextcord as nx
+
 import backend.firebase as firebase
+import global_vars.variables as vrs
 
 from .. import artists as art
 from . import req_struct
@@ -10,7 +13,7 @@ from . import req_fb_endpoints as req_fb
 from . import req_exc
 
 
-def firebase_inc_request_id(self):
+def firebase_inc_request_id():
     """Increments the request ID by one."""
     path = req_fb.CURRENT_ID.get_path()
     current_id = firebase.get_data(path)
@@ -26,9 +29,11 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     def __init__(
             self,
             artist: art.Artist,
+            user_sender: nx.User,
             log_bundle: req_exts.LogBundle = req_exts.LogBundle()
             ):
         self.artist = artist
+        self.user_sender = user_sender
         self.log_bundle = log_bundle
 
 
@@ -41,6 +46,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     def firebase_to_json(self):
         return {
             "artist": self.artist.firebase_to_json(),
+            "user_sender_id": str(self.user_sender.id),
             "log_bundle": self.log_bundle.firebase_to_json()
         }
 
@@ -48,6 +54,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     def firebase_from_json(cls, json: dict | list):
         return cls(
             artist = art.Artist.firebase_from_json(json.get("artist")),
+            user_sender = vrs.global_bot.get_user(int(json.get("user_sender_id"))),
             log_bundle = req_exts.LogBundle.firebase_from_json(json.get("log_bundle"))
         )
 
