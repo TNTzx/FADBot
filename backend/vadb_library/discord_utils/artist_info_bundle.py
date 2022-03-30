@@ -43,7 +43,7 @@ class MessageBundle(firebase.FBStruct):
     def firebase_to_json(self):
         return {
             "message_pointer_embed": self.message_pointer_embed.firebase_to_json(),
-            "message_pointer_proof": self.message_pointer_proof.firebase_from_json()
+            "message_pointer_proof": self.message_pointer_proof.firebase_to_json()
         }
 
     @classmethod

@@ -89,8 +89,9 @@ class LogType(req_struct.ChangeRequestStructure):
         for channel in all_channels:
             try:
                 message_bundle = await info_artist.send_message(channel = channel, prefix = prefix)
-            except Exception as exc:
-                print(exc)
+            except nx.errors.Forbidden:
+                continue
+
             message_bundles.append(message_bundle)
 
         return cls(message_bundles = message_bundles)
