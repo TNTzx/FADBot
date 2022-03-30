@@ -76,9 +76,9 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     def firebase_send_request_pending(self):
         """The Firebase part of sending the request for approval. Sets the `request_id` attribute."""
         request_id = firebase.get_data(req_fb.CURRENT_ID.get_path())
+        firebase_inc_request_id()
         self.request_id = request_id
         firebase.edit_data(self.firebase_get_path(), {request_id: self.firebase_to_json()})
-        firebase_inc_request_id()
 
     async def send_request_pending(self, ctx: cmds.Context):
         """Sends the request for approval."""
