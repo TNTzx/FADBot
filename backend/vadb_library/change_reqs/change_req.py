@@ -1,6 +1,8 @@
 """Contains logic for requests."""
 
 
+import backend.firebase as firebase
+
 from .. import artists as art
 from . import req_struct
 from . import req_exts
@@ -9,6 +11,7 @@ from . import req_exts
 class ChangeRequest(req_struct.ChangeRequestStructure):
     """Parent class for all requests."""
     type_: str = None
+    firebase_name: str = None
 
     def __init__(
             self,
@@ -33,9 +36,16 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         )
 
 
+    async def discord_send_request_pending(self):
+        """The discord part of sending the request for approval."""
+        self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.artist, self.type_)
+
+    async def firebase_send_request_pending(self):
+        """The Firebase part of sending the request for approval."""
+        firebase.
+
     async def send_request_pending(self):
         """Sends the request for approval."""
-        self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.artist, self.type_)
 
 
     def approve_request(self):
