@@ -157,6 +157,12 @@ class Artist(artist_struct.ArtistStruct):
         return response
 
 
+    def vadb_create_edit(self):
+        """Creates and edits the artist to make an entry in VADB."""
+        self.vadb_create()
+        self.vadb_edit()
+
+
     @classmethod
     def vadb_from_get_json(cls, json: dict | list):
         """Returns an `Artist` from a VADB data structure.

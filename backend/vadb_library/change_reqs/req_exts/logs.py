@@ -161,3 +161,11 @@ class LogBundle(req_struct.ChangeRequestStructure):
             dump_logs = await DumpLogType.send_request_pending_logs(artist, req_type, req_id),
             live_logs = await LiveLogType.send_request_pending_logs(artist, req_type, req_id)
         )
+
+
+    async def delete_live_logs(self):
+        """Deletes the live logs. Used when approving an artist."""
+        if self.live_logs is None:
+            return
+
+        await self.live_logs.delete_logs()

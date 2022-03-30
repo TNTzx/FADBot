@@ -11,6 +11,7 @@ from .. import artists as art
 from . import req_struct
 from . import req_exts
 from . import req_fb_endpoints as req_fb
+from . import req_exc
 
 
 def firebase_inc_request_id():
@@ -84,23 +85,49 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         """The Firebase part of sending the request for approval."""
         firebase.edit_data(self.firebase_get_path(), {self.request_id: self.firebase_to_json()})
 
+    def send_request_pending_extra(self):
+        """An extra method used to intercept the `send_request_pending` method."""
+
     async def send_request_pending(self, ctx: cmds.Context):
         """Sends the request for approval."""
         await ctx.author.send(f"Sending {self.type_} request...")
         self.register_request_id()
         await self.discord_send_request_pending()
         self.firebase_send_request_pending()
+
+        self.send_request_pending_extra()
+
         await ctx.author.send("Sent request. Please wait for a PA moderator to approve your request.")
 
 
-    def approve_request(self):
+    def firebase_delete_request(self):
+        """Deletes the request off of Firebase."""
+        if self.request_id is None:
+            raise req_exc.ChangeReqNotSubmitted()
+        firebase.delete_data(self.firebase_get_path() + [self.request_id])
+
+
+    async def approve_request(self, ctx: cmds.Context):
         """Approves the request."""
+
+    async def set_approve_status(self, ctx: cmds.Context, is_approved: bool, reason: str = "[No reason]"):
+        """Sets the approve status of this request."""
+        self.artist.states.status.value = 0
+
+        # TODO confirmation
+
+        if is_approved:
+            await ctx.send(f"Approving {self.type_} request...")
+            self.approve_request(ctx)
+            self.artist.vadb_create_edit()
+            await ctx.send(f"{self.type_.capitalize()} request approved!")
+        
+        self.log_bundle.delete
 
 
 class AddRequest(ChangeRequest):
     """Request for adding artists into the database."""
     type_ = firebase_name = "add"
-
 
 class EditRequest(ChangeRequest):
     """Request for editing an artist in the database."""
