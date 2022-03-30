@@ -69,20 +69,25 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         return firebase.ShortEndpoint.artist_change_reqs.get_path() + [cls.firebase_name]
 
 
-    async def discord_send_request_pending(self):
-        """The discord part of sending the request for approval. Sets the `log_bundle` attribute."""
-        self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.artist, self.type_)
-
-    def firebase_send_request_pending(self):
-        """The Firebase part of sending the request for approval. Sets the `request_id` attribute."""
-        request_id = firebase.get_data(req_fb.CURRENT_ID.get_path())
+    def register_request_id(self):
+        """Registers this request with an ID. Sets the `request_id` attribute."""
+        request_id: int = firebase.get_data(req_fb.CURRENT_ID.get_path())
         firebase_inc_request_id()
         self.request_id = request_id
-        firebase.edit_data(self.firebase_get_path(), {request_id: self.firebase_to_json()})
+
+
+    async def discord_send_request_pending(self):
+        """The discord part of sending the request for approval. Sets the `log_bundle` attribute."""
+        self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.artist, self.type_, self.request_id)
+
+    def firebase_send_request_pending(self):
+        """The Firebase part of sending the request for approval."""
+        firebase.edit_data(self.firebase_get_path(), {self.request_id: self.firebase_to_json()})
 
     async def send_request_pending(self, ctx: cmds.Context):
         """Sends the request for approval."""
         await ctx.author.send(f"Sending {self.type_} request...")
+        self.register_request_id()
         await self.discord_send_request_pending()
         self.firebase_send_request_pending()
         await ctx.author.send("Sent request. Please wait for a PA moderator to approve your request.")

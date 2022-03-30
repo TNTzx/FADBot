@@ -98,11 +98,14 @@ class LogType(req_struct.ChangeRequestStructure):
 
 
     @classmethod
-    async def send_request_pending_logs(cls, artist: art.Artist, req_type: str):
+    async def send_request_pending_logs(cls, artist: art.Artist, req_type: str = "unknown", req_id: int = "?"):
         """Sends the logs to the channels in this `LogType` then returns this `LogType`."""
         return await cls.send_logs(
             artist,
-            f"This {req_type} request is being processed. Please wait for this request to be approved."
+            (
+                f"This {req_type} request is being processed. Please wait for this request to be approved.\n"
+                f"**Request ID: __{req_id}__**"
+            )
         )
 
 
@@ -152,9 +155,9 @@ class LogBundle(req_struct.ChangeRequestStructure):
 
 
     @classmethod
-    async def send_request_pending_logs(cls, artist: art.Artist, req_type: str):
+    async def send_request_pending_logs(cls, artist: art.Artist, req_type: str = "unknown", req_id: int = "?"):
         """Sends the logs to these log types then returns a `LogBundle` of these messages."""
         return cls(
-            dump_logs = await DumpLogType.send_request_pending_logs(artist, req_type),
-            live_logs = await LiveLogType.send_request_pending_logs(artist, req_type)
+            dump_logs = await DumpLogType.send_request_pending_logs(artist, req_type, req_id),
+            live_logs = await LiveLogType.send_request_pending_logs(artist, req_type, req_id)
         )
