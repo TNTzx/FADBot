@@ -123,6 +123,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             await ctx.send(f"Approving {self.type_} request...")
             self.approve_request(ctx)
             await ctx.send(f"{self.type_.capitalize()} request approved!")
+            # TODO check if can't dm person
             await self.user_sender.send(f"Your {self.type_} request has been approved!")
         else:
             if reason is None:
