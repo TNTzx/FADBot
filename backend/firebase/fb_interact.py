@@ -27,18 +27,13 @@ def get_data(path: list[str], default = consts.NOT_FOUND_DATA):
     default_not_overridden = default == consts.NOT_FOUND_DATA
     result = get_from_path(path).get(token = consts.get_token()).val()
 
-    if fb_utils.placeholder_empty_to_none(result) is None:
+    if result is None:
         if default_not_overridden:
-            return None
+            raise fb_exc.FBNoPath(f"Data doesn't exist for '{path}', or is None.")
         
         return default
 
     result = fb_utils.null_placeholder_empty_to_none(result)
-    if result is None:
-        if default == consts.NOT_FOUND_DATA:
-            raise fb_exc.FBNoPath(f"Data doesn't exist for '{path}', or is None.")
-
-        return default
 
     if isinstance(result, cl.OrderedDict):
         result = dict(result)
@@ -99,9 +94,6 @@ def deduct_data(path: list[str], json: list):
 # Edit
 def edit_data(path: list[str], json: dict | list):
     """Edits data in a path. Use a `dict` or a `list`. Won't replace data in path."""
-    if not is_data_exists(path):
-        raise fb_exc.FBNoPath(f"Data can't be found for '{path}'.")
-
     path_parse = get_from_path(path)
 
     if isinstance(json, list):
