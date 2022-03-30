@@ -24,8 +24,8 @@ class MessagePointer(firebase.FBStruct):
     @classmethod
     def firebase_from_json(cls, json: dict | list):
         return cls(
-            channel_id = json.get("channel_id"),
-            message_id = json.get("message_id")
+            channel_id = int(json.get("channel_id")),
+            message_id = int(json.get("message_id"))
         )
 
 

@@ -2,6 +2,7 @@
 
 
 import nextcord as nx
+import nextcord.ext.commands as cmds
 
 import backend.firebase as firebase
 import global_vars.variables as vrs
@@ -10,7 +11,6 @@ from .. import artists as art
 from . import req_struct
 from . import req_exts
 from . import req_fb_endpoints as req_fb
-from . import req_exc
 
 
 def firebase_inc_request_id():
@@ -30,10 +30,12 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             self,
             artist: art.Artist,
             user_sender: nx.User,
+            request_id: int = None,
             log_bundle: req_exts.LogBundle = req_exts.LogBundle()
             ):
         self.artist = artist
         self.user_sender = user_sender
+        self.request_id = request_id
         self.log_bundle = log_bundle
 
 
@@ -47,6 +49,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         return {
             "artist": self.artist.firebase_to_json(),
             "user_sender_id": str(self.user_sender.id),
+            "request_id": self.request_id,
             "log_bundle": self.log_bundle.firebase_to_json()
         }
 
@@ -55,6 +58,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         return cls(
             artist = art.Artist.firebase_from_json(json.get("artist")),
             user_sender = vrs.global_bot.get_user(int(json.get("user_sender_id"))),
+            request_id = json.get("request_id"),
             log_bundle = req_exts.LogBundle.firebase_from_json(json.get("log_bundle"))
         )
 
@@ -66,19 +70,22 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
 
     async def discord_send_request_pending(self):
-        """The discord part of sending the request for approval."""
+        """The discord part of sending the request for approval. Sets the `log_bundle` attribute."""
         self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.artist, self.type_)
 
-    async def firebase_send_request_pending(self):
-        """The Firebase part of sending the request for approval."""
-        artist_id = self.artist.vadb_info.artist_id
-        if artist_id is None:
-            raise req_exc.ChangeReqNotVADBSubmitted()
+    def firebase_send_request_pending(self):
+        """The Firebase part of sending the request for approval. Sets the `request_id` attribute."""
+        request_id = firebase.get_data(req_fb.CURRENT_ID.get_path())
+        self.request_id = request_id
+        firebase.edit_data(self.firebase_get_path(), {request_id: self.firebase_to_json()})
+        firebase_inc_request_id()
 
-        firebase.edit_data(self.firebase_get_path(), {artist_id: self.firebase_to_json()})
-
-    async def send_request_pending(self):
+    async def send_request_pending(self, ctx: cmds.Context):
         """Sends the request for approval."""
+        await ctx.author.send(f"Sending {self.type_} request...")
+        await self.discord_send_request_pending()
+        self.firebase_send_request_pending()
+        await ctx.author.send("Sent request. Please wait for a PA moderator to approve your request.")
 
 
     def approve_request(self):

@@ -87,7 +87,10 @@ class LogType(req_struct.ChangeRequestStructure):
 
         message_bundles = []
         for channel in all_channels:
-            message_bundle = await info_artist.send_message(channel = channel, prefix = prefix)
+            try:
+                message_bundle = await info_artist.send_message(channel = channel, prefix = prefix)
+            except Exception as exc:
+                print(exc)
             message_bundles.append(message_bundle)
 
         return cls(message_bundles = message_bundles)
