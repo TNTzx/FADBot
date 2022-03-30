@@ -14,3 +14,9 @@ class LogChannelsNotFound(LogChannelError):
 
 class LogChannelAlreadySet(LogChannelError):
     """The log channel has already been set."""
+
+
+class ChangeReqNotVADBSubmitted(ChangeReqError):
+    """The change request hasn't been submitted to VADB yet."""
+    def __init__(self) -> None:
+        super().__init__("Artist not submitted in VADB yet.")

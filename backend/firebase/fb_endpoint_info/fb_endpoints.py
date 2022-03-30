@@ -131,13 +131,15 @@ class Root(endpoint.FBEndpointRoot):
 ENDPOINTS = Root()
 
 
-DEVS = ENDPOINTS.e_main.e_privileges.e_devs
+class ShortEndpoint():
+    """Contains shortcuts for the endpoints."""
+    devs = ENDPOINTS.e_main.e_privileges.e_devs
 
-CHANGE_REQS = ENDPOINTS.e_artist.e_change_req.e_ch_reqs
-CAN_VERIFY = ENDPOINTS.e_artist.e_change_req.e_can_verify
+    artist_change_reqs = ENDPOINTS.e_artist.e_change_req.e_ch_reqs
+    artist_can_verify = ENDPOINTS.e_artist.e_change_req.e_can_verify
 
-DISCORD_COMMANDS = ENDPOINTS.e_discord.e_commands
-DISCORD_GUILDS = ENDPOINTS.e_discord.e_guilds
-DISCORD_USER_GENERAL = ENDPOINTS.e_discord.e_users_general
+    discord_cmds = ENDPOINTS.e_discord.e_commands
+    discord_guilds = ENDPOINTS.e_discord.e_guilds
+    discord_users_general = ENDPOINTS.e_discord.e_users_general
 
-TEST = ENDPOINTS.e_test
+    test = ENDPOINTS.e_test
