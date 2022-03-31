@@ -7,6 +7,7 @@ import nextcord as nx
 import nextcord.ext.commands as cmds
 
 import backend.firebase as firebase
+import backend.exceptions.send_error as s_e
 import global_vars.variables as vrs
 
 from .. import artists as art
@@ -163,8 +164,14 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                     ),
                     embed = artist_embed
                 )
-            except Exception as exc:
-                print()
+            except nx.errors.Forbidden:
+                await s_e.send_error(
+                    ctx,
+                    (
+                        f"I can't seem to be able to notify the user who sent this request, named `{self.user_sender.name}#{self.user_sender.discriminator}` (ID: `{self.user_sender.id}`).\n"
+                        "If you have contacts with this user, please notify them!"
+                    )
+                )
 
 
         if is_approved:
