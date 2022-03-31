@@ -113,26 +113,32 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     async def decline_request(self, ctx: cmds.Context):
         """Denies the request."""
 
-    async def set_approve_status(self, ctx: cmds.Context, is_approved: bool, reason: str = None):
+    async def set_approval(self, ctx: cmds.Context, is_approved: bool, reason: str = None):
         """Sets the approve status of this request."""
         self.artist.states.status.value = 0
 
         # TODO confirmation
 
-        if is_approved:
-            await ctx.send(f"Approving {self.type_} request...")
+        async def to_approval(approval_cls: req_exts.ApprovalStatus):
+            """Approves / declines the request from an `approval_cls`."""
+            await ctx.send(approval_cls.get_message_processing(self.type_))
             self.approve_request(ctx)
-            await ctx.send(f"{self.type_.capitalize()} request approved!")
+            await ctx.send(approval_cls.get_message_complete(self.type_, reason))
             # TODO check if can't dm person
+            # try:
             await self.user_sender.send(f"Your {self.type_} request has been approved!")
+            # except ...:
+            #    pass
+
+
+        if is_approved:
+            await to_approval(req_exts.Approve)
         else:
             if reason is None:
                 raise TypeError("Reason not provided.")
 
-            await ctx.send(f"Declining {self.type_} request...")
-            self.decline_request(ctx)
-            await ctx.send(f"{self.type_.capitalize()} request declined for the following reason: `{reason}`")
-            await self.user_sender.send(f"Your {self.type_} request has been declined for the following reason: `{reason}`")
+            await to_approval(req_exts.Decline)
+
 
         await self.log_bundle.delete_live_logs()
 
