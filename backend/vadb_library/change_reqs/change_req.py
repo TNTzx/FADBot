@@ -126,7 +126,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             """Approves / declines the request from an `approval_cls`."""
             await ctx.send(approval_cls.get_message_processing(self.type_))
 
-            self.approve_request(ctx)
+            await self.approve_request(ctx)
 
             await ctx.send(approval_cls.get_message_complete(self.type_, reason))
 
@@ -136,7 +136,8 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                 approval_cls = approval_cls,
                 artist = self.artist,
                 req_type = self.type_,
-                reason = reason
+                reason = reason,
+                req_id = self.request_id
             )
 
             self.log_bundle.dump_logs = self.log_bundle.dump_logs + new_dump_logs
