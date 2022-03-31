@@ -53,4 +53,4 @@ class MessagePointer(firebase.FBStruct):
     async def delete_message(self):
         """Deletes this message."""
         message = await self.get_message()
-        message.delete()
+        await message.delete()

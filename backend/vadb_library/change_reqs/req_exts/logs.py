@@ -1,6 +1,10 @@
 """Logs for discord."""
 
 
+from __future__ import annotations
+
+import typing as typ
+
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
@@ -11,6 +15,7 @@ from ... import discord_utils as disc_utils
 from ... import artists as art
 from .. import req_exc
 from .. import req_struct
+from . import approve_status
 
 
 def get_log_path(guild: nx.Guild):
@@ -28,6 +33,11 @@ class LogType(req_struct.ChangeRequestStructure):
             message_bundles: list[disc_utils.MessageBundle] = None
         ):
         self.message_bundles = message_bundles
+
+    def __add__(self, other: LogType):
+        return self.__class__(
+            message_bundles = self.message_bundles + other.message_bundles
+        )
 
 
     def firebase_to_json(self):
@@ -122,6 +132,25 @@ class LogTypes():
 class DumpLogType(LogType):
     """Dump logs, used for dumping logs without deleting."""
     name = firebase_name = "dump"
+
+    @classmethod
+    async def send_request_approval_logs(
+            cls,
+            approval_cls: typ.Type[approve_status.ApprovalStatus],
+            artist: art.Artist,
+            req_type: str = "unknown",
+            reason: str = "unknown",
+            req_id: int = "?"
+            ):
+        """Sends the approved / declined logs to this `DumpLogType`."""
+        return await cls.send_logs(
+            artist = artist,
+            prefix = (
+                f"{approval_cls.get_message_complete_dump_logs(req_type, reason)}\n"
+                f"**Request ID: __{req_id}__**"
+            )
+        )
+
 
 class LiveLogType(LogType):
     """Live logs, used for dumping logs with deletion after being used."""

@@ -1,6 +1,8 @@
 """Contains logic for requests."""
 
 
+import typing as typ
+
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
@@ -8,6 +10,7 @@ import backend.firebase as firebase
 import global_vars.variables as vrs
 
 from .. import artists as art
+from .. import discord_utils
 from . import req_struct
 from . import req_exts
 from . import req_fb_endpoints as req_fb
@@ -122,11 +125,29 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         async def to_approval(approval_cls: req_exts.ApprovalStatus):
             """Approves / declines the request from an `approval_cls`."""
             await ctx.send(approval_cls.get_message_processing(self.type_))
+
             self.approve_request(ctx)
+
             await ctx.send(approval_cls.get_message_complete(self.type_, reason))
+
+
+            # send logs then append
+            new_dump_logs = await req_exts.DumpLogType.send_request_approval_logs(
+                approval_cls = approval_cls,
+                artist = self.artist,
+                req_type = self.type_,
+                reason = reason
+            )
+
+            self.log_bundle.dump_logs = self.log_bundle.dump_logs + new_dump_logs
+
+
             # TODO check if can't dm person
             try:
-                await self.user_sender.send(f"Your {self.type_} request has been approved!")
+                await self.user_sender.send(
+                    f"Your {self.type_} request has been approved!",
+                    embed = discord_utils.InfoBundle(self.artist).get_embed()
+                )
             except Exception as exc:
                 print()
 
