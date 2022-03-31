@@ -156,7 +156,11 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             # TODO check if can't dm person
             try:
                 await self.user_sender.send(
-                    f"Your {self.type_} request has been approved!",
+                    approval_cls.get_message_complete_dm(
+                        req_id = self.request_id,
+                        req_type = self.type_,
+                        reason = reason
+                    ),
                     embed = artist_embed
                 )
             except Exception as exc:
