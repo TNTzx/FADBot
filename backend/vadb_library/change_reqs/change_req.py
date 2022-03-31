@@ -154,7 +154,6 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             self.log_bundle.dump_logs = self.log_bundle.dump_logs + new_dump_logs
 
 
-            # TODO check if can't dm person
             try:
                 await self.user_sender.send(
                     approval_cls.get_message_complete_dm(
