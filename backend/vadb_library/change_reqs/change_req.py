@@ -176,8 +176,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             await to_approval(req_exts.Decline)
 
 
-        # TODO delete from firebase
-        # self.firebase_delete_request()
+        self.firebase_delete_request()
 
         await self.log_bundle.delete_live_logs()
 
