@@ -199,3 +199,4 @@ class LogBundle(req_struct.ChangeRequestStructure):
             return
 
         await self.live_logs.delete_logs()
+        self.live_logs = None
