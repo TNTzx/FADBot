@@ -133,7 +133,10 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             await self.approve_request(ctx)
 
             await ctx.send(
-                approval_cls.get_message_complete(self.type_, reason),
+                approval_cls.get_message_complete(
+                    req_id = self.request_id,
+                    req_type = self.type_,
+                    reason = reason),
                 embed = artist_embed
             )
 
