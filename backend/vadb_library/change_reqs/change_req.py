@@ -85,7 +85,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         """The Firebase part of sending the request for approval."""
         firebase.edit_data(self.firebase_get_path(), {self.request_id: self.firebase_to_json()})
 
-    def send_request_pending_extra(self):
+    async def send_request_pending_extra(self):
         """An extra method used to intercept the `send_request_pending` method."""
 
     async def send_request_pending(self, ctx: cmds.Context):
@@ -95,7 +95,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         await self.discord_send_request_pending()
         self.firebase_send_request_pending()
 
-        self.send_request_pending_extra()
+        await self.send_request_pending_extra()
 
         await ctx.author.send("Sent request. Please wait for a PA moderator to approve your request.")
 
@@ -125,10 +125,10 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             self.approve_request(ctx)
             await ctx.send(approval_cls.get_message_complete(self.type_, reason))
             # TODO check if can't dm person
-            # try:
-            await self.user_sender.send(f"Your {self.type_} request has been approved!")
-            # except ...:
-            #    pass
+            try:
+                await self.user_sender.send(f"Your {self.type_} request has been approved!")
+            except Exception as exc:
+                print()
 
 
         if is_approved:
@@ -139,6 +139,9 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
             await to_approval(req_exts.Decline)
 
+
+        # TODO delete from firebase
+        # self.firebase_delete_request()
 
         await self.log_bundle.delete_live_logs()
 
