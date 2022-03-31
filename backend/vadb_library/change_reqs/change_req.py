@@ -120,7 +120,11 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         """Sets the approve status of this request."""
         self.artist.states.status.value = 0
 
+        artist_embed = discord_utils.InfoBundle(self.artist).get_embed()
+
+
         # TODO confirmation
+
 
         async def to_approval(approval_cls: req_exts.ApprovalStatus):
             """Approves / declines the request from an `approval_cls`."""
@@ -128,7 +132,10 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
             await self.approve_request(ctx)
 
-            await ctx.send(approval_cls.get_message_complete(self.type_, reason))
+            await ctx.send(
+                approval_cls.get_message_complete(self.type_, reason),
+                embed = artist_embed
+            )
 
 
             # send logs then append
@@ -147,7 +154,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             try:
                 await self.user_sender.send(
                     f"Your {self.type_} request has been approved!",
-                    embed = discord_utils.InfoBundle(self.artist).get_embed()
+                    embed = artist_embed
                 )
             except Exception as exc:
                 print()
