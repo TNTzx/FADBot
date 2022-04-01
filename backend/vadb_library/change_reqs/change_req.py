@@ -6,9 +6,12 @@ import typing as typ
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+import global_vars.variables as vrs
 import backend.firebase as firebase
 import backend.exceptions.send_error as s_e
-import global_vars.variables as vrs
+import backend.utils.views as views
+import backend.utils.asking.wait_for as wait_for
+import backend.other_functions as other_functions
 
 from .. import artists as art
 from .. import discord_utils
@@ -119,25 +122,48 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
     async def set_approval(self, ctx: cmds.Context, is_approved: bool, reason: str = None):
         """Sets the approve status of this request."""
+        timeout = vrs.Timeouts.medium
         self.artist.states.status.value = 0
 
         artist_embed = discord_utils.InfoBundle(self.artist).get_embed()
 
 
-        # TODO confirmation
-
-
-        async def to_approval(approval_cls: req_exts.ApprovalStatus):
+        async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[cmds.Context], typ.Coroutine[None]]):
             """Approves / declines the request from an `approval_cls`."""
+            # confirmation
+            confirm_view = views.ViewConfirmCancel()
+
+            message_confirm_str = approval_cls.get_message_confirm(
+                req_id = self.request_id,
+                req_type = self.type_,
+                reason = reason
+            )
+            confirm_str = (
+                f"{message_confirm_str}\n"
+                f"This command times out in {other_functions.format_time(timeout)}."
+            )
+            confirm_message = await ctx.send(
+                confirm_str,
+                embed = artist_embed
+            )
+
+            final_view = await wait_for.wait_for_view(ctx, confirm_message, confirm_view)
+
+            if final_view.value == views.OutputValues.cancel:
+                raise req_exc.SetApprovalCancelled()
+
+
+            # processing request
             await ctx.send(approval_cls.get_message_processing(self.type_))
 
-            await self.approve_request(ctx)
+            await callback_method(ctx)
 
             await ctx.send(
                 approval_cls.get_message_complete(
                     req_id = self.request_id,
                     req_type = self.type_,
-                    reason = reason),
+                    reason = reason
+                ),
                 embed = artist_embed
             )
 
@@ -174,12 +200,12 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
 
         if is_approved:
-            await to_approval(req_exts.Approve)
+            await to_approval(req_exts.Approve, self.approve_request)
         else:
             if reason is None:
                 raise TypeError("Reason not provided.")
 
-            await to_approval(req_exts.Decline)
+            await to_approval(req_exts.Decline, self.decline_request)
 
 
         self.firebase_delete_request()

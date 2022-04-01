@@ -20,3 +20,9 @@ class ChangeReqNotSubmitted(ChangeReqError):
     """The change request hasn't been submitted to Firebase yet."""
     def __init__(self) -> None:
         super().__init__("Artist not submitted in Firebase yet.")
+
+
+class SetApprovalCancelled(ChangeReqError):
+    """Setting an approval has been cancelled."""
+    def __init__(self) -> None:
+        super().__init__(self.__class__.__doc__)
