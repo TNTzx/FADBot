@@ -84,6 +84,11 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         self.request_id = request_id
 
 
+    def get_original_artist(self):
+        """Gets the original artist from VADB without modifications."""
+        return art.Artist.vadb_from_id(self.artist.vadb_info.artist_id)
+
+
     async def discord_send_request_pending(self):
         """The discord part of sending the request for approval. Sets the `log_bundle` attribute."""
         self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.artist, self.type_, self.request_id)
@@ -92,7 +97,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         """The Firebase part of sending the request for approval."""
         firebase.edit_data(self.firebase_get_path(), {self.request_id: self.firebase_to_json()})
 
-    async def send_request_pending_extra(self):
+    async def send_request_pending_intercept(self):
         """An extra method used to intercept the `send_request_pending` method."""
 
     async def send_request_pending(self, ctx: cmds.Context):
@@ -102,7 +107,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         await self.discord_send_request_pending()
         self.firebase_send_request_pending()
 
-        await self.send_request_pending_extra()
+        await self.send_request_pending_intercept()
 
         await ctx.author.send("Sent request. Please wait for a PA moderator to approve your request.")
 
@@ -217,6 +222,26 @@ class AddRequest(ChangeRequest):
     """Request for adding artists into the database."""
     type_ = firebase_name = "add"
 
+
+    async def approve_request(self, ctx: cmds.Context):
+        self.artist.vadb_create_edit()
+
+
 class EditRequest(ChangeRequest):
     """Request for editing an artist in the database."""
     type_ = firebase_name = "edit"
+
+
+    async def send_request_pending_intercept(self):
+        old_artist = self.get_original_artist()
+        old_artist.states.status.value = 2
+        old_artist.vadb_edit()
+
+
+    async def approve_request(self, ctx: cmds.Context):
+        self.artist.vadb_edit()
+
+    async def decline_request(self, ctx: cmds.Context):
+        old_artist = self.get_original_artist()
+        old_artist.states.status.value = 0
+        old_artist.vadb_edit()
