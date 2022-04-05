@@ -12,7 +12,7 @@ import backend.other_functions as o_f
 import backend.exceptions.send_error as s_e
 
 
-class CogHelp(cog.CogRegister):
+class CogHelp(cog.RegisteredCog):
     def __init__(self, bot):
         self.bot = bot
 

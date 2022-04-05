@@ -14,7 +14,7 @@ import backend.logging.loggers as lgr
 import backend.command_related.command_wrapper as c_w
 
 
-class CogBotControl(cog.CogRegister):
+class CogBotControl(cog.RegisteredCog):
     def __init__(self, bot: nx.Client):
         self.bot = bot
 

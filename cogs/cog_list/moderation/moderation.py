@@ -21,7 +21,7 @@ import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
-class CogModeration(cog.CogRegister):
+class CogModeration(cog.RegisteredCog):
     """Contains controls for moderating stuff about the bot."""
     def __init__(self, bot):
         self.bot = bot

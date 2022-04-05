@@ -15,7 +15,7 @@ import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
 
 
-class CogLogCmds(cog.CogRegister):
+class CogLogCmds(cog.RegisteredCog):
     def __init__(self, bot):
         self.bot = bot
 

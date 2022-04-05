@@ -18,7 +18,7 @@ import backend.other_functions as o_f
 
 CMD_PREFIX = vrs.CMD_PREFIX
 
-class CogErrorHandler(cog.CogRegister):
+class CogErrorHandler(cog.RegisteredCog):
     def __init__(self, bot):
         self.bot = bot
 

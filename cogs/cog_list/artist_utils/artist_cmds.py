@@ -27,7 +27,7 @@ import backend.other_functions as o_f
 
 # FIXME fix me :(
 
-class CogArtistCmds(cog.CogRegister):
+class CogArtistCmds(cog.RegisteredCog):
     def __init__(self, bot):
         self.bot = bot
 

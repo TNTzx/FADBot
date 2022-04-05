@@ -2,8 +2,11 @@
 
 
 import os
+
 import nextcord as nx
 import nextcord.ext.commands as cmds
+
+import cogs
 
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
@@ -49,6 +52,8 @@ def main():
 
     #         log_something(f"Loading cog '{filename}'...")
     #         bot.load(f"cogs.{filename}")
+
+    cogs.RegisteredCog.load_all_cogs_to_bot(bot)
 
     log_something("Loaded all cogs!")
 

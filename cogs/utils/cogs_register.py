@@ -3,8 +3,10 @@
 
 import nextcord.ext.commands as cmds
 
+import backend.logging.loggers as lgr
 
-class CogRegister(cmds.Cog):
+
+class RegisteredCog(cmds.Cog):
     """Parent class for all cogs."""
     def __init__(self, bot: cmds.Bot):
         self.bot = bot
@@ -19,4 +21,8 @@ class CogRegister(cmds.Cog):
     def load_all_cogs_to_bot(cls, bot: cmds.Bot):
         """Loads all cogs to a bot."""
         for cog in cls.get_all_cogs():
+            log_message = f"Loading cog \"{cog.__name__}\"..."
+            print(log_message)
+            lgr.log_bot_status.info(log_message)
+
             bot.add_cog(cog(bot))

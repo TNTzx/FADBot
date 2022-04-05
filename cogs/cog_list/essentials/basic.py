@@ -25,7 +25,7 @@ async def add_new_to_database():
             firebase.edit_data(endpoint, {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
 
-class CogBasic(cog.CogRegister):
+class CogBasic(cog.RegisteredCog):
     """Contains commands for stuff."""
     def __init__(self, bot):
         self.bot = bot
