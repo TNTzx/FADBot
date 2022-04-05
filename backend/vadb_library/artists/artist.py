@@ -34,7 +34,6 @@ class Artist(artist_struct.ArtistStruct):
 
 
     def vadb_to_create_json(self) -> dict | list:
-        super().vadb_to_create_json()
         return {
             "name": self.name,
             "status": self.states.status.value,
