@@ -2,9 +2,13 @@
 
 
 from async_timeout import asyncio
+
 import nextcord as nx
 import nextcord.ext.commands as cmds
+
 import requests as req
+
+from ... import utils as cog
 
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
@@ -23,7 +27,7 @@ import backend.other_functions as o_f
 
 # FIXME fix me :(
 
-class CogArtistCmds(cmds.Cog):
+class CogArtistCmds(cog.CogRegister):
     def __init__(self, bot):
         self.bot = bot
 

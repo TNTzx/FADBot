@@ -4,6 +4,8 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+from ... import utils as cog
+
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
 import global_vars.defaults as defaults
@@ -23,7 +25,7 @@ async def add_new_to_database():
             firebase.edit_data(endpoint, {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
 
-class CogBasic(cmds.Cog):
+class CogBasic(cog.CogRegister):
     """Contains commands for stuff."""
     def __init__(self, bot):
         self.bot = bot

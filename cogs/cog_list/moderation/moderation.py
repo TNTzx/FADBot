@@ -4,9 +4,13 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+from ... import utils as cog
+
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
+
 import backend.command_related.command_wrapper as c_w
+
 import backend.command_related.choice_param as c_p
 import backend.utils.views as vw
 import backend.utils.asking.wait_for as w_f
@@ -17,7 +21,7 @@ import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
-class CogModeration(cmds.Cog):
+class CogModeration(cog.CogRegister):
     """Contains controls for moderating stuff about the bot."""
     def __init__(self, bot):
         self.bot = bot

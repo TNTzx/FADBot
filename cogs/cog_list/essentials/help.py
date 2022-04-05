@@ -4,13 +4,15 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+from ... import utils as cog
+
 import global_vars.variables as vrs
 import backend.command_related.command_wrapper as c_w
 import backend.other_functions as o_f
 import backend.exceptions.send_error as s_e
 
 
-class CogHelp(cmds.Cog):
+class CogHelp(cog.CogRegister):
     def __init__(self, bot):
         self.bot = bot
 

@@ -3,8 +3,11 @@
 
 import asyncio
 import traceback as tr
+
 import nextcord as nx
 import nextcord.ext.commands as cmds
+
+from ... import utils as cog
 
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
@@ -15,7 +18,7 @@ import backend.other_functions as o_f
 
 CMD_PREFIX = vrs.CMD_PREFIX
 
-class CogErrorHandler(cmds.Cog):
+class CogErrorHandler(cog.CogRegister):
     def __init__(self, bot):
         self.bot = bot
 

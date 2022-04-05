@@ -7,12 +7,14 @@ import sys
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+from ... import utils as cog
+
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
 import backend.command_related.command_wrapper as c_w
 
 
-class CogBotControl(cmds.Cog):
+class CogBotControl(cog.CogRegister):
     def __init__(self, bot: nx.Client):
         self.bot = bot
 

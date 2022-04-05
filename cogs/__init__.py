@@ -2,3 +2,4 @@
 
 
 from .utils import *
+from .cog_list import *

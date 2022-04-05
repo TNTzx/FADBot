@@ -4,6 +4,8 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
+from ... import utils as cog
+
 import global_vars.variables as vrs
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.choice_param as c_p
@@ -13,7 +15,7 @@ import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
 
 
-class CogLogCmds(cmds.Cog):
+class CogLogCmds(cog.CogRegister):
     def __init__(self, bot):
         self.bot = bot
 
