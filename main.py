@@ -50,9 +50,9 @@ def main():
     #         log_something(f"Loading cog '{filename}'...")
     #         bot.load(f"cogs.{filename}")
 
-    import cogs.basic as basic
+    import cogs.cog_list.essentials.basic as basic
 
-    bot.add_cog(basic.Hello(bot))
+    bot.add_cog(basic.CogBasic(bot))
 
     log_something("Loaded all cogs!")
 
