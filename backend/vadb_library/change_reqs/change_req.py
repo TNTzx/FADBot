@@ -114,8 +114,11 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
         log_message = (
             f"Request ID [{self.request_id}]: "
-            f"{self.firebase_to_json()}"
+            f"{other_functions.pr_print(self.firebase_to_json())}"
         )
+        lgr.log_change_req_data.info(log_message)
+
+        log_message = f"Created request with request ID [{self.request_id}]."
         lgr.log_change_req_changes.info(log_message)
 
 
@@ -213,10 +216,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
 
             # do logging
-            log_message = (
-                f"Set approval for request with approval_cls {approval_cls.__name__}: "
-                f"{self.firebase_to_json()}"
-            )
+            log_message = f"Set approval for request ID [{self.request_id}] with approval_cls {approval_cls.__name__}."
             lgr.log_change_req_changes.info(log_message)
 
 
