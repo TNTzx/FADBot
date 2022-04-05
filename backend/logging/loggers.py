@@ -21,16 +21,20 @@ def form_filename(sort_num: int, filename: str, extension=".txt"):
     return f"[{sort_num}] {filename}{extension}"
 
 
-def setup_file_handler(filename):
+def setup_file_handler(filename, clear_file = True):
     """Make a file handler!"""
-    handler = log.FileHandler(os.path.join(logs_path, filename), mode="w", encoding='utf8')
+    handler = log.FileHandler(
+        os.path.join(logs_path, filename),
+        mode = "w" if clear_file else "a",
+        encoding = 'utf8'
+    )
     handler.setFormatter(formatter)
 
     return handler
 
 default_handle = setup_file_handler(form_filename(0, "master"))
 
-def setup_logger(name, is_master=False, filename="", level=log.DEBUG):
+def setup_logger(name, is_master = False, filename = "", level = log.DEBUG, clear_file = True):
     """Make a logger!"""
 
     logger = log.getLogger(name)
@@ -39,8 +43,9 @@ def setup_logger(name, is_master=False, filename="", level=log.DEBUG):
     logger.addHandler(default_handle)
 
     if not is_master:
-        handler = setup_file_handler(filename)
         logger.addHandler(default_handle)
+
+        handler = setup_file_handler(filename, clear_file = clear_file)
         logger.addHandler(handler)
 
     return logger
@@ -90,6 +95,19 @@ log_artist_control = setup_logger(
     "artist_control",
     filename = os.path.join(LogPaths.artist_control, form_filename(0, "artist_control"))
 )
+
+log_change_req_data = setup_logger(
+    "change_req_data",
+    filename = os.path.join(LogPaths.artist_control, form_filename(1, "change_req_data")),
+    clear_file = False
+)
+
+log_change_req_changes = setup_logger(
+    "change_req_changes",
+    filename = os.path.join(LogPaths.artist_control, form_filename(1, "change_req_changes")),
+    clear_file = False
+)
+
 
 
 log_firebase = setup_logger(

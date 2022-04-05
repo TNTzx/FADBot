@@ -11,6 +11,7 @@ import backend.firebase as firebase
 import backend.exceptions.send_error as s_e
 import backend.utils.views as views
 import backend.utils.asking.wait_for as wait_for
+import backend.logging.loggers as lgr
 import backend.other_functions as other_functions
 
 from .. import artists as art
@@ -111,6 +112,12 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
         await ctx.author.send("Sent request. Please wait for a PA moderator to approve your request.")
 
+        log_message = (
+            f"Request ID [{self.request_id}]: "
+            f"{self.firebase_to_json()}"
+        )
+        lgr.log_change_req_changes.info(log_message)
+
 
     def firebase_delete_request(self):
         """Deletes the request off of Firebase."""
@@ -203,6 +210,14 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                         "If you have contacts with this user, please notify them!"
                     )
                 )
+
+
+            # do logging
+            log_message = (
+                f"Set approval for request with approval_cls {approval_cls.__name__}: "
+                f"{self.firebase_to_json()}"
+            )
+            lgr.log_change_req_changes.info(log_message)
 
 
         if is_approved:
