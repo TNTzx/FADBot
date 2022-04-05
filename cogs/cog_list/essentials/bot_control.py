@@ -15,8 +15,7 @@ import backend.command_related.command_wrapper as c_w
 
 
 class CogBotControl(cog.RegisteredCog):
-    def __init__(self, bot: nx.Client):
-        self.bot = bot
+    """Contains bot control."""
 
     @c_w.command(
         category=c_w.Categories.bot_control,

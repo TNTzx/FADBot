@@ -26,10 +26,7 @@ async def add_new_to_database():
 
 
 class CogBasic(cog.RegisteredCog):
-    """Contains commands for stuff."""
-    def __init__(self, bot):
-        self.bot = bot
-
+    """Contains commands for basic stuff."""
 
     @cmds.Cog.listener()
     async def on_ready(self):

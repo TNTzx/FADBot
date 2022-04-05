@@ -16,8 +16,7 @@ import backend.exceptions.send_error as s_e
 
 
 class CogLogCmds(cog.RegisteredCog):
-    def __init__(self, bot):
-        self.bot = bot
+    """Contains commands for setting log locations."""
 
     @c_w.command(
         category = c_w.Categories.artist_management,

@@ -23,8 +23,6 @@ import backend.other_functions as o_f
 
 class CogModeration(cog.RegisteredCog):
     """Contains controls for moderating stuff about the bot."""
-    def __init__(self, bot):
-        self.bot = bot
 
     @c_w.command(
         category=c_w.Categories.moderation,

@@ -19,8 +19,7 @@ import backend.other_functions as o_f
 CMD_PREFIX = vrs.CMD_PREFIX
 
 class CogErrorHandler(cog.RegisteredCog):
-    def __init__(self, bot):
-        self.bot = bot
+    """Contains error handling."""
 
     @cmds.Cog.listener()
     async def on_command_error(self, ctx: cmds.Context, exc: Exception | cmds.CommandInvokeError):

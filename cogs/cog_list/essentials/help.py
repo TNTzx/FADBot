@@ -13,8 +13,7 @@ import backend.exceptions.send_error as s_e
 
 
 class CogHelp(cog.RegisteredCog):
-    def __init__(self, bot):
-        self.bot = bot
+    """Contains the help command."""
 
     @c_w.command(
         category = c_w.Categories.basic_commands,
