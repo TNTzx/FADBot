@@ -133,7 +133,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         artist_embed = discord_utils.InfoBundle(self.artist).get_embed()
 
 
-        async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[cmds.Context], typ.Coroutine[None]]):
+        async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[cmds.Context], typ.Coroutine[None, None, None]]):
             """Approves / declines the request from an `approval_cls`."""
             # confirmation
             confirm_view = views.ViewConfirmCancel()
@@ -149,7 +149,8 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             )
             confirm_message = await ctx.send(
                 confirm_str,
-                embed = artist_embed
+                embed = artist_embed,
+                view = confirm_view
             )
 
             final_view = await wait_for.wait_for_view(ctx, confirm_message, confirm_view)
