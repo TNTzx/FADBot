@@ -23,7 +23,7 @@ async def add_new_to_database():
             firebase.edit_data(endpoint, {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
 
-class Hello(cmds.Cog):
+class CogBasic(cmds.Cog):
     """Contains commands for stuff."""
     def __init__(self, bot):
         self.bot = bot
@@ -93,4 +93,4 @@ class Hello(cmds.Cog):
         raise ValueError("ERROR RAISED QUYSDKSHK QUICK EVERYTHING'S FALLING DOWN AAAAAAA")
 
 def setup(bot):
-    bot.add_cog(Hello(bot))
+    bot.add_cog(CogBasic(bot))

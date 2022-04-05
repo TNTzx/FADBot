@@ -17,7 +17,8 @@ import backend.exceptions.send_error as s_e
 import backend.other_functions as o_f
 
 
-class Moderation(cmds.Cog):
+class CogModeration(cmds.Cog):
+    """Contains controls for moderating stuff about the bot."""
     def __init__(self, bot):
         self.bot = bot
 
@@ -115,8 +116,3 @@ class Moderation(cmds.Cog):
 
 
         await action_choice()
-
-
-
-def setup(bot):
-    bot.add_cog(Moderation(bot))

@@ -12,7 +12,7 @@ import backend.logging.loggers as lgr
 import backend.command_related.command_wrapper as c_w
 
 
-class RestartKill(cmds.Cog):
+class CogBotControl(cmds.Cog):
     def __init__(self, bot: nx.Client):
         self.bot = bot
 
@@ -74,4 +74,4 @@ class RestartKill(cmds.Cog):
 
 def setup(bot):
     """Sets the bot up."""
-    bot.add_cog(RestartKill(bot))
+    bot.add_cog(CogBotControl(bot))

@@ -10,7 +10,7 @@ import backend.other_functions as o_f
 import backend.exceptions.send_error as s_e
 
 
-class Help(cmds.Cog):
+class CogHelp(cmds.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -145,4 +145,4 @@ class Help(cmds.Cog):
             await specific()
 
 def setup(bot: nx.Client):
-    bot.add_cog(Help(bot))
+    bot.add_cog(CogHelp(bot))
