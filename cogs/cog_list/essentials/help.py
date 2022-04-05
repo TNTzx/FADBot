@@ -143,6 +143,3 @@ class CogHelp(cmds.Cog):
             await show_all()
         else:
             await specific()
-
-def setup(bot: nx.Client):
-    bot.add_cog(CogHelp(bot))

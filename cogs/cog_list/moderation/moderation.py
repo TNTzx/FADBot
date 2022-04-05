@@ -111,7 +111,7 @@ class CogModeration(cmds.Cog):
                 await user.send("**You have been unbanned from using this bot.**")
 
                 log_message = f"[UNBAN] {user_name} | {user.id}"
-            
+
             lgr.log_bot_bans.info(log_message)
 
 

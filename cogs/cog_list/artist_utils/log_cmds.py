@@ -88,7 +88,3 @@ class CogLogCmds(cmds.Cog):
         await log_type_choice()
 
         await ctx.send(f"`{log_type.capitalize()}` log channel unregistered.")
-
-
-def setup(bot: nx.Client):
-    bot.add_cog(CogLogCmds(bot))

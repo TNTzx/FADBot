@@ -71,7 +71,3 @@ class CogBotControl(cmds.Cog):
         print("\n \n Restart break! Hard! -------------------------------------- \n \n")
         args = ['python'] + [f"\"{sys.argv[0]}\""]
         os.execv(sys.executable, args)
-
-def setup(bot):
-    """Sets the bot up."""
-    bot.add_cog(CogBotControl(bot))

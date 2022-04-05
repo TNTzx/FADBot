@@ -73,7 +73,3 @@ class CogErrorHandler(cmds.Cog):
 
         lgr.log_global_exc.error("".join(tr.format_exception(exc.original)))
         await s_e.send_error(ctx, "Something went wrong. This error has been reported to the owner of the bot.", exc=exc, send_owner=True, send_console=True)
-
-
-def setup(bot):
-    bot.add_cog(CogErrorHandler(bot))

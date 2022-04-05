@@ -91,6 +91,3 @@ class CogBasic(cmds.Cog):
     async def causeerror(self, ctx: cmds.Context):
         """AAAAAAAAAAAAAAAAA"""
         raise ValueError("ERROR RAISED QUYSDKSHK QUICK EVERYTHING'S FALLING DOWN AAAAAAA")
-
-def setup(bot):
-    bot.add_cog(CogBasic(bot))

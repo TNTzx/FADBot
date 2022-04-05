@@ -328,7 +328,3 @@ class CogArtistCmds(cmds.Cog):
     #     if isinstance(ctx.channel, nx.DMChannel):
     #         await i_u.delete_is_using_command(ctx.author.id)
     #         await ctx.author.send("Command cancelled.")
-
-
-def setup(bot: cmds.Bot):
-    bot.add_cog(CogArtistCmds(bot))
