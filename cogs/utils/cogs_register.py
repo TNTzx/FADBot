@@ -1,0 +1,22 @@
+"""Contains functions for registering cogs."""
+
+
+import nextcord.ext.commands as cmds
+
+
+class CogRegister(cmds.Cog):
+    """Parent class for all cogs."""
+    def __init__(self, bot: cmds.Bot):
+        self.bot = bot
+
+    @classmethod
+    def get_all_cogs(cls):
+        """Gets all cogs."""
+        return cls.__subclasses__()
+
+
+    @classmethod
+    def load_all_cogs_to_bot(cls, bot: cmds.Bot):
+        """Loads all cogs to a bot."""
+        for cog in cls.get_all_cogs():
+            bot.add_cog(cog(bot))

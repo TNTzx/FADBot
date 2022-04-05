@@ -33,22 +33,26 @@ def main():
     # Load all cogs
     log_something("Loading cogs...")
 
-    exclude_cogs = ["artist_control"]
-    def all_cogs():
-        """Returns all cogs."""
-        return os.listdir(os.path.join(os.path.dirname(__file__), ".", "cogs"))
+    # exclude_cogs = ["artist_control"]
+    # def all_cogs():
+    #     """Returns all cogs."""
+    #     return os.listdir(os.path.join(os.path.dirname(__file__), ".", "cogs"))
 
-    for filename in all_cogs():
-        if filename.endswith(".py"):
-            filename = filename[:-3]
-            if filename == "__init__":
-                continue
-            if filename in exclude_cogs:
-                log_something(f"WARNING: Not loading cog '{filename}'!")
-                continue
+    # for filename in all_cogs():
+    #     if filename.endswith(".py"):
+    #         filename = filename[:-3]
+    #         if filename == "__init__":
+    #             continue
+    #         if filename in exclude_cogs:
+    #             log_something(f"WARNING: Not loading cog '{filename}'!")
+    #             continue
 
-            log_something(f"Loading cog '{filename}'...")
-            bot.load_extension(f"cogs.{filename}")
+    #         log_something(f"Loading cog '{filename}'...")
+    #         bot.load(f"cogs.{filename}")
+
+    import cogs.basic as basic
+
+    bot.add_cog(basic.Hello(bot))
 
     log_something("Loaded all cogs!")
 

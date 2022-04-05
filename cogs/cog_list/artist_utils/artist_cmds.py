@@ -1,4 +1,4 @@
-"""Artist control.""""
+"""Artist control."""
 
 
 from async_timeout import asyncio
@@ -23,7 +23,7 @@ import backend.other_functions as o_f
 
 # FIXME fix me :(
 
-class ArtistControl(cmds.Cog):
+class CogArtistCmds(cmds.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -331,4 +331,4 @@ class ArtistControl(cmds.Cog):
 
 
 def setup(bot: cmds.Bot):
-    bot.add_cog(ArtistControl(bot))
+    bot.add_cog(CogArtistCmds(bot))

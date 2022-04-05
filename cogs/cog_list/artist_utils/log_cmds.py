@@ -13,7 +13,7 @@ import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
 
 
-class LogControl(cmds.Cog):
+class CogLogCmds(cmds.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -91,4 +91,4 @@ class LogControl(cmds.Cog):
 
 
 def setup(bot: nx.Client):
-    bot.add_cog(LogControl(bot))
+    bot.add_cog(CogLogCmds(bot))
