@@ -90,7 +90,7 @@ class Decline(ApprovalStatus):
     def get_message_complete_dump_logs(cls, req_id: int, req_type: str, reason: str):
         return (
             f"This {req_type} request has been declined for the following reason:\n"
-            f"{reason}\n"
+            f"`{reason}`\n"
             f"{get_str_request_id(req_id)}"
         )
 
