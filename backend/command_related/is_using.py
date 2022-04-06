@@ -6,8 +6,8 @@ import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.firebase as firebase
-import backend.exceptions.custom_exc as c_e
-import backend.exceptions.send_error as s_e
+import backend.exc_utils.custom_exc as c_e
+import backend.exc_utils.send_error as s_e
 
 
 def check_if_using_command(path: list[str], author_id: int):

@@ -6,8 +6,8 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.artists.library.artist_library as a_l
-import backend.exceptions.custom_exc as c_e
-import backend.exceptions.send_error as s_e
+import backend.exc_utils.custom_exc as c_e
+import backend.exc_utils.send_error as s_e
 
 
 async def get_artist_by_id(ctx: nx_cmds.Context, artist_id: int) -> a_l.Default:

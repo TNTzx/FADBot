@@ -23,8 +23,8 @@ import backend.artists.library.ask_for_attr.ask_attr as ask_a
 import backend.artists.library.ask_for_attr.ask_confirm as ask_c
 import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.api as v_i
-import backend.exceptions.custom_exc as c_exc
-import backend.exceptions.send_error as s_e
+import backend.exc_utils.custom_exc as c_exc
+import backend.exc_utils.send_error as s_e
 import backend.other_functions as o_f
 
 
