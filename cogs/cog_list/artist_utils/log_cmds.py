@@ -4,15 +4,15 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-from ... import utils as cog
-
 import global_vars.variables as vrs
 import backend.command_related.command_wrapper as c_w
-import backend.command_related.choice_param as c_p
+import backend.command_related.param_choice as c_p
 import backend.utils.checks as ch
 import backend.firebase as firebase
 import backend.exceptions.custom_exc as c_e
 import backend.exceptions.send_error as s_e
+
+from ... import utils as cog
 
 
 class CogLogCmds(cog.RegisteredCog):

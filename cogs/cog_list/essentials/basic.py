@@ -4,8 +4,6 @@
 import nextcord as nx
 import nextcord.ext.commands as cmds
 
-from ... import utils as cog
-
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
 import global_vars.defaults as defaults
@@ -13,6 +11,8 @@ import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
 import backend.firebase as firebase
 import backend.exceptions.custom_exc as c_e
+
+from ... import utils as cog
 
 
 async def add_new_to_database():
