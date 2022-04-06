@@ -2,8 +2,9 @@
 
 
 import functools as fc
+
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import backend.firebase as firebase
 import backend.exceptions.send_error as s_e
@@ -48,7 +49,7 @@ class CustomCommandClass:
         class Cooldown:
             """Cooldown."""
             length = 0
-            type = cmds.BucketType.channel
+            type = nx_cmds.BucketType.channel
 
 class ListOfCommands:
     """Lists all commands."""
@@ -61,7 +62,7 @@ for attribute in dir(Categories):
         ListOfCommands.commands_all[getattr(Categories, attribute)] = []
 
 
-async def check_pa_mod(ctx: cmds.Context, user_id: int):
+async def check_pa_mod(ctx: nx_cmds.Context, user_id: int):
     """Checks if a user is a PA Moderator by role or a dev."""
     can_verify_roles = firebase.get_data(
         firebase.ENDPOINTS.e_artist.e_change_req.e_can_verify.e_server_roles.get_path(),
@@ -85,7 +86,7 @@ async def check_pa_mod(ctx: cmds.Context, user_id: int):
                     return True
     return False
 
-async def check_admin(ctx: cmds.Context, user_id: int):
+async def check_admin(ctx: nx_cmds.Context, user_id: int):
     """Check if the user is a guild admin."""
     user_id = str(user_id)
     guild_id = str(ctx.guild.id)
@@ -101,7 +102,7 @@ async def check_admin(ctx: cmds.Context, user_id: int):
             return True
     return False
 
-async def check_owner(ctx: cmds.Context, user_id: int):
+async def check_owner(ctx: nx_cmds.Context, user_id: int):
     """Check if the user is a guild owner."""
     return user_id == ctx.guild.owner.id
 
@@ -149,7 +150,7 @@ def command(
         @fc.wraps(func)
         async def wrapper(*args, **kwargs):
             # self = args[0]
-            ctx: cmds.Context = args[1]
+            ctx: nx_cmds.Context = args[1]
 
             async def send_error(suffix):
                 await s_e.send_error(ctx, f"You don't have proper permissions! {suffix}")
@@ -192,15 +193,15 @@ def command(
 
 
         if aliases is None:
-            wrapper = cmds.command(name = func.__name__)(wrapper)
+            wrapper = nx_cmds.command(name = func.__name__)(wrapper)
         else:
-            wrapper = cmds.command(name = func.__name__, aliases = aliases)(wrapper)
+            wrapper = nx_cmds.command(name = func.__name__, aliases = aliases)(wrapper)
 
         if guild_only:
-            wrapper = cmds.guild_only()(wrapper)
+            wrapper = nx_cmds.guild_only()(wrapper)
 
         if cooldown > 0:
-            wrapper = cmds.cooldown(1, cooldown, cooldown_type)(wrapper)
+            wrapper = nx_cmds.cooldown(1, cooldown, cooldown_type)(wrapper)
 
 
         cmd = CustomCommandClass()
@@ -223,7 +224,7 @@ def command(
         require.guild_owner = req_guild_owner
         helps.require = require
 
-        def show_condition_wrapper(ctx: cmds.Context):
+        def show_condition_wrapper(ctx: nx_cmds.Context):
             try:
                 return show_condition(ctx)
             except AttributeError:

@@ -4,7 +4,7 @@
 import typing as typ
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.firebase as firebase
@@ -101,7 +101,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     async def send_request_pending_intercept(self):
         """An extra method used to intercept the `send_request_pending` method."""
 
-    async def send_request_pending(self, ctx: cmds.Context):
+    async def send_request_pending(self, ctx: nx_cmds.Context):
         """Sends the request for approval."""
         await ctx.author.send(f"Sending {self.type_} request...")
         self.register_request_id()
@@ -129,13 +129,13 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         firebase.delete_data(self.firebase_get_path() + [self.request_id])
 
 
-    async def approve_request(self, ctx: cmds.Context):
+    async def approve_request(self, ctx: nx_cmds.Context):
         """Approves the request."""
 
-    async def decline_request(self, ctx: cmds.Context):
+    async def decline_request(self, ctx: nx_cmds.Context):
         """Denies the request."""
 
-    async def set_approval(self, ctx: cmds.Context, is_approved: bool, reason: str = None):
+    async def set_approval(self, ctx: nx_cmds.Context, is_approved: bool, reason: str = None):
         """Sets the approve status of this request."""
         timeout = vrs.Timeouts.medium
         self.artist.states.status.value = 0
@@ -143,7 +143,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         artist_embed = discord_utils.InfoBundle(self.artist).get_embed()
 
 
-        async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[cmds.Context], typ.Coroutine[None, None, None]]):
+        async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[nx_cmds.Context], typ.Coroutine[None, None, None]]):
             """Approves / declines the request from an `approval_cls`."""
             # confirmation
             confirm_view = views.ViewConfirmCancel()
@@ -239,7 +239,7 @@ class AddRequest(ChangeRequest):
     type_ = firebase_name = "add"
 
 
-    async def approve_request(self, ctx: cmds.Context):
+    async def approve_request(self, ctx: nx_cmds.Context):
         self.artist.vadb_create_edit()
 
 
@@ -254,10 +254,10 @@ class EditRequest(ChangeRequest):
         old_artist.vadb_edit()
 
 
-    async def approve_request(self, ctx: cmds.Context):
+    async def approve_request(self, ctx: nx_cmds.Context):
         self.artist.vadb_edit()
 
-    async def decline_request(self, ctx: cmds.Context):
+    async def decline_request(self, ctx: nx_cmds.Context):
         old_artist = self.get_original_artist()
         old_artist.states.status.value = 0
         old_artist.vadb_edit()

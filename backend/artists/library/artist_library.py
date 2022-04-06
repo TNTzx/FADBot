@@ -6,7 +6,7 @@ import urllib.parse as ul
 import copy
 import requests as req
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import tldextract as tld
 
@@ -340,7 +340,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         genre = mot.Unique()
         socials = mot.Unique()
 
-    async def set_attribute(self, ctx: cmds.Context, attr: mot.Unique, skippable = False):
+    async def set_attribute(self, ctx: nx_cmds.Context, attr: mot.Unique, skippable = False):
         """Sets an attribute in this class."""
 
         attributes = self.Attributes
@@ -511,7 +511,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                     })
                 self.details.socials = social_list
 
-    async def edit_loop(self, ctx: cmds.Context):
+    async def edit_loop(self, ctx: nx_cmds.Context):
         """Initiates an edit loop to edit the attributes."""
         attributes = self.Attributes
         command_dict = {
@@ -568,7 +568,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             if await ask_c.ask_confirm(ctx):
                 break
 
-    async def trigger_all_set_attributes(self, ctx: cmds.Context):
+    async def trigger_all_set_attributes(self, ctx: nx_cmds.Context):
         """Triggers all attributes."""
         async def trigger(cmd):
             await self.set_attribute(ctx, cmd)
@@ -881,7 +881,7 @@ def create_log_list(logs):
     return [l_l.Log().from_dict(log) for log in logs] if logs is not None else None
 
 
-async def send_reminder(ctx: cmds.Context):
+async def send_reminder(ctx: nx_cmds.Context):
     """Sends a reminder that the VADB site exists."""
     await ctx.author.send((
         "Reminder that this bot is made for a website!\n"

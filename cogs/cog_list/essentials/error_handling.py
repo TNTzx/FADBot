@@ -5,7 +5,7 @@ import asyncio
 import traceback as tr
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
@@ -21,37 +21,37 @@ CMD_PREFIX = vrs.CMD_PREFIX
 class CogErrorHandler(cog.RegisteredCog):
     """Contains error handling."""
 
-    @cmds.Cog.listener()
-    async def on_command_error(self, ctx: cmds.Context, exc: Exception | cmds.CommandInvokeError):
+    @nx_cmds.Cog.listener()
+    async def on_command_error(self, ctx: nx_cmds.Context, exc: Exception | nx_cmds.CommandInvokeError):
         def checkexc(exc_type):
             return isinstance(exc, exc_type)
 
-        if checkexc(cmds.CommandOnCooldown):
+        if checkexc(nx_cmds.CommandOnCooldown):
             time = o_f.format_time(int(str(round(exc.retry_after, 0))[:-2]))
             await s_e.send_error(ctx, f"The command is on cooldown for `{time}` more!")
             return
 
-        if checkexc(cmds.MissingRole):
+        if checkexc(nx_cmds.MissingRole):
             await s_e.send_error(ctx, f"You don't have the `{exc.missing_role}` role!", cooldown_reset = True)
             return
 
-        if checkexc(cmds.MissingRequiredArgument) or checkexc(cmds.BadArgument):
+        if checkexc(nx_cmds.MissingRequiredArgument) or checkexc(nx_cmds.BadArgument):
             await s_e.send_error(ctx, f"Make sure you have the correct parameters! Use `{CMD_PREFIX}help` to get help!", cooldown_reset = True)
             return
 
-        if checkexc(cmds.ExpectedClosingQuoteError) or checkexc(cmds.InvalidEndOfQuotedStringError) or checkexc(cmds.UnexpectedQuoteError):
+        if checkexc(nx_cmds.ExpectedClosingQuoteError) or checkexc(nx_cmds.InvalidEndOfQuotedStringError) or checkexc(nx_cmds.UnexpectedQuoteError):
             await s_e.send_error(ctx, "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!", cooldown_reset = True)
             return
 
-        if checkexc(cmds.MissingRequiredArgument):
+        if checkexc(nx_cmds.MissingRequiredArgument):
             await s_e.send_error(ctx, f"Make sure you have the correct parameters! Use `{vrs.CMD_PREFIX}help` to get help!")
             return
 
-        if checkexc(cmds.NoPrivateMessage):
+        if checkexc(nx_cmds.NoPrivateMessage):
             await s_e.send_error(ctx, "This command is disabled in DMs!", cooldown_reset = True)
             return
 
-        if checkexc(cmds.CommandInvokeError):
+        if checkexc(nx_cmds.CommandInvokeError):
             if isinstance(exc.original, c_e.ExitFunction):
                 return
 
@@ -70,7 +70,7 @@ class CogErrorHandler(cog.RegisteredCog):
                 lgr.log_discord_forbidden.warning(error_message)
                 return
 
-        if checkexc(cmds.CommandNotFound):
+        if checkexc(nx_cmds.CommandNotFound):
             return
 
         lgr.log_global_exc.error("".join(tr.format_exception(exc.original)))

@@ -1,18 +1,11 @@
 """Module that contains functions for waiting for responses.
 Used for setting artist objects attributes."""
 
-# pylint: disable = line-too-long
-# pylint: disable = no-else-raise
-# pylint: disable = too-few-public-methods
-# pylint: disable = too-many-arguments
-# pylint: disable = too-many-locals
-# pylint: disable = too-many-statements
-# pylint: disable = unused-argument
 
 import typing as typ
 import requests as req
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.utils.asking.wait_for as w_f
@@ -36,7 +29,7 @@ async def check_has_dict(choices, choices_dict):
     return False
 
 
-async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, choices_dict: list[str] = None,):
+async def reformat(ctx: nx_cmds.Context, output_type: dict, response: nx.Message, choices_dict: list[str] = None,):
     """Reformats the response."""
     async def number():
         if not response.content.isnumeric():
@@ -146,7 +139,7 @@ async def reformat(ctx: cmds.Context, output_type: dict, response: nx.Message, c
         return await dictionary()
 
 
-async def ask_attribute(ctx: cmds.Context,
+async def ask_attribute(ctx: nx_cmds.Context,
         title, description, output_type,
         add_view: typ.Type[vw.View] = vw.Blank,
         choices_dict: list[str] = None,

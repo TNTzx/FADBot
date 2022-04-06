@@ -8,7 +8,7 @@ import typing as typ
 import requests as req
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.utils.views as vw
@@ -22,7 +22,7 @@ from .. import form_exc as f_exc
 from . import section_states as states
 
 
-async def check_response(ctx: cmds.Context, view: vw.View):
+async def check_response(ctx: nx_cmds.Context, view: vw.View):
     """Checks the response of the user if they went back, cancelled, etc."""
     if view.value == vw.OutputValues.cancel:
         await s_e.cancel_command(ctx, send_author = True)
@@ -124,7 +124,7 @@ class FormSection():
 
     async def reformat_input(
             self,
-            ctx: cmds.Context,
+            ctx: nx_cmds.Context,
             response: nx.Message | vw.View,
             section_state: states.SectionState = None
             ) -> str | int | dict | list | vw.View:
@@ -134,7 +134,7 @@ class FormSection():
 
     async def send_section(
             self,
-            ctx: cmds.Context,
+            ctx: nx_cmds.Context,
             section_state: states.SectionState = None,
             extra_view: typ.Type[vw.View] = vw.Blank,
             timeout: int = None
@@ -177,7 +177,7 @@ class FormSection():
             return final_response
 
 
-    async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
         """Edits the artist with the section."""
 
 
@@ -189,7 +189,7 @@ class TextInput(FormSection):
     """A `FormSection` with a text input."""
 
 
-async def check_if_content_empty(ctx: cmds.Context, response: nx.Message):
+async def check_if_content_empty(ctx: nx_cmds.Context, response: nx.Message):
     """Checks if the response is empty, as if sending an attachment with no message. If it is empty, raise InvalidSectionResponse."""
     if response.content == "":
         await w_f.send_error(ctx, "You didn't send anything!", send_author = True)
@@ -201,7 +201,7 @@ class NumberSection(TextInput):
     text_ext = "a number"
     instructions = "Send a number!"
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         await check_if_content_empty(ctx, response)
 
         try:
@@ -223,7 +223,7 @@ class RawTextSection(TextInput):
     text_ext = "some text"
     instructions = "Send any plain text!"
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         await check_if_content_empty(ctx, response)
 
         return response.content
@@ -237,7 +237,7 @@ class LinksSection(TextInput):
         "You can also send more than one link by separating each link with a newline (using `CTRL + Enter` on PC, or just `Enter` on mobile)."
     )
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         await check_if_content_empty(ctx, response)
 
         async def check_link(url):
@@ -267,7 +267,7 @@ class ImageSection(TextInput):
         "You can send an image using an attachment (uploading the file directly to Discord) or using a direct URL link of the image!"
     )
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         async def check_image(image_url):
             supported_formats = ["png", "jpg", "jpeg"]
 
@@ -303,7 +303,7 @@ class ListSection(TextInput):
         "Separate each item in the list with a newline (using `CTRL + Enter` on PC, or just `Enter` on mobile)."
     )
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         await check_if_content_empty(ctx, response)
 
         if response.content == "":
@@ -331,7 +331,7 @@ class DictSection(TextInput):
         self.allowed_key_func = allowed_key_func
         self.allowed_val_func = allowed_val_func
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         await check_if_content_empty(ctx, response)
 
         diction = {}
@@ -364,7 +364,7 @@ class ChoiceSection(ViewInput):
     text_ext = "a choice"
     instructions = "Select an item in the choices below!"
 
-    async def reformat_input(self, ctx: cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
         if isinstance(response, nx.Message):
             await w_f.send_error(ctx, "You didn't send a choice!", send_author = True)
             raise f_exc.InvalidSectionResponse()

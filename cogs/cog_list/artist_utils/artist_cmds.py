@@ -2,10 +2,9 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
-import backend.command_related.command_wrapper as command_wrapper
-import backend.command_related.
+import backend.command_related as cmd
 
 
 from ... import utils as cog
@@ -32,7 +31,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #     guild_only = False
     # )
     # @i_u.sustained_command()
-    # async def artistrequestadd(self, ctx: cmds.Context, *skips):
+    # async def artistrequestadd(self, ctx: nx_cmds.Context, *skips):
     #     if not isinstance(ctx.channel, nx.channel.DMChannel):
     #         await ctx.send("The artist add request form is sent to your DMs. Please check it.")
 
@@ -83,7 +82,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #     guild_only = False
     # )
     # @i_u.sustained_command()
-    # async def artistrequestedit(self, ctx: cmds.Context, artist_id: int, *skips):
+    # async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int, *skips):
     #     if firebase.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
     #         await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.")
     #         return
@@ -136,7 +135,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #     req_pa_mod = True
     # )
     # @i_u.sustained_command()
-    # async def artistverify(self, ctx: cmds.Context, _type: str, artist_id: int, action: str, reason: str = None):
+    # async def artistverify(self, ctx: nx_cmds.Context, _type: str, artist_id: int, action: str, reason: str = None):
     #     await ctx.send("Getting data...")
 
     #     artist = await a_ch.get_artist_by_id(ctx, artist_id)
@@ -286,13 +285,13 @@ class CogArtistCmds(cog.RegisteredCog):
     #     },
     #     aliases = ["as"],
     #     guild_only = False,
-    #     cooldown = 5, cooldown_type = cmds.BucketType.user,
+    #     cooldown = 5, cooldown_type = nx_cmds.BucketType.user,
     #     example_usage = [
     #         "##artistsearch \"Some Random Artist Name\"",
     #         "##artistsearch 5"
     #     ]
     # )
-    # async def artistsearch(self, ctx: cmds.Context, term: str | int):
+    # async def artistsearch(self, ctx: nx_cmds.Context, term: str | int):
     #     try:
     #         term = int(term)
     #     except (ValueError, TypeError):
@@ -321,7 +320,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #     description = "Cancels the current command. Usually used for artist commands.",
     #     guild_only = False
     # )
-    # async def cancel(self, ctx: cmds.Context):
+    # async def cancel(self, ctx: nx_cmds.Context):
     #     if isinstance(ctx.channel, nx.DMChannel):
     #         await i_u.delete_is_using_command(ctx.author.id)
     #         await ctx.author.send("Command cancelled.")

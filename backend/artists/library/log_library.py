@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.utils.dataclass as dt

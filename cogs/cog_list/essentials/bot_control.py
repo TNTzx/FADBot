@@ -5,7 +5,7 @@ import os
 import sys
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
@@ -36,7 +36,7 @@ class CogBotControl(cog.RegisteredCog):
 
                 try:
                     self.bot.unload_extension(new_file)
-                except cmds.errors.ExtensionNotLoaded:
+                except nx_cmds.errors.ExtensionNotLoaded:
                     continue
                 self.bot.load_extension(new_file)
         await ctx.send("Restarted!")

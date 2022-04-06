@@ -2,7 +2,7 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import backend.firebase as firebase
 import backend.utils.message_pointer as m_p
@@ -23,7 +23,7 @@ class InfoBundle():
         return embeds.generate_embed(self.artist)
 
 
-    async def send_message(self, channel: cmds.Context | nx.TextChannel | nx.DMChannel, prefix: str = None, view: vw.View = None):
+    async def send_message(self, channel: nx_cmds.Context | nx.TextChannel | nx.DMChannel, prefix: str = None, view: vw.View = None):
         """Sends the message to a text channel. The view is attached to `message_proof`."""
         message_embed = await channel.send(prefix, embed = self.get_embed())
         message_proof = await channel.send(self.artist.proof.original_url, view = view)

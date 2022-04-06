@@ -2,7 +2,7 @@
 
 
 import functools as fc
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.firebase as firebase
@@ -51,7 +51,7 @@ def sustained_command():
 
         @fc.wraps(func)
         async def wrapper(*args, **kwargs):
-            ctx: cmds.Context = args[1]
+            ctx: nx_cmds.Context = args[1]
 
             if check_if_using_command(path, ctx.author.id):
                 await s_e.send_error(ctx, "You're already using this command! Please cancel the command you're currently using, or wait until it times out!")

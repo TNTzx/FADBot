@@ -2,7 +2,7 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.command_related.command_wrapper as c_w
@@ -31,9 +31,9 @@ class CogLogCmds(cog.RegisteredCog):
         },
         aliases = ["lls"],
         req_guild_admin = True,
-        cooldown = 10, cooldown_type = cmds.BucketType.guild
+        cooldown = 10, cooldown_type = nx_cmds.BucketType.guild
     )
-    async def loglocationset(self, ctx: cmds.Context, log_type: str, channel_mention: str):
+    async def loglocationset(self, ctx: nx_cmds.Context, log_type: str, channel_mention: str):
         channel = await ch.channel_from_mention(ctx, channel_mention)
 
         await ctx.send("Registering log channel...")
@@ -71,9 +71,9 @@ class CogLogCmds(cog.RegisteredCog):
         },
         aliases = ["llus"],
         req_guild_admin = True,
-        cooldown = 10, cooldown_type = cmds.BucketType.guild
+        cooldown = 10, cooldown_type = nx_cmds.BucketType.guild
     )
-    async def loglocationunset(self, ctx: cmds.Context, log_type: str):
+    async def loglocationunset(self, ctx: nx_cmds.Context, log_type: str):
         await ctx.send("Unregistering log channel...")
 
         @c_p.choice_param_cmd(ctx, log_type, ["dump", "live"])

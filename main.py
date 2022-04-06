@@ -4,7 +4,7 @@
 import os
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import cogs
 
@@ -27,7 +27,7 @@ def main():
     intents.members = True
     intents.guilds = True
 
-    bot = cmds.Bot(command_prefix = vrs.CMD_PREFIX, intents = intents)
+    bot = nx_cmds.Bot(command_prefix = vrs.CMD_PREFIX, intents = intents)
     bot.remove_command("help")
 
     vrs.global_bot = bot

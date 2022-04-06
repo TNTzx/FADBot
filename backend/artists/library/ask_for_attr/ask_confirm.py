@@ -4,7 +4,7 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.utils.views as vw
@@ -13,7 +13,7 @@ import backend.utils.asking.wait_for as w_f
 
 TIMEOUT = vrs.Timeouts.medium
 
-async def ask_confirm(ctx: cmds.Context):
+async def ask_confirm(ctx: nx_cmds.Context):
     """Asks to confirm an action."""
     view = vw.ViewSubmitCancel()
 

@@ -1,14 +1,14 @@
 """Contains functions for registering cogs."""
 
 
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import backend.logging.loggers as lgr
 
 
-class RegisteredCog(cmds.Cog):
+class RegisteredCog(nx_cmds.Cog):
     """Parent class for all cogs."""
-    def __init__(self, bot: cmds.Bot):
+    def __init__(self, bot: nx_cmds.Bot):
         self.bot = bot
 
     @classmethod
@@ -18,7 +18,7 @@ class RegisteredCog(cmds.Cog):
 
 
     @classmethod
-    def load_all_cogs_to_bot(cls, bot: cmds.Bot):
+    def load_all_cogs_to_bot(cls, bot: nx_cmds.Bot):
         """Loads all cogs to a bot."""
         for cog in cls.get_all_cogs():
             log_message = f"Loading cog \"{cog.__name__}\"..."

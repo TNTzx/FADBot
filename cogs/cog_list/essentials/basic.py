@@ -2,7 +2,7 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
@@ -28,7 +28,7 @@ async def add_new_to_database():
 class CogBasic(cog.RegisteredCog):
     """Contains commands for basic stuff."""
 
-    @cmds.Cog.listener()
+    @nx_cmds.Cog.listener()
     async def on_ready(self):
         """Gets called when the bot is ready."""
         print(f"Logged in as {vrs.global_bot.user}.")
@@ -43,7 +43,7 @@ class CogBasic(cog.RegisteredCog):
         await vrs.TNTz.send("Logged in!")
 
 
-    @cmds.Cog.listener()
+    @nx_cmds.Cog.listener()
     async def on_guild_join(self, guild: nx.Guild):
         """Gets called whenever the bot joins a server."""
         await add_new_to_database()
@@ -56,7 +56,7 @@ class CogBasic(cog.RegisteredCog):
         req_dev = True,
         show_help = False
     )
-    async def updatedatabase(self, ctx: cmds.Context):
+    async def updatedatabase(self, ctx: nx_cmds.Context):
         """Updates the database."""
         await add_new_to_database()
         await ctx.send("Database updated.")
@@ -66,7 +66,7 @@ class CogBasic(cog.RegisteredCog):
         category = c_w.Categories.basic_commands,
         description = "Hello...?"
     )
-    async def hello(self, ctx: cmds.Context):
+    async def hello(self, ctx: nx_cmds.Context):
         """well hello there how are u am dog"""
         await ctx.send("...what? I- hmm. Thanks for the... erm... hello... I guess?")
 
@@ -75,7 +75,7 @@ class CogBasic(cog.RegisteredCog):
         category = c_w.Categories.basic_commands,
         description = "Ping...?"
     )
-    async def ping(self, ctx: cmds.Context):
+    async def ping(self, ctx: nx_cmds.Context):
         """WHY WHY WOULD YOU DO THIS"""
         await ctx.send(f"Pong! <@{ctx.author.id}>")
 
@@ -87,6 +87,6 @@ class CogBasic(cog.RegisteredCog):
         req_dev = True,
         show_help = False
     )
-    async def causeerror(self, ctx: cmds.Context):
+    async def causeerror(self, ctx: nx_cmds.Context):
         """AAAAAAAAAAAAAAAAA"""
         raise ValueError("ERROR RAISED QUYSDKSHK QUICK EVERYTHING'S FALLING DOWN AAAAAAA")

@@ -2,7 +2,7 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import backend.exceptions.send_error as s_e
 import backend.utils.asking.wait_for as w_f
@@ -25,7 +25,7 @@ class FormArtist():
         self.artist = artist
 
 
-    async def edit_with_section(self, ctx: cmds.Context, section: f_s.FormSection, section_state: f_s.SectionState = None):
+    async def edit_with_section(self, ctx: nx_cmds.Context, section: f_s.FormSection, section_state: f_s.SectionState = None):
         """Edits the artist on Discord with a form section."""
         try:
             await section.edit_artist_with_section(ctx, self.artist, section_state = section_state)
@@ -33,13 +33,13 @@ class FormArtist():
             return
 
 
-    async def edit_with_all_sections(self, ctx: cmds.Context, section_state: f_s.SectionState = None):
+    async def edit_with_all_sections(self, ctx: nx_cmds.Context, section_state: f_s.SectionState = None):
         """Edits the artist with all form sections."""
         for section in f_s.FormSections.get_all_form_sections():
             await self.edit_with_section(ctx, section, section_state)
 
 
-    async def edit_loop(self, ctx: cmds.Context):
+    async def edit_loop(self, ctx: nx_cmds.Context):
         """Edits the artist using dropdowns to select a section."""
         timeout = vrs.Timeouts.long
 

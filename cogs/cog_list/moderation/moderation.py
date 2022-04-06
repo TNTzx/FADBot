@@ -2,7 +2,7 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
@@ -30,7 +30,7 @@ class CogModeration(cog.RegisteredCog):
         parameters = {"id": "The ID of the role you want to add. If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."},
         req_guild_owner = True
     )
-    async def setadmin(self, ctx: cmds.Context, role_id):
+    async def setadmin(self, ctx: nx_cmds.Context, role_id):
         try:
             int(role_id)
         except ValueError:
@@ -55,7 +55,7 @@ class CogModeration(cog.RegisteredCog):
         req_pa_mod = True,
         guild_only = False
     )
-    async def botban(self, ctx: cmds.Context, action: str, user_id: int):
+    async def botban(self, ctx: nx_cmds.Context, action: str, user_id: int):
         """Bans or unbans a person from using the bot."""
         path_initial = firebase.ENDPOINTS.e_discord.e_users_general.e_banned_users.get_path()
 

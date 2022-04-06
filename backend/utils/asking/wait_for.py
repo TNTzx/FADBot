@@ -6,7 +6,7 @@ import asyncio
 import enum
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.exceptions.custom_exc as c_e
@@ -25,7 +25,7 @@ async def send_error(ctx, suffix, send_author = False):
     await s_e.send_error(ctx, f"{suffix} Try again.", send_author = send_author)
 
 
-async def wait_for_message(ctx: cmds.Context, timeout = TIMEOUT):
+async def wait_for_message(ctx: nx_cmds.Context, timeout = TIMEOUT):
     """Wait for a message then return the response."""
     try:
         response: nx.Message = await vrs.global_bot.wait_for(
@@ -52,7 +52,7 @@ class ExampleView(nx.ui.View):
         self.stop()
 
 
-async def wait_for_view(ctx: cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout = TIMEOUT):
+async def wait_for_view(ctx: nx_cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout = TIMEOUT):
     """Waits for an interaction."""
     try:
         await vrs.global_bot.wait_for("interaction", check = w_f_ch.check_interaction(ctx.author.id, original_message.id), timeout = timeout)
@@ -67,7 +67,7 @@ class OutputTypes(enum.Enum):
     message = "message"
     view = "view"
 
-async def wait_for_message_view(ctx: cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout = TIMEOUT):
+async def wait_for_message_view(ctx: nx_cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout = TIMEOUT):
     """Waits for a message then returns (MessageViewCheck.message, message). If instead it was a view interaction, return (MessageViewCheck.view, view) of that interaction."""
 
     events = [

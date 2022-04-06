@@ -2,7 +2,7 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.command_related.command_wrapper as c_w
@@ -21,9 +21,9 @@ class CogHelp(cog.RegisteredCog):
         parameters = {"[command]": "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"},
         aliases = ["h"],
         guild_only = False,
-        cooldown = 1, cooldown_type = cmds.BucketType.user
+        cooldown = 1, cooldown_type = nx_cmds.BucketType.user
     )
-    async def help(self, ctx: cmds.Context, command = None):
+    async def help(self, ctx: nx_cmds.Context, command = None):
         async def show_all():
             embed = nx.Embed(
                 title = "Help!",
@@ -113,17 +113,17 @@ class CogHelp(cog.RegisteredCog):
 
             cooldown = help_docs.cooldown
             if cooldown.length > 0:
-                if cooldown.type == cmds.BucketType.guild:
+                if cooldown.type == nx_cmds.BucketType.guild:
                     cooldown_type = "Entire server"
-                elif cooldown.type == cmds.BucketType.member:
+                elif cooldown.type == nx_cmds.BucketType.member:
                     cooldown_type = "Per member"
-                elif cooldown.type == cmds.BucketType.channel:
+                elif cooldown.type == nx_cmds.BucketType.channel:
                     cooldown_type = "Per channel"
-                elif cooldown.type == cmds.BucketType.category:
+                elif cooldown.type == nx_cmds.BucketType.category:
                     cooldown_type = "Per channel category"
-                elif cooldown.type == cmds.BucketType.role:
+                elif cooldown.type == nx_cmds.BucketType.role:
                     cooldown_type = "Per role"
-                elif cooldown.type == cmds.BucketType.user:
+                elif cooldown.type == nx_cmds.BucketType.user:
                     cooldown_type = "Per user"
                 else:
                     cooldown_type = "TNTz messed up, he didn't add another edge case, please ping him"

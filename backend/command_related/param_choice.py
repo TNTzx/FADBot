@@ -1,7 +1,7 @@
 """Module that contains decorators for choice parameters."""
 
 
-import nextcord.ext.commands as cmds
+import nextcord.ext.commands as nx_cmds
 
 import backend.exceptions.send_error as s_e
 
@@ -17,7 +17,7 @@ def choice_param(arg, choices: list):
     return decorator
 
 
-def choice_param_cmd(ctx: cmds.Context, arg, choices: list):
+def choice_param_cmd(ctx: nx_cmds.Context, arg, choices: list):
     """A decorator to dictate that there is a choice for a parameter. Used for commands. Is a coroutine."""
     def decorator(func):
         async def wrapper(*args, **kwargs):
