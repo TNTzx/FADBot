@@ -15,7 +15,7 @@ import backend.other.views as vw
 import backend.other.asking.wait_for as w_f
 import backend.other.embed_utils as emb_utils
 import backend.exc_utils.send_error as s_e
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 
 from .... import artists as a_s
 from .. import form_exc as f_exc

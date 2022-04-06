@@ -6,7 +6,7 @@ from __future__ import annotations
 import abc
 
 import backend.other.other as mot
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 
 
 class Dataclass():

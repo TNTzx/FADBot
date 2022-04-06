@@ -7,7 +7,7 @@ import abc
 
 import requests as req
 
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 
 
 class Dataclass():

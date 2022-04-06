@@ -6,7 +6,7 @@ import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.command_related.command_wrapper as c_w
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 import backend.exc_utils.send_error as s_e
 
 from ... import utils as cog

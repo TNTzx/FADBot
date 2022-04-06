@@ -16,7 +16,7 @@ import backend.other.checks as ch
 import backend.firebase as firebase
 import backend.exc_utils.custom_exc as c_e
 import backend.exc_utils.send_error as s_e
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 
 from ... import utils as cog
 

@@ -5,7 +5,7 @@ import json
 import requests
 
 import backend.logging.loggers as lgr
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 
 from . import consts
 from . import endpoints as endp

@@ -11,7 +11,7 @@ import global_vars.variables as vrs
 import backend.other.asking.wait_for as w_f
 import backend.other.views as vw
 import backend.exc_utils.send_error as s_e
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 
 
 TIMEOUT = vrs.Timeouts.long

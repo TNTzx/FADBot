@@ -12,7 +12,7 @@ import backend.exc_utils.send_error as s_e
 import backend.other.views as views
 import backend.other.asking.wait_for as wait_for
 import backend.logging.loggers as lgr
-import backend.other_functions as other_functions
+import backend.other.other_functions as other_functions
 
 from .. import artists as art
 from .. import discord_utils

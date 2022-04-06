@@ -6,7 +6,7 @@ from __future__ import annotations
 import requests as req
 
 import backend.firebase as firebase
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 
 from .. import api
 from ..other import clean_iter

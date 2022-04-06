@@ -7,7 +7,7 @@ import nextcord.ext.commands as nx_cmds
 import backend.exc_utils.send_error as s_e
 import backend.other.asking.wait_for as w_f
 import backend.other.views as vw
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 import global_vars.variables as vrs
 
 from ... import artists as art

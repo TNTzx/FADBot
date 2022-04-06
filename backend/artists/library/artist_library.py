@@ -25,7 +25,7 @@ import backend.databases.firebase.firebase_interaction as f_i
 import backend.databases.api as v_i
 import backend.exc_utils.custom_exc as c_exc
 import backend.exc_utils.send_error as s_e
-import backend.other_functions as o_f
+import backend.other.other_functions as o_f
 
 
 DEFAULT_IMAGE = "https://p1.pxfuel.com/preview/722/907/815/question-mark-hand-drawn-solution-think.jpg"
