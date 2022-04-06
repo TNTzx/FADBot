@@ -5,8 +5,8 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
-import backend.logging.loggers as lgr
 import global_vars.defaults as defaults
+import backend.logging.loggers as lgr
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
 import backend.firebase as firebase
