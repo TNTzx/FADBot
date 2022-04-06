@@ -126,6 +126,6 @@ def delete_data(path: list[str]):
     path_parse.remove(token = consts.get_token())
 
 
-new_token = thread.Thread(target=f_r_t.start_loop)
+new_token = thread.Thread(target = f_r_t.start_loop)
 new_token.daemon = True
 new_token.start()

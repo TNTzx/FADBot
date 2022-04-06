@@ -31,9 +31,9 @@ def generate_embed(artist: art.Artist):
         emb_url = api.consts.BASE_LINK
 
     embed.set_author(
-        name=f"{artist.name} (ID: {id_format})",
-        url=emb_url,
-        icon_url=artist.details.image_info.avatar.original_url
+        name = f"{artist.name} (ID: {id_format})",
+        url = emb_url,
+        icon_url = artist.details.image_info.avatar.original_url
     )
 
     if (emb_avatar := artist.details.image_info.avatar.original_url) is not None:
@@ -41,34 +41,34 @@ def generate_embed(artist: art.Artist):
     if (emb_banner := artist.details.image_info.banner.original_url) is not None:
         embed.set_image(url = emb_banner)
 
-    embed.add_field(name="Name:", value=f"**{artist.name}**")
+    embed.add_field(name = "Name:", value = f"**{artist.name}**")
 
 
     if (temp_aliases := artist.details.aliases.aliases) is not None:
         emb_aliases = f"`{'`, `'.join([alias.name for alias in temp_aliases])}`"
     else:
         emb_aliases = "No aliases!"
-    embed.add_field(name="Aliases:", value=emb_aliases)
+    embed.add_field(name = "Aliases:", value = emb_aliases)
 
 
     if (temp_desc := artist.details.description) is not None:
         emb_description = temp_desc
     else:
         emb_description = "No description!"
-    embed.add_field(name="Description:", value=emb_description, inline=False)
+    embed.add_field(name = "Description:", value = emb_description, inline = False)
 
     if artist.vadb_info.artist_id is not None:
         emb_vadb_page = f"[Click here!]({artist.vadb_info.get_page_link()})"
     else:
         emb_vadb_page = "Artist not submitted yet!"
-    embed.add_field(name="VADB Page:", value=emb_vadb_page, inline=False)
+    embed.add_field(name = "VADB Page:", value = emb_vadb_page, inline = False)
 
 
     emb_status = f"**__{artist.states.status.get_name()}__**"
-    embed.add_field(name="Status:", value=emb_status, inline=False)
+    embed.add_field(name = "Status:", value = emb_status, inline = False)
 
     emb_availability = f"**__{artist.states.availability.get_name()}__**"
-    embed.add_field(name="Availability:", value=emb_availability)
+    embed.add_field(name = "Availability:", value = emb_availability)
 
     if (temp_usage_rights := artist.states.usage_rights.usage_rights) is not None:
         emb_usage_rights_list = []
@@ -77,7 +77,7 @@ def generate_embed(artist: art.Artist):
         emb_usage_rights = "\n".join(emb_usage_rights_list)
     else:
         emb_usage_rights = "No specific usage rights! Refer to artist's availability."
-    embed.add_field(name="Specific usage rights:", value=f"`{emb_usage_rights}`")
+    embed.add_field(name = "Specific usage rights:", value = f"`{emb_usage_rights}`")
 
 
     if (temp_socials := artist.details.socials.socials) is not None:
@@ -88,14 +88,14 @@ def generate_embed(artist: art.Artist):
         emb_socials = " | ".join(emb_socials_list)
     else:
         emb_socials = "No socials links!"
-    embed.add_field(name="Social links:", value=emb_socials, inline=False)
+    embed.add_field(name = "Social links:", value = emb_socials, inline = False)
 
 
     if (temp_notes := artist.details.notes) is not None:
         emb_notes = temp_notes
     else:
         emb_notes = "No other notes!"
-    embed.add_field(name="Other notes:", value=emb_notes)
+    embed.add_field(name = "Other notes:", value = emb_notes)
 
 
     color_keys = {

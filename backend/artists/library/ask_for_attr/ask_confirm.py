@@ -1,6 +1,6 @@
 """Module that contains asking for confirmation."""
 
-# pylint: disable=line-too-long
+# pylint: disable = line-too-long
 
 
 import nextcord as nx
@@ -28,9 +28,9 @@ async def ask_confirm(ctx: cmds.Context):
         )
     )
 
-    message = await ctx.author.send(embed=embed, view=view)
+    message = await ctx.author.send(embed = embed, view = view)
 
-    new_view = await w_f.wait_for_view(ctx, message, view, timeout=TIMEOUT)
+    new_view = await w_f.wait_for_view(ctx, message, view, timeout = TIMEOUT)
 
     if new_view.value == vw.OutputValues.submit:
         return True

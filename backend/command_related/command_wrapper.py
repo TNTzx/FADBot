@@ -127,20 +127,20 @@ async def check_ban(user_id: int):
 
 
 def command(
-        category=Categories.basic_commands,
-        description="TNTz forgot to put a description lmao please ping him",
+        category = Categories.basic_commands,
+        description = "TNTz forgot to put a description lmao please ping him",
         parameters: dict[str, str] = None,
         aliases: list[str] = None,
-        guild_only=True,
-        cooldown=0, cooldown_type="",
+        guild_only = True,
+        cooldown = 0, cooldown_type = "",
 
-        req_guild_owner=False,
-        req_guild_admin=False,
-        req_dev=False,
-        req_pa_mod=False,
+        req_guild_owner = False,
+        req_guild_admin = False,
+        req_dev = False,
+        req_pa_mod = False,
 
-        show_condition=lambda ctx: True,
-        show_help=True,
+        show_condition = lambda ctx: True,
+        show_help = True,
         example_usage: list[str] = None
         ):
     """Decorator factory to define a command."""
@@ -192,9 +192,9 @@ def command(
 
 
         if aliases is None:
-            wrapper = cmds.command(name=func.__name__)(wrapper)
+            wrapper = cmds.command(name = func.__name__)(wrapper)
         else:
-            wrapper = cmds.command(name=func.__name__, aliases=aliases)(wrapper)
+            wrapper = cmds.command(name = func.__name__, aliases = aliases)(wrapper)
 
         if guild_only:
             wrapper = cmds.guild_only()(wrapper)

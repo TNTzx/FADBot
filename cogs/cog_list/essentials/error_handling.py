@@ -32,15 +32,15 @@ class CogErrorHandler(cog.RegisteredCog):
             return
 
         if checkexc(cmds.MissingRole):
-            await s_e.send_error(ctx, f"You don't have the `{exc.missing_role}` role!", cooldown_reset=True)
+            await s_e.send_error(ctx, f"You don't have the `{exc.missing_role}` role!", cooldown_reset = True)
             return
 
         if checkexc(cmds.MissingRequiredArgument) or checkexc(cmds.BadArgument):
-            await s_e.send_error(ctx, f"Make sure you have the correct parameters! Use `{CMD_PREFIX}help` to get help!", cooldown_reset=True)
+            await s_e.send_error(ctx, f"Make sure you have the correct parameters! Use `{CMD_PREFIX}help` to get help!", cooldown_reset = True)
             return
 
         if checkexc(cmds.ExpectedClosingQuoteError) or checkexc(cmds.InvalidEndOfQuotedStringError) or checkexc(cmds.UnexpectedQuoteError):
-            await s_e.send_error(ctx, "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!", cooldown_reset=True)
+            await s_e.send_error(ctx, "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!", cooldown_reset = True)
             return
 
         if checkexc(cmds.MissingRequiredArgument):
@@ -48,7 +48,7 @@ class CogErrorHandler(cog.RegisteredCog):
             return
 
         if checkexc(cmds.NoPrivateMessage):
-            await s_e.send_error(ctx, "This command is disabled in DMs!", cooldown_reset=True)
+            await s_e.send_error(ctx, "This command is disabled in DMs!", cooldown_reset = True)
             return
 
         if checkexc(cmds.CommandInvokeError):
@@ -74,4 +74,4 @@ class CogErrorHandler(cog.RegisteredCog):
             return
 
         lgr.log_global_exc.error("".join(tr.format_exception(exc.original)))
-        await s_e.send_error(ctx, "Something went wrong. This error has been reported to the owner of the bot.", exc=exc, send_owner=True, send_console=True)
+        await s_e.send_error(ctx, "Something went wrong. This error has been reported to the owner of the bot.", exc = exc, send_owner = True, send_console = True)

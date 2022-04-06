@@ -16,7 +16,7 @@ def check_if_create_path(path):
 check_if_create_path(logs_path)
 
 
-def form_filename(sort_num: int, filename: str, extension=".txt"):
+def form_filename(sort_num: int, filename: str, extension = ".txt"):
     """Format filenames!"""
     return f"[{sort_num}] {filename}{extension}"
 
@@ -65,7 +65,7 @@ for logger_path in logger_paths:
 
 log_master = setup_logger(
     "master",
-    is_master=True
+    is_master = True
 )
 
 

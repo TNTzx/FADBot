@@ -10,7 +10,7 @@ import backend.exceptions.custom_exc as c_exc
 def format_time(num: int):
     """Formats the time from seconds to '#h #m #s'."""
     seconds = num
-    time = str(datetime.timedelta(seconds=seconds))
+    time = str(datetime.timedelta(seconds = seconds))
     time = time.split(":")
 
     time_final_list = []
@@ -114,7 +114,7 @@ def get_value_from_key(diction: dict, value):
     return list(diction.keys())[list(diction.values()).index(value)]
 
 
-def pr_print(value, htchar='\t', lfchar='\n', indent=0):
+def pr_print(value, htchar = '\t', lfchar = '\n', indent = 0):
     """Returns a string for pretty logging."""
     nlch = lfchar + htchar * (indent + 1)
     if isinstance(value, dict):

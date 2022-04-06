@@ -25,7 +25,7 @@ from . import section_states as states
 async def check_response(ctx: cmds.Context, view: vw.View):
     """Checks the response of the user if they went back, cancelled, etc."""
     if view.value == vw.OutputValues.cancel:
-        await s_e.cancel_command(ctx, send_author=True)
+        await s_e.cancel_command(ctx, send_author = True)
     elif view.value == vw.OutputValues.skip:
         await ctx.author.send("Section skipped.")
         raise f_exc.ExitSection()

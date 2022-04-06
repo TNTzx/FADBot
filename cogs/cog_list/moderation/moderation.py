@@ -25,10 +25,10 @@ class CogModeration(cog.RegisteredCog):
     """Contains controls for moderating stuff about the bot."""
 
     @c_w.command(
-        category=c_w.Categories.moderation,
-        description="Sets the admin for the server.",
-        parameters={"id": "The ID of the role you want to add. If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."},
-        req_guild_owner=True
+        category = c_w.Categories.moderation,
+        description = "Sets the admin for the server.",
+        parameters = {"id": "The ID of the role you want to add. If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."},
+        req_guild_owner = True
     )
     async def setadmin(self, ctx: cmds.Context, role_id):
         try:
@@ -74,7 +74,7 @@ class CogModeration(cog.RegisteredCog):
                 confirm_message = await ctx.send((
                         f"Are you sure you want to {action} the user `{user_name}`?\n"
                         f"This command will time out in `{o_f.format_time(vrs.Timeouts.long)}`."
-                    ), view=confirm_view)
+                    ), view = confirm_view)
 
                 output_view = await w_f.wait_for_view(ctx, confirm_message, confirm_view)
 

@@ -1,6 +1,6 @@
 """Library for states."""
 
-# pylint: disable=line-too-long
+# pylint: disable = line-too-long
 
 
 import nextcord as nx
@@ -10,7 +10,7 @@ import backend.utils.dataclass as dt
 
 class State(dt.Dataclass):
     """Parent class for states."""
-    def __init__(self, data=None):
+    def __init__(self, data = None):
         super().__init__()
         self.label = None
         self.value = None

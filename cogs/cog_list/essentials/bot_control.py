@@ -18,12 +18,12 @@ class CogBotControl(cog.RegisteredCog):
     """Contains bot control."""
 
     @c_w.command(
-        category=c_w.Categories.bot_control,
-        description="Restarts the bot.",
-        aliases=["sr"],
-        guild_only=False,
-        req_dev=True,
-        show_help=False
+        category = c_w.Categories.bot_control,
+        description = "Restarts the bot.",
+        aliases = ["sr"],
+        guild_only = False,
+        req_dev = True,
+        show_help = False
     )
     async def switchrestart(self, ctx):
         await ctx.send("Restarting bot...")
@@ -45,11 +45,11 @@ class CogBotControl(cog.RegisteredCog):
 
 
     @c_w.command(
-        category=c_w.Categories.bot_control,
-        description="Shuts down the bot.",
-        aliases=["sk"],
-        guild_only=False,
-        req_dev=True,
+        category = c_w.Categories.bot_control,
+        description = "Shuts down the bot.",
+        aliases = ["sk"],
+        guild_only = False,
+        req_dev = True,
     )
     async def switchkill(self, ctx):
         lgr.log_bot_status.info("Closed bot by command.")
@@ -59,12 +59,12 @@ class CogBotControl(cog.RegisteredCog):
 
 
     @c_w.command(
-        category=c_w.Categories.bot_control,
-        description=f"Like {vrs.CMD_PREFIX}restart, but hard.",
-        aliases=["srh"],
-        guild_only=False,
-        req_dev=True,
-        show_help=False
+        category = c_w.Categories.bot_control,
+        description = f"Like {vrs.CMD_PREFIX}restart, but hard.",
+        aliases = ["srh"],
+        guild_only = False,
+        req_dev = True,
+        show_help = False
     )
     async def switchrestarthard(self, ctx):
         lgr.log_bot_status.info("Initiated hard restart.")

@@ -32,10 +32,10 @@ class CogArtistCmds(cog.RegisteredCog):
 
 
     # @c_w.command(
-    #     category=c_w.Categories.artist_management,
-    #     description="Requests an artist to be added to the database.",
-    #     aliases=["ara"],
-    #     guild_only=False
+    #     category = c_w.Categories.artist_management,
+    #     description = "Requests an artist to be added to the database.",
+    #     aliases = ["ara"],
+    #     guild_only = False
     # )
     # @i_u.sustained_command()
     # async def artistrequestadd(self, ctx: cmds.Context, *skips):
@@ -67,7 +67,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #             a_l.VADB.Send.Edit(data).send_data(artist_id)
     #             data.vadb_info.artist_id = artist_id
     #         except req.exceptions.HTTPError:
-    #             await s_e.send_error(ctx, "The artist may already be pending, or this artist already exists! I warned you about it! >:(", send_author=True)
+    #             await s_e.send_error(ctx, "The artist may already be pending, or this artist already exists! I warned you about it! >:(", send_author = True)
     #             return
 
     #     await ctx.author.send("The `add request` has been submitted. Please wait for an official moderator to approve your submission.")
@@ -80,13 +80,13 @@ class CogArtistCmds(cog.RegisteredCog):
 
 
     # @c_w.command(
-    #     category=c_w.Categories.artist_management,
-    #     description="Requests an artist to be edited in the database.",
-    #     parameters={
+    #     category = c_w.Categories.artist_management,
+    #     description = "Requests an artist to be edited in the database.",
+    #     parameters = {
     #         "id": "Artist ID to edit."
     #     },
-    #     aliases=["are"],
-    #     guild_only=False
+    #     aliases = ["are"],
+    #     guild_only = False
     # )
     # @i_u.sustained_command()
     # async def artistrequestedit(self, ctx: cmds.Context, artist_id: int, *skips):
@@ -111,7 +111,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #     old_artist = a_l.get_artist_by_id_vadb(artist_id)
 
     #     if artist == old_artist:
-    #         await s_e.send_error(ctx, "You didn't make any edits!", send_author=True)
+    #         await s_e.send_error(ctx, "You didn't make any edits!", send_author = True)
     #         return
 
     #     await ctx.author.send("Sending `edit request`...")
@@ -129,17 +129,17 @@ class CogArtistCmds(cog.RegisteredCog):
 
 
     # @c_w.command(
-    #     category=c_w.Categories.artist_management,
-    #     description="Accepts / declines the request.",
-    #     parameters={
+    #     category = c_w.Categories.artist_management,
+    #     description = "Accepts / declines the request.",
+    #     parameters = {
     #         "[\"add\" / \"edit\"]": "Chooses whether or not the request to be verified is to `add` an artist or `edit` an artist.",
     #         "id": "Artist ID to verify.",
     #         "[\"accept\" / \"decline\"]": "Accepts or declines the verification submission. `accept` to mark the artist as completed, or `decline` to delete the submission.",
     #         "reason": "Reason for declining the verification submission. Only required if you choose `decline`. Surround with quotes."
     #     },
-    #     aliases=["av"],
-    #     guild_only=False,
-    #     req_pa_mod=True
+    #     aliases = ["av"],
+    #     guild_only = False,
+    #     req_pa_mod = True
     # )
     # @i_u.sustained_command()
     # async def artistverify(self, ctx: cmds.Context, _type: str, artist_id: int, action: str, reason: str = None):
@@ -152,7 +152,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #         return
 
     #     async def send_logs_and_dms(artist_obj: a_l.Default, logs_message: str, dm_message: str):
-    #         await ctx.send(logs_message, embed=await artist_obj.generate_embed())
+    #         await ctx.send(logs_message, embed = await artist_obj.generate_embed())
     #         async def parse_logs(log_list: list[l_l.Log]):
     #             if log_list is None:
     #                 return
@@ -168,7 +168,7 @@ class CogArtistCmds(cog.RegisteredCog):
 
     #             users = [await vrs.global_bot.fetch_user(user_id) for user_id in user_ids]
     #             for user in users:
-    #                 await user.send(dm_message, embed=await artist_obj.generate_embed())
+    #                 await user.send(dm_message, embed = await artist_obj.generate_embed())
 
     #             await artist_obj.post_log_to_channels(logs_message, l_l.LogChannelTypes.DUMP.get_all_channels())
 
@@ -183,16 +183,16 @@ class CogArtistCmds(cog.RegisteredCog):
     #             f"Are you sure that you want to `{action}` this `{_type} request`?\n"
     #             f"This command times out in `{o_f.format_time(timeout)}`."
     #         ))
-    #         await ctx.send(embed=await artist_obj.generate_embed())
-    #         message = await ctx.send(artist_obj.proof, view=confirm)
+    #         await ctx.send(embed = await artist_obj.generate_embed())
+    #         message = await ctx.send(artist_obj.proof, view = confirm)
 
     #         def check_button(interact: nx.Interaction):
     #             return ctx.author.id == interact.user.id and interact.message.id == message.id
 
     #         try:
-    #             await vrs.global_bot.wait_for("interaction", check=check_button, timeout=timeout)
+    #             await vrs.global_bot.wait_for("interaction", check = check_button, timeout = timeout)
     #         except asyncio.TimeoutError:
-    #             await s_e.timeout_command(ctx, send_author=True)
+    #             await s_e.timeout_command(ctx, send_author = True)
 
     #         if confirm.value == vw.OutputValues.confirm:
     #             return
@@ -282,18 +282,18 @@ class CogArtistCmds(cog.RegisteredCog):
 
 
     # @c_w.command(
-    #     category=c_w.Categories.artist_management,
-    #     description="Gets a specified artist by search term or VADB ID.",
-    #     parameters={
+    #     category = c_w.Categories.artist_management,
+    #     description = "Gets a specified artist by search term or VADB ID.",
+    #     parameters = {
     #         "[<search term> | <ID>]": (
     #             "If <search term> is used, then the command will return a list of artists for that search term.\n"
     #             "If <ID> is used, then the bot will return the artist with that ID."
     #         )
     #     },
-    #     aliases=["as"],
-    #     guild_only=False,
-    #     cooldown=5, cooldown_type=cmds.BucketType.user,
-    #     example_usage=[
+    #     aliases = ["as"],
+    #     guild_only = False,
+    #     cooldown = 5, cooldown_type = cmds.BucketType.user,
+    #     example_usage = [
     #         "##artistsearch \"Some Random Artist Name\"",
     #         "##artistsearch 5"
     #     ]
@@ -308,7 +308,7 @@ class CogArtistCmds(cog.RegisteredCog):
 
     #     if isinstance(term, int):
     #         artist = await a_ch.get_artist_by_id(ctx, term)
-    #         await ctx.send(embed=await artist.generate_embed())
+    #         await ctx.send(embed = await artist.generate_embed())
     #         return
 
     #     search_result = a_l.search_for_artist(term)
@@ -317,15 +317,15 @@ class CogArtistCmds(cog.RegisteredCog):
     #         return
 
     #     if len(search_result) == 1:
-    #         await ctx.send(embed=await search_result[0].generate_embed())
+    #         await ctx.send(embed = await search_result[0].generate_embed())
     #     elif len(search_result) > 1:
-    #         await ctx.send("Multiple artists found! Use `##artistsearch <id>` to search for a specific artist.", embed=a_l.generate_search_embed(search_result))
+    #         await ctx.send("Multiple artists found! Use `##artistsearch <id>` to search for a specific artist.", embed = a_l.generate_search_embed(search_result))
 
 
     # @c_w.command(
-    #     category=c_w.Categories.bot_control,
-    #     description="Cancels the current command. Usually used for artist commands.",
-    #     guild_only=False
+    #     category = c_w.Categories.bot_control,
+    #     description = "Cancels the current command. Usually used for artist commands.",
+    #     guild_only = False
     # )
     # async def cancel(self, ctx: cmds.Context):
     #     if isinstance(ctx.channel, nx.DMChannel):

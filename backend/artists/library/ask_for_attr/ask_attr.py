@@ -1,13 +1,13 @@
 """Module that contains functions for waiting for responses.
 Used for setting artist objects attributes."""
 
-# pylint: disable=line-too-long
-# pylint: disable=no-else-raise
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-locals
-# pylint: disable=too-many-statements
-# pylint: disable=unused-argument
+# pylint: disable = line-too-long
+# pylint: disable = no-else-raise
+# pylint: disable = too-few-public-methods
+# pylint: disable = too-many-arguments
+# pylint: disable = too-many-locals
+# pylint: disable = too-many-statements
+# pylint: disable = unused-argument
 
 import typing as typ
 import requests as req
@@ -150,16 +150,16 @@ async def ask_attribute(ctx: cmds.Context,
         title, description, output_type,
         add_view: typ.Type[vw.View] = vw.Blank,
         choices_dict: list[str] = None,
-        skippable=False, skip_default=None) -> str | int | list[str] | dict | vw.View:
+        skippable = False, skip_default = None) -> str | int | list[str] | dict | vw.View:
     """Returns the response for setting attributes."""
 
     async def generate_embed():
         title_form = title if not skippable else f"{title} (skippable)"
 
-        embed = nx.Embed(title=title_form, description=description, colour=0xFFAEAE)
+        embed = nx.Embed(title = title_form, description = description, colour = 0xFFAEAE)
 
         def make_empty_field():
-            embed.add_field(name="_ _", value="_ _", inline=False)
+            embed.add_field(name = "_ _", value = "_ _", inline = False)
 
         make_empty_field()
 
@@ -173,7 +173,7 @@ async def ask_attribute(ctx: cmds.Context,
         else:
             field_desc = "Choose from the dropdown menu!"
 
-        embed.add_field(name=field_name, value=field_desc, inline=False)
+        embed.add_field(name = field_name, value = field_desc, inline = False)
 
         make_empty_field()
 
@@ -182,7 +182,7 @@ async def ask_attribute(ctx: cmds.Context,
             ("Click on the \"Skip\" button to skip this section." if skippable else "") +
             "Click on the \"Cancel\" button to cancel the current command.\n"
         )
-        embed.set_footer(text=skip_str)
+        embed.set_footer(text = skip_str)
 
         return embed
 
@@ -194,7 +194,7 @@ async def ask_attribute(ctx: cmds.Context,
     async def check_value(response: typ.Type[vw.View]):
         """Checks the value of a view."""
         if response.value == vw.OutputValues.cancel:
-            await s_e.cancel_command(ctx, send_author=True)
+            await s_e.cancel_command(ctx, send_author = True)
         elif response.value == vw.OutputValues.skip:
             await ctx.author.send("Section skipped.")
             return skip_default
@@ -209,15 +209,15 @@ async def ask_attribute(ctx: cmds.Context,
         )
 
         if not output_type == OutputTypes.choice:
-            response_type, response = await w_f.wait_for_message_view(ctx, message, current_view, timeout=TIMEOUT)
+            response_type, response = await w_f.wait_for_message_view(ctx, message, current_view, timeout = TIMEOUT)
             if response_type == w_f.OutputTypes.view:
                 return await check_value(response)
 
-            response = await reformat(ctx, output_type, response, choices_dict=choices_dict)
+            response = await reformat(ctx, output_type, response, choices_dict = choices_dict)
             if response is not None:
                 break
         else:
-            response = await w_f.wait_for_view(ctx, message, current_view, timeout=TIMEOUT)
+            response = await w_f.wait_for_view(ctx, message, current_view, timeout = TIMEOUT)
             return await check_value(response)
 
     return response

@@ -51,7 +51,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
     details: Details
     """
 
-    def __init__(self, data=None):
+    def __init__(self, data = None):
         self.name = "default name"
         self.proof = DEFAULT_IMAGE
         self.vadb_info = self.VADBInfo()
@@ -228,15 +228,15 @@ class Default(dt.StandardDataclass, ArtistStructure):
         id_format = self.vadb_info.artist_id if self.vadb_info.artist_id is not None else "Not submitted yet!"
 
         embed.set_author(
-            name=f"{self.name} (ID: {id_format})",
-            url=self.vadb_info.page,
-            icon_url=self.details.images.avatar_url
+            name = f"{self.name} (ID: {id_format})",
+            url = self.vadb_info.page,
+            icon_url = self.details.images.avatar_url
         )
 
-        embed.set_thumbnail(url=self.details.images.avatar_url)
-        embed.set_image(url=self.details.images.banner_url)
+        embed.set_thumbnail(url = self.details.images.avatar_url)
+        embed.set_image(url = self.details.images.banner_url)
 
-        embed.add_field(name="Name:", value=f"**{self.name}**")
+        embed.add_field(name = "Name:", value = f"**{self.name}**")
 
 
         aliases = self.details.aliases
@@ -249,25 +249,25 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 aliases = "No aliases!"
         else:
             aliases = "No aliases!"
-        embed.add_field(name="Aliases:", value=aliases)
+        embed.add_field(name = "Aliases:", value = aliases)
 
 
         description = self.details.description
         description = description if o_f.is_not_blank_str(description) else "No description!"
-        embed.add_field(name="Description:", value=description, inline=False)
+        embed.add_field(name = "Description:", value = description, inline = False)
 
         vadb_page = self.vadb_info.page
         vadb_page = f"[Click here!]({vadb_page})" if vadb_page != Default().vadb_info.page and o_f.is_not_blank_str(vadb_page) else "Not submitted yet!"
-        embed.add_field(name="VADB Page:", value=vadb_page, inline=False)
+        embed.add_field(name = "VADB Page:", value = vadb_page, inline = False)
 
 
         status = self.states.status.get_name()
         status = f"**__{status}__**"
-        embed.add_field(name="Status:", value=status, inline=False)
+        embed.add_field(name = "Status:", value = status, inline = False)
 
         availability = self.states.availability.get_name()
         availability = f"**__{availability}__**"
-        embed.add_field(name="Availability:", value=availability)
+        embed.add_field(name = "Availability:", value = availability)
 
         usage_rights = self.states.usage_rights
         if o_f.is_not_empty(usage_rights):
@@ -278,7 +278,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             usage_rights = "\n".join(usage_list)
         else:
             usage_rights = "No other specific usage rights!"
-        embed.add_field(name="Specific usage rights:", value=f"`{usage_rights}`")
+        embed.add_field(name = "Specific usage rights:", value = f"`{usage_rights}`")
 
 
         socials = self.details.socials
@@ -292,11 +292,11 @@ class Default(dt.StandardDataclass, ArtistStructure):
             socials = " ".join(socials_list)
         else:
             socials = "No socials links!"
-        embed.add_field(name="Social links:", value=socials, inline=False)
+        embed.add_field(name = "Social links:", value = socials, inline = False)
 
         notes = self.details.notes
         notes = notes if o_f.is_not_blank_str(notes) else "No other notes!"
-        embed.add_field(name="Other notes:", value=notes)
+        embed.add_field(name = "Other notes:", value = notes)
 
         color_keys = {
             "green": 0x00FF00,
@@ -340,7 +340,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         genre = mot.Unique()
         socials = mot.Unique()
 
-    async def set_attribute(self, ctx: cmds.Context, attr: mot.Unique, skippable=False):
+    async def set_attribute(self, ctx: cmds.Context, attr: mot.Unique, skippable = False):
         """Sets an attribute in this class."""
 
         attributes = self.Attributes
@@ -353,7 +353,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "Artist Name",
                 "Send the artist name.",
                 ask_a.OutputTypes.text,
-                skippable=skippable
+                skippable = skippable
             )
 
             if name is None:
@@ -367,11 +367,11 @@ class Default(dt.StandardDataclass, ArtistStructure):
                     "Use the `Confirm` button to continue, but make sure that the artist name is unique!\n"
                     "Use the `Cancel` button if the artist is already listed below.\n"
                     "If you are submitting an artist with the same exact name as these results, try to add extra characters on the name to avoid duplicates."
-                    ), embed=generate_search_embed(search_result), view=view)
+                    ), embed = generate_search_embed(search_result), view = view)
 
                 response = await w_f.wait_for_view(ctx, message, view)
                 if response.value == vw.OutputValues.cancel:
-                    await s_e.cancel_command(ctx, send_author=True)
+                    await s_e.cancel_command(ctx, send_author = True)
 
             if name is not None:
                 self.name = name
@@ -381,7 +381,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "Please send proof that you contacted the artist.",
                 "Take a screenshot of the email/message that the artist sent you that proves the artist's verification/unverification. You can only upload 1 image/link.",
                 ask_a.OutputTypes.image,
-                skippable=skippable
+                skippable = skippable
             )
             if proof is not None:
                 self.proof = proof
@@ -390,7 +390,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
             options_list = [avail.get_option() for avail in s_l.availability_list]
             class AvailabilityChoose(vw.View):
                 """Options!"""
-                @nx.ui.select(placeholder="Select availability...", options=options_list, row=0)
+                @nx.ui.select(placeholder = "Select availability...", options = options_list, row = 0)
                 async def avail_choose(self, select: nx.ui.Select, interact: nx.Interaction):
                     """a"""
                     self.value = select.values
@@ -411,8 +411,8 @@ class Default(dt.StandardDataclass, ArtistStructure):
             usage_rights = await ask_a.ask_attribute(ctx,
                 "What are the usage rights for the artist?",
                 "This is where you put in the usage rights. For example, if remixes aren't allowed, you can type in `\"Remixes: Disallowed\"`. Add more items as needed.",
-                ask_a.OutputTypes.dictionary, choices_dict=["Verified", "Disallowed"],
-                skippable=True
+                ask_a.OutputTypes.dictionary, choices_dict = ["Verified", "Disallowed"],
+                skippable = True
             )
             usage_list = []
             if usage_rights is not None:
@@ -429,7 +429,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "Send a description about the artist.",
                 "You can put information about the artist here. Their bio, how their music is created, etc. could work.",
                 ask_a.OutputTypes.text,
-                skippable=True
+                skippable = True
             )
             if description is not None:
                 self.details.description = description
@@ -439,7 +439,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "Notes",
                 "Send other notes you want to put in.",
                 ask_a.OutputTypes.text,
-                skippable=True
+                skippable = True
             )
             if notes is not None:
                 self.details.notes = notes
@@ -449,7 +449,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "Artist Aliases",
                 "Send other names that the artist goes by.",
                 ask_a.OutputTypes.listing,
-                skippable=True
+                skippable = True
             )
             if aliases is not None:
                 self.details.aliases = [Default.Details.Alias().from_dict({"name": alias}) for alias in aliases]
@@ -459,7 +459,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "Send an image to an avatar of the artist.",
                 "This is the profile picture that the artist uses.",
                 ask_a.OutputTypes.image,
-                skippable=True
+                skippable = True
             )
             if avatar_url is not None:
                 self.details.images.avatar_url = avatar_url
@@ -469,7 +469,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "Send an image to the banner of the artist.",
                 "This is the banner that the artist uses.",
                 ask_a.OutputTypes.image,
-                skippable=True
+                skippable = True
             )
             if banner is not None:
                 self.details.images.banner_url = banner
@@ -479,7 +479,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "How many tracks does the artist have?",
                 "This is the count for how much music the artist has produced. It can easily be found on Soundcloud pages, if you were wondering.",
                 ask_a.OutputTypes.number,
-                skippable=True
+                skippable = True
             )
             if tracks is not None:
                 self.details.music_info.tracks = tracks
@@ -489,7 +489,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "What is the genre of the artist?",
                 "This is the type of music that the artist makes.",
                 ask_a.OutputTypes.text,
-                skippable=True
+                skippable = True
             )
             if genre is not None:
                 self.details.music_info.genre = genre
@@ -499,7 +499,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 "Put some links for the artist's social media here.",
                 "This is where you put in links for the artist's socials such as Youtube, Spotify, Bandcamp, etc.",
                 ask_a.OutputTypes.links,
-                skippable=True
+                skippable = True
             )
             social_list = []
             if socials is not None:
@@ -530,11 +530,11 @@ class Default(dt.StandardDataclass, ArtistStructure):
             }
 
 
-        choices = [nx.SelectOption(label=command_label) for command_label in command_dict]
+        choices = [nx.SelectOption(label = command_label) for command_label in command_dict]
 
         class Commands(vw.ViewConfirmCancel):
             """A view for choices."""
-            @nx.ui.select(placeholder="Select attribute to edit...", options=choices)
+            @nx.ui.select(placeholder = "Select attribute to edit...", options = choices)
             async def command_select(self, select: nx.ui.Select, interact: nx.Interaction):
                 """Selects!"""
                 self.value = select.values
@@ -552,16 +552,16 @@ class Default(dt.StandardDataclass, ArtistStructure):
                 ))
 
                 await ctx.author.send(embed = await self.generate_embed())
-                message = await ctx.author.send(self.proof, view=view)
+                message = await ctx.author.send(self.proof, view = view)
 
                 new_view = await w_f.wait_for_view(ctx, message, view)
 
                 if new_view.value == vw.OutputValues.confirm:
                     break
                 elif new_view.value == vw.OutputValues.cancel:
-                    await s_e.cancel_command(ctx, send_author=True)
+                    await s_e.cancel_command(ctx, send_author = True)
                 elif isinstance(new_view.value[0], str):
-                    await self.set_attribute(ctx, command_dict[new_view.value[0]],skippable=True)
+                    await self.set_attribute(ctx, command_dict[new_view.value[0]],skippable = True)
 
         while True:
             await edit()
@@ -592,13 +592,13 @@ class Default(dt.StandardDataclass, ArtistStructure):
         "Posts logs to channels."
         log_messages = []
         for channel in channels:
-            main_message: nx.Message = await channel.send(prefix, embed=await self.generate_embed())
+            main_message: nx.Message = await channel.send(prefix, embed = await self.generate_embed())
 
             proof_message: nx.Message = await channel.send(self.proof)
 
             log_message = {
-                    "main": m_p.MessagePointer(channel_id=channel.id, message_id=main_message.id).get_dict(),
-                    "proof": m_p.MessagePointer(channel_id=channel.id, message_id=proof_message.id).get_dict(),
+                    "main": m_p.MessagePointer(channel_id = channel.id, message_id = main_message.id).get_dict(),
+                    "proof": m_p.MessagePointer(channel_id = channel.id, message_id = proof_message.id).get_dict(),
                 }
 
             log_messages.append(log_message)
@@ -612,7 +612,7 @@ class Default(dt.StandardDataclass, ArtistStructure):
         """Posts logs to channels by type."""
         prefix = f"{log_type.title_str} The PA moderators will look into this."
         await self.post_log_to_channels(prefix, l_l.LogChannelTypes.DUMP.get_all_channels())
-        live_logs = await self.post_log_to_channels(prefix, l_l.LogChannelTypes.LIVE.get_all_channels(), user_id=user_id)
+        live_logs = await self.post_log_to_channels(prefix, l_l.LogChannelTypes.LIVE.get_all_channels(), user_id = user_id)
         if log_type == l_l.LogTypes.PENDING:
             self.discord_info.logs.pending = live_logs
         elif log_type == l_l.LogTypes.EDITING:
@@ -671,7 +671,7 @@ class VADB:
 
             default_class = Default
 
-            def __init__(self, data=None):
+            def __init__(self, data = None):
                 self.name = None
                 self.status = None
                 self.availability = None
@@ -692,7 +692,7 @@ class VADB:
 
             default_class = Default
 
-            def __init__(self, datas=None):
+            def __init__(self, datas = None):
                 self.name = None
                 self.status = None
                 self.availability = None
@@ -735,7 +735,7 @@ class VADB:
 
             default_class = Default
 
-            def __init__(self, datas=None):
+            def __init__(self, datas = None):
                 self.artist_id = None
 
             def dict_from_default(self, data: Default):
@@ -756,7 +756,7 @@ class VADB:
 
         default_class = Default
 
-        def __init__(self, data=None):
+        def __init__(self, data = None):
             self.id = None
             self.name = None
             self.aliases = None
@@ -804,7 +804,7 @@ class Firebase:
 
         default_class = Default
 
-        def __init__(self, data=None):
+        def __init__(self, data = None):
             self.artist_id = None
             self.data: Default = None
 
@@ -846,7 +846,7 @@ def check_if_has_entry_firebase(artist_id: int):
 def generate_search_embed(result: list[Default]):
     """Returns an embed for searches with multiple results."""
 
-    embed = nx.Embed(color=0xFF0000)
+    embed = nx.Embed(color = 0xFF0000)
 
     str_list = []
     for artist in result:
@@ -857,10 +857,10 @@ def generate_search_embed(result: list[Default]):
 
     value_string = "\n".join(str_list)
 
-    embed.add_field(name=(
+    embed.add_field(name = (
         "Multiple artists found!\n"
         "`<ID>: <Artist Name>`"
-        ), value=value_string)
+        ), value = value_string)
 
     return embed
 

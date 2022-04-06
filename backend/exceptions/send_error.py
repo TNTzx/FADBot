@@ -12,8 +12,8 @@ import backend.exceptions.custom_exc as c_e
 
 ERROR_PREFIX = "**Error!**\n"
 
-async def send_error(ctx: cmds.Context, suffix, exc="", other_data: nx.Message = None,
-        send_author=False, send_owner=False, send_console=False, cooldown_reset=False):
+async def send_error(ctx: cmds.Context, suffix, exc = "", other_data: nx.Message = None,
+        send_author = False, send_owner = False, send_console = False, cooldown_reset = False):
     """Sends an error to a context."""
 
     text = f"{ERROR_PREFIX}{ctx.author.mention}, {suffix}"
@@ -49,7 +49,7 @@ async def send_error(ctx: cmds.Context, suffix, exc="", other_data: nx.Message =
     return
 
 
-async def error_handle(message: str, ctx:cmds.Context, send_author=False):
+async def error_handle(message: str, ctx:cmds.Context, send_author = False):
     """Send an error message for a specific error. Exit everything afterwards."""
     if send_author:
         await ctx.author.send(message)
@@ -60,10 +60,10 @@ async def error_handle(message: str, ctx:cmds.Context, send_author=False):
 
 
 
-async def cancel_command(ctx: cmds.Context, send_author=False):
+async def cancel_command(ctx: cmds.Context, send_author = False):
     """Cancels the current command."""
-    await error_handle("Command cancelled.", ctx, send_author=send_author)
+    await error_handle("Command cancelled.", ctx, send_author = send_author)
 
-async def timeout_command(ctx: cmds.Context, send_author=False):
+async def timeout_command(ctx: cmds.Context, send_author = False):
     """Command timed out."""
-    await error_handle("Command timed out. Please use the command again.", ctx, send_author=send_author)
+    await error_handle("Command timed out. Please use the command again.", ctx, send_author = send_author)

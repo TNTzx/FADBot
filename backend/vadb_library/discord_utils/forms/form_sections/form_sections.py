@@ -69,7 +69,7 @@ class Name(f_s.RawTextSection):
             await ctx.author.send("Returning...")
             raise f_exc.InvalidSectionResponse()
         if result == vw.OutputValues.cancel:
-            await s_e.cancel_command(ctx, send_author=True)
+            await s_e.cancel_command(ctx, send_author = True)
 
 
         raise f_exc.InvalidSectionResponse()
@@ -88,7 +88,7 @@ class Availability(f_s.ChoiceSection):
     async def edit_artist_with_section(self, ctx: cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
         class AvailabilityView(vw.View):
             """Extra view."""
-            @nx.ui.select(placeholder="Select availability...", options = a_s.AvailabilityList.get_states_options(), row = 0)
+            @nx.ui.select(placeholder = "Select availability...", options = a_s.AvailabilityList.get_states_options(), row = 0)
             async def avail_choose(self, select: nx.ui.Select, interact: nx.Interaction):
                 """a"""
                 self.value = select.values

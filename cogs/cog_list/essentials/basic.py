@@ -50,11 +50,11 @@ class CogBasic(cog.RegisteredCog):
 
 
     @c_w.command(
-        category=c_w.Categories.basic_commands,
-        description="Updates the database manually.",
-        aliases=['ud'],
-        req_dev=True,
-        show_help=False
+        category = c_w.Categories.basic_commands,
+        description = "Updates the database manually.",
+        aliases = ['ud'],
+        req_dev = True,
+        show_help = False
     )
     async def updatedatabase(self, ctx: cmds.Context):
         """Updates the database."""
@@ -63,8 +63,8 @@ class CogBasic(cog.RegisteredCog):
 
 
     @c_w.command(
-        category=c_w.Categories.basic_commands,
-        description="Hello...?"
+        category = c_w.Categories.basic_commands,
+        description = "Hello...?"
     )
     async def hello(self, ctx: cmds.Context):
         """well hello there how are u am dog"""
@@ -72,8 +72,8 @@ class CogBasic(cog.RegisteredCog):
 
 
     @c_w.command(
-        category=c_w.Categories.basic_commands,
-        description="Ping...?"
+        category = c_w.Categories.basic_commands,
+        description = "Ping...?"
     )
     async def ping(self, ctx: cmds.Context):
         """WHY WHY WOULD YOU DO THIS"""
@@ -81,11 +81,11 @@ class CogBasic(cog.RegisteredCog):
 
 
     @c_w.command(
-        category=c_w.Categories.bot_control,
-        description="Cause an error...?",
-        guild_only=False,
-        req_dev=True,
-        show_help=False
+        category = c_w.Categories.bot_control,
+        description = "Cause an error...?",
+        guild_only = False,
+        req_dev = True,
+        show_help = False
     )
     async def causeerror(self, ctx: cmds.Context):
         """AAAAAAAAAAAAAAAAA"""

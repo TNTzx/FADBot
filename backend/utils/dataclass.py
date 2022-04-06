@@ -70,7 +70,7 @@ class DataclassConvention(Dataclass):
     """Base class for standard and non-standard dataclasses."""
 
     @abc.abstractmethod
-    def end_init(self, data=None):
+    def end_init(self, data = None):
         """Called at the end of the __init__ function to implement the data."""
 
     def __init_subclass__(cls) -> None:
@@ -88,7 +88,7 @@ class StandardDataclass(abc.ABC, DataclassConvention):
         """Returns the default data."""
         return self.get_dict()
 
-    def end_init(self, data=None):
+    def end_init(self, data = None):
         if data is None:
             self.from_dict(self.default_data())
             return
@@ -114,7 +114,7 @@ class NonStandardDataclass(abc.ABC, DataclassConvention):
         """Gets the default dictionary for this dataclass."""
         return self.__class__(self.default_class()).get_dict()
 
-    def end_init(self, data=None):
+    def end_init(self, data = None):
         """Added to the end of the __init__ function to put the data into the dataclass's fields."""
         if isinstance(data, self.default_class):
             converted_data = self.dict_from_default(data)
