@@ -21,7 +21,6 @@ async def add_new_to_database():
     guild_data: dict = firebase.get_data(endpoint)
     for guild_client in vrs.global_bot.guilds:
         if not str(guild_client.id) in guild_data.keys():
-            # TODO needing default values here
             firebase.edit_data(endpoint, {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
 
