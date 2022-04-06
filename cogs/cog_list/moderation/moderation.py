@@ -14,8 +14,8 @@ import backend.utils.views as vw
 import backend.utils.asking.wait_for as w_f
 import backend.utils.checks as ch
 import backend.firebase as firebase
-import backend.exceptions.custom_exc as c_e
-import backend.exceptions.send_error as s_e
+import backend.exc_utils.custom_exc as c_e
+import backend.exc_utils.send_error as s_e
 import backend.other_functions as o_f
 
 from ... import utils as cog

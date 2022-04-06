@@ -10,7 +10,7 @@ import global_vars.defaults as defaults
 import backend.command_related.command_wrapper as c_w
 import backend.command_related.is_using as i_u
 import backend.firebase as firebase
-import backend.exceptions.custom_exc as c_e
+import backend.exc_utils.custom_exc as c_e
 
 from ... import utils as cog
 

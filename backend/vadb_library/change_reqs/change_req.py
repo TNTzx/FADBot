@@ -8,7 +8,7 @@ import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.firebase as firebase
-import backend.exceptions.send_error as s_e
+import backend.exc_utils.send_error as s_e
 import backend.utils.views as views
 import backend.utils.asking.wait_for as wait_for
 import backend.logging.loggers as lgr

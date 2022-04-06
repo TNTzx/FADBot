@@ -14,7 +14,7 @@ import global_vars.variables as vrs
 import backend.utils.views as vw
 import backend.utils.asking.wait_for as w_f
 import backend.utils.embed_utils as emb_utils
-import backend.exceptions.send_error as s_e
+import backend.exc_utils.send_error as s_e
 import backend.other_functions as o_f
 
 from .... import artists as a_s
