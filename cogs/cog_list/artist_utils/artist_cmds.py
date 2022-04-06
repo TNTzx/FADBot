@@ -1,34 +1,28 @@
 """Artist control."""
 
 
-# from async_timeout import asyncio
+import nextcord as nx
+import nextcord.ext.commands as cmds
 
-# import nextcord as nx
-# import nextcord.ext.commands as cmds
+import backend.command_related.command_wrapper as command_wrapper
+import backend.command_related.
 
-# import requests as req
 
 from ... import utils as cog
-
-# import global_vars.variables as vrs
-# import backend.logging.loggers as lgr
-# import backend.command_related.choice_param as c_p
-# import backend.utils.views as vw
-# import backend.command_related.command_wrapper as c_w
-# import backend.command_related.is_using as i_u
-# import backend.artists.checks as a_ch
-# import backend.artists.library.artist_library as a_l
-# import backend.artists.library.log_library as l_l
-# import backend.firebase as firebase
-# import backend.exceptions.send_error as s_e
-# import backend.exceptions.custom_exc as c_e
-# import backend.other_functions as o_f
 
 
 # FIXME fix me :(
 
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
+
+    @command_wrapper.command(
+        category = command_wrapper.Categories.artist_management,
+        description = "Requests an artist to be added to the database.",
+        aliases = ["ara"],
+        guild_only = False
+    )
+    @
 
 
     # @c_w.command(
