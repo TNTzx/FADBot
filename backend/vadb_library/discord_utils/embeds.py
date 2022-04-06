@@ -5,7 +5,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.logging.loggers as lgr
-import backend.utils.other as mot
+import backend.other.other as mot
 import backend.other_functions as o_f
 
 from .. import artists as art

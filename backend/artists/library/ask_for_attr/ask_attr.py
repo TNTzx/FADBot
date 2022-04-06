@@ -8,8 +8,8 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
-import backend.utils.asking.wait_for as w_f
-import backend.utils.views as vw
+import backend.other.asking.wait_for as w_f
+import backend.other.views as vw
 import backend.exc_utils.send_error as s_e
 import backend.other_functions as o_f
 

@@ -10,9 +10,9 @@ import backend.logging.loggers as lgr
 import backend.command_related.command_wrapper as c_w
 
 import backend.command_related.param_choice as c_p
-import backend.utils.views as vw
-import backend.utils.asking.wait_for as w_f
-import backend.utils.checks as ch
+import backend.other.views as vw
+import backend.other.asking.wait_for as w_f
+import backend.other.checks as ch
 import backend.firebase as firebase
 import backend.exc_utils.custom_exc as c_e
 import backend.exc_utils.send_error as s_e

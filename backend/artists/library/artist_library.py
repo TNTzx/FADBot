@@ -12,11 +12,11 @@ import tldextract as tld
 
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
-import backend.utils.dataclass as dt
-import backend.utils.message_pointer as m_p
-import backend.utils.asking.wait_for as w_f
-import backend.utils.views as vw
-import backend.utils.other as mot
+import backend.other.dataclass as dt
+import backend.other.message_pointer as m_p
+import backend.other.asking.wait_for as w_f
+import backend.other.views as vw
+import backend.other.other as mot
 import backend.artists.library.log_library as l_l
 import backend.artists.library.states_library as s_l
 import backend.artists.library.ask_for_attr.ask_attr as ask_a

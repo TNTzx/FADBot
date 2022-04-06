@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import abc
 
-import backend.utils.other as mot
+import backend.other.other as mot
 import backend.other_functions as o_f
 
 

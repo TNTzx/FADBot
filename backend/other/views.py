@@ -3,7 +3,7 @@
 
 import nextcord as nx
 
-import backend.utils.other as m_ot
+import backend.other.other as m_ot
 
 
 class View(nx.ui.View):

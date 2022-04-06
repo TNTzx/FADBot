@@ -5,8 +5,8 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.firebase as firebase
-import backend.utils.message_pointer as m_p
-import backend.utils.views as vw
+import backend.other.message_pointer as m_p
+import backend.other.views as vw
 
 from .. import artists as art
 from . import embeds

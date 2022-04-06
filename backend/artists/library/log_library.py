@@ -5,8 +5,8 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
-import backend.utils.dataclass as dt
-import backend.utils.message_pointer as m_p
+import backend.other.dataclass as dt
+import backend.other.message_pointer as m_p
 import backend.firebase as firebase
 
 

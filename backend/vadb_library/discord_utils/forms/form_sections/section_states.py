@@ -3,7 +3,7 @@
 
 import typing as typ
 
-import backend.utils.views as vw
+import backend.other.views as vw
 
 
 class SectionState():

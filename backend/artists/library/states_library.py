@@ -5,7 +5,7 @@
 
 import nextcord as nx
 
-import backend.utils.dataclass as dt
+import backend.other.dataclass as dt
 
 
 class State(dt.Dataclass):
