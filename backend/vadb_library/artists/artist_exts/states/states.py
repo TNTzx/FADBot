@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import nextcord as nx
 
-import backend.other.new_dataclass as dt
+import backend.other.dataclass as dt
 import backend.other.other as util_other
 
 from ... import artist_struct as artist_struct

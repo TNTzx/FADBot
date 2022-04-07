@@ -5,8 +5,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
-import backend.command_related.command_wrapper as c_w
-import backend.command_related.param_choice as c_p
+import backend.discord_utils as disc_utils
 import backend.other.checks as ch
 import backend.firebase as firebase
 import backend.exc_utils.custom_exc as c_e
@@ -18,8 +17,8 @@ from ... import utils as cog
 class CogLogCmds(cog.RegisteredCog):
     """Contains commands for setting log locations."""
 
-    @c_w.command(
-        category = c_w.Categories.artist_management,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.artist_management,
         description = "Registers the channel to put the logs on.",
         parameters = {
             "[dump | live]": (
@@ -47,7 +46,7 @@ class CogLogCmds(cog.RegisteredCog):
                 return
 
 
-        @c_p.choice_param_cmd(ctx, log_type, ["dump", "live"])
+        @disc_utils.choice_param_cmd(ctx, log_type, ["dump", "live"])
         async def log_type_choice():
             firebase.override_data(
                 path_initial + [log_type],
@@ -59,8 +58,8 @@ class CogLogCmds(cog.RegisteredCog):
         await ctx.send(f"`{log_type.capitalize()}` log channel registered as {channel.mention}.")
 
 
-    @c_w.command(
-        category = c_w.Categories.artist_management,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.artist_management,
         description = "Unregisters the specified channel for logging.",
         parameters = {
             "[dump | live]": (
@@ -76,7 +75,7 @@ class CogLogCmds(cog.RegisteredCog):
     async def loglocationunset(self, ctx: nx_cmds.Context, log_type: str):
         await ctx.send("Unregistering log channel...")
 
-        @c_p.choice_param_cmd(ctx, log_type, ["dump", "live"])
+        @disc_utils.choice_param_cmd(ctx, log_type, ["dump", "live"])
         async def log_type_choice():
             path_initial = firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [str(ctx.guild.id), "logs", "locations", log_type]
 

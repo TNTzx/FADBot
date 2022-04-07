@@ -7,9 +7,7 @@ import nextcord.ext.commands as nx_cmds
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
 
-import backend.command_related.command_wrapper as c_w
-
-import backend.command_related.param_choice as c_p
+import backend.discord_utils as disc_utils
 import backend.other.views as vw
 import backend.other.asking.wait_for as w_f
 import backend.other.checks as ch
@@ -24,8 +22,8 @@ from ... import utils as cog
 class CogModeration(cog.RegisteredCog):
     """Contains controls for moderating stuff about the bot."""
 
-    @c_w.command(
-        category = c_w.Categories.moderation,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.moderation,
         description = "Sets the admin for the server.",
         parameters = {"id": "The ID of the role you want to add. If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."},
         req_guild_owner = True
@@ -44,8 +42,8 @@ class CogModeration(cog.RegisteredCog):
         await ctx.send("The admin role for this server has been set.")
 
 
-    @c_w.command(
-        category = c_w.Categories.moderation,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.moderation,
         description = "Bans or unbans a user from using the bot.",
         parameters = {
             "[\"ban\" / \"unban\"]": "`ban`s or `unban`s the user.",
@@ -65,7 +63,7 @@ class CogModeration(cog.RegisteredCog):
             await s_e.send_error(ctx, "You're banning yourself!! WHY????? **WHYYYYYY????????**")
             return
 
-        @c_p.choice_param_cmd(ctx, action, ["ban", "unban"])
+        @disc_utils.choice_param_cmd(ctx, action, ["ban", "unban"])
         async def action_choice():
             user_name = f"{user.name}#{user.discriminator}"
 

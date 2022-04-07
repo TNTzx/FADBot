@@ -7,10 +7,8 @@ import nextcord.ext.commands as nx_cmds
 import global_vars.variables as vrs
 import global_vars.defaults as defaults
 import backend.logging.loggers as lgr
-import backend.command_related.command_wrapper as c_w
-import backend.command_related.is_using as i_u
+import backend.discord_utils as disc_utils
 import backend.firebase as firebase
-import backend.exc_utils.custom_exc as c_e
 
 from ... import utils as cog
 
@@ -36,7 +34,7 @@ class CogBasic(cog.RegisteredCog):
 
         # initialize on ready
         await add_new_to_database()
-        i_u.delete_all_is_using()
+        disc_utils.delete_all_is_using()
 
         vrs.TNTz = await vrs.global_bot.fetch_user(279803094722674693)
         await vrs.TNTz.send("Logged in!")
@@ -48,8 +46,8 @@ class CogBasic(cog.RegisteredCog):
         await add_new_to_database()
 
 
-    @c_w.command(
-        category = c_w.Categories.basic_commands,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.basic_commands,
         description = "Updates the database manually.",
         aliases = ['ud'],
         req_dev = True,
@@ -61,8 +59,8 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send("Database updated.")
 
 
-    @c_w.command(
-        category = c_w.Categories.basic_commands,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.basic_commands,
         description = "Hello...?"
     )
     async def hello(self, ctx: nx_cmds.Context):
@@ -70,8 +68,8 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send("...what? I- hmm. Thanks for the... erm... hello... I guess?")
 
 
-    @c_w.command(
-        category = c_w.Categories.basic_commands,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.basic_commands,
         description = "Ping...?"
     )
     async def ping(self, ctx: nx_cmds.Context):
@@ -79,8 +77,8 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send(f"Pong! <@{ctx.author.id}>")
 
 
-    @c_w.command(
-        category = c_w.Categories.bot_control,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.bot_control,
         description = "Cause an error...?",
         guild_only = False,
         req_dev = True,

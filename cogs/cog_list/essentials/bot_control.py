@@ -9,7 +9,7 @@ import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.logging.loggers as lgr
-import backend.command_related.command_wrapper as c_w
+import backend.discord_utils as disc_utils
 
 from ... import utils as cog
 
@@ -17,8 +17,8 @@ from ... import utils as cog
 class CogBotControl(cog.RegisteredCog):
     """Contains bot control."""
 
-    @c_w.command(
-        category = c_w.Categories.bot_control,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.bot_control,
         description = "Restarts the bot.",
         aliases = ["sr"],
         guild_only = False,
@@ -44,8 +44,8 @@ class CogBotControl(cog.RegisteredCog):
         print("\n \n Restart break! -------------------------------------- \n \n")
 
 
-    @c_w.command(
-        category = c_w.Categories.bot_control,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.bot_control,
         description = "Shuts down the bot.",
         aliases = ["sk"],
         guild_only = False,
@@ -58,8 +58,8 @@ class CogBotControl(cog.RegisteredCog):
         exit()
 
 
-    @c_w.command(
-        category = c_w.Categories.bot_control,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.bot_control,
         description = f"Like {vrs.CMD_PREFIX}restart, but hard.",
         aliases = ["srh"],
         guild_only = False,

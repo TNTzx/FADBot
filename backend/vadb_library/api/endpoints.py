@@ -3,7 +3,7 @@
 
 import urllib.parse as ul
 
-import backend.other.new_dataclass as dt
+import backend.other.dataclass as dt
 
 from . import consts
 

@@ -5,7 +5,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.firebase as firebase
-import backend.other.message_pointer as m_p
+import backend.discord_utils as disc_utils
 import backend.other.views as vw
 
 from .. import artists as art
@@ -28,14 +28,14 @@ class InfoBundle():
         message_embed = await channel.send(prefix, embed = self.get_embed())
         message_proof = await channel.send(self.artist.proof.original_url, view = view)
         return MessageBundle(
-            message_pointer_embed = m_p.MessagePointer.from_message(message_embed),
-            message_pointer_proof = m_p.MessagePointer.from_message(message_proof)
+            message_pointer_embed = disc_utils.MessagePointer.from_message(message_embed),
+            message_pointer_proof = disc_utils.MessagePointer.from_message(message_proof)
         )
 
 
 class MessageBundle(firebase.FBStruct):
     """Stores the information on both the embed and proof messages."""
-    def __init__(self, message_pointer_embed: m_p.MessagePointer, message_pointer_proof: m_p.MessagePointer):
+    def __init__(self, message_pointer_embed: disc_utils.MessagePointer, message_pointer_proof: disc_utils.MessagePointer):
         self.message_pointer_embed = message_pointer_embed
         self.message_pointer_proof = message_pointer_proof
 
@@ -49,7 +49,7 @@ class MessageBundle(firebase.FBStruct):
     @classmethod
     def firebase_from_json(cls, json: dict | list):
         def pointer_from_json(key: str):
-            return m_p.MessagePointer.firebase_from_json(json.get(key))
+            return disc_utils.MessagePointer.firebase_from_json(json.get(key))
 
         return cls(
             message_pointer_embed = pointer_from_json("message_pointer_embed"),

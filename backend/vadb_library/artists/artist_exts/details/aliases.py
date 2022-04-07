@@ -1,7 +1,7 @@
 """Aliases."""
 
 
-import backend.other.new_dataclass as dt
+import backend.other.dataclass as dt
 
 from ... import artist_struct
 

@@ -11,7 +11,7 @@ import backend.exc_utils.send_error as s_e
 import backend.exc_utils.custom_exc as c_exc
 
 
-class Categories:
+class CmdCategories:
     """Categories."""
     artist_management = "Artist Management"
     basic_commands = "Basic Commands"
@@ -53,13 +53,13 @@ class CustomCommandClass:
 
 class ListOfCommands:
     """Lists all commands."""
-    commands_all: dict[Categories, list[str]] = {}
+    commands_all: dict[CmdCategories, list[str]] = {}
     commands: dict[str, CustomCommandClass] = {}
 
 
-for attribute in dir(Categories):
+for attribute in dir(CmdCategories):
     if not attribute.startswith("__"):
-        ListOfCommands.commands_all[getattr(Categories, attribute)] = []
+        ListOfCommands.commands_all[getattr(CmdCategories, attribute)] = []
 
 
 async def check_pa_mod(ctx: nx_cmds.Context, user_id: int):
@@ -128,7 +128,7 @@ async def check_ban(user_id: int):
 
 
 def command(
-        category = Categories.basic_commands,
+        category = CmdCategories.basic_commands,
         description = "TNTz forgot to put a description lmao please ping him",
         parameters: dict[str, str] = None,
         aliases: list[str] = None,

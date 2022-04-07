@@ -5,7 +5,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
-import backend.command_related.command_wrapper as c_w
+import backend.discord_utils as disc_utils
 import backend.other.other_functions as o_f
 import backend.exc_utils.send_error as s_e
 
@@ -15,8 +15,8 @@ from ... import utils as cog
 class CogHelp(cog.RegisteredCog):
     """Contains the help command."""
 
-    @c_w.command(
-        category = c_w.Categories.basic_commands,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.basic_commands,
         description = "WHAT IN THE ACTUAL LIVING ARTIST DID YOU DO",
         parameters = {"[command]": "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"},
         aliases = ["h"],
@@ -35,11 +35,11 @@ class CogHelp(cog.RegisteredCog):
                 ),
                 color = 0xFFAEAE
             )
-            for category, names in c_w.ListOfCommands.commands_all.items():
+            for category, names in disc_utils.ListOfCommands.commands_all.items():
 
                 name_list = []
                 for name in names:
-                    cmd = c_w.ListOfCommands.commands[name]
+                    cmd = disc_utils.ListOfCommands.commands[name]
                     if cmd.help.show_condition(ctx) and cmd.help.show_help:
                         name_list.append(name)
 
@@ -52,11 +52,11 @@ class CogHelp(cog.RegisteredCog):
             async def send_not_exist():
                 await s_e.send_error(ctx, "*This command doesn't exist! Make sure you typed it correctly!*")
 
-            if not command in c_w.ListOfCommands.commands:
+            if not command in disc_utils.ListOfCommands.commands:
                 await send_not_exist()
                 return
 
-            cmd: c_w.CustomCommandClass = c_w.ListOfCommands.commands[command]
+            cmd: disc_utils.CustomCommandClass = disc_utils.ListOfCommands.commands[command]
 
             if not cmd.help.show_condition(ctx) or not cmd.help.show_help:
                 await send_not_exist()

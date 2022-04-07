@@ -4,7 +4,7 @@
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import backend.command_related as cmd
+import backend.discord_utils as disc_utils
 
 
 from ... import utils as cog
@@ -15,17 +15,18 @@ from ... import utils as cog
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
 
-    @command_wrapper.command(
-        category = command_wrapper.Categories.artist_management,
+    @disc_utils.command(
+        category = disc_utils.CmdCategories.artist_management,
         description = "Requests an artist to be added to the database.",
         aliases = ["ara"],
         guild_only = False
     )
-    @
+    async def artistrequestadd(self, ctx: nx_cmds.Context):
+        pass
 
 
-    # @c_w.command(
-    #     category = c_w.Categories.artist_management,
+    # @disc_utils.command(
+    #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Requests an artist to be added to the database.",
     #     aliases = ["ara"],
     #     guild_only = False
@@ -72,8 +73,8 @@ class CogArtistCmds(cog.RegisteredCog):
     #     await data.post_log(l_l.LogTypes.PENDING, ctx.author.id)
 
 
-    # @c_w.command(
-    #     category = c_w.Categories.artist_management,
+    # @disc_utils.command(
+    #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Requests an artist to be edited in the database.",
     #     parameters = {
     #         "id": "Artist ID to edit."
@@ -121,8 +122,8 @@ class CogArtistCmds(cog.RegisteredCog):
     #     await artist.post_log(l_l.LogTypes.EDITING, ctx.author.id)
 
 
-    # @c_w.command(
-    #     category = c_w.Categories.artist_management,
+    # @disc_utils.command(
+    #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Accepts / declines the request.",
     #     parameters = {
     #         "[\"add\" / \"edit\"]": "Chooses whether or not the request to be verified is to `add` an artist or `edit` an artist.",
@@ -274,8 +275,8 @@ class CogArtistCmds(cog.RegisteredCog):
     #     await artist.delete_logs()
 
 
-    # @c_w.command(
-    #     category = c_w.Categories.artist_management,
+    # @disc_utils.command(
+    #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Gets a specified artist by search term or VADB ID.",
     #     parameters = {
     #         "[<search term> | <ID>]": (
@@ -315,8 +316,8 @@ class CogArtistCmds(cog.RegisteredCog):
     #         await ctx.send("Multiple artists found! Use `##artistsearch <id>` to search for a specific artist.", embed = a_l.generate_search_embed(search_result))
 
 
-    # @c_w.command(
-    #     category = c_w.Categories.bot_control,
+    # @disc_utils.command(
+    #     category = disc_utils.CmdCategories.bot_control,
     #     description = "Cancels the current command. Usually used for artist commands.",
     #     guild_only = False
     # )

@@ -1,7 +1,7 @@
 """Contains the Firebase Structure object."""
 
 
-import backend.other.new_dataclass as dt
+import backend.other.dataclass as dt
 
 
 class FBStruct(dt.Dataclass):
