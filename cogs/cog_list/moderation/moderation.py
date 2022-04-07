@@ -8,9 +8,6 @@ import global_vars.variables as vrs
 import backend.logging.loggers as lgr
 
 import backend.discord_utils as disc_utils
-import backend.other.views as vw
-import backend.other.asking.wait_for as w_f
-import backend.other.checks as ch
 import backend.firebase as firebase
 import backend.exc_utils.custom_exc as c_e
 import backend.exc_utils.send_error as s_e
@@ -29,6 +26,7 @@ class CogModeration(cog.RegisteredCog):
         req_guild_owner = True
     )
     async def setadmin(self, ctx: nx_cmds.Context, role_id):
+        """Sets the admin role of this server."""
         try:
             int(role_id)
         except ValueError:
@@ -56,8 +54,7 @@ class CogModeration(cog.RegisteredCog):
     async def botban(self, ctx: nx_cmds.Context, action: str, user_id: int):
         """Bans or unbans a person from using the bot."""
         path_initial = firebase.ENDPOINTS.e_discord.e_users_general.e_banned_users.get_path()
-
-        user = await ch.get_user_from_id(ctx, user_id)
+        user = await disc_utils.user_from_id_warn(ctx, user_id)
 
         if ctx.author.id == user.id:
             await s_e.send_error(ctx, "You're banning yourself!! WHY????? **WHYYYYYY????????**")
@@ -68,15 +65,15 @@ class CogModeration(cog.RegisteredCog):
             user_name = f"{user.name}#{user.discriminator}"
 
             async def send_confirm():
-                confirm_view = vw.ViewConfirmCancel()
+                confirm_view = disc_utils.ViewConfirmCancel()
                 confirm_message = await ctx.send((
                         f"Are you sure you want to {action} the user `{user_name}`?\n"
                         f"This command will time out in `{o_f.format_time(vrs.Timeouts.long)}`."
                     ), view = confirm_view)
 
-                output_view = await w_f.wait_for_view(ctx, confirm_message, confirm_view)
+                output_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)
 
-                if output_view.value == vw.OutputValues.cancel:
+                if output_view.value == disc_utils.ViewOutputValues.cancel:
                     await ctx.send("Command cancelled.")
                     raise c_e.ExitFunction()
 

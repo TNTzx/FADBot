@@ -74,7 +74,7 @@ def override_dicts_recursive(default: dict, override: dict):
             else:
                 new[key] = override[key]
         else:
-            raise c_exc.DictOverrideError(f"Key '{key}' on override dict doesn't have an entry in default dict.")
+            raise ValueError(f"Key '{key}' on override dict doesn't have an entry in default dict.")
 
     return new
 

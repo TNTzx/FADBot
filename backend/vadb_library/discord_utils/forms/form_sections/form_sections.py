@@ -7,8 +7,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.exc_utils.send_error as s_e
-import backend.other.asking.wait_for as w_f
-import backend.other.views as vw
+import backend.discord_utils as disc_utils
 
 from .... import artists as a_s
 from .... import excepts
@@ -20,7 +19,7 @@ from . import section_states as states
 
 class Name(f_s.RawTextSection):
     """The artist name."""
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
         response = await super().reformat_input(ctx, response)
 
         await ctx.author.send("Checking if there are already possible existing artists. This might take a while...")
@@ -33,7 +32,7 @@ class Name(f_s.RawTextSection):
             return response
 
         if searched_artists.artists[0].name == response:
-            await w_f.send_error(ctx, "An artist with that name already exists.", send_author = True)
+            await disc_utils.send_error(ctx, "An artist with that name already exists.", send_author = True)
             raise f_exc.InvalidSectionResponse()
 
 
@@ -51,7 +50,7 @@ class Name(f_s.RawTextSection):
             )
         )
 
-        view = vw.ViewConfirmBackCancel()
+        view = disc_utils.ViewConfirmBackCancel()
 
         message = await ctx.author.send(
             "Possible existing artists found!",
@@ -59,16 +58,16 @@ class Name(f_s.RawTextSection):
             view = view
         )
 
-        result_view = await w_f.wait_for_view(ctx, message, view)
+        result_view = await disc_utils.wait_for_view(ctx, message, view)
         result = result_view.value
 
-        if result == vw.OutputValues.confirm:
+        if result == disc_utils.ViewOutputValues.confirm:
             await ctx.author.send("Proceeding...")
             raise f_exc.ExitSection()
-        if result == vw.OutputValues.back:
+        if result == disc_utils.ViewOutputValues.back:
             await ctx.author.send("Returning...")
             raise f_exc.InvalidSectionResponse()
-        if result == vw.OutputValues.cancel:
+        if result == disc_utils.ViewOutputValues.cancel:
             await s_e.cancel_command(ctx, send_author = True)
 
 
@@ -86,7 +85,7 @@ class Proof(f_s.ImageSection):
 class Availability(f_s.ChoiceSection):
     """Artist availability."""
     async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        class AvailabilityView(vw.View):
+        class AvailabilityView(disc_utils.View):
             """Extra view."""
             @nx.ui.select(placeholder = "Select availability...", options = a_s.AvailabilityList.get_states_options(), row = 0)
             async def avail_choose(self, select: nx.ui.Select, interact: nx.Interaction):
@@ -107,7 +106,7 @@ class UsageRights(f_s.DictSection):
     def __init__(self, title: str, description: str, example: str = None, notes: str = None, default_section_state: states.SectionState = states.SectionStates.default):
         super().__init__(title, description, example, notes, default_section_state = default_section_state, allowed_val_func = lambda value: value in list(value_state_dict.keys()))
 
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | vw.View, section_state: states.SectionState = None):
+    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
         diction = await super().reformat_input(ctx, response)
         return {
             key: value_state_dict[value] for key, value in diction.items()
@@ -271,7 +270,7 @@ class FormSections():
     @classmethod
     def get_options_view(cls, placeholder: str = "Select attribute..."):
         """Returns the `View` of all options."""
-        class ViewFormSections(vw.ViewConfirmCancel):
+        class ViewFormSections(disc_utils.ViewConfirmCancel):
             """A view for choices."""
             @nx.ui.select(placeholder = placeholder, options = cls.get_all_options())
             async def command_select(self, select: nx.ui.Select, interact: nx.Interaction):

@@ -30,7 +30,7 @@ def select_factory(options: list[nx.SelectOption]):
 FIRST_ROW = 0
 IS_LAST_ROW = 4
 
-class OutputValues:
+class ViewOutputValues:
     """Contains output values for stuff like Cancel and Skip."""
     cancel = m_ot.Unique()
     skip = m_ot.Unique()
@@ -48,7 +48,7 @@ class ButtonCancel(View):
     @nx.ui.button(label = "Cancel", style = nx.ButtonStyle.red, row = IS_LAST_ROW)
     async def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
         "...cancel!"
-        self.value = OutputValues.cancel
+        self.value = ViewOutputValues.cancel
         self.stop()
 
 class ButtonConfirm(View):
@@ -56,7 +56,7 @@ class ButtonConfirm(View):
     @nx.ui.button(label = "Confirm", style = nx.ButtonStyle.green, row = IS_LAST_ROW)
     async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
         "...confirm!"
-        self.value = OutputValues.confirm
+        self.value = ViewOutputValues.confirm
         self.stop()
 
 class ButtonSubmit(View):
@@ -64,7 +64,7 @@ class ButtonSubmit(View):
     @nx.ui.button(label = "Submit", style = nx.ButtonStyle.green, row = IS_LAST_ROW)
     async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
         "...submit!"
-        self.value = OutputValues.submit
+        self.value = ViewOutputValues.submit
         self.stop()
 
 class ButtonSkipEnabled(View):
@@ -72,7 +72,7 @@ class ButtonSkipEnabled(View):
     @nx.ui.button(label = "Skip", style = nx.ButtonStyle.blurple, row = IS_LAST_ROW)
     async def skip_enabled(self, button: nx.ui.Button, interact: nx.Interaction):
         """skip!"""
-        self.value = OutputValues.skip
+        self.value = ViewOutputValues.skip
         self.stop()
 
 class ButtonSkipDisabled(View):
@@ -80,7 +80,7 @@ class ButtonSkipDisabled(View):
     @nx.ui.button(label = "Skip", disabled = True, style = nx.ButtonStyle.blurple, row = IS_LAST_ROW)
     async def skip_disabled(self, button: nx.ui.Button, interact: nx.Interaction):
         """skip!"""
-        self.value = OutputValues.skip
+        self.value = ViewOutputValues.skip
         self.stop()
 
 class ButtonBack(View):
@@ -88,7 +88,7 @@ class ButtonBack(View):
     @nx.ui.button(label = "Back", style = nx.ButtonStyle.blurple, row = IS_LAST_ROW)
     async def back(self, button: nx.ui.Button, interact: nx.Interaction):
         """back!"""
-        self.value = OutputValues.back
+        self.value = ViewOutputValues.back
         self.stop()
 
 

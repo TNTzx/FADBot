@@ -5,8 +5,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.exc_utils.send_error as s_e
-import backend.other.asking.wait_for as w_f
-import backend.other.views as vw
+import backend.discord_utils as disc_utils
 import backend.other.other_functions as o_f
 import global_vars.variables as vrs
 
@@ -83,7 +82,7 @@ class FormArtist():
                     view = new_view
                 )
 
-                response = await w_f.wait_for_view(
+                response = await disc_utils.wait_for_view(
                     ctx,
                     message_bundle.message_pointer_proof,
                     view = new_view,
@@ -91,9 +90,9 @@ class FormArtist():
                 )
 
 
-                if response.value == vw.OutputValues.confirm:
+                if response.value == disc_utils.ViewOutputValues.confirm:
                     break
-                if response.value == vw.OutputValues.cancel:
+                if response.value == disc_utils.ViewOutputValues.cancel:
                     await s_e.cancel_command(ctx, send_author = True)
 
                 title = response.value[0]
@@ -103,17 +102,17 @@ class FormArtist():
                 await self.edit_with_section(ctx, section = form_section, section_state = f_s.SectionStates.editing)
 
 
-            view = vw.ViewConfirmBackCancel()
+            view = disc_utils.ViewConfirmBackCancel()
 
             message = await ctx.send(embed = generate_confirm_embed(), view = view)
 
-            response = await w_f.wait_for_view(ctx, message, view)
+            response = await disc_utils.wait_for_view(ctx, message, view)
 
-            if response.value == vw.OutputValues.confirm:
+            if response.value == disc_utils.ViewOutputValues.confirm:
                 break
-            if response.value == vw.OutputValues.back:
+            if response.value == disc_utils.ViewOutputValues.back:
                 continue
-            if response.value == vw.OutputValues.cancel:
+            if response.value == disc_utils.ViewOutputValues.cancel:
                 await s_e.cancel_command(ctx, send_author = True)
 
 

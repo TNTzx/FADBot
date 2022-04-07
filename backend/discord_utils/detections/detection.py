@@ -12,7 +12,7 @@ import global_vars.variables as vrs
 import backend.exc_utils.custom_exc as c_e
 import backend.exc_utils.send_error as s_e
 
-from . import checks as w_f_ch
+from . import detection_checks as w_f_ch
 
 
 TIMEOUT = vrs.Timeouts.long
@@ -62,7 +62,7 @@ async def wait_for_view(ctx: nx_cmds.Context, original_message: nx.Message, view
     return view
 
 
-class OutputTypes(enum.Enum):
+class DetectionOutputTypes(enum.Enum):
     """A class containing identifiers for outputs of a message or a view."""
     message = "message"
     view = "view"
@@ -88,8 +88,9 @@ async def wait_for_message_view(ctx: nx_cmds.Context, original_message: nx.Messa
         task.cancel()
 
     if isinstance(result, nx.Message):
-        return OutputTypes.message, result
+        return DetectionOutputTypes.message, result
     if isinstance(result, nx.Interaction):
-        return OutputTypes.view, view
+        return DetectionOutputTypes.view, view
 
+    # REWRITE move this to disc_utils
     raise c_e.InvalidResponse()

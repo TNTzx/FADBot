@@ -9,8 +9,7 @@ import nextcord.ext.commands as nx_cmds
 import global_vars.variables as vrs
 import backend.firebase as firebase
 import backend.exc_utils.send_error as s_e
-import backend.other.views as views
-import backend.other.asking.wait_for as wait_for
+import backend.discord_utils as disc_utils
 import backend.logging.loggers as lgr
 import backend.other.other_functions as other_functions
 
@@ -146,7 +145,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[nx_cmds.Context], typ.Coroutine[None, None, None]]):
             """Approves / declines the request from an `approval_cls`."""
             # confirmation
-            confirm_view = views.ViewConfirmCancel()
+            confirm_view = disc_utils.ViewConfirmCancel()
 
             message_confirm_str = approval_cls.get_message_confirm(
                 req_id = self.request_id,
@@ -163,9 +162,9 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                 view = confirm_view
             )
 
-            final_view = await wait_for.wait_for_view(ctx, confirm_message, confirm_view)
+            final_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)
 
-            if final_view.value == views.OutputValues.cancel:
+            if final_view.value == disc_utils.ViewOutputValues.cancel:
                 raise req_exc.SetApprovalCancelled()
 
 

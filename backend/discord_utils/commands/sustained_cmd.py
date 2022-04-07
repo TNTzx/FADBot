@@ -23,7 +23,7 @@ def delete_is_using_command(path: list[str], author_id: int):
     """Deletes the user as one that is using the command."""
     try:
         firebase.deduct_data(path, [str(author_id)])
-    except c_e.FirebaseNoEntry:
+    except firebase.FBNoPath:
         return
 
 def delete_all_is_using():

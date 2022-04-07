@@ -6,7 +6,6 @@ import nextcord.ext.commands as nx_cmds
 
 import backend.firebase as firebase
 import backend.discord_utils as disc_utils
-import backend.other.views as vw
 
 from .. import artists as art
 from . import embeds
@@ -23,7 +22,7 @@ class InfoBundle():
         return embeds.generate_embed(self.artist)
 
 
-    async def send_message(self, channel: nx_cmds.Context | nx.TextChannel | nx.DMChannel, prefix: str = None, view: vw.View = None):
+    async def send_message(self, channel: nx_cmds.Context | nx.TextChannel | nx.DMChannel, prefix: str = None, view: disc_utils.View = None):
         """Sends the message to a text channel. The view is attached to `message_proof`."""
         message_embed = await channel.send(prefix, embed = self.get_embed())
         message_proof = await channel.send(self.artist.proof.original_url, view = view)

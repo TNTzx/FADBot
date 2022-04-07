@@ -6,7 +6,6 @@ import nextcord.ext.commands as nx_cmds
 
 import global_vars.variables as vrs
 import backend.discord_utils as disc_utils
-import backend.other.checks as ch
 import backend.firebase as firebase
 import backend.exc_utils.custom_exc as c_e
 import backend.exc_utils.send_error as s_e
@@ -33,7 +32,8 @@ class CogLogCmds(cog.RegisteredCog):
         cooldown = 10, cooldown_type = nx_cmds.BucketType.guild
     )
     async def loglocationset(self, ctx: nx_cmds.Context, log_type: str, channel_mention: str):
-        channel = await ch.channel_from_mention(ctx, channel_mention)
+        """Sets the log location."""
+        channel = await disc_utils.channel_from_id(ctx, channel_mention)
 
         await ctx.send("Registering log channel...")
 

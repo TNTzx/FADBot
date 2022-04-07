@@ -1,4 +1,5 @@
 """Contains sending errors."""
+# REWRITE refactor this
 
 
 import traceback
