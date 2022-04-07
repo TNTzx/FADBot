@@ -3,6 +3,7 @@
 
 from .detection import \
     wait_for_message, wait_for_message_view, wait_for_view, \
-    DetectionOutputTypes
+    DetectionOutputTypes, \
+    send_error
 
 from .detection_checks import check_interaction, check_message
