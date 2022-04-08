@@ -130,7 +130,7 @@ def lint_all_python_files(root_path: str, clear_console = True, enable_warns: li
 
         print(
             (
-                f"\033[1;36m----------LINTING FILE ({idx + 1} / {len(python_file_paths)})----------\n"
+                f"\033[1;36mLINTING FILE ({idx + 1} / {len(python_file_paths)}): "
                 f"{abs_path}\033[0;0m"
             )
         )
@@ -141,6 +141,9 @@ def lint_all_python_files(root_path: str, clear_console = True, enable_warns: li
             reporter = current_reporter,
             do_exit = False
         )
+
+        if len(current_reporter.messages) != 0:
+            print(f"> ! Found {len(current_reporter.messages)} messages.")
 
         all_reporters.append(current_reporter)
 
@@ -153,11 +156,11 @@ def lint_all_python_files(root_path: str, clear_console = True, enable_warns: li
         if len(reporter.messages) == 0:
             continue
 
-        print(f"\033[1;36m-----{reporter.current_path}-----\n")
+        print(f"\n\033[1;36m{reporter.current_path}")
         for message in reporter.messages:
             print(
                 (
-                    "\t[ ]"
+                    "+> [ ]"
                     f"[{message.line}, {message.column}] "
                     f"({message.obj if message.obj != '' else '<module>'}): "
                     f"{message.msg} ({message.msg_id})"

@@ -2,8 +2,6 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as nx_cmds
-
 
 
 def check_message(author_id: int, text_channel_id: int):

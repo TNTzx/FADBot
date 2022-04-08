@@ -6,7 +6,6 @@ import nextcord.ext.commands as nx_cmds
 
 import global_vars
 import backend.exc_utils as exc_utils
-import backend.other.other_functions as o_f
 
 from . import disc_exc
 

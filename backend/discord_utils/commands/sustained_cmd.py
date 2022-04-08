@@ -4,7 +4,6 @@
 import functools as fc
 import nextcord.ext.commands as nx_cmds
 
-import global_vars
 import backend.firebase as firebase
 import backend.exc_utils as exc_utils
 
