@@ -1,7 +1,6 @@
 """Contains controls for logging artist requests."""
 
 
-import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
@@ -32,7 +31,7 @@ class CogLogCmds(cog.RegisteredCog):
     )
     async def loglocationset(self, ctx: nx_cmds.Context, log_type: str, channel_mention: str):
         """Sets the log location."""
-        channel = await disc_utils.channel_from_id(ctx, channel_mention)
+        channel = await disc_utils.channel_from_id_warn(ctx, channel_mention)
 
         await ctx.send("Registering log channel...")
 
@@ -72,6 +71,7 @@ class CogLogCmds(cog.RegisteredCog):
         cooldown = 10, cooldown_type = nx_cmds.BucketType.guild
     )
     async def loglocationunset(self, ctx: nx_cmds.Context, log_type: str):
+        """Unregisters the log channel."""
         await ctx.send("Unregistering log channel...")
 
         @disc_utils.choice_param_cmd(ctx, log_type, ["dump", "live"])

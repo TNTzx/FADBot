@@ -4,7 +4,6 @@
 import os
 import sys
 
-import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
@@ -25,7 +24,8 @@ class CogBotControl(cog.RegisteredCog):
         req_dev = True,
         show_help = False
     )
-    async def switchrestart(self, ctx):
+    async def switchrestart(self, ctx: nx_cmds.Context):
+        """Restarts the bot."""
         await ctx.send("Restarting bot...")
         lgr.log_bot_status.info("Restarting bot by cogs...")
         for file in os.listdir(os.path.dirname(__file__)):
@@ -51,11 +51,12 @@ class CogBotControl(cog.RegisteredCog):
         guild_only = False,
         req_dev = True,
     )
-    async def switchkill(self, ctx):
+    async def switchkill(self, ctx: nx_cmds.Context):
+        """Kills the bot."""
         lgr.log_bot_status.info("Closed bot by command.")
         await ctx.send("Terminated bot.")
         await self.bot.close()
-        exit()
+        sys.exit()
 
 
     @disc_utils.command(
@@ -66,7 +67,8 @@ class CogBotControl(cog.RegisteredCog):
         req_dev = True,
         show_help = False
     )
-    async def switchrestarthard(self, ctx):
+    async def switchrestarthard(self, ctx: nx_cmds.Context):
+        """Restarts the bot hard."""
         lgr.log_bot_status.info("Initiated hard restart.")
         await ctx.send("Restart initiated!")
         print("\n \n Restart break! Hard! -------------------------------------- \n \n")

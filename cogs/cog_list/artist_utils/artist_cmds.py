@@ -1,7 +1,6 @@
 """Artist control."""
 
 
-import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.discord_utils as disc_utils
@@ -22,7 +21,7 @@ class CogArtistCmds(cog.RegisteredCog):
         guild_only = False
     )
     async def artistrequestadd(self, ctx: nx_cmds.Context):
-        pass
+        """Creates an add request."""
 
 
     # @disc_utils.command(

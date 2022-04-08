@@ -1,16 +1,12 @@
 """Contains code for image handling."""
 
 
-import os
 import io
 
-import urllib.parse as urlparse
 import requests as req
-
 import PIL.Image as PIL
 
 from .... import api
-
 from ... import artist_struct
 
 

@@ -6,7 +6,6 @@ from __future__ import annotations
 import typing as typ
 
 import nextcord as nx
-import nextcord.ext.commands as nx_cmds
 
 import global_vars
 import backend.firebase as firebase

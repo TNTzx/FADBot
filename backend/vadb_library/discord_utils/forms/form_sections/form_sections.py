@@ -286,5 +286,5 @@ class FormSections():
         for section in cls.get_all_form_sections():
             if section.title == title:
                 return section
-        
+
         raise ValueError(f"\"{title}\" not found.")

@@ -22,6 +22,7 @@ class CogErrorHandler(cog.RegisteredCog):
 
     @nx_cmds.Cog.listener()
     async def on_command_error(self, ctx: nx_cmds.Context, exc: Exception | nx_cmds.CommandInvokeError):
+        """Called when there is an error in one of the commands."""
         def checkexc(exc_type):
             return isinstance(exc, exc_type)
 

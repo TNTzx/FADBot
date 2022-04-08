@@ -8,7 +8,7 @@ import nextcord as nx
 import backend.other.dataclass as dt
 import backend.other.other as util_other
 
-from ... import artist_struct as artist_struct
+from ... import artist_struct
 from . import usage_rights as u_r
 
 
@@ -58,7 +58,7 @@ class StateList():
     def get_states_options(cls):
         """Returns the options list."""
         return [state.get_option() for state in cls.state_list]
-    
+
     @classmethod
     def get_state_from_value(cls, value: int):
         """Gets the state from a value."""

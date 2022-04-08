@@ -4,10 +4,6 @@
 import backend.firebase as firebase
 
 
-class OtherStruct(firebase.FBStruct):
-    pass
-
-
 class ArtistStruct(firebase.FBStruct):
     """Parent class for artist structures."""
 

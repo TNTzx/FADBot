@@ -1,8 +1,6 @@
 """Usage rights."""
 
 
-import backend.other.dataclass as dt
-
 from ... import artist_struct
 
 

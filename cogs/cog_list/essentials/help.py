@@ -24,6 +24,7 @@ class CogHelp(cog.RegisteredCog):
         cooldown = 1, cooldown_type = nx_cmds.BucketType.user
     )
     async def help(self, ctx: nx_cmds.Context, command = None):
+        """Used to display help on a command."""
         async def show_all():
             embed = nx.Embed(
                 title = "Help!",

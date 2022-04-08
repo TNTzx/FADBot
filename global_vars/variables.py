@@ -1,9 +1,8 @@
 """Where global variables reside."""
 
-import json
-import os
-import pyrebase
+
 import nextcord as nx
+
 
 # Command Prefix
 CMD_PREFIX = "##"

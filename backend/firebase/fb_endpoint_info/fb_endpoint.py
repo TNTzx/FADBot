@@ -3,9 +3,6 @@
 
 from __future__ import annotations
 
-from .. import fb_interact
-from .. import fb_exc
-
 
 class FBEndpoint():
     """The base class of all Firebase endpoints."""
