@@ -15,4 +15,5 @@ from .disc_exc import \
         GetError, \
             GetNotFound, \
                 ChannelNotFound, UserNotFound, \
-        NotMention
+        NotMention, \
+        InvalidResponse

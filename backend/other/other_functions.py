@@ -35,7 +35,7 @@ async def get_channel_from_mention(mention: str):
         return None
 
     try:
-        obj = global_vars.global_bot.get_channel(int(get_id))
+        obj = global_vars.bot.get_channel(int(get_id))
     except ValueError:
         return None
 

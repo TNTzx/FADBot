@@ -30,7 +30,7 @@ def main():
     bot = nx_cmds.Bot(command_prefix = global_vars.CMD_PREFIX, intents = intents)
     bot.remove_command("help")
 
-    global_vars.global_bot = bot
+    global_vars.bot = bot
 
 
     log_something("Loading cogs...")

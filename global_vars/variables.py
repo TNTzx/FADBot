@@ -9,7 +9,7 @@ import nextcord as nx
 CMD_PREFIX = "##"
 
 # Bot
-global_bot = nx.Client()
+bot = nx.Client()
 
 
 # Tent

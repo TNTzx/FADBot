@@ -21,7 +21,7 @@ async def get_id_from_mention(mention_str: str):
 
 def channel_from_id(channel_id: int):
     """Takes in a channel mention then returns the channel."""
-    channel = global_vars.global_bot.get_channel(channel_id)
+    channel = global_vars.bot.get_channel(channel_id)
     if channel is None or not isinstance(channel, nx.TextChannel):
         raise disc_exc.ChannelNotFound(channel_id)
 
@@ -31,15 +31,15 @@ async def channel_from_id_warn(ctx: nx_cmds.Context, channel_id: int):
     """Like `channel_from_id`, but with warning the user."""
     try:
         return channel_from_id(channel_id)
-    except disc_exc.ChannelNotFound:
+    except disc_exc.ChannelNotFound as exc:
         # TODO replace this with send_error
         await ctx.send(f"Channel ID {channel_id} not found!")
-        raise exc_utils.ExitFunction()
+        raise exc_utils.ExitFunction() from exc
 
 
 def user_from_id(user_id: int):
     """Takes in a user ID and returns the user."""
-    user = global_vars.global_bot.get_user(user_id)
+    user = global_vars.bot.get_user(user_id)
     if user is None:
         raise disc_exc.UserNotFound(user_id)
 
@@ -49,7 +49,7 @@ async def user_from_id_warn(ctx: nx_cmds.Context, user_id: int):
     """Like `user_from_id`, but with warning the user."""
     try:
         return user_from_id(user_id)
-    except disc_exc.UserNotFound:
+    except disc_exc.UserNotFound as exc:
         # TODO this one too
         await ctx.send(f"User ID {user_id} not found!")
-        raise exc_utils.ExitFunction()
+        raise exc_utils.ExitFunction() from exc

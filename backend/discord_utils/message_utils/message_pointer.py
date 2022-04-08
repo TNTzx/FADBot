@@ -40,7 +40,7 @@ class MessagePointer(firebase.FBStruct):
 
     async def get_message(self):
         """Gets the message from discord and returns it."""
-        channel: nx.TextChannel = global_vars.global_bot.get_channel(int(self.channel_id))
+        channel: nx.TextChannel = global_vars.bot.get_channel(int(self.channel_id))
         if channel is None:
             return None
         message: nx.Message = await channel.fetch_message(int(self.message_id))

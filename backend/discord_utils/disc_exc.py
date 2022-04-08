@@ -29,3 +29,7 @@ class NotMention(CustomDiscordException):
     """Not a mention string."""
     def __init__(self, not_mention_str: str):
         super().__init__(f"\"{not_mention_str}\" is not a mention string.")
+
+
+class InvalidResponse(CustomDiscordException):
+    """Invalid response to a prompt."""

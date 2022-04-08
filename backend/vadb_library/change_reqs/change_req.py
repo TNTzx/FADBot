@@ -65,7 +65,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     def firebase_from_json(cls, json: dict | list):
         return cls(
             artist = art.Artist.firebase_from_json(json.get("artist")),
-            user_sender = global_vars.global_bot.get_user(int(json.get("user_sender_id"))),
+            user_sender = global_vars.bot.get_user(int(json.get("user_sender_id"))),
             request_id = json.get("request_id"),
             log_bundle = req_exts.LogBundle.firebase_from_json(json.get("log_bundle"))
         )

@@ -79,7 +79,7 @@ class LogType(req_struct.ChangeRequestStructure):
                     channel_id is None:
                 continue
 
-            channel = global_vars.global_bot.get_channel(int(channel_id))
+            channel = global_vars.bot.get_channel(int(channel_id))
             if isinstance(channel, nx.TextChannel):
                 channels.append(channel)
 
