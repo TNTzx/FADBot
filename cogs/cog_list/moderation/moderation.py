@@ -9,8 +9,8 @@ import backend.logging.loggers as lgr
 
 import backend.discord_utils as disc_utils
 import backend.firebase as firebase
-import backend.exc_utils.custom_exc as c_e
-import backend.exc_utils.send_error as s_e
+import backend.exc_utils as exc_utils
+import backend.exc_utils as exc_utils
 import backend.other.other_functions as o_f
 
 from ... import utils as cog
@@ -30,7 +30,7 @@ class CogModeration(cog.RegisteredCog):
         try:
             int(role_id)
         except ValueError:
-            await s_e.send_error(ctx, "You didn't send a valid role ID!")
+            await exc_utils.send_error(ctx, "You didn't send a valid role ID!")
             return
 
         firebase.edit_data(
@@ -57,7 +57,7 @@ class CogModeration(cog.RegisteredCog):
         user = await disc_utils.user_from_id_warn(ctx, user_id)
 
         if ctx.author.id == user.id:
-            await s_e.send_error(ctx, "You're banning yourself!! WHY????? **WHYYYYYY????????**")
+            await exc_utils.send_error(ctx, "You're banning yourself!! WHY????? **WHYYYYYY????????**")
             return
 
         @disc_utils.choice_param_cmd(ctx, action, ["ban", "unban"])
@@ -75,7 +75,7 @@ class CogModeration(cog.RegisteredCog):
 
                 if output_view.value == disc_utils.ViewOutputValues.cancel:
                     await ctx.send("Command cancelled.")
-                    raise c_e.ExitFunction()
+                    raise exc_utils.ExitFunction()
 
 
             user_id_str = str(user_id)
@@ -85,8 +85,8 @@ class CogModeration(cog.RegisteredCog):
 
             if action == "ban":
                 if user_in_ban_list():
-                    await s_e.send_error(ctx, "The user is already banned!")
-                    raise c_e.ExitFunction()
+                    await exc_utils.send_error(ctx, "The user is already banned!")
+                    raise exc_utils.ExitFunction()
 
                 await send_confirm()
                 firebase.append_data(path_initial, [user_id_str])
@@ -99,8 +99,8 @@ class CogModeration(cog.RegisteredCog):
                 log_message = f"[BAN] {user_name} | {user.id}"
             else:
                 if not user_in_ban_list():
-                    await s_e.send_error(ctx, "The user hasn't been banned yet!")
-                    raise c_e.ExitFunction()
+                    await exc_utils.send_error(ctx, "The user hasn't been banned yet!")
+                    raise exc_utils.ExitFunction()
 
                 await send_confirm()
                 firebase.deduct_data(path_initial, [user_id_str])

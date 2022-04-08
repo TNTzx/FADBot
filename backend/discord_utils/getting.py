@@ -32,8 +32,7 @@ async def channel_from_id_warn(ctx: nx_cmds.Context, channel_id: int):
     try:
         return channel_from_id(channel_id)
     except disc_exc.ChannelNotFound as exc:
-        # TODO replace this with send_error
-        await ctx.send(f"Channel ID {channel_id} not found!")
+        await exc_utils.send_error(ctx, f"Channel ID {channel_id} not found!")
         raise exc_utils.ExitFunction() from exc
 
 
@@ -50,6 +49,5 @@ async def user_from_id_warn(ctx: nx_cmds.Context, user_id: int):
     try:
         return user_from_id(user_id)
     except disc_exc.UserNotFound as exc:
-        # TODO this one too
-        await ctx.send(f"User ID {user_id} not found!")
+        await exc_utils.send_error(ctx, f"User ID {user_id} not found!")
         raise exc_utils.ExitFunction() from exc

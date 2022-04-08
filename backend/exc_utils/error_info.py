@@ -1,5 +1,4 @@
 """Contains sending errors."""
-# REWRITE refactor this
 
 
 import traceback
@@ -8,7 +7,8 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
-import backend.exc_utils.custom_exc as c_e
+
+from . import custom_exc as c_e
 
 
 ERROR_PREFIX = "**Error!**\n"

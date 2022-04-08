@@ -7,8 +7,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.firebase as firebase
-import backend.exc_utils.send_error as s_e
-import backend.exc_utils.custom_exc as c_exc
+import backend.exc_utils as exc_utils
 
 
 class CmdCategories:
@@ -153,12 +152,12 @@ def command(
             ctx: nx_cmds.Context = args[1]
 
             async def send_error(suffix):
-                await s_e.send_error(ctx, f"You don't have proper permissions! {suffix}")
+                await exc_utils.send_error(ctx, f"You don't have proper permissions! {suffix}")
                 return
 
 
             if await check_ban(ctx.author.id):
-                await s_e.send_error(ctx, (
+                await exc_utils.send_error(ctx, (
                     "You have been banned from using the bot.\n"
                     "Appeal to an official Project Arrhythmia moderator if you wish."
                 ))

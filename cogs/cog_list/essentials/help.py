@@ -7,7 +7,7 @@ import nextcord.ext.commands as nx_cmds
 import global_vars
 import backend.discord_utils as disc_utils
 import backend.other.other_functions as o_f
-import backend.exc_utils.send_error as s_e
+import backend.exc_utils as exc_utils
 
 from ... import utils as cog
 
@@ -50,7 +50,7 @@ class CogHelp(cog.RegisteredCog):
 
         async def specific():
             async def send_not_exist():
-                await s_e.send_error(ctx, "*This command doesn't exist! Make sure you typed it correctly!*")
+                await exc_utils.send_error(ctx, "*This command doesn't exist! Make sure you typed it correctly!*")
 
             if not command in disc_utils.ListOfCommands.commands:
                 await send_not_exist()

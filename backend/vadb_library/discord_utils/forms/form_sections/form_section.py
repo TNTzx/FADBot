@@ -12,7 +12,7 @@ import nextcord.ext.commands as nx_cmds
 
 import global_vars
 import backend.discord_utils as disc_utils
-import backend.exc_utils.send_error as s_e
+import backend.exc_utils as exc_utils
 import backend.other.other_functions as o_f
 
 from .... import artists as a_s
@@ -23,7 +23,7 @@ from . import section_states as states
 async def check_response(ctx: nx_cmds.Context, view: disc_utils.View):
     """Checks the response of the user if they went back, cancelled, etc."""
     if view.value == disc_utils.ViewOutputValues.cancel:
-        await s_e.cancel_command(ctx, send_author = True)
+        await exc_utils.cancel_command(ctx, send_author = True)
     elif view.value == disc_utils.ViewOutputValues.skip:
         await ctx.author.send("Section skipped.")
         raise f_exc.ExitSection()

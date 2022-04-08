@@ -9,8 +9,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
-import backend.exc_utils.custom_exc as c_e
-import backend.exc_utils.send_error as s_e
+import backend.exc_utils as exc_utils
 
 from .. import disc_exc
 from . import detection_checks as w_f_ch
@@ -23,7 +22,7 @@ TIMEOUT_MESSAGE = "Command timed out. Please use the command again."
 
 async def send_error(ctx, suffix, send_author = False):
     """Sends an error, but with a syntax."""
-    await s_e.send_error(ctx, f"{suffix} Try again.", send_author = send_author)
+    await exc_utils.send_error(ctx, f"{suffix} Try again.", send_author = send_author)
 
 
 async def wait_for_message(ctx: nx_cmds.Context, timeout = TIMEOUT):
@@ -35,8 +34,8 @@ async def wait_for_message(ctx: nx_cmds.Context, timeout = TIMEOUT):
             timeout = timeout
         )
     except asyncio.TimeoutError as exc:
-        await s_e.send_error(ctx, TIMEOUT_MESSAGE)
-        raise c_e.ExitFunction() from exc
+        await exc_utils.send_error(ctx, TIMEOUT_MESSAGE)
+        raise exc_utils.ExitFunction() from exc
     return response
 
 
@@ -58,8 +57,8 @@ async def wait_for_view(ctx: nx_cmds.Context, original_message: nx.Message, view
     try:
         await global_vars.bot.wait_for("interaction", check = w_f_ch.check_interaction(ctx.author.id, original_message.id), timeout = timeout)
     except asyncio.TimeoutError as exc:
-        await s_e.send_error(ctx, TIMEOUT_MESSAGE)
-        raise c_e.ExitFunction() from exc
+        await exc_utils.send_error(ctx, TIMEOUT_MESSAGE)
+        raise exc_utils.ExitFunction() from exc
     return view
 
 
@@ -79,8 +78,8 @@ async def wait_for_message_view(ctx: nx_cmds.Context, original_message: nx.Messa
     done, pending = await asyncio.wait(events, timeout = timeout, return_when = asyncio.FIRST_COMPLETED)
 
     if len(done) == 0:
-        await s_e.send_error(ctx, TIMEOUT_MESSAGE)
-        raise c_e.ExitFunction()
+        await exc_utils.send_error(ctx, TIMEOUT_MESSAGE)
+        raise exc_utils.ExitFunction()
 
     result: asyncio.Task = done.pop()
     result = result.result()

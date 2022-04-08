@@ -6,7 +6,7 @@ from __future__ import annotations
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import backend.exc_utils.send_error as s_e
+import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
 
 from .... import artists as a_s
@@ -68,7 +68,7 @@ class Name(f_s.RawTextSection):
             await ctx.author.send("Returning...")
             raise f_exc.InvalidSectionResponse()
         if result == disc_utils.ViewOutputValues.cancel:
-            await s_e.cancel_command(ctx, send_author = True)
+            await exc_utils.cancel_command(ctx, send_author = True)
 
 
         raise f_exc.InvalidSectionResponse()

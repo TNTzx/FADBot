@@ -5,4 +5,8 @@
 from .custom_exc import \
     ExitFunction
 
-# from .send_error import ...
+from .error_info import \
+    send_error, \
+    error_handle, \
+        cancel_command, timeout_command
+

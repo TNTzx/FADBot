@@ -7,8 +7,7 @@ import nextcord.ext.commands as nx_cmds
 import global_vars
 import backend.discord_utils as disc_utils
 import backend.firebase as firebase
-import backend.exc_utils.custom_exc as c_e
-import backend.exc_utils.send_error as s_e
+import backend.exc_utils as exc_utils
 
 from ... import utils as cog
 
@@ -42,7 +41,7 @@ class CogLogCmds(cog.RegisteredCog):
             if channel_id_on is None:
                 continue
             if int(channel_id_on) == channel.id:
-                await s_e.send_error(ctx, f"This channel is already being used as another log channel! Unregister existing channels using `{global_vars.CMD_PREFIX}loglocationremove`!")
+                await exc_utils.send_error(ctx, f"This channel is already being used as another log channel! Unregister existing channels using `{global_vars.CMD_PREFIX}loglocationremove`!")
                 return
 
 
@@ -80,8 +79,8 @@ class CogLogCmds(cog.RegisteredCog):
             path_initial = firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [str(ctx.guild.id), "logs", "locations", log_type]
 
             if firebase.get_data(path_initial) == firebase.PLACEHOLDER_DATA:
-                await s_e.send_error(ctx, f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{global_vars.CMD_PREFIX}loglocationset`!")
-                raise c_e.ExitFunction()
+                await exc_utils.send_error(ctx, f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{global_vars.CMD_PREFIX}loglocationset`!")
+                raise exc_utils.ExitFunction()
 
             firebase.override_data(path_initial, firebase.PLACEHOLDER_DATA)
 

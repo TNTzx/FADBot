@@ -4,7 +4,7 @@
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import backend.exc_utils.send_error as s_e
+import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
 import backend.other.other_functions as o_f
 import global_vars
@@ -93,7 +93,7 @@ class FormArtist():
                 if response.value == disc_utils.ViewOutputValues.confirm:
                     break
                 if response.value == disc_utils.ViewOutputValues.cancel:
-                    await s_e.cancel_command(ctx, send_author = True)
+                    await exc_utils.cancel_command(ctx, send_author = True)
 
                 title = response.value[0]
                 await ctx.author.send(f"Editing artist's __{title}__...")
@@ -113,7 +113,7 @@ class FormArtist():
             if response.value == disc_utils.ViewOutputValues.back:
                 continue
             if response.value == disc_utils.ViewOutputValues.cancel:
-                await s_e.cancel_command(ctx, send_author = True)
+                await exc_utils.cancel_command(ctx, send_author = True)
 
 
         await ctx.author.send("Artist edited successfully.")

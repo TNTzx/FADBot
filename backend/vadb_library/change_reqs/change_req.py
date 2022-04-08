@@ -8,7 +8,7 @@ import nextcord.ext.commands as nx_cmds
 
 import global_vars
 import backend.firebase as firebase
-import backend.exc_utils.send_error as s_e
+import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
 import backend.logging.loggers as lgr
 import backend.other.other_functions as other_functions
@@ -205,7 +205,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                     embed = artist_embed
                 )
             except nx.errors.Forbidden:
-                await s_e.send_error(
+                await exc_utils.send_error(
                     ctx,
                     (
                         f"I can't seem to be able to notify the user who sent this request, named `{self.user_sender.name}#{self.user_sender.discriminator}` (ID: `{self.user_sender.id}`).\n"
