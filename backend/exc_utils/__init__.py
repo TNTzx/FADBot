@@ -1,7 +1,6 @@
 """Exception utilities."""
 
 
-# REWRITE refactor exceptions
 from .custom_exc import \
     ExitFunction
 

@@ -149,7 +149,7 @@ def lint_all_python_files(root_path: str, clear_console = True, enable_warns: li
 
 
     print(
-        "\033[1;31m============LINTING COMPLETE============\n"
+        "\033[1;31m============LINTING COMPLETE============"
     )
 
     for reporter in all_reporters:
