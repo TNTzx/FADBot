@@ -4,7 +4,7 @@
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import backend.discord_utils as disc_utils
 import backend.other.other_functions as o_f
 import backend.exc_utils.send_error as s_e
@@ -28,7 +28,7 @@ class CogHelp(cog.RegisteredCog):
             embed = nx.Embed(
                 title = "Help!",
                 description = (
-                    f"**Command Prefix: `{vrs.CMD_PREFIX}`**\n"
+                    f"**Command Prefix: `{global_vars.CMD_PREFIX}`**\n"
                     "This bot was made possible by Nao's website. Go check it out! [**VADB link**](https://fadb.live/)\n"
                     "This bot is created by //TNTz.\n\n"
                     "Use `##help <command>` to view help for that command!"
@@ -65,7 +65,7 @@ class CogHelp(cog.RegisteredCog):
             help_docs = cmd.help
 
             embed = nx.Embed(
-                title = f"Help: {help_docs.category} // {vrs.CMD_PREFIX}{cmd.name}",
+                title = f"Help: {help_docs.category} // {global_vars.CMD_PREFIX}{cmd.name}",
                 color = 0xFFAEAE
             )
 
@@ -84,7 +84,7 @@ class CogHelp(cog.RegisteredCog):
 
             syntax_list = "> <".join(help_docs.parameters.keys())
             syntax_list = f" `<{syntax_list}>`" if syntax_list != "" else "_ _"
-            embed.add_field(name = "Syntax:", value = f"`{vrs.CMD_PREFIX}{cmd.name}`{syntax_list}", inline = False)
+            embed.add_field(name = "Syntax:", value = f"`{global_vars.CMD_PREFIX}{cmd.name}`{syntax_list}", inline = False)
 
             if len(help_docs.parameters) > 0:
                 params_list = "\n".join([f"`<{param}>`: {paramDesc}" for param, paramDesc in help_docs.parameters.items()])

@@ -3,7 +3,7 @@
 
 import datetime
 
-import global_vars.variables as vrs
+import global_vars
 import backend.exc_utils.custom_exc as c_exc
 
 
@@ -35,7 +35,7 @@ async def get_channel_from_mention(mention: str):
         return None
 
     try:
-        obj = vrs.global_bot.get_channel(int(get_id))
+        obj = global_vars.global_bot.get_channel(int(get_id))
     except ValueError:
         return None
 

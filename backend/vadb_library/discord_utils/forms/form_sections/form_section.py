@@ -10,7 +10,7 @@ import requests as req
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import backend.discord_utils as disc_utils
 import backend.exc_utils.send_error as s_e
 import backend.other.other_functions as o_f
@@ -38,7 +38,7 @@ class FormSection():
 
 
     text_ext: str = None
-    timeout: int = vrs.Timeouts.long
+    timeout: int = global_vars.Timeouts.long
     instructions: str = None
 
     def __init__(
@@ -70,7 +70,7 @@ class FormSection():
         if section_state != states.SectionStates.default:
             emb_title = f"{emb_title} ({section_state.name})"
 
-        embed = nx.Embed(color = vrs.COLOR_PA, title = emb_title)
+        embed = nx.Embed(color = global_vars.COLOR_PA, title = emb_title)
 
 
         embed.add_field(name = "**Description:**", value = self.description, inline = False)

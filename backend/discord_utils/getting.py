@@ -4,7 +4,7 @@
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import backend.exc_utils as exc_utils
 import backend.other.other_functions as o_f
 
@@ -21,7 +21,7 @@ async def get_id_from_mention(mention_str: str):
 
 def channel_from_id(channel_id: int):
     """Takes in a channel mention then returns the channel."""
-    channel = vrs.global_bot.get_channel(channel_id)
+    channel = global_vars.global_bot.get_channel(channel_id)
     if channel is None or not isinstance(channel, nx.TextChannel):
         raise disc_exc.ChannelNotFound(channel_id)
 
@@ -39,7 +39,7 @@ async def channel_from_id_warn(ctx: nx_cmds.Context, channel_id: int):
 
 def user_from_id(user_id: int):
     """Takes in a user ID and returns the user."""
-    user = vrs.global_bot.get_user(user_id)
+    user = global_vars.global_bot.get_user(user_id)
     if user is None:
         raise disc_exc.UserNotFound(user_id)
 

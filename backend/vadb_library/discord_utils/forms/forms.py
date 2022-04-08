@@ -7,7 +7,7 @@ import nextcord.ext.commands as nx_cmds
 import backend.exc_utils.send_error as s_e
 import backend.discord_utils as disc_utils
 import backend.other.other_functions as o_f
-import global_vars.variables as vrs
+import global_vars
 
 from ... import artists as art
 from .. import artist_info_bundle as bundle
@@ -40,7 +40,7 @@ class FormArtist():
 
     async def edit_loop(self, ctx: nx_cmds.Context):
         """Edits the artist using dropdowns to select a section."""
-        timeout = vrs.Timeouts.long
+        timeout = global_vars.Timeouts.long
 
         view_cls = f_s.FormSections.get_options_view("Select attribute to edit...")
         artist_info_bundle = bundle.InfoBundle(self.artist)

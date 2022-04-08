@@ -4,7 +4,7 @@
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import backend.logging.loggers as lgr
 
 import backend.discord_utils as disc_utils
@@ -68,7 +68,7 @@ class CogModeration(cog.RegisteredCog):
                 confirm_view = disc_utils.ViewConfirmCancel()
                 confirm_message = await ctx.send((
                         f"Are you sure you want to {action} the user `{user_name}`?\n"
-                        f"This command will time out in `{o_f.format_time(vrs.Timeouts.long)}`."
+                        f"This command will time out in `{o_f.format_time(global_vars.Timeouts.long)}`."
                     ), view = confirm_view)
 
                 output_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)

@@ -8,7 +8,7 @@ import nextcord.ext.commands as nx_cmds
 
 import cogs
 
-import global_vars.variables as vrs
+import global_vars
 import backend.logging.loggers as lgr
 
 
@@ -27,10 +27,10 @@ def main():
     intents.members = True
     intents.guilds = True
 
-    bot = nx_cmds.Bot(command_prefix = vrs.CMD_PREFIX, intents = intents)
+    bot = nx_cmds.Bot(command_prefix = global_vars.CMD_PREFIX, intents = intents)
     bot.remove_command("help")
 
-    vrs.global_bot = bot
+    global_vars.global_bot = bot
 
 
     log_something("Loading cogs...")

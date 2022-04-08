@@ -6,7 +6,7 @@ import typing as typ
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import backend.firebase as firebase
 import backend.exc_utils.send_error as s_e
 import backend.discord_utils as disc_utils
@@ -65,7 +65,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     def firebase_from_json(cls, json: dict | list):
         return cls(
             artist = art.Artist.firebase_from_json(json.get("artist")),
-            user_sender = vrs.global_bot.get_user(int(json.get("user_sender_id"))),
+            user_sender = global_vars.global_bot.get_user(int(json.get("user_sender_id"))),
             request_id = json.get("request_id"),
             log_bundle = req_exts.LogBundle.firebase_from_json(json.get("log_bundle"))
         )
@@ -136,7 +136,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
     async def set_approval(self, ctx: nx_cmds.Context, is_approved: bool, reason: str = None):
         """Sets the approve status of this request."""
-        timeout = vrs.Timeouts.medium
+        timeout = global_vars.Timeouts.medium
         self.artist.states.status.value = 0
 
         artist_embed = discord_utils.InfoBundle(self.artist).get_embed()

@@ -8,7 +8,7 @@ import typing as typ
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import backend.firebase as firebase
 
 from ... import discord_utils as disc_utils
@@ -79,7 +79,7 @@ class LogType(req_struct.ChangeRequestStructure):
                     channel_id is None:
                 continue
 
-            channel = vrs.global_bot.get_channel(int(channel_id))
+            channel = global_vars.global_bot.get_channel(int(channel_id))
             if isinstance(channel, nx.TextChannel):
                 channels.append(channel)
 

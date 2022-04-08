@@ -7,7 +7,7 @@ import traceback as tr
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import backend.logging.loggers as lgr
 import backend.exc_utils.custom_exc as c_e
 import backend.exc_utils.send_error as s_e
@@ -16,7 +16,7 @@ import backend.other.other_functions as o_f
 from ... import utils as cog
 
 
-CMD_PREFIX = vrs.CMD_PREFIX
+CMD_PREFIX = global_vars.CMD_PREFIX
 
 class CogErrorHandler(cog.RegisteredCog):
     """Contains error handling."""
@@ -44,7 +44,7 @@ class CogErrorHandler(cog.RegisteredCog):
             return
 
         if checkexc(nx_cmds.MissingRequiredArgument):
-            await s_e.send_error(ctx, f"Make sure you have the correct parameters! Use `{vrs.CMD_PREFIX}help` to get help!")
+            await s_e.send_error(ctx, f"Make sure you have the correct parameters! Use `{global_vars.CMD_PREFIX}help` to get help!")
             return
 
         if checkexc(nx_cmds.NoPrivateMessage):

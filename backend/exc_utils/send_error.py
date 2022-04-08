@@ -7,7 +7,7 @@ import traceback
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import backend.exc_utils.custom_exc as c_e
 
 
@@ -18,7 +18,7 @@ async def send_error(ctx: nx_cmds.Context, suffix, exc = "", other_data: nx.Mess
     """Sends an error to a context."""
 
     text = f"{ERROR_PREFIX}{ctx.author.mention}, {suffix}"
-    tntz: nx.User = vrs.TNTz
+    tntz: nx.User = global_vars.TNTz
 
     if send_owner:
         extra = ""

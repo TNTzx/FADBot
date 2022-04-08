@@ -4,7 +4,7 @@
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import global_vars.defaults as defaults
 import backend.logging.loggers as lgr
 import backend.discord_utils as disc_utils
@@ -17,7 +17,7 @@ async def add_new_to_database():
     """Updates the database for joined servers."""
     endpoint = firebase.ENDPOINTS.e_discord.e_guilds.get_path()
     guild_data: dict = firebase.get_data(endpoint)
-    for guild_client in vrs.global_bot.guilds:
+    for guild_client in global_vars.global_bot.guilds:
         if not str(guild_client.id) in guild_data.keys():
             firebase.edit_data(endpoint, {str(guild_client.id): defaults.default["guildData"]["guildId"]})
 
@@ -28,7 +28,7 @@ class CogBasic(cog.RegisteredCog):
     @nx_cmds.Cog.listener()
     async def on_ready(self):
         """Gets called when the bot is ready."""
-        print(f"Logged in as {vrs.global_bot.user}.")
+        print(f"Logged in as {global_vars.global_bot.user}.")
 
         lgr.log_bot_status.info("Logged in.")
 
@@ -36,8 +36,8 @@ class CogBasic(cog.RegisteredCog):
         await add_new_to_database()
         disc_utils.delete_all_is_using()
 
-        vrs.TNTz = await vrs.global_bot.fetch_user(279803094722674693)
-        await vrs.TNTz.send("Logged in!")
+        global_vars.TNTz = await global_vars.global_bot.fetch_user(279803094722674693)
+        await global_vars.TNTz.send("Logged in!")
 
 
     @nx_cmds.Cog.listener()

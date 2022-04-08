@@ -160,7 +160,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #                 if log.user_id not in user_ids:
     #                     user_ids.append(int(log.user_id))
 
-    #             users = [await vrs.global_bot.fetch_user(user_id) for user_id in user_ids]
+    #             users = [await global_vars.global_bot.fetch_user(user_id) for user_id in user_ids]
     #             for user in users:
     #                 await user.send(dm_message, embed = await artist_obj.generate_embed())
 
@@ -170,7 +170,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #         await parse_logs(artist_obj.discord_info.logs.editing)
 
     #     async def confirm_verify(artist_obj: a_l.Default):
-    #         timeout = vrs.Timeouts.medium
+    #         timeout = global_vars.Timeouts.medium
 
     #         confirm = vw.ViewConfirmCancel()
     #         await ctx.send((
@@ -184,7 +184,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #             return ctx.author.id == interact.user.id and interact.message.id == message.id
 
     #         try:
-    #             await vrs.global_bot.wait_for("interaction", check = check_button, timeout = timeout)
+    #             await global_vars.global_bot.wait_for("interaction", check = check_button, timeout = timeout)
     #         except asyncio.TimeoutError:
     #             await s_e.timeout_command(ctx, send_author = True)
 

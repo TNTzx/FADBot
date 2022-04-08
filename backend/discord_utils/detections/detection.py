@@ -8,14 +8,14 @@ import enum
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import global_vars.variables as vrs
+import global_vars
 import backend.exc_utils.custom_exc as c_e
 import backend.exc_utils.send_error as s_e
 
 from . import detection_checks as w_f_ch
 
 
-TIMEOUT = vrs.Timeouts.long
+TIMEOUT = global_vars.Timeouts.long
 
 TIMEOUT_MESSAGE = "Command timed out. Please use the command again."
 
@@ -28,7 +28,7 @@ async def send_error(ctx, suffix, send_author = False):
 async def wait_for_message(ctx: nx_cmds.Context, timeout = TIMEOUT):
     """Wait for a message then return the response."""
     try:
-        response: nx.Message = await vrs.global_bot.wait_for(
+        response: nx.Message = await global_vars.global_bot.wait_for(
             "message",
             check = w_f_ch.check_message(ctx.author.id, ctx.channel.id),
             timeout = timeout
@@ -55,7 +55,7 @@ class ExampleView(nx.ui.View):
 async def wait_for_view(ctx: nx_cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout = TIMEOUT):
     """Waits for an interaction."""
     try:
-        await vrs.global_bot.wait_for("interaction", check = w_f_ch.check_interaction(ctx.author.id, original_message.id), timeout = timeout)
+        await global_vars.global_bot.wait_for("interaction", check = w_f_ch.check_interaction(ctx.author.id, original_message.id), timeout = timeout)
     except asyncio.TimeoutError as exc:
         await s_e.send_error(ctx, TIMEOUT_MESSAGE)
         raise c_e.ExitFunction() from exc
@@ -71,8 +71,8 @@ async def wait_for_message_view(ctx: nx_cmds.Context, original_message: nx.Messa
     """Waits for a message then returns (MessageViewCheck.message, message). If instead it was a view interaction, return (MessageViewCheck.view, view) of that interaction."""
 
     events = [
-        vrs.global_bot.wait_for("message", check = w_f_ch.check_message(ctx.author.id, ctx.channel.id)),
-        vrs.global_bot.wait_for("interaction", check = w_f_ch.check_interaction(ctx.author.id, original_message.id))
+        global_vars.global_bot.wait_for("message", check = w_f_ch.check_message(ctx.author.id, ctx.channel.id)),
+        global_vars.global_bot.wait_for("interaction", check = w_f_ch.check_interaction(ctx.author.id, original_message.id))
     ]
 
     done, pending = await asyncio.wait(events, timeout = timeout, return_when = asyncio.FIRST_COMPLETED)

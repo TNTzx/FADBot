@@ -3,6 +3,8 @@
 import backend.firebase as firebase
 
 
+# TODO move this to basic.py
+
 default = {
     "artistData": {
         "pending": {
