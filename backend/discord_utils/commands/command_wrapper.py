@@ -238,11 +238,11 @@ def command(
         if cmd.name not in ListOfCommands.commands_all[category]:
             ListOfCommands.commands_all[category].append(cmd.name)
 
-        if cmd.name not in ListOfCommands.commands.keys():
+        if cmd.name not in ListOfCommands.commands:
             ListOfCommands.commands[cmd.name] = cmd
         if aliases is not None:
             for alias in aliases:
-                if alias not in ListOfCommands.commands.keys():
+                if alias not in ListOfCommands.commands:
                     ListOfCommands.commands[alias] = cmd
 
         return wrapper

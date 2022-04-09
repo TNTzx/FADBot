@@ -91,7 +91,8 @@ def lint_all_python_files(root_path: str, clear_console = True, enable_warns: li
     disable_warns = [
         "line-too-long",
         "super-init-not-called", "no-self-use",
-        "unused-import", "unused-argument",
+        "unused-import", "consider-using-from-import",
+        "unused-argument",
         "too-few-public-methods", "too-many-public-methods",
         "too-many-ancestors", "too-many-arguments", "too-many-instance-attributes",
         "too-many-statements", "too-many-branches", "too-many-return-statements",

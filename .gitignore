@@ -133,7 +133,6 @@ dmypy.json
 .vscode
 speedtests.py
 testcode.py
-todo.txt
 Database Backups/
 Archive/
 logs/
