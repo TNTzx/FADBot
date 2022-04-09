@@ -31,7 +31,7 @@ def get_all_python_file_paths(path: str, ignore_list = None) -> str:
             "__pycache__",
             ".git", ".vscode", "LICENSE", "README.md",
             "requirements.txt",
-            "pylint_all.py"
+            "pylint_all.py", "testcode.py"
         ]
 
     all_paths = []

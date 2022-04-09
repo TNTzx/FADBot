@@ -14,7 +14,7 @@ import backend.logging.loggers as lgr
 import backend.other.other_functions as other_functions
 
 from .. import artists as art
-from .. import discord_utils
+from .. import vadb_discord_utils
 from . import req_struct
 from . import req_exts
 from . import req_fb_endpoints as req_fb
@@ -139,7 +139,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         timeout = global_vars.Timeouts.medium
         self.artist.states.status.value = 0
 
-        artist_embed = discord_utils.InfoBundle(self.artist).get_embed()
+        artist_embed = vadb_discord_utils.InfoBundle(self.artist).get_embed()
 
 
         async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[nx_cmds.Context], typ.Coroutine[None, None, None]]):

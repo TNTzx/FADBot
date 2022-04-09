@@ -104,7 +104,7 @@ value_state_dict = {
 class UsageRights(f_s.DictSection):
     """Artist's usage rights."""
     def __init__(self, title: str, description: str, example: str = None, notes: str = None, default_section_state: states.SectionState = states.SectionStates.default):
-        super().__init__(title, description, example, notes, default_section_state = default_section_state, allowed_val_func = lambda value: value in list(value_state_dict.keys()))
+        super().__init__(title, description, example, notes, default_section_state = default_section_state, allowed_val_func = lambda value: value in list(value_state_dict))
 
     async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
         diction = await super().reformat_input(ctx, response)

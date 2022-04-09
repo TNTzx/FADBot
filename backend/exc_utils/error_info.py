@@ -13,26 +13,32 @@ from . import custom_exc as c_e
 
 ERROR_PREFIX = "**Error!**\n"
 
-async def send_error(ctx: nx_cmds.Context, suffix, exc = "", other_data: nx.Message = None,
-        send_author = False, send_owner = False, send_console = False, cooldown_reset = False):
+async def send_error(
+        ctx: nx_cmds.Context, suffix,
+        exc: Exception | nx_cmds.CommandInvokeError = None,
+        send_author = False,
+        send_owner = False,
+        send_console = False,
+        cooldown_reset = False
+        ):
     """Sends an error to a context."""
 
     text = f"{ERROR_PREFIX}{ctx.author.mention}, {suffix}"
     tntz: nx.User = global_vars.TNTz
 
     if send_owner:
-        extra = ""
-        if not other_data is None:
-            extra = f"\nOther Data: `{vars(other_data)}"
-
         await tntz.send((
             "Error!\n"
-            f"Command used: `{ctx.message.content}`{extra}\n"
+            f"Command used: `{ctx.message.content}`\n"
             f"```{exc}```"
         ))
 
     if send_console:
-        error = getattr(exc, 'original', exc)
+        if hasattr(exc, "original"):
+            error = exc.original
+        else:
+            error = exc
+
         print(f"Ignoring exception in command {ctx.command}:")
         traceback.print_exception(type(error), error, error.__traceback__)
 
