@@ -3,8 +3,6 @@
 
 import datetime
 
-import global_vars
-
 
 # REWRITE separate to different files
 
