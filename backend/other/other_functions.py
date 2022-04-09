@@ -6,6 +6,8 @@ import datetime
 import global_vars
 
 
+# REWRITE separate to different files
+
 def format_time(num: int):
     """Formats the time from seconds to '#h #m #s'."""
     seconds = num
@@ -26,43 +28,6 @@ def format_time(num: int):
     return time_final
 
 
-async def get_channel_from_mention(mention: str):
-    """Gets channel from a mention."""
-    try:
-        get_id = mention[2:-1]
-    except TypeError:
-        return None
-
-    try:
-        obj = global_vars.bot.get_channel(int(get_id))
-    except ValueError:
-        return None
-
-    return obj
-
-
-def get_dict_attr(obj):
-    """Gets attributes of an object then returns it as a dict."""
-    def check_if_has_dict(obj):
-        return hasattr(obj, "__dict__")
-
-    dictionary = {}
-    for attr, value in obj.__dict__.items():
-        if isinstance(value, list):
-            value_list = []
-            for value_item in value:
-                if not check_if_has_dict(value_item):
-                    value_list.append(value_item)
-                else:
-                    value_list.append(get_dict_attr(value_item))
-            dictionary[attr] = value_list
-        elif not check_if_has_dict(value):
-            dictionary[attr] = value
-        else:
-            dictionary[attr] = get_dict_attr(value)
-    return dictionary
-
-
 def override_dicts_recursive(default: dict, override: dict):
     """Override values of a dict with another dict."""
     new = default.copy()
@@ -77,29 +42,6 @@ def override_dicts_recursive(default: dict, override: dict):
 
     return new
 
-def is_not_blank_str(string: str | None):
-    """Checks if a string is blank or None."""
-    if string is None:
-        return False
-    if string.strip() == "":
-        return False
-    return True
-
-def is_not_empty(variable):
-    """Returns the variable if it is not None or not an empty iterable."""
-    if variable is not None:
-        if len(variable) != 0:
-            return True
-    return False
-
-def remove_none_in_list(_list: list):
-    """Removes all instances of None in a list."""
-    clean_list = []
-    for item in _list:
-        if item is None:
-            continue
-        clean_list.append(item)
-    return clean_list
 
 def subtract_list(minuend: list, subtrahend: list):
     """Subtract two lists."""
@@ -107,10 +49,6 @@ def subtract_list(minuend: list, subtrahend: list):
     if difference == minuend:
         raise ValueError("Unchanged list.")
     return difference
-
-def get_value_from_key(diction: dict, value):
-    """Get the key using a value. INVERSE DICTIONARY!!!!!!!!"""
-    return list(diction.keys())[list(diction.values()).index(value)]
 
 
 def pr_print(value, htchar = '\t', lfchar = '\n', indent = 0):

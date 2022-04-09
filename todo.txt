@@ -1,2 +1,0 @@
-TODO lint files
-REWRITE rewrite command_wrapper

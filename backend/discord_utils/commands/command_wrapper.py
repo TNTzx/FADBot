@@ -10,6 +10,8 @@ import backend.firebase as firebase
 import backend.exc_utils as exc_utils
 
 
+# REWRITE rewrite command registering
+
 class CmdCategories:
     """Categories."""
     artist_management = "Artist Management"
