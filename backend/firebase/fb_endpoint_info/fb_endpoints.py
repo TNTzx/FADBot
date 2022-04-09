@@ -108,7 +108,6 @@ class Root(endpoint.FBEndpointRoot):
             def __init__(self, parent: endpoint.FBEndpoint):
                 super().__init__(name = "guild_data", parent = parent)
 
-
             def get_default_data(self):
                 return {
                     "admin_role": 0,
