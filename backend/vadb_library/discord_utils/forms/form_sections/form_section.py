@@ -160,7 +160,7 @@ class FormSection():
 
             response_type, response = await disc_utils.wait_for_message_view(ctx, message, current_view, timeout = timeout)
 
-            if response_type == disc_utils.DetectionOutputTypes.view:
+            if response_type == disc_utils.DetectionOutputTypes.VIEW:
                 await check_response(ctx, response)
 
             try:

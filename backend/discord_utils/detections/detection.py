@@ -64,8 +64,8 @@ async def wait_for_view(ctx: nx_cmds.Context, original_message: nx.Message, view
 
 class DetectionOutputTypes(enum.Enum):
     """A class containing identifiers for outputs of a message or a view."""
-    message = "message"
-    view = "view"
+    MESSAGE = "message"
+    VIEW = "view"
 
 async def wait_for_message_view(ctx: nx_cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout = TIMEOUT):
     """Waits for a message then returns (MessageViewCheck.message, message). If instead it was a view interaction, return (MessageViewCheck.view, view) of that interaction."""
@@ -88,8 +88,8 @@ async def wait_for_message_view(ctx: nx_cmds.Context, original_message: nx.Messa
         task.cancel()
 
     if isinstance(result, nx.Message):
-        return DetectionOutputTypes.message, result
+        return DetectionOutputTypes.MESSAGE, result
     if isinstance(result, nx.Interaction):
-        return DetectionOutputTypes.view, view
+        return DetectionOutputTypes.VIEW, view
 
     raise disc_exc.InvalidResponse("Invalid response.")
