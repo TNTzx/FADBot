@@ -1,6 +1,7 @@
 """All Firebase endpoints."""
 
 
+from .. import fb_consts
 from . import fb_endpoint as endpoint
 
 
@@ -106,6 +107,18 @@ class Root(endpoint.FBEndpointRoot):
             """Contains guild-specific data."""
             def __init__(self, parent: endpoint.FBEndpoint):
                 super().__init__(name = "guild_data", parent = parent)
+
+
+            def get_default_data(self):
+                return {
+                    "admin_role": 0,
+                    "logs": {
+                        "locations": {
+                            "dump": fb_consts.PLACEHOLDER_DATA,
+                            "live": fb_consts.PLACEHOLDER_DATA
+                        }
+                    }
+                }
 
 
         class UserGeneralData(endpoint.FBEndpointParent):

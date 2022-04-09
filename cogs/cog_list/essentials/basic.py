@@ -13,13 +13,16 @@ import backend.firebase as firebase
 from ... import utils as cog
 
 
+# DEBUG update database info
 async def add_new_to_database():
     """Updates the database for joined servers."""
-    endpoint = firebase.ENDPOINTS.e_discord.e_guilds.get_path()
-    guild_data: dict = firebase.get_data(endpoint)
+    endpoint = firebase.ENDPOINTS.e_discord.e_guilds
+    endpoint_path = endpoint.get_path()
+
+    guild_data: dict = firebase.get_data(endpoint_path)
     for guild_client in global_vars.bot.guilds:
         if not str(guild_client.id) in guild_data.keys():
-            firebase.edit_data(endpoint, {str(guild_client.id): defaults.default["guildData"]["guildId"]})
+            firebase.edit_data(endpoint_path, {str(guild_client.id): endpoint.get_default_data()})
 
 
 class CogBasic(cog.RegisteredCog):
@@ -32,7 +35,6 @@ class CogBasic(cog.RegisteredCog):
 
         lgr.log_bot_status.info("Logged in.")
 
-        # initialize on ready
         await add_new_to_database()
         disc_utils.delete_all_is_using()
 
