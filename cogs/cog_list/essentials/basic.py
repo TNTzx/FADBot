@@ -5,7 +5,6 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
-import global_vars.defaults as defaults
 import backend.logging.loggers as lgr
 import backend.discord_utils as disc_utils
 import backend.firebase as firebase
@@ -13,7 +12,6 @@ import backend.firebase as firebase
 from ... import utils as cog
 
 
-# DEBUG update database info
 async def add_new_to_database():
     """Updates the database for joined servers."""
     endpoint = firebase.ENDPOINTS.e_discord.e_guilds
