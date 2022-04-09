@@ -26,21 +26,6 @@ def format_time(num: int):
     return time_final
 
 
-def override_dicts_recursive(default: dict, override: dict):
-    """Override values of a dict with another dict."""
-    new = default.copy()
-    for key in override.keys():
-        if key in default:
-            if isinstance(default[key], dict) and isinstance(override[key], dict):
-                new[key] = override_dicts_recursive(default[key], override[key])
-            else:
-                new[key] = override[key]
-        else:
-            raise ValueError(f"Key '{key}' on override dict doesn't have an entry in default dict.")
-
-    return new
-
-
 def subtract_list(minuend: list, subtrahend: list):
     """Subtract two lists."""
     difference = [item for item in minuend if item not in subtrahend]
