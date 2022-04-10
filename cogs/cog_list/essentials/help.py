@@ -12,6 +12,7 @@ import backend.exc_utils as exc_utils
 from ... import utils as cog
 
 
+# REWRITE fix help command now that there's a new command wrapper in town
 class CogHelp(cog.RegisteredCog):
     """Contains the help command."""
 

@@ -9,7 +9,6 @@ import nextcord.ext.commands as nx_cmds
 import backend.exc_utils as exc_utils
 
 from . import cmd_cls_lib as cmd_ext
-from . import cmd_wrap_excs
 
 
 # TEST test this out! :D
