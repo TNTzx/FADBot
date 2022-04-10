@@ -1,10 +1,7 @@
 """Command-related stuff."""
 
 
-from .command_wrapper import \
-    command, \
-    CmdCategories, \
-    CustomCommandClass, ListOfCommands
+from .cmd_wrapper_lib import *
 
 from .param_choice import choice_param, choice_param_cmd
 

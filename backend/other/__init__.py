@@ -1,7 +1,6 @@
 """Utilities."""
 
 
-# REFACTOR continue refactor
 from .dataclass import \
     Dataclass, \
         DataclassConvertible, \
