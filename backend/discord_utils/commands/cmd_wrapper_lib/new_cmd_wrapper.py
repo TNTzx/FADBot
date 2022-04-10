@@ -21,7 +21,7 @@ def command_wrap(
     def decorator(cmd_func: typ.Callable):
         @functools.wraps(cmd_func)
         async def wrapper(cog, ctx: nx_cmds.Context, *args, **kwargs):
-            requ_check = cmd_info.usage_requs.has_met_all_requs(ctx)
+            requ_check = cmd_info.perms.has_all_perms(ctx)
             if not requ_check[0]:
                 failed_requ_check = requ_check[1]
                 await exc_utils.send_error(ctx, failed_requ_check.get_full_fail_message(), cooldown_reset = True)

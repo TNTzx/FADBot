@@ -1,4 +1,4 @@
-"""Contains logic for checking if a user has enough usage requirements to use the command."""
+"""Contains logic for checking if a user has enough permissions to use the command."""
 
 
 import typing as typ
@@ -9,15 +9,15 @@ import nextcord.ext.commands as nx_cmds
 import backend.firebase as firebase
 
 
-class CmdUsageRequ():
-    """Represents a usage requirement."""
+class Permission():
+    """Represents a command permission level."""
     @classmethod
-    def has_met_requ(cls, ctx: nx_cmds.Context):
-        """Returns `True` if the usage requirement has been met for the current `Context`."""
+    def has_permission(cls, ctx: nx_cmds.Context):
+        """Returns `True` if the permission has been met for the current `Context`."""
 
     @classmethod
     def get_fail_message(cls):
-        """Gets the message for when the requirement has not been met."""
+        """Gets the message for when the permission has not been met."""
 
     @classmethod
     def get_full_fail_message(cls):
@@ -28,38 +28,38 @@ class CmdUsageRequ():
         )
 
 
-class CmdUsageRequs():
-    """Contains a list of enabled usage requirements for this command."""
+class Permissions():
+    """Contains a list of enabled permissions for this command."""
     def __init__(
             self,
-            usage_requs: list[typ.Type[CmdUsageRequ]] | None = None,
-            enable_not_ban_requ: bool = True
+            perms: list[typ.Type[Permission]] | None = None,
+            enable_not_ban_perm: bool = True
             ):
-        if usage_requs is None:
-            usage_requs = []
+        if perms is None:
+            perms = []
 
-        if enable_not_ban_requ:
-            usage_requs = [NotBanned] + usage_requs
+        if enable_not_ban_perm:
+            perms = [NotBanned] + perms
 
-        self.usage_requs = usage_requs
+        self.perms = perms
 
 
-    def has_met_all_requs(self, ctx: nx_cmds.Context):
+    def has_all_perms(self, ctx: nx_cmds.Context):
         """
-        Returns `(True, )` if all usage requirements has been met for the current `Context`.
-        Returns `(False, <failed CmdUsageRequ>)` if at least one requirement has not been met.
+        Returns `(True, )` if all permissions has been met for the current `Context`.
+        Returns `(False, <failed Permission>)` if at least one permission has not been met.
         """
-        for usage_requ in self.usage_requs:
-            if not usage_requ.has_met_requ(ctx):
-                return (False, usage_requ)
+        for perm in self.perms:
+            if not perm.has_permission(ctx):
+                return (False, perm)
 
         return (True,)
 
 
-class NotBanned(CmdUsageRequ):
+class NotBanned(Permission):
     """Requires the user to not be banned."""
     @classmethod
-    def has_met_requ(cls, ctx: nx_cmds.Context):
+    def has_permission(cls, ctx: nx_cmds.Context):
         user_id = str(ctx.author.id)
         bans = firebase.get_data(
             firebase.ShortEndpoint.discord_users_general.e_banned_users.get_path(),
@@ -76,10 +76,10 @@ class NotBanned(CmdUsageRequ):
         )
 
 
-class Dev(CmdUsageRequ):
+class Dev(Permission):
     """Requires the user to be a developer of the bot."""
     @classmethod
-    def has_met_requ(cls, ctx: nx_cmds.Context):
+    def has_permission(cls, ctx: nx_cmds.Context):
         user_id = str(ctx.author.id)
         devs = firebase.get_data(
             firebase.ShortEndpoint.devs.get_path(),
@@ -93,11 +93,11 @@ class Dev(CmdUsageRequ):
         return "Only developers of this bot may do this command!"
 
 
-class PAMod(CmdUsageRequ):
+class PAMod(Permission):
     """Requires the user to be a PA moderator by role or by ID."""
     @classmethod
-    def has_met_requ(cls, ctx: nx_cmds.Context):
-        if Dev.has_met_requ(ctx):
+    def has_permission(cls, ctx: nx_cmds.Context):
+        if Dev.has_permission(ctx):
             return True
 
         can_verify_users = firebase.get_data(
@@ -125,10 +125,10 @@ class PAMod(CmdUsageRequ):
         return "Only Project Arrhythmia moderators can do this command!"
 
 
-class GuildOwner(CmdUsageRequ):
+class GuildOwner(Permission):
     """Requires the user to be the guild's owner."""
     @classmethod
-    def has_met_requ(cls, ctx: nx_cmds.Context):
+    def has_permission(cls, ctx: nx_cmds.Context):
         return ctx.author.id == ctx.guild.owner.id
 
     @classmethod
@@ -136,10 +136,10 @@ class GuildOwner(CmdUsageRequ):
         return "Only the server owner can do this command!"
 
 
-class GuildAdmin(CmdUsageRequ):
+class GuildAdmin(Permission):
     """Requires the user to be a guild admin."""
     @classmethod
-    def has_met_requ(cls, ctx: nx_cmds.Context):
+    def has_permission(cls, ctx: nx_cmds.Context):
         guild_id = str(ctx.guild.id)
 
         try:

@@ -5,7 +5,7 @@ import typing as typ
 
 import nextcord.ext.commands as nx_cmds
 
-from . import cmd_usage_requs
+from . import cmd_perms
 
 
 class CooldownInfo():
@@ -44,7 +44,7 @@ class CmdInfo():
             aliases: list[str] | None = None,
             cooldown_info: CooldownInfo = CooldownInfo(),
             usability_info: UsabilityInfo = UsabilityInfo(),
-            usage_requs: cmd_usage_requs.CmdUsageRequs = cmd_usage_requs.CmdUsageRequs(),
+            perms: cmd_perms.Permissions = cmd_perms.Permissions(),
             ):
         self.description = description
         self.example = example
@@ -53,4 +53,4 @@ class CmdInfo():
         self.aliases = aliases
         self.cooldown_info = cooldown_info
         self.usability_info = usability_info
-        self.usage_requs = usage_requs
+        self.perms = perms
