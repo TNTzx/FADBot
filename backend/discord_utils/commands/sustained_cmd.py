@@ -48,9 +48,7 @@ def sustained_command():
             firebase.override_data(path, [firebase.PLACEHOLDER_DATA])
 
         @fc.wraps(func)
-        async def wrapper(*args, **kwargs):
-            ctx: nx_cmds.Context = args[1]
-
+        async def wrapper(cog, ctx: nx_cmds.Context, *args, **kwargs):
             if check_if_using_command(path, ctx.author.id):
                 await exc_utils.send_error(ctx, "You're already using this command! Please cancel the command you're currently using, or wait until it times out!")
                 return
@@ -58,7 +56,7 @@ def sustained_command():
             add_is_using_command(path, ctx.author.id)
 
             try:
-                await func(*args, **kwargs)
+                await func(cog, ctx, *args, **kwargs)
             except Exception as exc:
                 delete_is_using_command(path, ctx.author.id)
                 if isinstance(exc, exc_utils.ExitFunction):

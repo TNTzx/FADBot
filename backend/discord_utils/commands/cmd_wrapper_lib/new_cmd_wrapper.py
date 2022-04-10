@@ -18,7 +18,7 @@ def command_wrap(
         cmd_info: cmd_ext.CmdInfo = cmd_ext.CmdInfo()
         ):
     """A decorator factory that registers this function as a command to a category with its relevant info."""
-    def decorator(cmd_func):
+    def decorator(cmd_func: typ.Callable):
         @functools.wraps(cmd_func)
         async def wrapper(cog, ctx: nx_cmds.Context, *args, **kwargs):
             requ_check = cmd_info.usage_requs.has_met_all_requs(ctx)
@@ -31,7 +31,7 @@ def command_wrap(
                 ctx.command.reset_cooldown(ctx)
                 return
 
-            return await cmd_func(*args, **kwargs)
+            return await cmd_func(cog, ctx, *args, **kwargs)
 
         cmd_aliases = cmd_info.aliases
         if cmd_aliases is None:
@@ -51,7 +51,7 @@ def command_wrap(
 
 
         cmd = cmd_ext.DiscordCommand(
-            command = wrapper,
+            command = cmd_func,
             info = cmd_info
         )
         category.register_command(cmd)
