@@ -11,7 +11,7 @@ import backend.firebase as firebase
 import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
 import backend.logging.loggers as lgr
-import backend.other.other_functions as other_functions
+import backend.other as other
 
 from .. import artists as art
 from .. import vadb_discord_utils
