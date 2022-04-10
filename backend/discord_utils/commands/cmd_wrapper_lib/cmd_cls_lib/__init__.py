@@ -11,6 +11,6 @@ from .cmd_infos import \
     CmdInfo, \
         CooldownInfo, UsabilityInfo
 
-from .cmd_usage_requs import \
-    CmdUsageRequ, CmdUsageRequs, \
+from .cmd_perms import \
+    Permission, Permissions, \
     NotBanned, Dev, PAMod, GuildAdmin, GuildOwner
