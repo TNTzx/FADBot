@@ -164,7 +164,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
             final_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)
 
-            if final_view.value == disc_utils.ViewOutputValues.cancel:
+            if final_view.value == disc_utils.ViewOutputValues.CANCEL:
                 raise req_exc.SetApprovalCancelled()
 
 

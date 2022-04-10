@@ -1,9 +1,9 @@
 """A module that contains a class where views will be inherited to."""
 
 
-import nextcord as nx
+import enum
 
-import backend.other.other as m_ot
+import nextcord as nx
 
 
 class View(nx.ui.View):
@@ -30,13 +30,13 @@ def select_factory(options: list[nx.SelectOption]):
 FIRST_ROW = 0
 IS_LAST_ROW = 4
 
-class ViewOutputValues:
+class ViewOutputValues(enum.Enum):
     """Contains output values for stuff like Cancel and Skip."""
-    cancel = m_ot.Unique()
-    skip = m_ot.Unique()
-    confirm = m_ot.Unique()
-    submit = m_ot.Unique()
-    back = m_ot.Unique()
+    CANCEL = "cancel"
+    skip = "skip"
+    confirm = "confirm"
+    submit = "submit"
+    back = "back"
 
 
 class Blank(View):
@@ -48,7 +48,7 @@ class ButtonCancel(View):
     @nx.ui.button(label = "Cancel", style = nx.ButtonStyle.red, row = IS_LAST_ROW)
     async def cancel(self, button: nx.ui.Button, interact: nx.Interaction):
         "...cancel!"
-        self.value = ViewOutputValues.cancel
+        self.value = ViewOutputValues.CANCEL
         self.stop()
 
 class ButtonConfirm(View):

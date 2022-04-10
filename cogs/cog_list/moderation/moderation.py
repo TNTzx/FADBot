@@ -71,7 +71,7 @@ class CogModeration(cog.RegisteredCog):
 
                 output_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)
 
-                if output_view.value == disc_utils.ViewOutputValues.cancel:
+                if output_view.value == disc_utils.ViewOutputValues.CANCEL:
                     await ctx.send("Command cancelled.")
                     raise exc_utils.ExitFunction()
 

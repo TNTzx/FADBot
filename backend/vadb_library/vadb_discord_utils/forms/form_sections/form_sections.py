@@ -67,7 +67,7 @@ class Name(f_s.RawTextSection):
         if result == disc_utils.ViewOutputValues.back:
             await ctx.author.send("Returning...")
             raise f_exc.InvalidSectionResponse()
-        if result == disc_utils.ViewOutputValues.cancel:
+        if result == disc_utils.ViewOutputValues.CANCEL:
             await exc_utils.cancel_command(ctx, send_author = True)
 
 

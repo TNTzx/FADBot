@@ -92,7 +92,7 @@ class FormArtist():
 
                 if response.value == disc_utils.ViewOutputValues.confirm:
                     break
-                if response.value == disc_utils.ViewOutputValues.cancel:
+                if response.value == disc_utils.ViewOutputValues.CANCEL:
                     await exc_utils.cancel_command(ctx, send_author = True)
 
                 title = response.value[0]
@@ -112,7 +112,7 @@ class FormArtist():
                 break
             if response.value == disc_utils.ViewOutputValues.back:
                 continue
-            if response.value == disc_utils.ViewOutputValues.cancel:
+            if response.value == disc_utils.ViewOutputValues.CANCEL:
                 await exc_utils.cancel_command(ctx, send_author = True)
 
 
