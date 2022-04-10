@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import requests as req
-import backend.other.other_functions as o_f
+import backend.other as ot
 
 from .. import api
 from ..other import clean_iter
@@ -253,7 +253,7 @@ class Artist(artist_struct.ArtistStruct):
                 )
             )
         except Exception as exc:
-            raise excepts.VADBInvalidResponse(f"Invalid response: {o_f.pr_print(data)}.") from exc
+            raise excepts.VADBInvalidResponse(f"Invalid response: {ot.pr_print(data)}.") from exc
 
     @classmethod
     def vadb_from_id(cls, artist_id: int):

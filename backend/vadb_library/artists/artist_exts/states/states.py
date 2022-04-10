@@ -5,14 +5,13 @@ from __future__ import annotations
 
 import nextcord as nx
 
-import backend.other.dataclass as dt
-import backend.other.other as util_other
+import backend.other as ot
 
 from ... import artist_struct
 from . import usage_rights as u_r
 
 
-class State(dt.Dataclass):
+class State(ot.Dataclass):
     """Parent class for states."""
     def __init__(self, label: str, value: int, choice_info: ChoiceInfo = None):
         self.label = label
@@ -31,7 +30,7 @@ class State(dt.Dataclass):
             emoji = self.choice_info.emoji
         )
 
-class ChoiceInfo(dt.Dataclass):
+class ChoiceInfo(ot.Dataclass):
     """Info for choices in views."""
     def __init__(self, description: str = "No description", emoji: str = None) -> None:
         self.description = description
@@ -153,8 +152,8 @@ class States(artist_struct.ArtistStruct):
             availability: int = 2,
             usage_rights: u_r.UsageRights = u_r.UsageRights()
             ):
-        self.status = util_other.Match(StatusList.get_states_dict(), status)
-        self.availability = util_other.Match(AvailabilityList.get_states_dict(), availability)
+        self.status = ot.Match(StatusList.get_states_dict(), status)
+        self.availability = ot.Match(AvailabilityList.get_states_dict(), availability)
 
         self.usage_rights = usage_rights
 

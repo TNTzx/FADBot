@@ -4,7 +4,7 @@ import collections as cl
 import threading as thread
 
 import backend.logging.loggers as lgr
-import backend.other.other_functions as o_f
+import backend.other as ot
 
 from . import fb_consts as consts
 from . import fb_utils
@@ -45,7 +45,7 @@ def get_data(path: list[str], default = consts.NOT_FOUND_DATA):
     if isinstance(result, cl.OrderedDict):
         result = dict(result)
 
-    log_message = f"Received data from path {path}: {o_f.pr_print(result)}"
+    log_message = f"Received data from path {path}: {ot.pr_print(result)}"
     lgr.log_firebase.info(log_message)
     return result
 
@@ -65,7 +65,7 @@ def override_data(path: list[str], json: dict):
 
     json = fb_utils.none_empty_to_null(json)
 
-    log_message = f"Overriden data from path {path}: {o_f.pr_print(json)}"
+    log_message = f"Overriden data from path {path}: {ot.pr_print(json)}"
     lgr.log_firebase.info(log_message)
     path_parse.set(json, token = consts.get_token())
 
@@ -77,7 +77,7 @@ def append_data(path: list[str], json: list):
 
     new_data = fb_utils.none_empty_to_null(new_data)
 
-    log_message = f"Appended data from path {path}: {o_f.pr_print(new_data)}"
+    log_message = f"Appended data from path {path}: {ot.pr_print(new_data)}"
     lgr.log_firebase.info(log_message)
     override_data(path, new_data)
 
@@ -87,13 +87,13 @@ def deduct_data(path: list[str], json: list):
     old_data = get_data(path, default = [])
 
     try:
-        new_data = o_f.subtract_list(old_data, json)
+        new_data = ot.subtract_list(old_data, json)
     except ValueError as exc:
         raise fb_exc.FBNoPath("Not subtracted.") from exc
 
     new_data = fb_utils.none_empty_to_null(new_data)
 
-    log_message = f"Deducted data from path {path}: {o_f.pr_print(new_data)}"
+    log_message = f"Deducted data from path {path}: {ot.pr_print(new_data)}"
     lgr.log_firebase.info(log_message)
     override_data(path, new_data)
 
@@ -108,7 +108,7 @@ def edit_data(path: list[str], json: dict | list):
 
     json = fb_utils.none_empty_to_null(json)
 
-    log_message = f"Edited data from path {path}: {o_f.pr_print(json)}"
+    log_message = f"Edited data from path {path}: {ot.pr_print(json)}"
     lgr.log_firebase.info(log_message)
     path_parse.update(json, token = consts.get_token())
 

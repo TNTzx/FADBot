@@ -4,8 +4,7 @@
 import nextcord as nx
 
 import backend.logging.loggers as lgr
-import backend.other.other as mot
-import backend.other.other_functions as o_f
+import backend.other as ot
 
 from .. import artists as art
 from .. import api
@@ -13,7 +12,7 @@ from .. import api
 
 def generate_embed(artist: art.Artist):
     """Generates an `Embed` for this `Artist`."""
-    log_message = f"Generating embed for {artist.name}: {o_f.pr_print(artist.to_json())}"
+    log_message = f"Generating embed for {artist.name}: {ot.pr_print(artist.to_json())}"
     lgr.log_artist_control.info(log_message)
 
     embed = nx.Embed()
@@ -103,7 +102,7 @@ def generate_embed(artist: art.Artist):
         "yellow": 0xFFFF00,
         "blue": 0x0000FF
     }
-    color_match = mot.Match(color_keys, "green")
+    color_match = ot.Match(color_keys, "green")
 
     temp_states_val = artist.states.status.value
     temp_avail_var = artist.states.availability.value

@@ -5,7 +5,7 @@ import json
 import requests
 
 import backend.logging.loggers as lgr
-import backend.other.other_functions as o_f
+import backend.other as ot
 
 from . import consts
 from . import endpoints as endp
@@ -39,7 +39,7 @@ def make_request(
 
     log_message_main = (
         f"{endpoint.request_type} -> {endpoint.link}: "
-        f"payload = {o_f.pr_print(payload)}, files = {o_f.pr_print([x[0] for x in files]) if files is not None else None}"
+        f"payload = {ot.pr_print(payload)}, files = {ot.pr_print([x[0] for x in files]) if files is not None else None}"
     )
 
     log_message = f"Send {log_message_main}"
@@ -58,7 +58,7 @@ def make_request(
 
     if to_dict:
         response = response.json()
-        log_message = f"Received {o_f.pr_print(response)}"
+        log_message = f"Received {ot.pr_print(response)}"
     else:
         log_message = f"Received {response.json()}"
 

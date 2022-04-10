@@ -6,7 +6,7 @@ import nextcord.ext.commands as nx_cmds
 
 import global_vars
 import backend.discord_utils as disc_utils
-import backend.other.other_functions as o_f
+import backend.other as ot
 import backend.exc_utils as exc_utils
 
 from ... import utils as cog
@@ -129,7 +129,7 @@ class CogHelp(cog.RegisteredCog):
                 else:
                     cooldown_type = "TNTz messed up, he didn't add another edge case, please ping him"
                 cooldown_form = (
-                    f"Duration: `{o_f.format_time(help_docs.cooldown.length)}`\n"
+                    f"Duration: `{ot.format_time(help_docs.cooldown.length)}`\n"
                     f"Applies to: `{cooldown_type}`"
                 )
                 embed.add_field(name = "Cooldown Info:", value = f"{cooldown_form}")

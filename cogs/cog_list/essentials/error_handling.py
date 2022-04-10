@@ -10,7 +10,7 @@ import nextcord.ext.commands as nx_cmds
 import global_vars
 import backend.logging.loggers as lgr
 import backend.exc_utils as exc_utils
-import backend.other.other_functions as o_f
+import backend.other as ot
 
 from ... import utils as cog
 
@@ -27,7 +27,7 @@ class CogErrorHandler(cog.RegisteredCog):
             return isinstance(exc, exc_type)
 
         if checkexc(nx_cmds.CommandOnCooldown):
-            time = o_f.format_time(int(str(round(exc.retry_after, 0))[:-2]))
+            time = ot.format_time(int(str(round(exc.retry_after, 0))[:-2]))
             await exc_utils.send_error(ctx, f"The command is on cooldown for `{time}` more!")
             return
 

@@ -9,7 +9,7 @@ import backend.logging.loggers as lgr
 import backend.discord_utils as disc_utils
 import backend.firebase as firebase
 import backend.exc_utils as exc_utils
-import backend.other.other_functions as o_f
+import backend.other as ot
 
 from ... import utils as cog
 
@@ -66,7 +66,7 @@ class CogModeration(cog.RegisteredCog):
                 confirm_view = disc_utils.ViewConfirmCancel()
                 confirm_message = await ctx.send((
                         f"Are you sure you want to {action} the user `{user_name}`?\n"
-                        f"This command will time out in `{o_f.format_time(global_vars.Timeouts.long)}`."
+                        f"This command will time out in `{ot.format_time(global_vars.Timeouts.long)}`."
                     ), view = confirm_view)
 
                 output_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)

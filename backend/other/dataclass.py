@@ -5,13 +5,13 @@ from __future__ import annotations
 
 import abc
 
-import backend.other.other_functions as o_f
+import backend.other as ot
 
 
 class Dataclass():
     """A dataclass."""
     def __repr__(self) -> str:
-        return f"Dataclass|{self.__class__.__name__}|({o_f.pr_print(self.to_json())})"
+        return f"Dataclass|{self.__class__.__name__}|({ot.pr_print(self.to_json())})"
 
     def to_json(self) -> list | dict:
         """Function that returns a list or dictionary version of the object."""
