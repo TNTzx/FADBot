@@ -56,7 +56,6 @@ class CmdUsageRequs():
         return (True,)
 
 
-# TEST test these out
 class NotBanned(CmdUsageRequ):
     """Requires the user to not be banned."""
     @classmethod
@@ -98,20 +97,21 @@ class PAMod(CmdUsageRequ):
     """Requires the user to be a PA moderator by role or by ID."""
     @classmethod
     def has_met_requ(cls, ctx: nx_cmds.Context):
-        can_verify_roles = firebase.get_data(
-            firebase.ENDPOINTS.e_artist.e_change_req.e_can_verify.e_server_roles.get_path(),
-            default = []
-        )
+        if Dev.has_met_requ(ctx):
+            return True
+
         can_verify_users = firebase.get_data(
             firebase.ENDPOINTS.e_artist.e_change_req.e_can_verify.e_users.get_path(),
             default = []
         )
-        devs = firebase.get_data(firebase.ENDPOINTS.e_main.e_privileges.e_devs.get_path())
-
         user_id = str(ctx.author.id)
-
-        if user_id in can_verify_users + devs:
+        if user_id in can_verify_users:
             return True
+
+        can_verify_roles = firebase.get_data(
+            firebase.ENDPOINTS.e_artist.e_change_req.e_can_verify.e_server_roles.get_path(),
+            default = []
+        )
         if isinstance(ctx.channel, nx.channel.TextChannel):
             guild_id = str(ctx.guild.id)
             if guild_id in can_verify_roles:
