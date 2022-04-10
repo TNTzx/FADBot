@@ -23,18 +23,18 @@ class CmdCategory():
         cls.commands.append(cmd)
 
 
-class ArtistManagement(CmdCategory):
+class CategoryArtistManagement(CmdCategory):
     """Artist management."""
     name = "artist management"
 
-class Basics(CmdCategory):
+class CategoryBasics(CmdCategory):
     """Basic commands."""
     name = "basic commands"
 
-class BotControl(CmdCategory):
+class CategoryBotControl(CmdCategory):
     """Commands relating to bot control."""
     name = "bot control"
 
-class Moderation(CmdCategory):
+class CategoryModeration(CmdCategory):
     """Commands for moderating."""
     name = "moderation"

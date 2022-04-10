@@ -5,7 +5,7 @@ from .cmd_cls import DiscordCommand
 
 from .cmd_categories import \
     CmdCategory, \
-        ArtistManagement, Basics, BotControl, Moderation
+        CategoryArtistManagement, CategoryBasics, CategoryBotControl, CategoryModeration
 
 from .cmd_infos import \
     CmdInfo, \

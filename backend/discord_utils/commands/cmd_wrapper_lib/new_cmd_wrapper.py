@@ -12,6 +12,7 @@ from . import cmd_cls_lib as cmd_ext
 from . import cmd_wrap_excs
 
 
+# TEST test this out! :D
 def command_wrap(
         category: typ.Type[cmd_ext.CmdCategory],
         cmd_info: cmd_ext.CmdInfo = cmd_ext.CmdInfo()
