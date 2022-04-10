@@ -25,7 +25,8 @@ def command_wrap(
             if not requ_check[0]:
                 failed_requ_check = requ_check[1]
                 await exc_utils.send_error(ctx, failed_requ_check.get_full_fail_message(), cooldown_reset = True)
-                raise cmd_wrap_excs.PrivilegeReqNotMet(failed_requ_check.__class__.__name__)
+                return
+                # raise cmd_wrap_excs.UsageReqNotMet(failed_requ_check.__class__.__name__)
 
             if not cmd_info.usability_info.usability_condition(ctx):
                 ctx.command.reset_cooldown(ctx)

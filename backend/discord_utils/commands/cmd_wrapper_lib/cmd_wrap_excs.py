@@ -8,7 +8,7 @@ class CmdWrapError(disc_exc.CustomDiscordException):
     """An error relating to command wrapping has occured."""
 
 
-class PrivilegeReqNotMet(CmdWrapError):
+class UsageReqNotMet(CmdWrapError):
     """The privilege hasn't been met."""
     def __init__(self, cls_name: str):
         super().__init__(f"Privilege requirement {cls_name} not met for current context.")

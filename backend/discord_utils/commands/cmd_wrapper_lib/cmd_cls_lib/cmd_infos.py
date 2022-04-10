@@ -44,7 +44,7 @@ class CmdInfo():
             aliases: list[str] | None = None,
             cooldown_info: CooldownInfo = CooldownInfo(),
             usability_info: UsabilityInfo = UsabilityInfo(),
-            priv_reqs: cmd_usage_requs.CmdUsageRequs = cmd_usage_requs.CmdUsageRequs(),
+            usage_requs: cmd_usage_requs.CmdUsageRequs = cmd_usage_requs.CmdUsageRequs(),
             ):
         self.description = description
         self.example = example
@@ -53,4 +53,4 @@ class CmdInfo():
         self.aliases = aliases
         self.cooldown_info = cooldown_info
         self.usability_info = usability_info
-        self.usage_requs = priv_reqs
+        self.usage_requs = usage_requs
