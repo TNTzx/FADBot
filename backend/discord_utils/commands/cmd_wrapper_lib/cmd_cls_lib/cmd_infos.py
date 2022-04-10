@@ -46,6 +46,7 @@ class CmdInfo():
             ):
         self.description = description
         self.example = example
+        # TODO add parameter handling (low priority)
         self.parameters = parameters
         self.aliases = aliases
         self.cooldown_info = cooldown_info
