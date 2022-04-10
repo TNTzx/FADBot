@@ -11,7 +11,7 @@ import backend.firebase as firebase
 import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
 import backend.logging.loggers as lgr
-import backend.other as other
+import backend.other as ot
 
 from .. import artists as art
 from .. import vadb_discord_utils
@@ -113,7 +113,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
         log_message = (
             f"Request ID [{self.request_id}]: "
-            f"{other.pr_print(self.firebase_to_json())}"
+            f"{ot.pr_print(self.firebase_to_json())}"
         )
         lgr.log_change_req_data.info(log_message)
 
@@ -154,7 +154,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             )
             confirm_str = (
                 f"{message_confirm_str}\n"
-                f"This command times out in {other.format_time(timeout)}."
+                f"This command times out in {ot.format_time(timeout)}."
             )
             confirm_message = await ctx.send(
                 confirm_str,

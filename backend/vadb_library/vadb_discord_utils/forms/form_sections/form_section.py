@@ -13,7 +13,7 @@ import nextcord.ext.commands as nx_cmds
 import global_vars
 import backend.discord_utils as disc_utils
 import backend.exc_utils as exc_utils
-import backend.other.other_functions as o_f
+import backend.other as ot
 
 from .... import artists as a_s
 from .. import form_exc as f_exc
@@ -24,10 +24,10 @@ async def check_response(ctx: nx_cmds.Context, view: disc_utils.View):
     """Checks the response of the user if they went back, cancelled, etc."""
     if view.value == disc_utils.ViewOutputValues.CANCEL:
         await exc_utils.cancel_command(ctx, send_author = True)
-    elif view.value == disc_utils.ViewOutputValues.skip:
+    elif view.value == disc_utils.ViewOutputValues.SKIP:
         await ctx.author.send("Section skipped.")
         raise f_exc.ExitSection()
-    elif view.value == disc_utils.ViewOutputValues.back:
+    elif view.value == disc_utils.ViewOutputValues.BACK:
         await ctx.author.send("Going back to menu...")
         raise f_exc.ExitSection()
 
@@ -105,7 +105,7 @@ class FormSection():
         disc_utils.make_horizontal_rule(embed)
 
 
-        emb_footer_extra = f"This command times out in {o_f.format_time(timeout)}."
+        emb_footer_extra = f"This command times out in {ot.format_time(timeout)}."
         embed.set_footer(text = f"{section_state.footer}\n\n{emb_footer_extra}")
 
         return embed

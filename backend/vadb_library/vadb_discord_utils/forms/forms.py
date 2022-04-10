@@ -6,7 +6,7 @@ import nextcord.ext.commands as nx_cmds
 
 import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
-import backend.other.other_functions as o_f
+import backend.other as ot
 import global_vars
 
 from ... import artists as art
@@ -58,7 +58,7 @@ class FormArtist():
                     "Click on \"Confirm\" to confirm that you have finished editing the artist.\n"
                     "Click on \"Back\" to go back and resume editing the artist.\n"
                     "Click on \"Cancel\" to cancel the current command.\n\n"
-                    f"This command will timeout in {o_f.format_time(timeout)}."
+                    f"This command will timeout in {ot.format_time(timeout)}."
                 )
             )
 
@@ -77,7 +77,7 @@ class FormArtist():
                         "Select from the dropdown menu to edit that property.\n"
                         "Click on `Confirm` to finish editing the artist.\n"
                         "Click on `Cancel` to cancel the command.\n\n"
-                        f"This command will timeout in `{o_f.format_time(timeout)}`."
+                        f"This command will timeout in `{ot.format_time(timeout)}`."
                     ),
                     view = new_view
                 )
@@ -90,7 +90,7 @@ class FormArtist():
                 )
 
 
-                if response.value == disc_utils.ViewOutputValues.confirm:
+                if response.value == disc_utils.ViewOutputValues.CONFIRM:
                     break
                 if response.value == disc_utils.ViewOutputValues.CANCEL:
                     await exc_utils.cancel_command(ctx, send_author = True)
@@ -108,9 +108,9 @@ class FormArtist():
 
             response = await disc_utils.wait_for_view(ctx, message, view)
 
-            if response.value == disc_utils.ViewOutputValues.confirm:
+            if response.value == disc_utils.ViewOutputValues.CONFIRM:
                 break
-            if response.value == disc_utils.ViewOutputValues.back:
+            if response.value == disc_utils.ViewOutputValues.BACK:
                 continue
             if response.value == disc_utils.ViewOutputValues.CANCEL:
                 await exc_utils.cancel_command(ctx, send_author = True)

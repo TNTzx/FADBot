@@ -33,10 +33,10 @@ IS_LAST_ROW = 4
 class ViewOutputValues(enum.Enum):
     """Contains output values for stuff like Cancel and Skip."""
     CANCEL = "cancel"
-    skip = "skip"
-    confirm = "confirm"
-    submit = "submit"
-    back = "back"
+    SKIP = "skip"
+    CONFIRM = "confirm"
+    SUBMIT = "submit"
+    BACK = "back"
 
 
 class Blank(View):
@@ -56,7 +56,7 @@ class ButtonConfirm(View):
     @nx.ui.button(label = "Confirm", style = nx.ButtonStyle.green, row = IS_LAST_ROW)
     async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
         "...confirm!"
-        self.value = ViewOutputValues.confirm
+        self.value = ViewOutputValues.CONFIRM
         self.stop()
 
 class ButtonSubmit(View):
@@ -64,7 +64,7 @@ class ButtonSubmit(View):
     @nx.ui.button(label = "Submit", style = nx.ButtonStyle.green, row = IS_LAST_ROW)
     async def confirm(self, button: nx.ui.Button, interact: nx.Interaction):
         "...submit!"
-        self.value = ViewOutputValues.submit
+        self.value = ViewOutputValues.SUBMIT
         self.stop()
 
 class ButtonSkipEnabled(View):
@@ -72,7 +72,7 @@ class ButtonSkipEnabled(View):
     @nx.ui.button(label = "Skip", style = nx.ButtonStyle.blurple, row = IS_LAST_ROW)
     async def skip_enabled(self, button: nx.ui.Button, interact: nx.Interaction):
         """skip!"""
-        self.value = ViewOutputValues.skip
+        self.value = ViewOutputValues.SKIP
         self.stop()
 
 class ButtonSkipDisabled(View):
@@ -80,7 +80,7 @@ class ButtonSkipDisabled(View):
     @nx.ui.button(label = "Skip", disabled = True, style = nx.ButtonStyle.blurple, row = IS_LAST_ROW)
     async def skip_disabled(self, button: nx.ui.Button, interact: nx.Interaction):
         """skip!"""
-        self.value = ViewOutputValues.skip
+        self.value = ViewOutputValues.SKIP
         self.stop()
 
 class ButtonBack(View):
@@ -88,7 +88,7 @@ class ButtonBack(View):
     @nx.ui.button(label = "Back", style = nx.ButtonStyle.blurple, row = IS_LAST_ROW)
     async def back(self, button: nx.ui.Button, interact: nx.Interaction):
         """back!"""
-        self.value = ViewOutputValues.back
+        self.value = ViewOutputValues.BACK
         self.stop()
 
 
