@@ -1,9 +1,11 @@
 """Contains the `CmdInfo` class."""
 
 
+import typing as typ
+
 import nextcord.ext.commands as nx_cmds
 
-from . import privilege_reqs
+from . import priv_reqs
 
 
 class CooldownInfo():
@@ -17,15 +19,35 @@ class CooldownInfo():
         self.type_ = type_
 
 
+class UsabilityInfo():
+    """Contains info about the command's visibility."""
+    def __init__(
+            self,
+            enable: bool = True,
+            visible_in_help: bool = True,
+            usability_condition: typ.Callable[[nx_cmds.Context], bool] = lambda ctx: True,
+            ):
+        self.enable = enable
+        self.visible_in_help = visible_in_help
+        self.usability_condition = usability_condition
+
+
 class CmdInfo():
     """Contains information about the command."""
     def __init__(
             self,
             description: str | None = None,
+            example: list[str] | None = None,
             parameters: dict[str, str] | None = None,
             aliases: list[str] | None = None,
-            cooldown: CooldownInfo = CooldownInfo(),
-            priv_req_list: 
+            cooldown_info: CooldownInfo = CooldownInfo(),
+            usability_info: UsabilityInfo = UsabilityInfo(),
+            priv_reqs: priv_reqs.PrivilegeReqs = priv_reqs.PrivilegeReqs(),
             ):
-        pass
-
+        self.description = description
+        self.example = example
+        self.parameters = parameters
+        self.aliases = aliases
+        self.cooldown_info = cooldown_info
+        self.usability_info = usability_info
+        self.priv_reqs = priv_reqs
