@@ -56,5 +56,5 @@ def command_wrap(
         category.register_command(cmd)
 
         return wrapper
-    
+
     return decorator
