@@ -26,10 +26,12 @@ class UsabilityInfo():
             enable: bool = True,
             visible_in_help: bool = True,
             usability_condition: typ.Callable[[nx_cmds.Context], bool] = lambda ctx: True,
+            guild_only: bool = True
             ):
         self.enable = enable
         self.visible_in_help = visible_in_help
         self.usability_condition = usability_condition
+        self.guild_only = guild_only
 
 
 class CmdInfo():
@@ -51,4 +53,4 @@ class CmdInfo():
         self.aliases = aliases
         self.cooldown_info = cooldown_info
         self.usability_info = usability_info
-        self.priv_reqs = priv_reqs
+        self.usage_requs = priv_reqs

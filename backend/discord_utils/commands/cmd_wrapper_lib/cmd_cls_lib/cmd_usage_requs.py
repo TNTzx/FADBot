@@ -30,13 +30,6 @@ class CmdUsageRequ():
             f"{cls.get_fail_message()}"
         )
 
-    @classmethod
-    async def discord_has_met_requ(cls, ctx: nx_cmds.Context):
-        """Checks if the `Context` meets the current usage requirements. Sends an error if not met."""
-        if not cls.has_met_requ(ctx):
-            await exc_utils.send_error(ctx, cls.get_full_fail_message(), cooldown_reset = True)
-            raise cmd_wrap_excs.PrivilegeReqNotMet(cls.__name__)
-
 
 class CmdUsageRequs():
     """Contains a list of enabled usage requirements for this command."""
@@ -61,13 +54,6 @@ class CmdUsageRequs():
                 return (False, usage_requ)
 
         return (True,)
-
-
-    async def discord_has_met_all_requs(self, ctx: nx_cmds.Context):
-        """Sends an error to the `Context` if that `Context` doesn't meet all usage requirements."""
-        usage_req_check = self.has_met_all_requs(ctx)
-        if not usage_req_check[0]:
-            await exc_utils.send_error(ctx, usage_req_check[1].get_full_fail_message(), cooldown_reset = True)
 
 
 # TEST test these out
