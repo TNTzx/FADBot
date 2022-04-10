@@ -35,6 +35,9 @@ class CmdUsageRequs():
             usage_requs: list[typ.Type[CmdUsageRequ]] | None = None,
             enable_not_ban_requ: bool = True
             ):
+        if usage_requs is None:
+            usage_requs = []
+
         if enable_not_ban_requ:
             usage_requs = [NotBanned] + usage_requs
 
