@@ -38,7 +38,7 @@ class CmdUsageRequ():
             raise cmd_wrap_excs.PrivilegeReqNotMet(cls.__name__)
 
 
-class UsageRequs():
+class CmdUsageRequs():
     """Contains a list of enabled usage requirements for this command."""
     def __init__(
             self,
@@ -70,7 +70,7 @@ class UsageRequs():
             await exc_utils.send_error(ctx, usage_req_check[1].get_full_fail_message(), cooldown_reset = True)
 
 
-# DEBUG debug these
+# TEST test these out
 class NotBanned(CmdUsageRequ):
     """Requires the user to not be banned."""
     @classmethod

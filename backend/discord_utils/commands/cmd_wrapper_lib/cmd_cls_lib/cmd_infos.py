@@ -42,7 +42,7 @@ class CmdInfo():
             aliases: list[str] | None = None,
             cooldown_info: CooldownInfo = CooldownInfo(),
             usability_info: UsabilityInfo = UsabilityInfo(),
-            priv_reqs: cmd_usage_requs.UsageRequs = cmd_usage_requs.UsageRequs(),
+            priv_reqs: cmd_usage_requs.CmdUsageRequs = cmd_usage_requs.CmdUsageRequs(),
             ):
         self.description = description
         self.example = example
