@@ -2,11 +2,10 @@
 
 
 from __future__ import annotations
-from ast import alias
-
-import nextcord.ext.commands as nx_cmds
 
 import typing as typ
+
+import nextcord.ext.commands as nx_cmds
 
 from . import cmd_infos
 

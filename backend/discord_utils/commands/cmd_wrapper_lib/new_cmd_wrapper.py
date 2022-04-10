@@ -19,7 +19,7 @@ def command_wrap(
         ):
     """A decorator factory that registers this function as a command to a category with its relevant info."""
     def decorator(cmd_func):
-        @functools.wraps()
+        @functools.wraps(cmd_func)
         async def wrapper(cog, ctx: nx_cmds.Context, *args, **kwargs):
             requ_check = cmd_info.usage_requs.has_met_all_requs(ctx)
             if not requ_check[0]:

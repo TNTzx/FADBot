@@ -7,9 +7,6 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.firebase as firebase
-import backend.exc_utils as exc_utils
-
-from .. import cmd_wrap_excs
 
 
 class CmdUsageRequ():
@@ -67,7 +64,7 @@ class NotBanned(CmdUsageRequ):
             default = []
         )
 
-        return not (user_id in bans)
+        return not user_id in bans
 
     @classmethod
     def get_fail_message(cls):

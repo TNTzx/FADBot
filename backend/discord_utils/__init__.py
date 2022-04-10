@@ -2,6 +2,10 @@
 
 
 from . import commands as cmds
+
+# TEMP remove this debug line
+from .commands import *
+
 from .message_utils import *
 from .detections import *
 
