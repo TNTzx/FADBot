@@ -13,7 +13,7 @@ class DiscordCommand():
     def __init__(
             self,
             command: typ.Callable[[nx_cmds.Context, typ.Any], None],
-            info: cmd_infos.CmdInfo
+            info: cmd_infos.CmdInfo = cmd_infos.CmdInfo()
             ):
         self.command = command
         self.info = info

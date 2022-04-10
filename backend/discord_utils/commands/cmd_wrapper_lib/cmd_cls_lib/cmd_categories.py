@@ -6,6 +6,8 @@ from . import cmd_cls
 
 class CmdCategory():
     """Parent class for command categories."""
+    name: str = None
+
     commands: list[cmd_cls.DiscordCommand] = []
 
 
@@ -21,4 +23,18 @@ class CmdCategory():
         cls.commands.append(cmd)
 
 
-# TODO do all command categories
+class ArtistManagement(CmdCategory):
+    """Artist management."""
+    name = "artist management"
+
+class Basics(CmdCategory):
+    """Basic commands."""
+    name = "basic commands"
+
+class BotControl(CmdCategory):
+    """Commands relating to bot control."""
+    name = "bot control"
+
+class Moderation(CmdCategory):
+    """Commands for moderating."""
+    name = "moderation"
