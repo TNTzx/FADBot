@@ -31,7 +31,6 @@ class CogArtistCmds(cog.RegisteredCog):
     )
     async def artistrequestadd(self, ctx: nx_cmds.Context):
         """Creates an add request."""
-        # REWRITE rewrite everything :)
         if not isinstance(ctx.channel, nx.channel.DMChannel):
             await ctx.send("The artist add request form is sent to your DMs. Please check it.")
 
@@ -42,55 +41,19 @@ class CogArtistCmds(cog.RegisteredCog):
 
 
         form_artist = vadb.disc.FormArtist()
-        form_artist.edit_with_all_sections(ctx, section_state = vadb.disc.SectionStates.default)
 
+        await ctx.send("Initiating request editing...")
+        await form_artist.edit_with_all_sections(ctx, section_state = vadb.disc.SectionStates.default)
 
-    # @disc_utils.command(
-    #     category = disc_utils.CmdCategories.artist_management,
-    #     description = "Requests an artist to be added to the database.",
-    #     aliases = ["ara"],
-    #     guild_only = False
-    # )
-    # @i_u.sustained_command()
-    # async def artistrequestadd(self, ctx: nx_cmds.Context, *skips):
-    #     if not isinstance(ctx.channel, nx.channel.DMChannel):
-    #         await ctx.send("The artist add request form is sent to your DMs. Please check it.")
+        await ctx.send("Editing current artist...")
+        await form_artist.edit_loop(ctx)
 
-    #     await a_l.send_reminder(ctx)
-    #     await ctx.author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
+        add_req = vadb.AddRequest(
+            artist = form_artist.artist,
+            user_sender = author
+        )
 
-    #     data = a_l.Default()
-    #     if "no_init" in skips:
-    #         pass
-    #     else:
-    #         await data.trigger_all_set_attributes(ctx)
-
-    #     if "no_edit" in skips:
-    #         pass
-    #     else:
-    #         await data.edit_loop(ctx)
-
-    #     if "no_send" in skips:
-    #         data.vadb_info.artist_id = 0
-    #     else:
-    #         try:
-    #             await ctx.author.send("Creating verification submission...")
-    #             response = a_l.VADB.Send.Create(data).send_data()
-    #             artist_id = response["data"]["id"]
-    #             await ctx.author.send("Applying details...")
-    #             a_l.VADB.Send.Edit(data).send_data(artist_id)
-    #             data.vadb_info.artist_id = artist_id
-    #         except req.exceptions.HTTPError:
-    #             await s_e.send_error(ctx, "The artist may already be pending, or this artist already exists! I warned you about it! >:(", send_author = True)
-    #             return
-
-    #     await ctx.author.send("The `add request` has been submitted. Please wait for an official moderator to approve your submission.")
-
-
-    #     log_message = f"[ADD] {data.name}: {o_f.pr_print(data.get_dict())}"
-    #     lgr.log_artist_control.info(log_message)
-
-    #     await data.post_log(l_l.LogTypes.PENDING, ctx.author.id)
+        await add_req.send_request_pending(ctx)
 
 
     # @disc_utils.command(
