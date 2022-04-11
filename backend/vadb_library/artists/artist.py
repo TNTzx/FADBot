@@ -65,7 +65,7 @@ class Artist(artist_struct.ArtistStruct):
         try:
             response = api.make_request(api.Endpoints.artist_create(), payload = payload)
         except req.HTTPError as exc:
-            if api.exc.check_artist_already_exists(exc.response):
+            if api.excs.check_artist_already_exists(exc.response):
                 raise excepts.VADBAlreadyExistingArtist(self.name) from exc
 
             raise excepts.VADBInvalidResponse()
@@ -145,7 +145,7 @@ class Artist(artist_struct.ArtistStruct):
         try:
             response = api.make_request(api.Endpoints.artist_update(artist_id), payload = payload, files = files)
         except req.HTTPError as exc:
-            if api.exc.check_artist_already_exists(exc.response):
+            if api.excs.check_artist_already_exists(exc.response):
                 raise excepts.VADBAlreadyExistingArtist(self.name) from exc
 
             raise excepts.VADBInvalidResponse from exc

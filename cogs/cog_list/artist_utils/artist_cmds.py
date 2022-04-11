@@ -1,15 +1,23 @@
 """Artist control."""
 
 
+import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
+import backend.vadb_library as vadb
 import backend.discord_utils as disc_utils
-
 
 from ... import utils as cog
 
 
-# FIXME fix me :(
+async def send_reminder(author: nx.User):
+    """Sends the reminder that the VADB site exists."""
+    await author.send(
+        (
+            ">>> Reminder that there is a site for VADB! This bot is built for this site.\n"
+            f"Check it out here! {vadb.BASE_LINK}"
+        )
+    )
 
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
@@ -17,11 +25,22 @@ class CogArtistCmds(cog.RegisteredCog):
     @disc_utils.cmd_wrap.command_wrap(
         category = disc_utils.cmd_wrap.CategoryArtistManagement,
         cmd_info = disc_utils.cmd_wrap.CmdInfo(
-            description = "Creates an `add request`."
+            description = "Creates an `add request`.",
+            aliases = ["ara"]
         )
     )
     async def artistrequestadd(self, ctx: nx_cmds.Context):
         """Creates an add request."""
+        # REWRITE rewrite everything :)
+        if not isinstance(ctx.channel, nx.channel.DMChannel):
+            await ctx.send("The artist add request form is sent to your DMs. Please check it.")
+
+        author = ctx.author
+
+        await send_reminder(author)
+        await ctx.author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
+
+        vadb.Form
 
 
     # @disc_utils.command(

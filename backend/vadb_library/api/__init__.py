@@ -1,9 +1,9 @@
 """For VADB-related API calls."""
 
 
-from . import consts
+from .consts import *
 
 from .vadb_interact import make_request
 from .endpoints import Endpoint, Endpoints
 
-from . import api_exc as exc
+from . import api_exc as excs
