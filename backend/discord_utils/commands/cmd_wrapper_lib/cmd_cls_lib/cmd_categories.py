@@ -47,8 +47,8 @@ class CmdCategory():
 
         emb_all_categs = []
         for category in cls.get_all_categories():
-            emb_categ_title = category.name
-            emb_categ_desc = [command.get_shorthand() for command in cls.commands]
+            emb_categ_title = category.name.title()
+            emb_categ_desc = [command.get_shorthand() for command in category.commands]
             emb_categ_desc = ", ".join(emb_categ_desc)
             emb_all_categs.append(
                 (
@@ -66,7 +66,6 @@ class CmdCategory():
 class CategoryArtistManagement(CmdCategory):
     """Artist management."""
     name = "artist management"
-    commands = []
 
 class CategoryBasics(CmdCategory):
     """Basic commands."""
