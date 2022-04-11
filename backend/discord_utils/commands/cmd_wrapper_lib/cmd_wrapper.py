@@ -11,7 +11,6 @@ import backend.exc_utils as exc_utils
 from . import cmd_cls_lib as cmd_ext
 
 
-# TEST test this out! :D
 def command_wrap(
         category: typ.Type[cmd_ext.CmdCategory],
         cmd_info: cmd_ext.CmdInfo = cmd_ext.CmdInfo()
