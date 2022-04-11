@@ -84,7 +84,7 @@ class FormArtist():
 
                 response = await disc_utils.wait_for_view(
                     ctx,
-                    message_bundle.message_pointer_proof,
+                    await message_bundle.message_pointer_proof.get_message(),
                     view = new_view,
                     timeout = timeout
                 )

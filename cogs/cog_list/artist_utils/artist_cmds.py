@@ -47,7 +47,7 @@ class CogArtistCmds(cog.RegisteredCog):
         form_artist = vadb.disc.FormArtist()
 
         await author.send("Initiating request editing...")
-        await form_artist.edit_with_all_sections(ctx, section_state = vadb.disc.SectionStates.default)
+        await form_artist.edit_with_all_sections(ctx)
 
         await author.send("Editing current artist...")
         await form_artist.edit_loop(ctx)
