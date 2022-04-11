@@ -1,13 +1,15 @@
 """Where the bot starts its life."""
 
-# pylint: disable=assigning-non-slot
 
 import os
-import nextcord as nx
-import nextcord.ext.commands as cmds
 
-import global_vars.variables as vrs
-import global_vars.loggers as lgr
+import nextcord as nx
+import nextcord.ext.commands as nx_cmds
+
+import cogs
+
+import global_vars
+import backend.logging.loggers as lgr
 
 
 def log_something(log_str: str):
@@ -25,26 +27,14 @@ def main():
     intents.members = True
     intents.guilds = True
 
-    bot = cmds.Bot(command_prefix=vrs.CMD_PREFIX, intents=intents)
+    bot = nx_cmds.Bot(command_prefix = global_vars.CMD_PREFIX, intents = intents)
     bot.remove_command("help")
 
-    vrs.global_bot = bot
+    global_vars.bot = bot
 
 
-    # Load all cogs
     log_something("Loading cogs...")
-
-    def all_cogs():
-        """Returns all cogs."""
-        return os.listdir(os.path.join(os.path.dirname(__file__), ".", "cogs"))
-
-    for filename in all_cogs():
-        if filename.endswith(".py"):
-            if filename == "__init__.py":
-                continue
-            log_something(f"Loading cog '{filename}'...")
-            bot.load_extension(f"cogs.{filename[:-3]}")
-
+    cogs.RegisteredCog.load_all_cogs_to_bot(bot)
     log_something("Loaded all cogs!")
 
 
