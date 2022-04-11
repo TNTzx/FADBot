@@ -78,7 +78,7 @@ class CogLogCmds(cog.RegisteredCog):
             perms = disc_utils.cmd_wrap.Permissions(
                 [disc_utils.cmd_wrap.GuildAdmin]
             ),
-            cooldown_info = disc_utils.CooldownInfo(
+            cooldown_info = disc_utils.cmd_wrap.CooldownInfo(
                 length = 10,
                 type_ = nx_cmds.BucketType.guild
             )

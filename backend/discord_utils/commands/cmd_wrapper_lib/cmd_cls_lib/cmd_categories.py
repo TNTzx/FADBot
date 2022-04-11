@@ -15,6 +15,10 @@ class CmdCategory():
     commands: list[cmd_cls.DiscordCommand] = []
 
 
+    def __init_subclass__(cls) -> None:
+        cls.commands: list[cmd_cls.DiscordCommand] = []
+
+
     @classmethod
     def get_all_categories(cls):
         """Gets all command categories."""
@@ -62,6 +66,7 @@ class CmdCategory():
 class CategoryArtistManagement(CmdCategory):
     """Artist management."""
     name = "artist management"
+    commands = []
 
 class CategoryBasics(CmdCategory):
     """Basic commands."""
