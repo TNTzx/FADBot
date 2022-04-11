@@ -46,15 +46,15 @@ class CogBasic(cog.RegisteredCog):
         await add_new_to_database()
 
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryBasics,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryBasics,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Updates the database manually.",
             aliases = ["ud"],
-            perms = disc_utils.cmds.Permissions(
-                [disc_utils.cmds.GuildOwner]
+            perms = disc_utils.cmd_wrap.Permissions(
+                [disc_utils.cmd_wrap.GuildOwner]
             ),
-            usability_info = disc_utils.cmds.UsabilityInfo(
+            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
                 visible_in_help = False
             )
         )
@@ -65,9 +65,9 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send("Database updated.")
 
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryBasics,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryBasics,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Hello...?"
         )
     )
@@ -76,9 +76,9 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send("...what? I- hmm. Thanks for the... erm... hello... I guess?")
 
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryBasics,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryBasics,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "PONG"
         )
     )
@@ -87,11 +87,11 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send(f"Pong! <@{ctx.author.id}>")
 
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryBotControl,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryBotControl,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Causes an error!",
-            usability_info = disc_utils.cmds.UsabilityInfo(
+            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
                 visible_in_help = False,
                 guild_only = False
             )

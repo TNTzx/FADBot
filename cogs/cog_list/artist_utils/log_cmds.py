@@ -14,9 +14,9 @@ from ... import utils as cog
 class CogLogCmds(cog.RegisteredCog):
     """Contains commands for setting log locations."""
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryArtistManagement,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryArtistManagement,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Registers the channel to put the logs on.",
             parameters = {
                 "[dump | live]": (
@@ -27,8 +27,8 @@ class CogLogCmds(cog.RegisteredCog):
                 "channel mention": "The channel mention. Make sure it is highlighted blue for the bot to recognize it properly."
             },
             aliases = ["lls"],
-            perms = disc_utils.cmds.Permissions(
-                [disc_utils.cmds.GuildAdmin]
+            perms = disc_utils.cmd_wrap.Permissions(
+                [disc_utils.cmd_wrap.GuildAdmin]
             ),
             cooldown_info = disc_utils.CooldownInfo(
                 length = 10,
@@ -63,9 +63,9 @@ class CogLogCmds(cog.RegisteredCog):
         await ctx.send(f"`{log_type.capitalize()}` log channel registered as {channel.mention}.")
 
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryArtistManagement,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryArtistManagement,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Unregisters the channel to put the logs on.",
             parameters = {
                 "[dump | live]": (
@@ -75,8 +75,8 @@ class CogLogCmds(cog.RegisteredCog):
                 )
             },
             aliases = ["llus"],
-            perms = disc_utils.cmds.Permissions(
-                [disc_utils.cmds.GuildAdmin]
+            perms = disc_utils.cmd_wrap.Permissions(
+                [disc_utils.cmd_wrap.GuildAdmin]
             ),
             cooldown_info = disc_utils.CooldownInfo(
                 length = 10,

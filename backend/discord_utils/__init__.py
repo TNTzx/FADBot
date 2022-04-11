@@ -1,7 +1,7 @@
 """Contains Discord utilities."""
 
 
-from . import commands as cmds
+from .commands import *
 
 from .message_utils import *
 from .detections import *

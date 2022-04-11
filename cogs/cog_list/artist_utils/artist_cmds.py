@@ -14,9 +14,9 @@ from ... import utils as cog
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryArtistManagement,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryArtistManagement,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Creates an `add request`."
         )
     )

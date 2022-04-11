@@ -17,9 +17,9 @@ from ... import utils as cog
 class CogModeration(cog.RegisteredCog):
     """Contains controls for moderating stuff about the bot."""
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryModeration,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryModeration,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Sets the admin for the server.",
             parameters = {
                 "id": (
@@ -27,8 +27,8 @@ class CogModeration(cog.RegisteredCog):
                     "If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."
                 )
             },
-            perms = disc_utils.cmds.Permissions(
-                [disc_utils.cmds.GuildOwner]
+            perms = disc_utils.cmd_wrap.Permissions(
+                [disc_utils.cmd_wrap.GuildOwner]
             )
         )
     )
@@ -47,20 +47,20 @@ class CogModeration(cog.RegisteredCog):
         await ctx.send("The admin role for this server has been set.")
 
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryModeration,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryModeration,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Bans or unbans a user from using the bot.",
             parameters = {
                 "[\"ban\" / \"unban\"]": "`ban`s or `unban`s the user.",
                 "user id": "The ID of the user being `ban`ned or `unban`ned."
             },
             aliases = ["bb"],
-            usability_info = disc_utils.cmds.UsabilityInfo(
+            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
                 guild_only = False
             ),
-            perms = disc_utils.cmds.Permissions(
-                [disc_utils.cmds.PAMod]
+            perms = disc_utils.cmd_wrap.Permissions(
+                [disc_utils.cmd_wrap.PAMod]
             )
         )
     )

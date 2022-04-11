@@ -16,17 +16,17 @@ from ... import utils as cog
 class CogBotControl(cog.RegisteredCog):
     """Contains bot control."""
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryBotControl,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryBotControl,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Restarts the bot.",
             aliases = ["sr"],
-            usability_info = disc_utils.cmds.UsabilityInfo(
+            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
                 visible_in_help = False,
                 guild_only = False
             ),
-            perms = disc_utils.cmds.Permissions(
-                [disc_utils.cmds.Dev]
+            perms = disc_utils.cmd_wrap.Permissions(
+                [disc_utils.cmd_wrap.Dev]
             )
         )
     )
@@ -39,17 +39,17 @@ class CogBotControl(cog.RegisteredCog):
         os.execv(sys.executable, args)
 
 
-    @disc_utils.cmds.command_wrap(
-        category = disc_utils.cmds.CategoryBotControl,
-        cmd_info = disc_utils.cmds.CmdInfo(
+    @disc_utils.cmd_wrap.command_wrap(
+        category = disc_utils.cmd_wrap.CategoryBotControl,
+        cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Shuts down the bot.",
             aliases = ["sk"],
-            usability_info = disc_utils.cmds.UsabilityInfo(
+            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
                 visible_in_help = False,
                 guild_only = False
             ),
-            perms = disc_utils.cmds.Permissions(
-                [disc_utils.cmds.Dev]
+            perms = disc_utils.cmd_wrap.Permissions(
+                [disc_utils.cmd_wrap.Dev]
             )
         )
     )
