@@ -165,74 +165,70 @@ class Artist(artist_struct.ArtistStruct):
         """Returns an `Artist` from a VADB data structure.
         Receive:
         ```
-        {
-            "code": 200,
-            "data": {
-                'id': int,
-                'name': str,
-                'aliases': [
-                    {
-                        'name': str
-                    }, ...
-                ],
-                'description': str,
-                'tracks': int,
-                'genre': str,
-                'status': int,
-                'availability': int,
-                'notes': str,
-                'usageRights': [
-                    {
-                        'name': str,
-                        'value': bool
-                    },
-                    {
-                        'name': str,
-                        'value': bool
-                    }
-                ],
-                'details': {
-                    'socials': [
-                        {
-                            'link': str,
-                            'type': str
-                        }, ...
-                    ]
+        "data": {
+            'id': int,
+            'name': str,
+            'aliases': [
+                {
+                    'name': str
+                }, ...
+            ],
+            'description': str,
+            'tracks': int,
+            'genre': str,
+            'status': int,
+            'availability': int,
+            'notes': str,
+            'usageRights': [
+                {
+                    'name': str,
+                    'value': bool
+                },
+                {
+                    'name': str,
+                    'value': bool
                 }
+            ],
+            'details': {
+                'socials': [
+                    {
+                        'link': str,
+                        'type': str
+                    }, ...
+                ]
             }
         }
         ```
         """
-        data = json["data"]
-        artist_id = data["id"]
+        artist_id = json["id"]
 
         try:
             return cls(
-                name = clean_iter.clean_iterable(data["name"]),
+                name = clean_iter.clean_iterable(json["name"]),
                 # proof = please nao have a proof field :(,
                 vadb_info = artist_exts.VADBInfo(
                     artist_id = artist_id
                 ),
                 states = artist_exts.States(
-                    status = data["status"],
-                    availability = data["availability"],
+                    status = json["status"],
+                    availability = json["availability"],
                     usage_rights = artist_exts.UsageRights(
                         usage_rights = clean_iter.clean_iterable([
                             artist_exts.UsageRight(
                                 description = usage_right["name"],
                                 is_verified = usage_right["value"]
-                            ) for usage_right in data["usageRights"]
+                            ) for usage_right in json["usageRights"]
                         ])
                     )
                 ),
                 details = artist_exts.Details(
-                    description = clean_iter.clean_iterable(data["description"]),
-                    notes = clean_iter.clean_iterable(data["notes"]),
+                    description = clean_iter.clean_iterable(json["description"]),
+                    notes = clean_iter.clean_iterable(json["notes"]),
                     aliases = artist_exts.Aliases(
                         aliases = clean_iter.clean_iterable([
                             artist_exts.Alias(
                                 name = alias["name"]
-                            ) for alias in data["aliases"]
+                            ) for alias in json["aliases"]
                         ])
                     ),
                     image_info = artist_exts.ImageInfo(
@@ -240,26 +236,28 @@ class Artist(artist_struct.ArtistStruct):
                         banner = artist_exts.Banner.from_artist(artist_id)
                     ),
                     music_info = artist_exts.MusicInfo(
-                        track_count = data["tracks"],
-                        genre = clean_iter.clean_iterable(data["genre"])
+                        track_count = json["tracks"],
+                        genre = clean_iter.clean_iterable(json["genre"])
                     ),
                     socials = artist_exts.Socials(
                         socials = clean_iter.clean_iterable([
                             artist_exts.Social(
                                 link = social["link"]
-                            ) for social in data["details"]["socials"]
+                            ) for social in json["details"]["socials"]
                         ])
                     )
                 )
             )
         except Exception as exc:
-            raise excepts.VADBInvalidResponse(f"Invalid response: {ot.pr_print(data)}.") from exc
+            raise excepts.VADBInvalidResponse(f"Invalid response: {ot.pr_print(json)}.") from exc
 
     @classmethod
     def vadb_from_id(cls, artist_id: int):
         """Returns the `Artist` from an ID from VADB."""
         try:
-            return cls.vadb_from_get_json(api.make_request(api.Endpoints.artist_get(artist_id)).json())
+            return cls.vadb_from_get_json(
+                api.make_request(api.Endpoints.artist_get(artist_id)).json()["data"]
+            )
         except req.HTTPError as exc:
             raise excepts.VADBNoArtistID(artist_id) from exc
 
