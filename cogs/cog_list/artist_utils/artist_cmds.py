@@ -60,6 +60,7 @@ class CogArtistCmds(cog.RegisteredCog):
         await add_req.send_request_pending(ctx)
 
 
+    # REWRITE rewrite ##artistrequestedit
     # @disc_utils.command(
     #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Requests an artist to be edited in the database.",
@@ -109,6 +110,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #     await artist.post_log(l_l.LogTypes.EDITING, ctx.author.id)
 
 
+    # REWRITE rewrite ##artistverifyadd and ##artistverifyedit
     # @disc_utils.command(
     #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Accepts / declines the request.",
