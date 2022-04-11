@@ -12,7 +12,7 @@ import global_vars
 from ... import artists as art
 from .. import artist_info_bundle as bundle
 from . import form_exc as f_exc
-from . import form_sections as f_s
+from . import form_section_lib as f_s
 
 
 class FormArtist():

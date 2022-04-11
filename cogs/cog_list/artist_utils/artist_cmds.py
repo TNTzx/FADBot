@@ -40,7 +40,9 @@ class CogArtistCmds(cog.RegisteredCog):
         await send_reminder(author)
         await ctx.author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
 
-        vadb.Form
+
+        form_artist = vadb.disc.FormArtist()
+        form_artist.edit_with_all_sections(ctx, section_state = vadb.disc.SectionStates.default)
 
 
     # @disc_utils.command(
