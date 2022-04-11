@@ -46,12 +46,18 @@ class CogBasic(cog.RegisteredCog):
         await add_new_to_database()
 
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.basic_commands,
-        description = "Updates the database manually.",
-        aliases = ['ud'],
-        req_dev = True,
-        show_help = False
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryBasics,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "Updates the database manually.",
+            aliases = ["ud"],
+            perms = disc_utils.cmds.Permissions(
+                [disc_utils.cmds.GuildOwner]
+            ),
+            usability_info = disc_utils.cmds.UsabilityInfo(
+                visible_in_help = False
+            )
+        )
     )
     async def updatedatabase(self, ctx: nx_cmds.Context):
         """Updates the database."""
@@ -59,30 +65,37 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send("Database updated.")
 
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.basic_commands,
-        description = "Hello...?"
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryBasics,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "Hello...?"
+        )
     )
     async def hello(self, ctx: nx_cmds.Context):
         """well hello there how are u am dog"""
         await ctx.send("...what? I- hmm. Thanks for the... erm... hello... I guess?")
 
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.basic_commands,
-        description = "Ping...?"
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryBasics,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "PONG"
+        )
     )
     async def ping(self, ctx: nx_cmds.Context):
         """WHY WHY WOULD YOU DO THIS"""
         await ctx.send(f"Pong! <@{ctx.author.id}>")
 
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.bot_control,
-        description = "Cause an error...?",
-        guild_only = False,
-        req_dev = True,
-        show_help = False
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryBotControl,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "Causes an error!",
+            usability_info = disc_utils.cmds.UsabilityInfo(
+                visible_in_help = False,
+                guild_only = False
+            )
+        )
     )
     async def causeerror(self, ctx: nx_cmds.Context):
         """AAAAAAAAAAAAAAAAA"""

@@ -14,20 +14,27 @@ from ... import utils as cog
 class CogLogCmds(cog.RegisteredCog):
     """Contains commands for setting log locations."""
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.artist_management,
-        description = "Registers the channel to put the logs on.",
-        parameters = {
-            "[dump | live]": (
-                "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
-                "`Dump` log channels contain new artist requests and accepts / declines to those requests.\n"
-                "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryArtistManagement,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "Registers the channel to put the logs on.",
+            parameters = {
+                "[dump | live]": (
+                    "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
+                    "`Dump` log channels contain new artist requests and accepts / declines to those requests.\n"
+                    "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
+                ),
+                "channel mention": "The channel mention. Make sure it is highlighted blue for the bot to recognize it properly."
+            },
+            aliases = ["lls"],
+            perms = disc_utils.cmds.Permissions(
+                [disc_utils.cmds.GuildAdmin]
             ),
-            "channel mention": "The channel mention. Make sure it is highlighted blue for the bot to recognize it properly."
-        },
-        aliases = ["lls"],
-        req_guild_admin = True,
-        cooldown = 10, cooldown_type = nx_cmds.BucketType.guild
+            cooldown_info = disc_utils.CooldownInfo(
+                length = 10,
+                type_ = nx_cmds.BucketType.guild
+            )
+        )
     )
     async def loglocationset(self, ctx: nx_cmds.Context, log_type: str, channel_mention: str):
         """Sets the log location."""
@@ -56,19 +63,26 @@ class CogLogCmds(cog.RegisteredCog):
         await ctx.send(f"`{log_type.capitalize()}` log channel registered as {channel.mention}.")
 
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.artist_management,
-        description = "Unregisters the specified channel for logging.",
-        parameters = {
-            "[dump | live]": (
-                "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
-                "`Dump` log channels contain new artist requests and accepts / declines to those requests.\n"
-                "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryArtistManagement,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "Unregisters the channel to put the logs on.",
+            parameters = {
+                "[dump | live]": (
+                    "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
+                    "`Dump` log channels contain new artist requests and accepts / declines to those requests.\n"
+                    "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
+                )
+            },
+            aliases = ["llus"],
+            perms = disc_utils.cmds.Permissions(
+                [disc_utils.cmds.GuildAdmin]
+            ),
+            cooldown_info = disc_utils.CooldownInfo(
+                length = 10,
+                type_ = nx_cmds.BucketType.guild
             )
-        },
-        aliases = ["llus"],
-        req_guild_admin = True,
-        cooldown = 10, cooldown_type = nx_cmds.BucketType.guild
+        )
     )
     async def loglocationunset(self, ctx: nx_cmds.Context, log_type: str):
         """Unregisters the log channel."""

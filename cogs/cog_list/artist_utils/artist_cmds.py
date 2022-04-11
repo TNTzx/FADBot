@@ -14,11 +14,11 @@ from ... import utils as cog
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.artist_management,
-        description = "Requests an artist to be added to the database.",
-        aliases = ["ara"],
-        guild_only = False
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryArtistManagement,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "Creates an `add request`."
+        )
     )
     async def artistrequestadd(self, ctx: nx_cmds.Context):
         """Creates an add request."""
