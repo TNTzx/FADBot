@@ -26,6 +26,22 @@ class DiscordCommand():
         self.__class__.all_commands.append(self)
 
 
+    def get_shorthand(self):
+        """
+        Gets the shorthand name of this command.
+        `<name> (<alias, if any>)
+        """
+        if self.info.aliases is None:
+            return self.name
+
+        return f"{self.name} ({', '.join(self.info.aliases)})"
+
+
+    # TODO generate an embed of a discord command
+    def generate_embed(self):
+        """Generates an embed."""
+
+
     @classmethod
     def get_all_commands(cls):
         """Gets all commands."""

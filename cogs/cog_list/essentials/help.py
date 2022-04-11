@@ -36,28 +36,7 @@ class CogHelp(cog.RegisteredCog):
     async def help(self, ctx: nx_cmds.Context, command = None):
         """Used to display help on a command."""
         async def show_all():
-            embed = nx.Embed(
-                title = "Help!",
-                description = (
-                    f"**Command Prefix: `{global_vars.CMD_PREFIX}`**\n"
-                    "This bot was made possible by Nao's website. Go check it out! [**VADB link**](https://fadb.live/)\n"
-                    "This bot is created by //TNTz.\n\n"
-                    "Use `##help <command>` to view help for that command!"
-                ),
-                color = 0xFFAEAE
-            )
-            for category, names in disc_utils.ListOfCommands.commands_all.items():
-
-                name_list = []
-                for name in names:
-                    cmd = disc_utils.ListOfCommands.commands[name]
-                    if cmd.help.show_condition(ctx) and cmd.help.show_help:
-                        name_list.append(name)
-
-                name_form = f"`{'`, `'.join(name_list)}`"
-                embed.add_field(name = category, value = name_form, inline = False)
-            await ctx.send(embed = embed)
-
+            await ctx.send(embed = disc_utils.cmd_wrap.CmdCategory.generate_embed_all_categories())
 
         async def specific():
             async def send_not_exist():
