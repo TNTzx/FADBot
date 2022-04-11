@@ -31,9 +31,11 @@ class Name(f_s.RawTextSection):
             await ctx.author.send("No existing artist found! Proceeding...")
             return response
 
-        if searched_artists.artists[0].name == response:
-            await disc_utils.send_error(ctx, "An artist with that name already exists.", send_author = True)
-            raise f_exc.InvalidSectionResponse()
+
+        for searched_artist in searched_artists.artists:
+            if searched_artist.name == response:
+                await disc_utils.send_error(ctx, "An artist with that name already exists.", send_author = True)
+                raise f_exc.InvalidSectionResponse()
 
 
         embed = embeds.generate_embed_multiple(

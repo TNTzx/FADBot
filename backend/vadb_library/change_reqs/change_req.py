@@ -109,7 +109,12 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
         await self.send_request_pending_intercept()
 
-        await ctx.author.send("Sent request. Please wait for a PA moderator to approve your request.")
+        await ctx.author.send(
+            (
+                "Sent request. Please wait for a PA moderator to approve your request.\n"
+                f"Request ID: {self.request_id}"
+            )
+        )
 
         log_message = (
             f"Request ID [{self.request_id}]: "
