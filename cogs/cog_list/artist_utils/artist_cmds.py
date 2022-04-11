@@ -19,6 +19,7 @@ async def send_reminder(author: nx.User):
         )
     )
 
+
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
 
@@ -26,7 +27,10 @@ class CogArtistCmds(cog.RegisteredCog):
         category = disc_utils.cmd_wrap.CategoryArtistManagement,
         cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Creates an `add request`.",
-            aliases = ["ara"]
+            aliases = ["ara"],
+            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
+                guild_only = False
+            )
         )
     )
     async def artistrequestadd(self, ctx: nx_cmds.Context):
@@ -37,15 +41,15 @@ class CogArtistCmds(cog.RegisteredCog):
         author = ctx.author
 
         await send_reminder(author)
-        await ctx.author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
+        await author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
 
 
         form_artist = vadb.disc.FormArtist()
 
-        await ctx.send("Initiating request editing...")
+        await author.send("Initiating request editing...")
         await form_artist.edit_with_all_sections(ctx, section_state = vadb.disc.SectionStates.default)
 
-        await ctx.send("Editing current artist...")
+        await author.send("Editing current artist...")
         await form_artist.edit_loop(ctx)
 
         add_req = vadb.AddRequest(
