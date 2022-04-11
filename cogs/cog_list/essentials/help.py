@@ -16,13 +16,22 @@ from ... import utils as cog
 class CogHelp(cog.RegisteredCog):
     """Contains the help command."""
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.basic_commands,
-        description = "WHAT IN THE ACTUAL LIVING ARTIST DID YOU DO",
-        parameters = {"[command]": "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"},
-        aliases = ["h"],
-        guild_only = False,
-        cooldown = 1, cooldown_type = nx_cmds.BucketType.user
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryBasics,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "WHAT IN THE ACTUAL LIVING ARTIST DID YOU DO",
+            parameters = {
+                "[command]": "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"
+            },
+            aliases = ["h"],
+            cooldown_info = disc_utils.cmds.CooldownInfo(
+                length = 1,
+                type_ = nx_cmds.BucketType.user
+            ),
+            usability_info = disc_utils.cmds.UsabilityInfo(
+                guild_only = False
+            )
+        )
     )
     async def help(self, ctx: nx_cmds.Context, command = None):
         """Used to display help on a command."""

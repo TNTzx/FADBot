@@ -17,11 +17,20 @@ from ... import utils as cog
 class CogModeration(cog.RegisteredCog):
     """Contains controls for moderating stuff about the bot."""
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.moderation,
-        description = "Sets the admin for the server.",
-        parameters = {"id": "The ID of the role you want to add. If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."},
-        req_guild_owner = True
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryModeration,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "Sets the admin for the server.",
+            parameters = {
+                "id": (
+                    "The ID of the role you want to add. "
+                    "If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."
+                )
+            },
+            perms = disc_utils.cmds.Permissions(
+                [disc_utils.cmds.GuildOwner]
+            )
+        )
     )
     async def setadmin(self, ctx: nx_cmds.Context, role_id):
         """Sets the admin role of this server."""
@@ -38,16 +47,22 @@ class CogModeration(cog.RegisteredCog):
         await ctx.send("The admin role for this server has been set.")
 
 
-    @disc_utils.command(
-        category = disc_utils.CmdCategories.moderation,
-        description = "Bans or unbans a user from using the bot.",
-        parameters = {
-            "[\"ban\" / \"unban\"]": "`ban`s or `unban`s the user.",
-            "user id": "The ID of the user being `ban`ned or `unban`ned."
-        },
-        aliases = ["bb"],
-        req_pa_mod = True,
-        guild_only = False
+    @disc_utils.cmds.command_wrap(
+        category = disc_utils.cmds.CategoryModeration,
+        cmd_info = disc_utils.cmds.CmdInfo(
+            description = "Bans or unbans a user from using the bot.",
+            parameters = {
+                "[\"ban\" / \"unban\"]": "`ban`s or `unban`s the user.",
+                "user id": "The ID of the user being `ban`ned or `unban`ned."
+            },
+            aliases = ["bb"],
+            usability_info = disc_utils.cmds.UsabilityInfo(
+                guild_only = False
+            ),
+            perms = disc_utils.cmds.Permissions(
+                [disc_utils.cmds.PAMod]
+            )
+        )
     )
     async def botban(self, ctx: nx_cmds.Context, action: str, user_id: int):
         """Bans or unbans a person from using the bot."""
