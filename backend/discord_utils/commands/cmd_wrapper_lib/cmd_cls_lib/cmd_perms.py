@@ -11,6 +11,8 @@ import backend.firebase as firebase
 
 class Permission():
     """Represents a command permission level."""
+    name: str
+
     @classmethod
     def has_permission(cls, ctx: nx_cmds.Context):
         """Returns `True` if the permission has been met for the current `Context`."""
@@ -58,6 +60,8 @@ class Permissions():
 
 class NotBanned(Permission):
     """Requires the user to not be banned."""
+    name = "not banned"
+
     @classmethod
     def has_permission(cls, ctx: nx_cmds.Context):
         user_id = str(ctx.author.id)
@@ -78,6 +82,7 @@ class NotBanned(Permission):
 
 class Dev(Permission):
     """Requires the user to be a developer of the bot."""
+    name = "VADB developer"
     @classmethod
     def has_permission(cls, ctx: nx_cmds.Context):
         user_id = str(ctx.author.id)
@@ -95,6 +100,8 @@ class Dev(Permission):
 
 class PAMod(Permission):
     """Requires the user to be a PA moderator by role or by ID."""
+    name = "PA moderator"
+
     @classmethod
     def has_permission(cls, ctx: nx_cmds.Context):
         if Dev.has_permission(ctx):
@@ -127,6 +134,8 @@ class PAMod(Permission):
 
 class GuildOwner(Permission):
     """Requires the user to be the guild's owner."""
+    name = "server owner"
+
     @classmethod
     def has_permission(cls, ctx: nx_cmds.Context):
         return ctx.author.id == ctx.guild.owner.id
@@ -138,6 +147,8 @@ class GuildOwner(Permission):
 
 class GuildAdmin(Permission):
     """Requires the user to be a guild admin."""
+    name = "server admin"
+
     @classmethod
     def has_permission(cls, ctx: nx_cmds.Context):
         guild_id = str(ctx.guild.id)
