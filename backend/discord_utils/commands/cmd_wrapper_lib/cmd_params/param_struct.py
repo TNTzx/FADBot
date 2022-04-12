@@ -1,12 +1,21 @@
 """Contains the parent class for all parameter-related information."""
 
 
+import copy
+
+from . import prefixes
+
+
 class ParamStruct():
     """Parent class for all parameter structures."""
     def get_syntax(self) -> str:
         """Gets the formatted version of this `ParamStruct`."""
 
-    def get_syntax_help(self) -> str:
+    def get_syntax_arranged(self) -> str:
+        """Gets the syntax for arranged of this `ParamStruct`."""
+        return self.get_syntax()
+
+    def get_syntax_help(self, prefix: prefixes.Indent = prefixes.Indent()) -> str:
         """Gets the syntax help of this `ParamStruct`."""
 
 
@@ -17,8 +26,8 @@ class ParamUnit(ParamStruct):
         self.description = description
 
 
-    def get_syntax_help(self) -> str:
-        return f"{self.get_syntax()}: {self.description}"
+    def get_syntax_help(self, prefix: prefixes.Indent = prefixes.Indent()) -> str:
+        return f"{prefix.get_str()}{self.get_syntax()}: {self.description}"
 
 
 class ParamList(ParamStruct):
@@ -30,12 +39,20 @@ class ParamList(ParamStruct):
         self.params = params
         self.description = description
 
-    def get_syntax_help(self) -> str:
-        params_syntax_help = "\n".join([f"\t{param.get_syntax_help()}" for param in self.params])
+
+    def get_syntax_help(self, prefix: prefixes.Indent = prefixes.Indent()) -> str:
+        new_prefix = copy.deepcopy(prefix)
+        new_prefix.level += 1
+
+        params_syntax_help = "\n".join([f"{param.get_syntax_help(new_prefix)}" for param in self.params])
         return (
-            f"{self.get_syntax()}: {self.description}\n"
+            f"{prefix.get_str()}{self.get_syntax()}: {self.description}\n"
             f"{params_syntax_help}"
         )
+
+
+    def get_all_arrangements(self):
+        """Gets all arrangements for this `ParamList`."""
 
 
 class ParamNest(ParamList):
