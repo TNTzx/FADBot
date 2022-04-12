@@ -13,4 +13,4 @@ from .cmd_infos import \
 
 from .cmd_perms import \
     Permission, Permissions, \
-    NotBanned, Dev, PAMod, GuildAdmin, GuildOwner
+    PermNotBanned, PermDev, PermPAMod, PermGuildAdmin, PermGuildOwner

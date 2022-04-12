@@ -28,7 +28,7 @@ class CogLogCmds(cog.RegisteredCog):
             },
             aliases = ["lls"],
             perms = disc_utils.Permissions(
-                [disc_utils.GuildAdmin]
+                [disc_utils.PermGuildAdmin]
             ),
             cooldown_info = disc_utils.CooldownInfo(
                 length = 10,
@@ -76,7 +76,7 @@ class CogLogCmds(cog.RegisteredCog):
             },
             aliases = ["llus"],
             perms = disc_utils.Permissions(
-                [disc_utils.GuildAdmin]
+                [disc_utils.PermGuildAdmin]
             ),
             cooldown_info = disc_utils.CooldownInfo(
                 length = 10,

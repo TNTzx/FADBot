@@ -25,7 +25,7 @@ class CogBotControl(cog.RegisteredCog):
                 guild_only = False
             ),
             perms = disc_utils.Permissions(
-                [disc_utils.Dev]
+                [disc_utils.PermDev]
             )
         )
     )
@@ -48,7 +48,7 @@ class CogBotControl(cog.RegisteredCog):
                 guild_only = False
             ),
             perms = disc_utils.Permissions(
-                [disc_utils.Dev]
+                [disc_utils.PermDev]
             )
         )
     )

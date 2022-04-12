@@ -52,7 +52,7 @@ class CogBasic(cog.RegisteredCog):
             description = "Updates the database manually.",
             aliases = ["ud"],
             perms = disc_utils.Permissions(
-                [disc_utils.GuildOwner]
+                [disc_utils.PermGuildOwner]
             ),
             usability_info = disc_utils.UsabilityInfo(
                 visible_in_help = False

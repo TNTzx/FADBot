@@ -28,7 +28,7 @@ class CogModeration(cog.RegisteredCog):
                 )
             },
             perms = disc_utils.Permissions(
-                [disc_utils.GuildOwner]
+                [disc_utils.PermGuildOwner]
             )
         )
     )
@@ -60,7 +60,7 @@ class CogModeration(cog.RegisteredCog):
                 guild_only = False
             ),
             perms = disc_utils.Permissions(
-                [disc_utils.PAMod]
+                [disc_utils.PermPAMod]
             )
         )
     )

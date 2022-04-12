@@ -41,7 +41,7 @@ class Permissions():
             perms = []
 
         if enable_not_ban_perm:
-            perms = [NotBanned] + perms
+            perms = [PermNotBanned] + perms
 
         self.perms = perms
 
@@ -58,7 +58,7 @@ class Permissions():
         return (True,)
 
 
-class NotBanned(Permission):
+class PermNotBanned(Permission):
     """Requires the user to not be banned."""
     name = "not banned"
 
@@ -80,7 +80,7 @@ class NotBanned(Permission):
         )
 
 
-class Dev(Permission):
+class PermDev(Permission):
     """Requires the user to be a developer of the bot."""
     name = "VADB developer"
     @classmethod
@@ -98,13 +98,13 @@ class Dev(Permission):
         return "Only developers of this bot may do this command!"
 
 
-class PAMod(Permission):
+class PermPAMod(Permission):
     """Requires the user to be a PA moderator by role or by ID."""
     name = "PA moderator"
 
     @classmethod
     def has_permission(cls, ctx: nx_cmds.Context):
-        if Dev.has_permission(ctx):
+        if PermDev.has_permission(ctx):
             return True
 
         can_verify_users = firebase.get_data(
@@ -132,7 +132,7 @@ class PAMod(Permission):
         return "Only Project Arrhythmia moderators can do this command!"
 
 
-class GuildOwner(Permission):
+class PermGuildOwner(Permission):
     """Requires the user to be the guild's owner."""
     name = "server owner"
 
@@ -145,7 +145,7 @@ class GuildOwner(Permission):
         return "Only the server owner can do this command!"
 
 
-class GuildAdmin(Permission):
+class PermGuildAdmin(Permission):
     """Requires the user to be a guild admin."""
     name = "server admin"
 
