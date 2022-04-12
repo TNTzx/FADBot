@@ -31,7 +31,7 @@ class Params(prm_struct.ParamStruct):
 
     def _get_one_start_slice(self):
         """Gets `self.params[1:].`"""
-        return Params(self.params[1:])
+        return Params(*(self.params[1:]))
 
 
     def get_all_arrangements(self):
@@ -44,11 +44,7 @@ class Params(prm_struct.ParamStruct):
             for params_from_split in self.params[0].params_split:
                 for param_from_split in params_from_split.get_all_arrangements():
                     for next_param_comb in self._get_one_start_slice().get_all_arrangements():
-                        all_combs.append(
-                            Params(
-                                param_from_split + next_param_comb
-                            )
-                        )
+                        all_combs.append(param_from_split + next_param_comb)
         else:
             for next_param_comb in self._get_one_start_slice().get_all_arrangements():
                 all_combs.append(
@@ -56,6 +52,15 @@ class Params(prm_struct.ParamStruct):
                 )
 
         return all_combs
+
+
+    def has_splits(self):
+        """Returns `True` if a `ParamsSplit` is found in this `Params`."""
+        for param in self.params:
+            if isinstance(param, ParamsSplit):
+                return True
+
+        return False
 
 
 class ParamsSplit(prm_struct.ParamStruct):
