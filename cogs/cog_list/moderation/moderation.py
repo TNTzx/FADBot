@@ -21,7 +21,7 @@ class CogModeration(cog.RegisteredCog):
         category = disc_utils.cmd_wrap.CategoryModeration,
         cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Sets the admin for the server.",
-            parameters = {
+            params = {
                 "id": (
                     "The ID of the role you want to add. "
                     "If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."
@@ -51,7 +51,7 @@ class CogModeration(cog.RegisteredCog):
         category = disc_utils.cmd_wrap.CategoryModeration,
         cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Bans or unbans a user from using the bot.",
-            parameters = {
+            params = {
                 "[\"ban\" / \"unban\"]": "`ban`s or `unban`s the user.",
                 "user id": "The ID of the user being `ban`ned or `unban`ned."
             },

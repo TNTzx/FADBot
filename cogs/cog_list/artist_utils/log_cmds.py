@@ -18,7 +18,7 @@ class CogLogCmds(cog.RegisteredCog):
         category = disc_utils.cmd_wrap.CategoryArtistManagement,
         cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Registers the channel to put the logs on.",
-            parameters = {
+            params = {
                 "[dump | live]": (
                     "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
                     "`Dump` log channels contain new artist requests and accepts / declines to those requests.\n"
@@ -67,7 +67,7 @@ class CogLogCmds(cog.RegisteredCog):
         category = disc_utils.cmd_wrap.CategoryArtistManagement,
         cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "Unregisters the channel to put the logs on.",
-            parameters = {
+            params = {
                 "[dump | live]": (
                     "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
                     "`Dump` log channels contain new artist requests and accepts / declines to those requests.\n"

@@ -16,7 +16,7 @@ class CogHelp(cog.RegisteredCog):
         category = disc_utils.cmd_wrap.CategoryBasics,
         cmd_info = disc_utils.cmd_wrap.CmdInfo(
             description = "WHAT IN THE ACTUAL LIVING ARTIST DID YOU DO",
-            parameters = {
+            params = {
                 "[command]": "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"
             },
             aliases = ["h"],

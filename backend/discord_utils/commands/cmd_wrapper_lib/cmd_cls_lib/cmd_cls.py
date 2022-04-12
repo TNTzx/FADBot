@@ -66,7 +66,7 @@ class DiscordCommand():
 
         embed_utils.make_horizontal_rule(embed)
 
-        emb_syntax_list = "> <".join(self.info.parameters.keys())
+        emb_syntax_list = "> <".join(self.info.params.keys())
         emb_syntax_list = f" `<{emb_syntax_list}>`" if emb_syntax_list != "" else "_ _"
         embed.add_field(
             name = "Syntax:",
@@ -74,8 +74,8 @@ class DiscordCommand():
             inline = False
         )
 
-        if self.info.parameters is not None:
-            emb_params_list = "\n".join([f"`<{param}>`: {param_desc}" for param, param_desc in self.info.parameters.items()])
+        if self.info.params is not None:
+            emb_params_list = "\n".join([f"`<{param}>`: {param_desc}" for param, param_desc in self.info.params.items()])
             embed.add_field(
                 name = "Parameters:",
                 value = f"{emb_params_list}",
