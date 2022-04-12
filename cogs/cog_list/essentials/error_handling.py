@@ -71,7 +71,7 @@ class CogErrorHandler(cog.RegisteredCog):
                 lgr.log_discord_forbidden.warning(error_message)
                 return
 
-            if isinstance(exc.original, disc_utils.cmd_wrap.UsageReqNotMet):
+            if isinstance(exc.original, disc_utils.UsageReqNotMet):
                 return
 
 

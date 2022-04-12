@@ -4,21 +4,21 @@
 from . import param_struct
 
 
-class Param(param_struct.ParamStruct):
+class Param(param_struct.ParamUnit):
     """A parameter."""
     def __init__(self, name: str):
         self.name = name
 
     def __repr__(self) -> str:
-        return f"({self.get_formatted()})"
+        return f"({self.get_syntax()})"
 
 
 class ParamArgument(Param):
     """A parameter that takes in a value."""
-    def get_formatted(self) -> str:
+    def get_syntax(self) -> str:
         return f"<{self.name}>"
 
 class ParamLiteral(Param):
     """A parameter with a literal value. Usually takes in a string."""
-    def get_formatted(self) -> str:
+    def get_syntax(self) -> str:
         return f"\"{self.name}\""

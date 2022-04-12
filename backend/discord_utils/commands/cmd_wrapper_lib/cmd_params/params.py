@@ -7,7 +7,7 @@ from . import param_struct as prm_struct
 from . import param as prm
 
 
-class Params(prm_struct.ParamStruct):
+class Params(prm_struct.ParamList):
     """A list of parameters."""
     def __init__(self, *params_list: prm_struct.ParamStruct | prm.Param | ParamsSplit | list):
         self.params = params_list
@@ -24,8 +24,8 @@ class Params(prm_struct.ParamStruct):
         )
 
 
-    def get_formatted(self) -> str:
-        formatted = ", ".join([param.get_formatted() for param in self.params])
+    def get_syntax(self) -> str:
+        formatted = ", ".join([param.get_syntax() for param in self.params])
         return f"|{formatted}|"
 
 
@@ -63,7 +63,7 @@ class Params(prm_struct.ParamStruct):
         return False
 
 
-class ParamsSplit(prm_struct.ParamStruct):
+class ParamsSplit(prm_struct.ParamNest):
     """Denotes a split in the parameters."""
     def __init__(self, *params_split: prm_struct.ParamStruct | Params):
         self.params_split = params_split
@@ -72,6 +72,6 @@ class ParamsSplit(prm_struct.ParamStruct):
         return f"{self.__class__.__name__}({self.params_split})"
 
 
-    def get_formatted(self) -> str:
-        formatted = ", ".join([param.get_formatted() for param in self.params_split])
+    def get_syntax(self) -> str:
+        formatted = " | ".join([param.get_syntax() for param in self.params_split])
         return f"[{formatted}]"

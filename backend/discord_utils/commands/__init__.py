@@ -1,7 +1,7 @@
 """Command-related stuff."""
 
 
-from . import cmd_wrapper_lib as cmd_wrap
+from .cmd_wrapper_lib import *
 
 from .param_choice import choice_param, choice_param_cmd
 

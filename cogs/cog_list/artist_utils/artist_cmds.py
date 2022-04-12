@@ -23,12 +23,12 @@ async def send_reminder(author: nx.User):
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryArtistManagement,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryArtistManagement,
+        cmd_info = disc_utils.CmdInfo(
             description = "Creates an `add request`.",
             aliases = ["ara"],
-            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
+            usability_info = disc_utils.UsabilityInfo(
                 guild_only = False
             )
         )

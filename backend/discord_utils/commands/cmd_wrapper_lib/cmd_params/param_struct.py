@@ -3,5 +3,46 @@
 
 class ParamStruct():
     """Parent class for all parameter structures."""
-    def get_formatted(self) -> str:
+    def get_syntax(self) -> str:
         """Gets the formatted version of this `ParamStruct`."""
+
+    def get_syntax_help(self) -> str:
+        """Gets the syntax help of this `ParamStruct`."""
+
+
+class ParamUnit(ParamStruct):
+    """Parent class for all unit parameters, like `ParamLiteral`."""
+    def __init__(self, name: str, description: str):
+        self.name = name
+        self.description = description
+
+
+    def get_syntax_help(self) -> str:
+        return f"{self.get_syntax()}: {self.description}"
+
+
+class ParamList(ParamStruct):
+    """Parent class for all list parameters, like `Params`."""
+    def __init__(self, *params: ParamUnit, description: str = None):
+        if description is None:
+            raise ValueError("No description provided for this ParamList.")
+
+        self.params = params
+        self.description = description
+
+    def get_syntax_help(self) -> str:
+        params_syntax_help = "\n".join([f"\t{param.get_syntax_help()}" for param in self.params])
+        return (
+            f"{self.get_syntax()}: {self.description}\n"
+            f"{params_syntax_help}"
+        )
+
+
+class ParamNest(ParamList):
+    """Parent class for nesting parameters, like `ParamsSplit`."""
+    def __init__(self, *params: ParamList, description: str = None):
+        if description is None:
+            raise ValueError("No description provided for this ParamNest.")
+
+        self.params = params
+        self.description = description

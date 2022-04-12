@@ -14,9 +14,9 @@ from ... import utils as cog
 class CogLogCmds(cog.RegisteredCog):
     """Contains commands for setting log locations."""
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryArtistManagement,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryArtistManagement,
+        cmd_info = disc_utils.CmdInfo(
             description = "Registers the channel to put the logs on.",
             params = {
                 "[dump | live]": (
@@ -27,10 +27,10 @@ class CogLogCmds(cog.RegisteredCog):
                 "channel mention": "The channel mention. Make sure it is highlighted blue for the bot to recognize it properly."
             },
             aliases = ["lls"],
-            perms = disc_utils.cmd_wrap.Permissions(
-                [disc_utils.cmd_wrap.GuildAdmin]
+            perms = disc_utils.Permissions(
+                [disc_utils.GuildAdmin]
             ),
-            cooldown_info = disc_utils.cmd_wrap.CooldownInfo(
+            cooldown_info = disc_utils.CooldownInfo(
                 length = 10,
                 type_ = nx_cmds.BucketType.guild
             )
@@ -63,9 +63,9 @@ class CogLogCmds(cog.RegisteredCog):
         await ctx.send(f"`{log_type.capitalize()}` log channel registered as {channel.mention}.")
 
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryArtistManagement,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryArtistManagement,
+        cmd_info = disc_utils.CmdInfo(
             description = "Unregisters the channel to put the logs on.",
             params = {
                 "[dump | live]": (
@@ -75,10 +75,10 @@ class CogLogCmds(cog.RegisteredCog):
                 )
             },
             aliases = ["llus"],
-            perms = disc_utils.cmd_wrap.Permissions(
-                [disc_utils.cmd_wrap.GuildAdmin]
+            perms = disc_utils.Permissions(
+                [disc_utils.GuildAdmin]
             ),
-            cooldown_info = disc_utils.cmd_wrap.CooldownInfo(
+            cooldown_info = disc_utils.CooldownInfo(
                 length = 10,
                 type_ = nx_cmds.BucketType.guild
             )
