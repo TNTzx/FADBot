@@ -40,15 +40,24 @@ class Params(prm_struct.ParamList):
             return [Params(description = self.description)]
 
         all_combs = []
-        if isinstance(self.params[0], ParamsSplit):
-            for params_from_split in self.params[0].params:
+
+        first_param = self.params[0]
+        if isinstance(first_param, ParamsSplit):
+            for params_from_split in first_param.params:
                 for param_from_split in params_from_split.get_all_arrangements():
                     for next_param_comb in self._get_one_start_slice().get_all_arrangements():
                         all_combs.append(param_from_split + next_param_comb)
+        elif isinstance(first_param, prm.ParamOptional):
+            for next_param_comb in self._get_one_start_slice().get_all_arrangements():
+                for param_comb in [
+                            next_param_comb,
+                            Params(first_param.param_unit, description = self.description) + next_param_comb,
+                        ]:
+                    all_combs.append(param_comb)
         else:
             for next_param_comb in self._get_one_start_slice().get_all_arrangements():
                 all_combs.append(
-                    Params(self.params[0], description = self.description) + next_param_comb
+                    Params(first_param, description = self.description) + next_param_comb
                 )
 
         return all_combs
@@ -71,4 +80,4 @@ class ParamsSplit(prm_struct.ParamNest):
 
     def get_syntax(self) -> str:
         formatted = " | ".join([param.get_syntax() for param in self.params])
-        return f"< {formatted} >"
+        return f"<| {formatted} |>"

@@ -4,7 +4,8 @@
 from .param_struct import ParamStruct
 from .param import \
     Param, \
-        ParamArgument, ParamLiteral
+        ParamArgument, ParamLiteral, \
+        ParamOptional
 from .params import \
     Params, \
     ParamsSplit

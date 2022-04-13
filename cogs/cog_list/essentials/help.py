@@ -17,9 +17,11 @@ class CogHelp(cog.RegisteredCog):
         cmd_info = disc_utils.CmdInfo(
             description = "WHAT IN THE ACTUAL LIVING ARTIST DID YOU DO",
             params = disc_utils.Params(
-                disc_utils.ParamArgument(
-                    "[command]",
-                    description = "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"
+                disc_utils.ParamOptional(
+                    disc_utils.ParamArgument(
+                        "[command]",
+                        description = "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"
+                    )
                 )
             ),
             aliases = ["h"],
