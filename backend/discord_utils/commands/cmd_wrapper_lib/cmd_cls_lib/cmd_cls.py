@@ -79,21 +79,26 @@ class DiscordCommand():
         if self.info.params is None:
             embed.add_field(
                 name = "Syntax:",
-                value = self.get_full_name()
+                value = f"`{self.get_full_name()}`"
             )
         else:
             embed.add_field(
                 name = "Full Syntax:",
                 value = (
-                    f"{self.get_full_syntax()}"
-                    f"{self.info.params.get_syntax_help}"
+                    f"`{self.get_full_syntax()}`\n\n"
+                    f"`{self.info.params.get_syntax_help}`"
                 )
             )
 
             if self.info.params.has_splits():
                 embed.add_field(
                     name = "All usages:",
-                    value = "\n".join([param.get_syntax_arranged() for param in self.info.params.get_all_arrangements()])
+                    value = "\n".join(
+                        [
+                            param.get_syntax_arranged()
+                            for param in self.info.params.get_all_arrangements()
+                        ]
+                    )
                 )
 
         embed_utils.make_horizontal_rule(embed)
