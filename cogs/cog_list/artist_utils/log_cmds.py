@@ -18,14 +18,23 @@ class CogLogCmds(cog.RegisteredCog):
         category = disc_utils.CategoryArtistManagement,
         cmd_info = disc_utils.CmdInfo(
             description = "Registers the channel to put the logs on.",
-            params = {
-                "[dump | live]": (
-                    "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
-                    "`Dump` log channels contain new artist requests and accepts / declines to those requests.\n"
-                    "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
+            params = disc_utils.Params(
+                disc_utils.ParamsSplit(
+                    disc_utils.ParamLiteral(
+                        "dump",
+                        description = "Dump log channels contain new artist requests and accepts / declines to those requests."
+                    ),
+                    disc_utils.ParamLiteral(
+                        "live",
+                        description = "Live log channels are like dump log channels, but requests will be deleted once it is accepted or declined."
+                    ),
+                    description = "Chooses whether or not the log to be put in is the dump or live log."
                 ),
-                "channel mention": "The channel mention. Make sure it is highlighted blue for the bot to recognize it properly."
-            },
+                disc_utils.ParamArgument(
+                    "channel mention",
+                    description = "The channel mention. Make sure it is highlighted blue for the bot to recognize it properly."
+                )
+            ),
             aliases = ["lls"],
             perms = disc_utils.Permissions(
                 [disc_utils.PermGuildAdmin]
@@ -67,13 +76,19 @@ class CogLogCmds(cog.RegisteredCog):
         category = disc_utils.CategoryArtistManagement,
         cmd_info = disc_utils.CmdInfo(
             description = "Unregisters the channel to put the logs on.",
-            params = {
-                "[dump | live]": (
-                    "Chooses whether or not the log to be put in is the `dump` or `live` log.\n"
-                    "`Dump` log channels contain new artist requests and accepts / declines to those requests.\n"
-                    "`Live` log channels are like `dump` log channels, but requests will be deleted once it is accepted or declined."
+            params = disc_utils.Params(
+                disc_utils.ParamsSplit(
+                    disc_utils.ParamLiteral(
+                        "dump",
+                        description = "Dump log channels contain new artist requests and accepts / declines to those requests."
+                    ),
+                    disc_utils.ParamLiteral(
+                        "live",
+                        description = "Live log channels are like dump log channels, but requests will be deleted once it is accepted or declined."
+                    ),
+                    description = "Chooses whether or not the log to be put in is the dump or live log."
                 )
-            },
+            ),
             aliases = ["llus"],
             perms = disc_utils.Permissions(
                 [disc_utils.PermGuildAdmin]

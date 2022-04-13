@@ -14,6 +14,7 @@ import backend.other as ot
 from ... import utils as cog
 
 
+# TODO modify params
 class CogModeration(cog.RegisteredCog):
     """Contains controls for moderating stuff about the bot."""
 

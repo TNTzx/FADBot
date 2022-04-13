@@ -22,3 +22,9 @@ class ParamLiteral(Param):
 
     def get_syntax_arranged(self) -> str:
         return self.name
+
+
+class ParamOptional(param_struct.ParamWrapper):
+    """An optional parameter."""
+    def get_syntax(self) -> str:
+        return f"[{self.param_unit.get_syntax()}]"

@@ -71,4 +71,4 @@ class ParamsSplit(prm_struct.ParamNest):
 
     def get_syntax(self) -> str:
         formatted = " | ".join([param.get_syntax() for param in self.params])
-        return f"[ {formatted} ]"
+        return f"< {formatted} >"

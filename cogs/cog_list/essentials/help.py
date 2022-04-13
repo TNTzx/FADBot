@@ -16,9 +16,12 @@ class CogHelp(cog.RegisteredCog):
         category = disc_utils.CategoryBasics,
         cmd_info = disc_utils.CmdInfo(
             description = "WHAT IN THE ACTUAL LIVING ARTIST DID YOU DO",
-            params = {
-                "[command]": "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"
-            },
+            params = disc_utils.Params(
+                disc_utils.ParamArgument(
+                    "[command]",
+                    description = "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"
+                )
+            ),
             aliases = ["h"],
             cooldown_info = disc_utils.CooldownInfo(
                 length = 1,

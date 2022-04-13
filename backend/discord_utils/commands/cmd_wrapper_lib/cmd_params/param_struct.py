@@ -32,6 +32,12 @@ class ParamUnit(ParamStruct):
         return f"{prefix.get_str()}{self.get_syntax()}: {self.description}"
 
 
+class ParamWrapper(ParamStruct):
+    """Parent class that wraps around a `ParamUnit`, like `ParamOptional`."""
+    def __init__(self, param_unit: ParamUnit):
+        self.param_unit = param_unit
+
+
 class ParamList(ParamStruct):
     """Parent class for all list parameters, like `Params`."""
     def __init__(self, *params: ParamUnit | ParamList, description: str = None):
