@@ -14,7 +14,6 @@ import backend.other as ot
 from ... import utils as cog
 
 
-# TODO modify params
 class CogModeration(cog.RegisteredCog):
     """Contains controls for moderating stuff about the bot."""
 
@@ -22,12 +21,15 @@ class CogModeration(cog.RegisteredCog):
         category = disc_utils.CategoryModeration,
         cmd_info = disc_utils.CmdInfo(
             description = "Sets the admin for the server.",
-            params = {
-                "id": (
-                    "The ID of the role you want to add. "
-                    "If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."
+            params = disc_utils.Params(
+                disc_utils.ParamArgument(
+                    "role id",
+                    description = (
+                        "The ID of the role you want to add."
+                        "If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."
+                    )
                 )
-            },
+            ),
             perms = disc_utils.Permissions(
                 [disc_utils.PermGuildOwner]
             )
@@ -52,10 +54,23 @@ class CogModeration(cog.RegisteredCog):
         category = disc_utils.CategoryModeration,
         cmd_info = disc_utils.CmdInfo(
             description = "Bans or unbans a user from using the bot.",
-            params = {
-                "[\"ban\" / \"unban\"]": "`ban`s or `unban`s the user.",
-                "user id": "The ID of the user being `ban`ned or `unban`ned."
-            },
+            params = disc_utils.Params(
+                disc_utils.ParamsSplit(
+                    disc_utils.ParamLiteral(
+                        "ban",
+                        description = "Denotes banning the user."
+                    ),
+                    disc_utils.ParamLiteral(
+                        "unban",
+                        description = "Denotes unbanning the user."
+                    ),
+                    description = "Bans or unbans the user."
+                ),
+                disc_utils.ParamArgument(
+                    "user id",
+                    description = "The ID of the user being banned or unbanned."
+                )
+            ),
             aliases = ["bb"],
             usability_info = disc_utils.UsabilityInfo(
                 guild_only = False
