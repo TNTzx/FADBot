@@ -6,7 +6,7 @@ from . import prefixes
 
 def wrap_text(
         text: str,
-        max_length = 5,
+        max_length = 35,
         break_char: str = " ", separate_char: str = "\n",
         subseq_indent: prefixes.Indent = prefixes.Indent()
         ):
@@ -18,7 +18,7 @@ def wrap_text(
         text_subset = text_part[:max_length]
 
         if break_char in text_subset:
-            target_char_idx = text_subset.find(break_char)
+            target_char_idx = text_subset.rfind(break_char)
             target_char_idxs = (target_char_idx, target_char_idx + 1)
         else:
             target_char_idxs = (max_length, max_length)

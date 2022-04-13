@@ -1,6 +1,9 @@
 """Contains a class for prefix manipulation."""
 
 
+from __future__ import annotations
+
+
 class Indent():
     """A class for logic on prefixes."""
     def __init__(self, indent_char = "├─── ", indent_level = 0):
@@ -9,6 +12,7 @@ class Indent():
 
     def __str__(self):
         return self.get_str()
+
 
     def get_str(self):
         """Gets the string representation of this `PrefixStr`."""

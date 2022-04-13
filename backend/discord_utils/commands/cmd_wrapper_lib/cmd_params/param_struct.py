@@ -10,6 +10,10 @@ import backend.other as ot
 
 class ParamStruct():
     """Parent class for all parameter structures."""
+    def __init__(self, description: str = None):
+        self.description = description
+
+
     def get_syntax(self) -> str:
         """Gets the formatted version of this `ParamStruct`."""
 
@@ -19,31 +23,41 @@ class ParamStruct():
 
     def get_syntax_help(self, prefix: ot.Indent = ot.Indent()) -> str:
         """Gets the syntax help of this `ParamStruct`."""
-        return f"{prefix.get_str()}{self.get_syntax()}"
+        return self.get_formatted_name_desc(prefix)
+
+
+    def get_formatted_name_desc(self, prefix: ot.Indent = ot.Indent()):
+        """Gets the formatted name and description. Usually used for `get_syntax_help`."""
+        name = f"{prefix.get_str()}{self.get_syntax()}: "
+        desc_str = ot.wrap_text(
+            self.description,
+            subseq_indent = ot.Indent(
+                indent_char = (' ' * len(name)),
+                indent_level = 1
+            )
+        ) if self.description is not None else ""
+        return f"{name}{desc_str}"
 
 
 class ParamUnit(ParamStruct):
     """Parent class for all unit parameters, like `ParamLiteral`."""
     def __init__(self, name: str, *, description: str):
+        super().__init__(description)
         self.name = name
-        self.description = description
-
-
-    def get_syntax_help(self, prefix: ot.Indent = ot.Indent()) -> str:
-        return f"{prefix.get_str()}{self.get_syntax()}: {self.description}"
 
 
 class ParamUnitWrapper(ParamStruct):
     """Parent class that wraps around a `ParamUnit`, like `ParamOptional`."""
-    def __init__(self, param_unit: ParamUnit):
+    def __init__(self, param_unit: ParamUnit, *, description: str = None):
+        super().__init__(description)
         self.param_unit = param_unit
 
 
 class ParamList(ParamStruct):
     """Parent class for all list parameters, like `Params`."""
     def __init__(self, *params: ParamUnit | ParamList, description: str = None):
+        super().__init__(description)
         self.params = params
-        self.description = description
 
 
     def get_syntax_help(self, prefix: ot.Indent = ot.Indent()) -> str:
@@ -63,7 +77,7 @@ class ParamList(ParamStruct):
         params_syntax_help = "\n".join(params_syntax_help)
 
         return (
-            f"{prefix.get_str()}{self.get_syntax()}: {self.description if self.description is not None else ''}\n"
+            f"{self.get_formatted_name_desc(prefix)}\n"
             f"{params_syntax_help}"
         )
 
@@ -78,9 +92,10 @@ class ParamNest(ParamList):
         if description is None:
             raise ValueError("No description provided for this ParamNest.")
 
+        super().__init__(description)
+
         for param in params:
             if not issubclass(param.__class__, ParamList):
                 raise ValueError(f"Param {param} not a ParamList.")
 
         self.params = params
-        self.description = description
