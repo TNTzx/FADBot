@@ -37,6 +37,9 @@ class CogLogCmds(cog.RegisteredCog):
                 disc_utils.ParamArgument(
                     "channel mention",
                     description = "The channel mention. Make sure it is highlighted blue for the bot to recognize it properly."
+                ),
+                disc_utils.ParamOptional(
+                    disc_utils.ParamArgument("your mom", description = "Input your mom here or else you will q")
                 )
             ),
             aliases = ["lls"],
@@ -95,7 +98,7 @@ class CogLogCmds(cog.RegisteredCog):
                         )
                     ),
                     description = "Chooses whether or not the log to be put in is the dump or live log."
-                )
+                ),
             ),
             aliases = ["llus"],
             perms = disc_utils.Permissions(

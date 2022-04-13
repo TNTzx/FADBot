@@ -38,4 +38,4 @@ class ParamOptional(param_struct.ParamUnitWrapper):
 
     def get_syntax_help(self, prefix: ot.Indent = ot.Indent()) -> str:
         old_syntax = super().get_syntax_help(prefix)
-        return f"{old_syntax}: (optional) {self.param_unit.description}"
+        return f"{old_syntax}(optional) {self.param_unit.description}"
