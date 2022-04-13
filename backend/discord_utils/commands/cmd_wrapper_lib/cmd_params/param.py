@@ -2,6 +2,7 @@
 
 
 from . import param_struct
+from . import prefixes
 
 
 class Param(param_struct.ParamUnit):
@@ -24,7 +25,16 @@ class ParamLiteral(Param):
         return self.name
 
 
-class ParamOptional(param_struct.ParamWrapper):
+class ParamOptional(param_struct.ParamUnitWrapper):
     """An optional parameter."""
     def get_syntax(self) -> str:
         return f"[{self.param_unit.get_syntax()}]"
+
+
+    def get_syntax_arranged(self) -> str:
+        return f"[{self.param_unit.get_syntax_arranged()}]"
+
+
+    def get_syntax_help(self, prefix: prefixes.Indent = prefixes.Indent()) -> str:
+        old_syntax = super().get_syntax_help(prefix)
+        return f"{old_syntax}: (optional) {self.param_unit.description}"

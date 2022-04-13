@@ -26,7 +26,10 @@ class Params(prm_struct.ParamList):
         return " ".join([param.get_syntax() for param in self.params])
 
     def get_syntax_arranged(self) -> str:
-        return " ".join([param.get_syntax_arranged() for param in self.params])
+        param_syntax_arranged = []
+        for param in self.params:
+            param_syntax_arranged.append(param.get_syntax_arranged())
+        return " ".join(param_syntax_arranged)
 
 
     def _get_one_start_slice(self):

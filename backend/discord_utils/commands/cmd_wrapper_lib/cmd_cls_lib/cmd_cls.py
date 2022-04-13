@@ -97,7 +97,7 @@ class DiscordCommand():
                     name = "All usages:",
                     value = "\n".join(
                         [
-                            f"`{self.get_full_syntax} {param.get_syntax_arranged()}`"
+                            f"`{self.get_full_syntax()} {param.get_syntax_arranged()}`"
                             for param in self.info.params.get_all_arrangements()
                         ]
                     ),

@@ -19,7 +19,7 @@ class CogHelp(cog.RegisteredCog):
             params = disc_utils.Params(
                 disc_utils.ParamOptional(
                     disc_utils.ParamArgument(
-                        "[command]",
+                        "command",
                         description = "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"
                     )
                 )
