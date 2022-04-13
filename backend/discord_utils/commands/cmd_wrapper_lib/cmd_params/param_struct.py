@@ -56,7 +56,7 @@ class ParamList(ParamStruct):
         params_syntax_help = "\n".join(params_syntax_help)
 
         return (
-            f"{prefix.get_str()}{self.get_syntax()}: {self.description}\n"
+            f"{prefix.get_str()}{self.get_syntax()}: {self.description if self.description is not None else ''}\n"
             f"{params_syntax_help}"
         )
 

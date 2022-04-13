@@ -7,7 +7,7 @@ from .cmd_categories import \
     CmdCategory, \
         CategoryArtistManagement, CategoryBasics, CategoryBotControl, CategoryModeration
 
-from .cmd_infos import \
+from .cmd_exts import \
     CmdInfo, \
         CooldownInfo, UsabilityInfo
 

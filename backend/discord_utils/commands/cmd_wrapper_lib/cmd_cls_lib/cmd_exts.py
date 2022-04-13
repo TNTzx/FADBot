@@ -5,6 +5,8 @@ import typing as typ
 
 import nextcord.ext.commands as nx_cmds
 
+import global_vars
+
 from .. import cmd_params
 from . import cmd_perms
 
