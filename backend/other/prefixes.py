@@ -6,7 +6,7 @@ from __future__ import annotations
 
 class Indent():
     """A class for logic on prefixes."""
-    def __init__(self, indent_char = "├─── ", indent_level = 0):
+    def __init__(self, indent_char = "--  ", indent_level = 0):
         self.char = indent_char
         self.level = indent_level
 

@@ -89,10 +89,10 @@ class ParamList(ParamStruct):
 class ParamNest(ParamList):
     """Parent class for nesting parameters, like `ParamsSplit`."""
     def __init__(self, *params: ParamList, description: str = None):
+        super().__init__(*params, description = description)
+
         if description is None:
             raise ValueError("No description provided for this ParamNest.")
-
-        super().__init__(description)
 
         for param in params:
             if not issubclass(param.__class__, ParamList):
