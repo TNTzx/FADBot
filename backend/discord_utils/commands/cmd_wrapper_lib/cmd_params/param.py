@@ -1,8 +1,9 @@
 """Contains information about a parameter."""
 
 
+import backend.other as ot
+
 from . import param_struct
-from . import prefixes
 
 
 class Param(param_struct.ParamUnit):
@@ -35,6 +36,6 @@ class ParamOptional(param_struct.ParamUnitWrapper):
         return f"[{self.param_unit.get_syntax_arranged()}]"
 
 
-    def get_syntax_help(self, prefix: prefixes.Indent = prefixes.Indent()) -> str:
+    def get_syntax_help(self, prefix: ot.Indent = ot.Indent()) -> str:
         old_syntax = super().get_syntax_help(prefix)
         return f"{old_syntax}: (optional) {self.param_unit.description}"

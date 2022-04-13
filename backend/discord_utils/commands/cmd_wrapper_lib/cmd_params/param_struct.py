@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import copy
 
-from . import prefixes
+import backend.other as ot
 
 
 class ParamStruct():
@@ -17,7 +17,7 @@ class ParamStruct():
         """Gets the syntax for arranged of this `ParamStruct`."""
         return self.get_syntax()
 
-    def get_syntax_help(self, prefix: prefixes.Indent = prefixes.Indent()) -> str:
+    def get_syntax_help(self, prefix: ot.Indent = ot.Indent()) -> str:
         """Gets the syntax help of this `ParamStruct`."""
         return f"{prefix.get_str()}{self.get_syntax()}"
 
@@ -29,7 +29,7 @@ class ParamUnit(ParamStruct):
         self.description = description
 
 
-    def get_syntax_help(self, prefix: prefixes.Indent = prefixes.Indent()) -> str:
+    def get_syntax_help(self, prefix: ot.Indent = ot.Indent()) -> str:
         return f"{prefix.get_str()}{self.get_syntax()}: {self.description}"
 
 
@@ -46,7 +46,7 @@ class ParamList(ParamStruct):
         self.description = description
 
 
-    def get_syntax_help(self, prefix: prefixes.Indent = prefixes.Indent()) -> str:
+    def get_syntax_help(self, prefix: ot.Indent = ot.Indent()) -> str:
         new_prefix = copy.deepcopy(prefix)
         new_prefix.level += 1
 

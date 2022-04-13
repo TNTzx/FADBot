@@ -83,11 +83,15 @@ class DiscordCommand():
                 inline = False
             )
         else:
+            emb_syntax_help = self.info.params.get_syntax_help()
+            emb_syntax_help = emb_syntax_help.split("\n")
+            emb_syntax_help = "\n".join(emb_syntax_help[1:])
             embed.add_field(
                 name = "Full Syntax:",
                 value = (
                     f"`{self.get_full_syntax()}`\n\n"
-                    f"`{self.info.params.get_syntax_help()}`"
+                    f"__Parameter descriptions:__\n"
+                    f"`{emb_syntax_help}`"
                 ),
                 inline = False
             )
@@ -97,7 +101,7 @@ class DiscordCommand():
                     name = "All usages:",
                     value = "\n".join(
                         [
-                            f"`{self.get_full_syntax()} {param.get_syntax_arranged()}`"
+                            f"`{self.get_full_name()} {param.get_syntax_arranged()}`"
                             for param in self.info.params.get_all_arrangements()
                         ]
                     ),
