@@ -1,14 +1,14 @@
 """Contains a function for wrapping text."""
 
 
-import backend.discord_utils as disc_utils
+from . import prefixes
 
 
 def wrap_text(
         text: str,
         max_length = 5,
         break_char: str = " ", separate_char: str = "\n",
-        subseq_indent: disc_utils.Indent = disc_utils.Indent()
+        subseq_indent: prefixes.Indent = prefixes.Indent()
         ):
     """Wraps the text with a maximum char length."""
     def get_broken_parts(text_part: str):
