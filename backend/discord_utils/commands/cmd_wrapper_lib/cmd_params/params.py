@@ -23,12 +23,10 @@ class Params(prm_struct.ParamList):
 
 
     def get_syntax(self) -> str:
-        formatted = " ".join([param.get_syntax() for param in self.params])
-        return f"({formatted})"
+        return " ".join([param.get_syntax() for param in self.params])
 
     def get_syntax_arranged(self) -> str:
-        formatted = " ".join([param.get_syntax_arranged() for param in self.params])
-        return f"({formatted})"
+        return " ".join([param.get_syntax_arranged() for param in self.params])
 
 
     def _get_one_start_slice(self):
@@ -73,4 +71,4 @@ class ParamsSplit(prm_struct.ParamNest):
 
     def get_syntax(self) -> str:
         formatted = " | ".join([param.get_syntax() for param in self.params])
-        return f"[{formatted}]"
+        return f"[ {formatted} ]"

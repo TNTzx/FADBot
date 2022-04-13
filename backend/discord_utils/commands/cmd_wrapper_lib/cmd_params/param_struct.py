@@ -1,6 +1,8 @@
 """Contains the parent class for all parameter-related information."""
 
 
+from __future__ import annotations
+
 import copy
 
 from . import prefixes
@@ -21,7 +23,7 @@ class ParamStruct():
 
 class ParamUnit(ParamStruct):
     """Parent class for all unit parameters, like `ParamLiteral`."""
-    def __init__(self, name: str, description: str):
+    def __init__(self, name: str, *, description: str):
         self.name = name
         self.description = description
 
@@ -32,10 +34,7 @@ class ParamUnit(ParamStruct):
 
 class ParamList(ParamStruct):
     """Parent class for all list parameters, like `Params`."""
-    def __init__(self, *params: ParamUnit, description: str = None):
-        if description is None:
-            raise ValueError("No description provided for this ParamList.")
-
+    def __init__(self, *params: ParamUnit | ParamList, description: str = None):
         self.params = params
         self.description = description
 
@@ -44,7 +43,18 @@ class ParamList(ParamStruct):
         new_prefix = copy.deepcopy(prefix)
         new_prefix.level += 1
 
-        params_syntax_help = "\n".join([f"{param.get_syntax_help(new_prefix)}" for param in self.params])
+
+        params_syntax_help = []
+        for param in self.params:
+            if issubclass(param.__class__, ParamList):
+                if len(param.params) == 1:
+                    params_syntax_help.append(param.params[0].get_syntax_help(new_prefix))
+                    continue
+
+            params_syntax_help.append(param.get_syntax_help(new_prefix))
+
+        params_syntax_help = "\n".join(params_syntax_help)
+
         return (
             f"{prefix.get_str()}{self.get_syntax()}: {self.description}\n"
             f"{params_syntax_help}"
