@@ -20,13 +20,17 @@ class CogLogCmds(cog.RegisteredCog):
             description = "Registers the channel to put the logs on.",
             params = disc_utils.Params(
                 disc_utils.ParamsSplit(
-                    disc_utils.ParamLiteral(
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
                         "dump",
                         description = "Dump log channels contain new artist requests and accepts / declines to those requests."
+                        )
                     ),
-                    disc_utils.ParamLiteral(
-                        "live",
-                        description = "Live log channels are like dump log channels, but requests will be deleted once it is accepted or declined."
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
+                            "live",
+                            description = "Live log channels are like dump log channels, but requests will be deleted once it is accepted or declined."
+                        )
                     ),
                     description = "Chooses whether or not the log to be put in is the dump or live log."
                 ),
@@ -78,13 +82,17 @@ class CogLogCmds(cog.RegisteredCog):
             description = "Unregisters the channel to put the logs on.",
             params = disc_utils.Params(
                 disc_utils.ParamsSplit(
-                    disc_utils.ParamLiteral(
-                        "dump",
-                        description = "Dump log channels contain new artist requests and accepts / declines to those requests."
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
+                            "dump",
+                            description = "Dump log channels contain new artist requests and accepts / declines to those requests."
+                        )
                     ),
-                    disc_utils.ParamLiteral(
-                        "live",
-                        description = "Live log channels are like dump log channels, but requests will be deleted once it is accepted or declined."
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
+                            "live",
+                            description = "Live log channels are like dump log channels, but requests will be deleted once it is accepted or declined."
+                        )
                     ),
                     description = "Chooses whether or not the log to be put in is the dump or live log."
                 )

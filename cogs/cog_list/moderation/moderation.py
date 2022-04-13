@@ -56,13 +56,17 @@ class CogModeration(cog.RegisteredCog):
             description = "Bans or unbans a user from using the bot.",
             params = disc_utils.Params(
                 disc_utils.ParamsSplit(
-                    disc_utils.ParamLiteral(
-                        "ban",
-                        description = "Denotes banning the user."
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
+                            "ban",
+                            description = "Denotes banning the user."
+                        )
                     ),
-                    disc_utils.ParamLiteral(
-                        "unban",
-                        description = "Denotes unbanning the user."
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
+                            "unban",
+                            description = "Denotes unbanning the user."
+                        )
                     ),
                     description = "Bans or unbans the user."
                 ),

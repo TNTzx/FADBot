@@ -86,7 +86,7 @@ class DiscordCommand():
                 name = "Full Syntax:",
                 value = (
                     f"`{self.get_full_syntax()}`\n\n"
-                    f"`{self.info.params.get_syntax_help}`"
+                    f"`{self.info.params.get_syntax_help()}`"
                 )
             )
 

@@ -77,5 +77,9 @@ class ParamNest(ParamList):
         if description is None:
             raise ValueError("No description provided for this ParamNest.")
 
+        for param in params:
+            if not issubclass(param.__class__, ParamList):
+                raise ValueError(f"Param {param} not a ParamList.")
+
         self.params = params
         self.description = description
