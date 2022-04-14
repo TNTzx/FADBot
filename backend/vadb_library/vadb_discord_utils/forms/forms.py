@@ -9,7 +9,7 @@ import backend.discord_utils as disc_utils
 import backend.other as ot
 import global_vars
 
-from ... import artists as art
+from ... import artist_lib as art
 from .. import artist_info_bundle as bundle
 from . import form_exc as f_exc
 from . import form_section_lib as f_s

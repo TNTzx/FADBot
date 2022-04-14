@@ -9,7 +9,7 @@ import nextcord.ext.commands as nx_cmds
 import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
 
-from .... import artists as a_s
+from .... import artist_lib as a_s
 from .... import excepts
 from ... import embeds
 from .. import form_exc as f_exc

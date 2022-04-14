@@ -15,7 +15,7 @@ import backend.discord_utils as disc_utils
 import backend.exc_utils as exc_utils
 import backend.other as ot
 
-from .... import artists as a_s
+from .... import artist_lib as a_s
 from .. import form_exc as f_exc
 from . import section_states as states
 

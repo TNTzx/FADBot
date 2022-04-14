@@ -10,11 +10,6 @@ from . import artist
 
 class ArtistQuery():
     """Artist query."""
-    def __init__(self, artists: list[artist.Artist] = None):
-        if len(artists) == 0:
-            self.artists = None
-        else:
-            self.artists = artists
 
 
     @classmethod

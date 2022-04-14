@@ -7,7 +7,7 @@ import nextcord.ext.commands as nx_cmds
 import backend.firebase as firebase
 import backend.discord_utils as disc_utils
 
-from .. import artists as art
+from .. import artist_lib as art
 from . import embeds
 
 

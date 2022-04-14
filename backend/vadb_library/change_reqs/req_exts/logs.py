@@ -11,7 +11,7 @@ import global_vars
 import backend.firebase as firebase
 
 from ... import vadb_discord_utils as disc_utils
-from ... import artists as art
+from ... import artist_lib as art
 from .. import req_exc
 from .. import req_struct
 from . import approve_status
