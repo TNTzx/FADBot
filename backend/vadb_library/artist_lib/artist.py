@@ -289,7 +289,7 @@ class Artist(artist_struct.ArtistStruct):
         pattern = re.compile(".*".join(search_term), flags = re.IGNORECASE)
 
         aliases = self.details.aliases.aliases if self.details.aliases.aliases is not None else []
-        full_name_list = [self.name] + aliases
+        full_name_list = [self.name] + [alias.name for alias in aliases]
 
         for item in full_name_list:
             if bool(pattern.search(item)):
