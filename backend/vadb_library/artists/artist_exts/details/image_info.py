@@ -10,6 +10,9 @@ from .... import api
 from ... import artist_struct
 
 
+# DEBUG add check for if image has been deleted
+
+
 class Image(artist_struct.ArtistStruct):
     """Defines an image for uploading to VADB."""
     name: str = "image.png"

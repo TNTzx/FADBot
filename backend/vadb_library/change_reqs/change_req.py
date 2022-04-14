@@ -76,10 +76,10 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         """Gets the `ChangeRequest` from id."""
         all_reqs = firebase.get_data(cls.firebase_get_path(), default = {})
 
-        all_req_ids = [int(req_id) for req_id in all_reqs.keys()]
-        if request_id in all_req_ids:
-            return cls.firebase_from_json(all_reqs[request_id])
-        
+        request_id_str = str(request_id)
+        if request_id_str in all_reqs:
+            return cls.firebase_from_json(all_reqs[request_id_str])
+
         raise req_exc.ChangeReqNotFound(f"{cls.firebase_name.capitalize()} request ID {request_id} not found.")
 
 
