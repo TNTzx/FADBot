@@ -61,15 +61,25 @@ class CogArtistCmds(cog.RegisteredCog):
 
 
     # REWRITE rewrite ##artistrequestedit
-    # @disc_utils.command(
-    #     category = disc_utils.CmdCategories.artist_management,
-    #     description = "Requests an artist to be edited in the database.",
-    #     parameters = {
-    #         "id": "Artist ID to edit."
-    #     },
-    #     aliases = ["are"],
-    #     guild_only = False
-    # )
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryArtistManagement,
+        cmd_info = disc_utils.CmdInfo(
+            description = "Requests an artist to be edited in the database.",
+            params = disc_utils.Params(
+                disc_utils.ParamArgument(
+                    "artist id",
+                    description = "The artist's ID to edit."
+                )
+            ),
+            aliases = ["are"],
+            usability_info = disc_utils.UsabilityInfo(
+                guild_only = False
+            )
+        )
+    )
+    async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int):
+        """Requests an artist to be edited in the database."""
+
     # @i_u.sustained_command()
     # async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int, *skips):
     #     if firebase.is_data_exists(["artistData", "editing", "data", str(artist_id)]):

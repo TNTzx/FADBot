@@ -72,16 +72,30 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
 
     @classmethod
+    def firebase_from_id(cls, request_id: int):
+        """Gets the `ChangeRequest` from id."""
+        all_reqs = firebase.get_data(cls.firebase_get_path(), default = {})
+
+        all_req_ids = [int(req_id) for req_id in all_reqs.keys()]
+        if request_id in all_req_ids:
+            return cls.firebase_from_json(all_reqs[request_id])
+        
+        raise req_exc.ChangeReqNotFound(f"{cls.firebase_name.capitalize()} request ID {request_id} not found.")
+
+
+    @classmethod
     def firebase_get_path(cls):
         """Gets the path to the storage of this `ChangeRequest` in Firebase."""
         return firebase.ShortEndpoint.artist_change_reqs.get_path() + [cls.firebase_name]
 
 
     def register_request_id(self):
-        """Registers this request with an ID. Sets the `request_id` attribute."""
+        """Registers this request with an ID. Sets the `request_id` attribute, also returns the request ID.."""
         request_id: int = firebase.get_data(req_fb.CURRENT_ID.get_path())
         firebase_inc_request_id()
         self.request_id = request_id
+
+        return request_id
 
 
     def get_original_artist(self):
