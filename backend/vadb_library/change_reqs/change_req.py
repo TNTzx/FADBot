@@ -89,6 +89,18 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         return firebase.ShortEndpoint.artist_change_reqs.get_path() + [cls.firebase_name]
 
 
+    @classmethod
+    def firebase_get_all_requests(cls):
+        """Gets all requests under this `ChangeRequest`."""
+        all_reqs_json = firebase.get_data(cls.firebase_get_path(), default = {})
+        all_reqs = [cls.firebase_from_json(req_json) for req_json in all_reqs_json]
+
+        if len(all_reqs) == 0:
+            raise req_exc.ChangeReqNotFound(f"There are no {cls.type_} requests in Firebase.")
+
+        return all_reqs
+
+
     def register_request_id(self):
         """Registers this request with an ID. Sets the `request_id` attribute, also returns the request ID.."""
         request_id: int = firebase.get_data(req_fb.CURRENT_ID.get_path())
@@ -250,6 +262,12 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         self.firebase_delete_request()
 
         await self.log_bundle.delete_live_logs()
+
+
+    @classmethod
+    def get_all_req_types(cls):
+        """Gets all `ChangeRequest` subclasses."""
+        return cls.__subclasses__()
 
 
 class AddRequest(ChangeRequest):

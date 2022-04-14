@@ -3,17 +3,16 @@
 
 import requests as req
 
+from .. import queries
 from .. import excepts
 from .. import api
 from . import artist
 
 
-class ArtistQuery():
+class ArtistQuery(queries.BaseQuery):
     """Artist query."""
-
-
     @classmethod
-    def from_vadb_search(cls, search_term: str):
+    def from_search(cls, search_term: str):
         """Creates an `ArtistQuery` from a search term."""
         try:
             response = api.make_request(api.Endpoints.artist_search(search_term)).json()

@@ -11,3 +11,8 @@ class BaseQuery():
             self.artists = None
         else:
             self.artists = artists
+
+
+    @classmethod
+    def from_search(cls, search_term: str):
+        """Returns a `BaseQuery` for this search term."""
