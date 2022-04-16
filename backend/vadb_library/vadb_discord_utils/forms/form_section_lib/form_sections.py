@@ -85,14 +85,13 @@ class Name(f_s.RawTextSection):
                 get_search_name: typ.Callable[[typ.Any], str],
                 search_type_str: str,
                 search_type_plural_str: str,
-                emb_generate_func: typ.Callable[[a_s.Artist | change_reqs.ChangeRequest, str, str, str], None]
                 ):
             """Executes `is_name_in_search` and `send_multiple_confirm`."""
             if is_name_in_search(searched, search_term, get_search_name):
                 await disc_utils.send_error(ctx, f"A {search_type_str} with that name already exists.", send_author = True)
                 raise f_exc.InvalidSectionResponse()
 
-            send_multiple_confirm(searched, search_type_plural_str, emb_generate_func)
+            send_multiple_confirm(searched, search_type_plural_str)
 
 
         try:
@@ -107,8 +106,7 @@ class Name(f_s.RawTextSection):
                 search_term = response,
                 get_search_name = get_req_name,
                 search_type_str = "request",
-                search_type_plural_str = "requests",
-                emb_generate_func = embeds.generate_embed_multiple_reqs
+                search_type_plural_str = "requests"
             )
         except change_reqs.ChangeReqNotFound:
             await ctx.author.send("No existing request found! Proceeding...")
@@ -126,8 +124,7 @@ class Name(f_s.RawTextSection):
                 search_term = response,
                 get_search_name = get_art_name,
                 search_type_str = "artist",
-                search_type_plural_str = "artists",
-                emb_generate_func = embeds.generate_embed_multiple
+                search_type_plural_str = "artists"
             )
         except excepts.VADBNoSearchResult:
             await ctx.author.send("No existing artist found! Proceeding...")
