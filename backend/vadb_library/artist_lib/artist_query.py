@@ -20,7 +20,7 @@ class ArtistQuery(queries.BaseQuery):
             raise excepts.VADBNoSearchResult(search_term) from exc
 
         return cls(
-            artists = [
+            query_items = [
                 artist.Artist.vadb_from_get_json(artist_data)
                 for artist_data in response["data"]
             ]
