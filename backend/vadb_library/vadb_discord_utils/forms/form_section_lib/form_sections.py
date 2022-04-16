@@ -12,9 +12,9 @@ import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
 
 from .... import artist_lib as a_s
+from .... import queries
 from .... import excepts
 from .... import change_reqs
-from ... import embeds
 from .. import form_exc as f_exc
 from . import form_section as f_s
 from . import section_states as states
@@ -28,22 +28,20 @@ class Name(f_s.RawTextSection):
         await ctx.author.send("Checking if there are already possible existing artists and requests with this name. This might take a while...")
 
 
-        def is_name_in_search(search_results: list, search_term: str, get_search_result_name: typ.Callable[[typ.Any], str]):
+        def is_name_in_search(query: queries.BaseQuery, search_term: str, get_search_result_name: typ.Callable[[typ.Any], str]):
             """Checks if the name is in the `searched` list."""
-            for search_result in search_results:
+            for search_result in query:
                 if get_search_result_name(search_result) == search_term:
                     return True
 
             return False
 
         async def send_multiple_confirm(
-                search_results: list,
+                query: queries.BaseQuery,
                 search_type_plural_str: str,
-                emb_generate_func: typ.Callable[[a_s.Artist | change_reqs.ChangeRequest, str, str, str], None]
                 ):
             """Sends the confirmation info for multiple artist / requests found."""
-            embed_art = emb_generate_func(
-                search_results,
+            embed_art = query.generate_embed(
                 f"Possible Existing {search_type_plural_str.capitalize()} Found!",
                 (
                     f"Existing {search_type_plural_str} may have possibly be on its relevant database already!\n"
@@ -109,7 +107,7 @@ class Name(f_s.RawTextSection):
                 search_type_plural_str = "requests"
             )
         except change_reqs.ChangeReqNotFound:
-            await ctx.author.send("No existing request found! Proceeding...")
+            await ctx.author.send("No existing request found! Attempting to find existing artists...")
 
 
         try:

@@ -7,10 +7,10 @@ import backend.logging.loggers as lgr
 import backend.other as ot
 
 from .. import artist_lib as art
-from .. import change_reqs
 from .. import api
 
 
+# REFACTOR move to artist object instead
 def generate_embed(artist: art.Artist):
     """Generates an `Embed` for this `Artist`."""
     log_message = f"Generating embed for {artist.name}: {ot.pr_print(artist.to_json())}"
@@ -125,6 +125,3 @@ def generate_embed(artist: art.Artist):
     embed.colour = color_match.get_name()
 
     return embed
-
-
-

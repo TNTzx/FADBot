@@ -42,7 +42,7 @@ class RequestQuery(queries.BaseQuery):
         if len(all_requests) == 0:
             raise req_exc.ChangeReqNotFound(f"No change request found for search term \"{search_term}\".")
 
-        return all_requests
+        return cls(all_requests)
 
 
     def generate_embed(
