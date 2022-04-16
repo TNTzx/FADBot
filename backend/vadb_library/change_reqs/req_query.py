@@ -65,7 +65,7 @@ class RequestQuery(queries.BaseQuery):
 
         for change_req_split in change_req_splits:
             emb_req_split = [
-                f"\t**{change_req.artist.vadb_info.artist_id}**: {change_req.artist.name}"
+                f"\t**{change_req.request_id}**: {change_req.artist.name}"
                 for change_req in change_req_split.query_items
             ]
             emb_req_split = '\n'.join(emb_req_split)

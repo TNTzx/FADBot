@@ -67,14 +67,11 @@ class Name(f_s.RawTextSection):
 
             if result == disc_utils.ViewOutputValues.CONFIRM:
                 await ctx.author.send("Proceeding...")
-                raise f_exc.ExitSection()
             if result == disc_utils.ViewOutputValues.BACK:
                 await ctx.author.send("Returning...")
                 raise f_exc.InvalidSectionResponse()
             if result == disc_utils.ViewOutputValues.CANCEL:
                 await exc_utils.cancel_command(ctx, send_author = True)
-
-            raise f_exc.InvalidSectionResponse()
 
 
         async def execute_is_multiple(
@@ -126,7 +123,9 @@ class Name(f_s.RawTextSection):
             )
         except excepts.VADBNoSearchResult:
             await ctx.author.send("No existing artist found! Proceeding...")
-            return response
+
+
+        return response
 
 
     async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
