@@ -30,7 +30,7 @@ class Name(f_s.RawTextSection):
 
         def is_name_in_search(query: queries.BaseQuery, search_term: str, get_search_result_name: typ.Callable[[typ.Any], str]):
             """Checks if the name is in the `searched` list."""
-            for search_result in query:
+            for search_result in query.query_items:
                 if get_search_result_name(search_result) == search_term:
                     return True
 
@@ -89,7 +89,7 @@ class Name(f_s.RawTextSection):
                 await disc_utils.send_error(ctx, f"A {search_type_str} with that name already exists.", send_author = True)
                 raise f_exc.InvalidSectionResponse()
 
-            send_multiple_confirm(searched, search_type_plural_str)
+            await send_multiple_confirm(searched, search_type_plural_str)
 
 
         try:

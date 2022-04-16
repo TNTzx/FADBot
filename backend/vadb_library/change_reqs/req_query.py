@@ -23,7 +23,9 @@ class RequestQuery(queries.BaseQuery):
         for request in self.query_items:
             all_reqs[type(request)].append(request)
 
-        return [self.__class__(req) for req in all_reqs.values()]
+        req_splits = [self.__class__(req) for req in all_reqs.values()]
+
+        return [req_split for req_split in req_splits if len(req_split) != 0]
 
 
     @classmethod
