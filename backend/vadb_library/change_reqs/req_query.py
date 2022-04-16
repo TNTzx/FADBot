@@ -71,7 +71,7 @@ class RequestQuery(queries.BaseQuery):
             emb_req_split = '\n'.join(emb_req_split)
 
             emb_reqs.append((
-                f"{change_req_split.query_items[0].type_.capitalize()} requests:\n"
+                f"__{change_req_split.query_items[0].type_.capitalize()} requests__:\n"
                 f"{emb_req_split}"
             ))
 
