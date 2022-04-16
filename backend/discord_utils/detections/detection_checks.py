@@ -4,6 +4,7 @@
 import nextcord as nx
 
 
+# REWRITE change to only use an author and text channel
 def check_message(author_id: int, text_channel_id: int):
     """Check for messages. Call to get wrapper.
     Returns True if:
@@ -14,6 +15,7 @@ def check_message(author_id: int, text_channel_id: int):
         return author_id == msg.author.id and msg.channel.id == text_channel_id
     return wrap
 
+# REWRITE change to only use an author and message
 def check_interaction(author_id: int, original_message_id: int):
     """Checks for interactions. Call to get wrapper.
     Returns True if:

@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import typing as typ
+
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
@@ -11,6 +13,7 @@ import backend.discord_utils as disc_utils
 
 from .... import artist_lib as a_s
 from .... import excepts
+from .... import change_reqs
 from ... import embeds
 from .. import form_exc as f_exc
 from . import form_section as f_s
@@ -22,58 +25,113 @@ class Name(f_s.RawTextSection):
     async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
         response = await super().reformat_input(ctx, response)
 
-        await ctx.author.send("Checking if there are already possible existing artists. This might take a while...")
+        await ctx.author.send("Checking if there are already possible existing artists and requests with this name. This might take a while...")
+
+
+        def is_name_in_search(search_results: list, search_term: str, get_search_result_name: typ.Callable[[typ.Any], str]):
+            """Checks if the name is in the `searched` list."""
+            for search_result in search_results:
+                if get_search_result_name(search_result) == search_term:
+                    return True
+
+            return False
+
+        async def send_multiple_confirm(
+                search_results: list,
+                search_type_plural_str: str,
+                emb_generate_func: typ.Callable[[a_s.Artist | change_reqs.ChangeRequest, str, str, str], None]
+                ):
+            """Sends the confirmation info for multiple artist / requests found."""
+            embed_art = emb_generate_func(
+                search_results,
+                f"Possible Existing {search_type_plural_str.capitalize()} Found!",
+                (
+                    f"Existing {search_type_plural_str} may have possibly be on its relevant database already!\n"
+                    "Please confirm that you are not submitting a duplicate!"
+                ),
+                (
+                    "Click on \"Confirm\" to confirm that you are not submitting a duplicate entry.\n"
+                    "Click on \"Back\" to go back and enter a different artist name.\n"
+                    "Click on \"Cancel\" to cancel the current command."
+                )
+            )
+
+            view = disc_utils.ViewConfirmBackCancel()
+
+            message = await ctx.author.send(
+                f"Possible existing {search_type_plural_str.capitalize()} found!",
+                embed = embed_art,
+                view = view
+            )
+
+            result_view = await disc_utils.wait_for_view(ctx, message, view)
+            result = result_view.value
+
+            if result == disc_utils.ViewOutputValues.CONFIRM:
+                await ctx.author.send("Proceeding...")
+                raise f_exc.ExitSection()
+            if result == disc_utils.ViewOutputValues.BACK:
+                await ctx.author.send("Returning...")
+                raise f_exc.InvalidSectionResponse()
+            if result == disc_utils.ViewOutputValues.CANCEL:
+                await exc_utils.cancel_command(ctx, send_author = True)
+
+            raise f_exc.InvalidSectionResponse()
+
+
+        async def execute_is_multiple(
+                searched: list,
+                search_term: str,
+                get_search_name: typ.Callable[[typ.Any], str],
+                search_type_str: str,
+                search_type_plural_str: str,
+                emb_generate_func: typ.Callable[[a_s.Artist | change_reqs.ChangeRequest, str, str, str], None]
+                ):
+            """Executes `is_name_in_search` and `send_multiple_confirm`."""
+            if is_name_in_search(searched, search_term, get_search_name):
+                await disc_utils.send_error(ctx, f"A {search_type_str} with that name already exists.", send_author = True)
+                raise f_exc.InvalidSectionResponse()
+
+            send_multiple_confirm(searched, search_type_plural_str, emb_generate_func)
 
 
         try:
-            searched_artists = a_s.ArtistQuery.from_vadb_search(response)
+            searched_requests = change_reqs.RequestQuery.from_search(response)
+
+            def get_req_name(search_req: change_reqs.ChangeRequest):
+                """Returns the artist's name of the `ChangeRequest`."""
+                return search_req.artist.name
+
+            await execute_is_multiple(
+                searched = searched_requests,
+                search_term = response,
+                get_search_name = get_req_name,
+                search_type_str = "request",
+                search_type_plural_str = "requests",
+                emb_generate_func = embeds.generate_embed_multiple_reqs
+            )
+        except change_reqs.ChangeReqNotFound:
+            await ctx.author.send("No existing request found! Proceeding...")
+
+
+        try:
+            searched_artists = a_s.ArtistQuery.from_search(response)
+
+            def get_art_name(search_artist: a_s.Artist):
+                """Returns the artist's name of the `Artist`."""
+                return search_artist.name
+
+            await execute_is_multiple(
+                searched = searched_artists,
+                search_term = response,
+                get_search_name = get_art_name,
+                search_type_str = "artist",
+                search_type_plural_str = "artists",
+                emb_generate_func = embeds.generate_embed_multiple
+            )
         except excepts.VADBNoSearchResult:
             await ctx.author.send("No existing artist found! Proceeding...")
             return response
-
-
-        for searched_artist in searched_artists.artists:
-            if searched_artist.name == response:
-                await disc_utils.send_error(ctx, "An artist with that name already exists.", send_author = True)
-                raise f_exc.InvalidSectionResponse()
-
-
-        embed = embeds.generate_embed_multiple(
-            searched_artists,
-            title = "Possible Existing Artists Found!",
-            description = (
-                "Existing artists may have possibly be on the database already!\n"
-                "Please confirm that you are not submitting a duplicate!"
-            ),
-            footer = (
-                "Click on \"Confirm\" to confirm that you are not submitting a duplicate entry.\n"
-                "Click on \"Back\" to go back and enter a different artist name.\n"
-                "Click on \"Cancel\" to cancel the current command."
-            )
-        )
-
-        view = disc_utils.ViewConfirmBackCancel()
-
-        message = await ctx.author.send(
-            "Possible existing artists found!",
-            embed = embed,
-            view = view
-        )
-
-        result_view = await disc_utils.wait_for_view(ctx, message, view)
-        result = result_view.value
-
-        if result == disc_utils.ViewOutputValues.CONFIRM:
-            await ctx.author.send("Proceeding...")
-            raise f_exc.ExitSection()
-        if result == disc_utils.ViewOutputValues.BACK:
-            await ctx.author.send("Returning...")
-            raise f_exc.InvalidSectionResponse()
-        if result == disc_utils.ViewOutputValues.CANCEL:
-            await exc_utils.cancel_command(ctx, send_author = True)
-
-
-        raise f_exc.InvalidSectionResponse()
 
 
     async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:

@@ -2,15 +2,16 @@
 
 
 from . import artist_lib
+from . import change_reqs
 
 
 class BaseQuery():
     """Base class for queries."""
-    def __init__(self, artists: list[artist_lib.Artist] = None):
-        if len(artists) == 0:
-            self.artists = None
+    def __init__(self, query_items: list[artist_lib.Artist | change_reqs.ChangeRequest] = None):
+        if len(query_items) == 0:
+            self.query_items = None
         else:
-            self.artists = artists
+            self.query_items = query_items
 
 
     @classmethod

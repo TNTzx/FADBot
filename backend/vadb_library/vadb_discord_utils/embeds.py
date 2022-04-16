@@ -7,6 +7,7 @@ import backend.logging.loggers as lgr
 import backend.other as ot
 
 from .. import artist_lib as art
+from .. import change_reqs
 from .. import api
 
 
@@ -141,11 +142,51 @@ def generate_embed_multiple(
 
     emb_artists = [
         f"**{artist.vadb_info.artist_id}**: {artist.name}"
-        for artist in artists.artists
+        for artist in artists.query_items
     ]
     embed.add_field(
         name = "_ _",
         value = "\n".join(emb_artists)
+    )
+
+    if footer is not None:
+        embed.set_footer(text = footer)
+
+    return embed
+
+
+def generate_embed_multiple_reqs(
+        change_req_query: change_reqs.RequestQuery,
+        title: str = None,
+        description: str = None,
+        footer: str = None
+        ):
+    """Generates an embed for multiple requests."""
+    embed = nx.Embed(
+        color = 0xFF0000,
+        title = title,
+        description = description
+    )
+
+    change_req_splits = change_req_query.split_diff_req_types()
+
+    emb_reqs = []
+
+    for change_req_split in change_req_splits:
+        emb_req_split = [
+            f"\t**{change_req.artist.vadb_info.artist_id}**: {change_req.artist.name}"
+            for change_req in change_req_split.query_items
+        ]
+        emb_req_split = '\n'.join(emb_req_split)
+
+        emb_reqs.append((
+            f"{change_req_split.query_items[0].type_.capitalize()} requests:\n"
+            f"{emb_req_split}"
+        ))
+
+    embed.add_field(
+        name = "_ _",
+        value = "\n".join(emb_reqs)
     )
 
     if footer is not None:
