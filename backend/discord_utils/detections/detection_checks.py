@@ -4,15 +4,14 @@
 import nextcord as nx
 
 
-# REWRITE change to only use an author and text channel
-def check_message(author_id: int, text_channel_id: int):
+def check_message(author: nx.User, text_channel: nx.TextChannel):
     """Check for messages. Call to get wrapper.
     Returns True if:
     - Author is the same for command initiator and message sender.
     - Channel of message sent is the same as text channel."""
 
     def wrap(msg: nx.Message):
-        return author_id == msg.author.id and msg.channel.id == text_channel_id
+        return author.id == msg.author.id and text_channel.id == msg.channel.id
     return wrap
 
 # REWRITE change to only use an author and message

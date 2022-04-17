@@ -32,7 +32,7 @@ async def wait_for_message(ctx: nx_cmds.Context, timeout = TIMEOUT):
     try:
         response: nx.Message = await global_vars.bot.wait_for(
             "message",
-            check = w_f_ch.check_message(ctx.author.id, ctx.channel.id),
+            check = w_f_ch.check_message(ctx.author, ctx.channel),
             timeout = timeout
         )
     except asyncio.TimeoutError as exc:
@@ -74,7 +74,12 @@ async def wait_for_message_view(ctx: nx_cmds.Context, original_message: nx.Messa
     """Waits for a message then returns (MessageViewCheck.message, message). If instead it was a view interaction, return (MessageViewCheck.view, view) of that interaction."""
 
     events = [
-        global_vars.bot.wait_for("message", check = w_f_ch.check_message(ctx.author.id, ctx.channel.id)),
+        global_vars.bot.wait_for(
+            "message",
+            check = w_f_ch.check_message(
+                ctx.author, ctx.channel
+            )
+        ),
         global_vars.bot.wait_for("interaction", check = w_f_ch.check_interaction(ctx.author.id, original_message.id))
     ]
 
