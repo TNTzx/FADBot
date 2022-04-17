@@ -11,8 +11,6 @@ from .... import excepts
 from ... import artist_struct
 
 
-# DEBUG add check for if image has been deleted
-
 def get_req_image(url: str):
     """Gets the `Response` object of the URL for images."""
     return req.get(url, stream = True)
