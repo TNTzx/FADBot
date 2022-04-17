@@ -4,7 +4,7 @@
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 
 import backend.discord_utils as disc_utils
 import backend.firebase as firebase

@@ -6,7 +6,7 @@ import sys
 
 import nextcord.ext.commands as nx_cmds
 
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 import backend.discord_utils as disc_utils
 
 from ... import utils as cog

@@ -8,7 +8,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
 import backend.other as ot
