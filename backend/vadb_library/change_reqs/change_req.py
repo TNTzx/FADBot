@@ -10,7 +10,7 @@ import global_vars
 import backend.firebase as firebase
 import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 import backend.other as ot
 
 from .. import artist_lib as art

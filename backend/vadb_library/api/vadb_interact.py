@@ -4,7 +4,7 @@
 import json
 import requests
 
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 import backend.other as ot
 
 from . import consts

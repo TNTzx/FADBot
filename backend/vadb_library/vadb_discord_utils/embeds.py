@@ -3,7 +3,7 @@
 
 import nextcord as nx
 
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 import backend.other as ot
 
 from .. import artist_lib as art

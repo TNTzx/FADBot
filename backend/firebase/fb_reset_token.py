@@ -5,7 +5,7 @@ import time
 # import datetime
 # import pytz
 
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 
 from . import fb_consts
 
