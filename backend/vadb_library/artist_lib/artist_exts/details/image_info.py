@@ -47,7 +47,7 @@ class Image(artist_struct.ArtistStruct):
         """Gets the PIL image. Use the default for this `Image` if it's not found."""
         try:
             image = self.get_req_image()
-        except (req.exceptions.HTTPError, req.exceptions.MissingSchema) as exc:
+        except req.exceptions.HTTPError as exc:
             if not default_if_not_found:
                 raise excepts.VADBImageNotFound(self.original_url) from exc
 
