@@ -47,13 +47,13 @@ class Image(artist_struct.ArtistStruct):
         """Gets the PIL image. Use the default for this `Image` if it's not found."""
         try:
             image = self.get_req_image()
-        except req.HTTPError as exc:
+        except (req.exceptions.HTTPError, req.exceptions.MissingSchema) as exc:
             if not default_if_not_found:
                 raise excepts.VADBImageNotFound(self.original_url) from exc
 
             image = get_req_image(self.default_url)
 
-        pil_image = PIL.open(image)
+        pil_image = PIL.open(image.raw)
 
         if pil_image.width >= self.max_image_size[0] or pil_image.height >= self.max_image_size[1]:
             pil_image = pil_image.resize(self.max_image_size)
