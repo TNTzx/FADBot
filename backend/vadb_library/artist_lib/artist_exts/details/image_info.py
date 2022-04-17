@@ -43,7 +43,7 @@ class Image(artist_struct.ArtistStruct):
         return response
 
 
-    def get_pil_image(self, default_if_not_found: bool = True):
+    def get_pil_image(self, default_if_not_found: bool = False):
         """Gets the PIL image. Use the default for this `Image` if it's not found."""
         try:
             image = self.get_req_image()
@@ -60,10 +60,10 @@ class Image(artist_struct.ArtistStruct):
 
         return pil_image
 
-    def get_data(self):
+    def get_data(self, default_if_not_found: bool = False):
         """Gets the data from the PIL image."""
         with io.BytesIO() as b_io:
-            self.get_pil_image().save(b_io, format = self.default_format)
+            self.get_pil_image(default_if_not_found = default_if_not_found).save(b_io, format = self.default_format)
             b_io.seek(0)
             return b_io.getvalue()
 
@@ -125,7 +125,7 @@ class ImageInfo(artist_struct.ArtistStruct):
         return {
             image.vadb_key: (
                 image.name,
-                image.get_data(),
+                image.get_data(default_if_not_found = True),
                 image.default_mime_type
             ) for image in self._to_image_list()
         }
