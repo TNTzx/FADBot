@@ -7,29 +7,96 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
+import backend.logging as lgr
 
 from . import custom_exc as c_e
 
 
 ERROR_PREFIX = "**Error!**\n"
+FATAL_PREFIX = "**FATAL!!**\n"
 
+
+async def reset_cooldown(ctx: nx_cmds.Context):
+    """Resets the context's command cooldown."""
+    ctx.command.reset_cooldown(ctx)
+
+
+async def send_error_warn(
+        channel: nx.TextChannel,
+        author: nx.User,
+        suffix: str,
+        try_again = False
+        ):
+    """Sends a warning to a channel. Usually used for warning bad user input."""
+    try_again_str = "\nTry again." if try_again else ""
+    text = f"{ERROR_PREFIX}{author.mention}, {suffix}{try_again_str}"
+    await channel.send(text)
+
+
+async def send_error_failed_cmd(
+        channel: nx.TextChannel,
+        author: nx.User,
+        suffix: str,
+        ):
+    """Sends an error for a failed command."""
+    text = f"{ERROR_PREFIX}{author.mention}, {suffix}"
+    await channel.send(text)
+
+
+async def send_error_fatal(
+        ctx: nx_cmds.Context,
+        exc: Exception | nx_cmds.CommandInvokeError = None
+        ):
+    """Notifies a fatal error."""
+    await reset_cooldown(ctx)
+
+
+    await global_vars.TNTz.send((
+        "Error!\n"
+        f"Command used: `{ctx.message.content}`\n"
+        f"```{exc}```"
+    ))
+
+
+    if isinstance(exc, nx_cmds.CommandInvokeError):
+        error = exc.original
+    else:
+        error = exc
+
+    formatted_exc = "".join(traceback.format_exception(error))
+
+    print((
+        f"A fatal error occurred in command {ctx.command.name}:"
+        f"{formatted_exc}"
+    ))
+
+
+    await ctx.send(f"{FATAL_PREFIX}Something bad went wrong. This error has been reported to the owner of the bot.")
+    lgr.log_global_exc.error(formatted_exc)
+
+
+# REFACTOR use channel instead of context
 async def send_error(
-        ctx: nx_cmds.Context, suffix,
+        channel: nx.TextChannel,
+        author: nx.User,
+        message: nx.Message,
+        suffix: str,
+        try_again = False,
         exc: Exception | nx_cmds.CommandInvokeError = None,
-        send_author = False,
         send_owner = False,
         send_console = False,
         cooldown_reset = False
         ):
     """Sends an error to a context."""
 
-    text = f"{ERROR_PREFIX}{ctx.author.mention}, {suffix}"
+
+    text = f"{ERROR_PREFIX}{author.mention}, {suffix}{try_again_str}"
     tntz: nx.User = global_vars.TNTz
 
     if send_owner:
         await tntz.send((
             "Error!\n"
-            f"Command used: `{ctx.message.content}`\n"
+            f"Command used: `{message.content}`\n"
             f"```{exc}```"
         ))
 
