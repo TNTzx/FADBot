@@ -62,7 +62,7 @@ class CogLogCmds(cog.RegisteredCog):
             if int(channel_id_on) == channel.id:
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
-                    suffix = f"This channel is already being used as another log channel! Unregister existing channels using `{global_vars.CMD_PREFIX}{self.loglocationunset.__name__}`!"
+                    suffix = f"This channel is already being used as another log channel! Unregister existing channels using `{global_vars.CMD_PREFIX}loglocationunset`!"
                 ).send()
 
 
@@ -120,7 +120,7 @@ class CogLogCmds(cog.RegisteredCog):
             if firebase.get_data(path_initial) == firebase.PLACEHOLDER_DATA:
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
-                    suffix = f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{global_vars.CMD_PREFIX}{self.loglocationset.__name__}`!"
+                    suffix = f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{global_vars.CMD_PREFIX}loglocationset`!"
                 ).send()
 
             firebase.override_data(path_initial, firebase.PLACEHOLDER_DATA)
