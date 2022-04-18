@@ -126,7 +126,11 @@ class CogModeration(cog.RegisteredCog):
 
             if action == "ban":
                 if user_in_ban_list():
-                    await exc_utils.send_error(ctx, "The user is already banned!")
+                    await exc_utils.send_(
+                        messageable = ctx,
+                        author = ctx.author,
+                        suffix = "The user is already banned!"
+                    ):
 
                 await send_confirm()
                 firebase.append_data(path_initial, [user_id_str])

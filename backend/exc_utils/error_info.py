@@ -7,73 +7,52 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
-import backend.logging as lgr
 
-from . import custom_exc as c_e
-
-
-ERROR_PREFIX = "**Error!**\n"
-FATAL_PREFIX = "**FATAL!!**\n"
+from . import custom_exc
 
 
-async def reset_cooldown(ctx: nx_cmds.Context):
-    """Resets the context's command cooldown."""
-    ctx.command.reset_cooldown(ctx)
+class ErrorSendInfo():
+    """Contains information on where to send the error and its current information."""
+    def __init__(self, messageable: nx.abc.Messageable, author: nx.User):
+        self.messageable = messageable
+        self.author = author
+
+    @classmethod
+    def from_context(cls, ctx: nx_cmds.Context):
+        """Constructs an `ErrorSendInfo` with a `Context`."""
+        return cls(
+            messageable = ctx,
+            author = ctx.author
+        )
 
 
-async def send_error_warn(
-        messageable: nx.abc.Messageable,
-        author: nx.User,
-        suffix: str,
-        try_again = False
-        ):
-    """Sends a warning to a channel. Usually used for warning bad user input."""
-    try_again_str = "\nTry again." if try_again else ""
-    text = f"{ERROR_PREFIX}{author.mention}, {suffix}{try_again_str}"
-    await messageable.send(text)
+class ErrorInfo():
+    """Parent class for sending errors to a user."""
+    prefix: str = "**Error!**\n"
+
+    def __init__(self, error_send_info: ErrorSendInfo, suffix: str):
+        self.error_send_info = error_send_info
+        self.suffix = suffix
 
 
-async def send_error_failed_cmd(
-        messageable: nx.abc.Messageable,
-        author: nx.User,
-        suffix: str,
-        ):
+    async def send(self, try_again: bool = False):
+        """Sends the error."""
+
+
+class SendWarn(ErrorInfo):
+    """Warnings used for bad user input."""
+    async def send(self, try_again: bool = False):
+        try_again_str = "\nTry again." if try_again else ""
+        text = f"{self.prefix}{self.error_send_info.author.mention}, {self.suffix}{try_again_str}"
+        await self.error_send_info.messageable.send(text)
+
+
+class SendFailedCmd(ErrorInfo):
     """Sends an error for a failed command."""
-    text = f"{ERROR_PREFIX}{author.mention}, {suffix}"
-    await messageable.send(text)
-    raise c_e.FailedCmd(f"Failed command: {suffix}")
-
-
-async def send_error_fatal(
-        ctx: nx_cmds.Context,
-        exc: Exception | nx_cmds.CommandInvokeError = None
-        ):
-    """Notifies a fatal error."""
-    await reset_cooldown(ctx)
-
-
-    await global_vars.TNTz.send((
-        "Error!\n"
-        f"Command used: `{ctx.message.content}`\n"
-        f"```{exc}```"
-    ))
-
-
-    if isinstance(exc, nx_cmds.CommandInvokeError):
-        error = exc.original
-    else:
-        error = exc
-
-    formatted_exc = "".join(traceback.format_exception(error))
-
-    print((
-        f"A fatal error occurred in command {ctx.command.name}:"
-        f"{formatted_exc}"
-    ))
-
-
-    await ctx.send(f"{FATAL_PREFIX}Something bad went wrong. This error has been reported to the owner of the bot.")
-    lgr.log_global_exc.error(formatted_exc)
+    async def send(self, try_again: bool = False):
+        text = f"{self.prefix}{self.error_send_info.author.mention}, {self.suffix}"
+        await self.error_send_info.messageable.send(text)
+        raise custom_exc.FailedCmd(f"Failed command: {self.suffix}")
 
 
 # REFACTOR use channel instead of context
@@ -127,7 +106,7 @@ async def send_error(
 async def error_handle(messageable: nx.abc.Messageable, text: str):
     """Send an error message for a specific error. Exit everything afterwards."""
     await messageable.send(text)
-    raise c_e.ExitFunction()
+    raise custom_exc.ExitFunction()
 
 
 async def cancel_command(ctx: nx_cmds.Context, send_author = False):
