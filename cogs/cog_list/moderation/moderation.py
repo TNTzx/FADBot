@@ -40,9 +40,8 @@ class CogModeration(cog.RegisteredCog):
         try:
             int(role_id)
         except ValueError:
-            await exc_utils.send_error_failed_cmd(
-                messageable = ctx,
-                author = ctx.author,
+            await exc_utils.SendFailedCmd(
+                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
                 suffix = "You didn't send a valid role ID!"
             )
             return
@@ -94,9 +93,8 @@ class CogModeration(cog.RegisteredCog):
         user = await disc_utils.user_from_id_warn(ctx, user_id)
 
         if ctx.author.id == user.id:
-            await exc_utils.send_error_failed_cmd(
-                messageable = ctx,
-                author = ctx.author,
+            await exc_utils.SendFailedCmd(
+                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
                 suffix = "You're banning yourself!! WHY????? **WHYYYYYY????????**"
             )
             return
@@ -115,8 +113,9 @@ class CogModeration(cog.RegisteredCog):
                 output_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)
 
                 if output_view.value == disc_utils.ViewOutputValues.CANCEL:
-                    await ctx.send("Command cancelled.")
-                    raise exc_utils.ExitFunction()
+                    await exc_utils.SendCancel(
+                        error_send_info = exc_utils.ErrorSendInfo.from_context(ctx)
+                    )
 
 
             user_id_str = str(user_id)
@@ -126,11 +125,11 @@ class CogModeration(cog.RegisteredCog):
 
             if action == "ban":
                 if user_in_ban_list():
-                    await exc_utils.send_(
-                        messageable = ctx,
-                        author = ctx.author,
+                    await exc_utils.SendFailedCmd(
+                        error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
                         suffix = "The user is already banned!"
-                    ):
+                    )
+                    raise exc_utils.ExitFunction()
 
                 await send_confirm()
                 firebase.append_data(path_initial, [user_id_str])
@@ -143,7 +142,10 @@ class CogModeration(cog.RegisteredCog):
                 log_message = f"[BAN] {user_name} | {user.id}"
             else:
                 if not user_in_ban_list():
-                    await exc_utils.send_error(ctx, "The user hasn't been banned yet!")
+                    await exc_utils.SendFailedCmd(
+                        error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                        suffix = "The user hasn't been banned yet!"
+                    )
                     raise exc_utils.ExitFunction()
 
                 await send_confirm()
