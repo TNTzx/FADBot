@@ -10,7 +10,7 @@ import backend.exc_utils as exc_utils
 from . import disc_exc
 
 
-async def get_id_from_mention(mention_str: str):
+def get_id_from_mention(mention_str: str):
     """Gets the ID from a mention."""
     try:
         return mention_str[2:-1]
