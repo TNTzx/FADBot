@@ -10,7 +10,7 @@ from .cooldown_handle import reset_cooldown
 from .error_info import \
     ErrorPlace, \
     ErrorSender, \
-        SendFailedCmd, SendWarn, \
+        SendFailed, SendFailedCmd, SendWarn, \
         ErrorSenderPredetermined, \
             SendCancel, SendTimeout, \
     send_error

@@ -236,9 +236,9 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                     embed = artist_embed
                 )
             except nx.errors.Forbidden:
-                await exc_utils.send_error(
-                    ctx,
-                    (
+                await exc_utils.SendWarn(
+                    error_place = exc_utils.ErrorPlace.from_context(ctx),
+                    suffix = (
                         f"I can't seem to be able to notify the user who sent this request, named `{self.user_sender.name}#{self.user_sender.discriminator}` (ID: `{self.user_sender.id}`).\n"
                         "If you have contacts with this user, please notify them!"
                     )

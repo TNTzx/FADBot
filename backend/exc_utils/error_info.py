@@ -51,6 +51,13 @@ class SendWarn(ErrorSender):
     """Warnings used for bad user input."""
 
 
+class SendFailed(ErrorSender):
+    """Sends an error for fails, exiting the function with `ExitFunction`."""
+    async def send(self):
+        super().send()
+        raise custom_exc.ExitFunction()
+
+
 class SendFailedCmd(ErrorSender):
     """Sends an error for a failed command."""
     async def send(self):

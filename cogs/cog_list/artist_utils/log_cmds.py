@@ -60,8 +60,10 @@ class CogLogCmds(cog.RegisteredCog):
             if channel_id_on is None:
                 continue
             if int(channel_id_on) == channel.id:
-                await exc_utils.send_error(ctx, f"This channel is already being used as another log channel! Unregister existing channels using `{global_vars.CMD_PREFIX}loglocationremove`!")
-                return
+                await exc_utils.SendFailedCmd(
+                    error_place = exc_utils.ErrorPlace.from_context(ctx),
+                    suffix = f"This channel is already being used as another log channel! Unregister existing channels using `{global_vars.CMD_PREFIX}{self.loglocationunset.__name__}`!"
+                )
 
 
         @disc_utils.choice_param_cmd(ctx, log_type, ["dump", "live"])
@@ -116,8 +118,10 @@ class CogLogCmds(cog.RegisteredCog):
             path_initial = firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [str(ctx.guild.id), "logs", "locations", log_type]
 
             if firebase.get_data(path_initial) == firebase.PLACEHOLDER_DATA:
-                await exc_utils.send_error(ctx, f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{global_vars.CMD_PREFIX}loglocationset`!")
-                raise exc_utils.ExitFunction()
+                await exc_utils.SendFailedCmd(
+                    error_place = exc_utils.ErrorPlace.from_context(ctx),
+                    suffix = f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{global_vars.CMD_PREFIX}{self.loglocationset.__name__}`!"
+                )
 
             firebase.override_data(path_initial, firebase.PLACEHOLDER_DATA)
 
