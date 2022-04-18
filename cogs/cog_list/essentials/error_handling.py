@@ -86,7 +86,11 @@ class CogErrorHandler(cog.RegisteredCog):
 
 
         if isinstance(exc, nx_cmds.CommandInvokeError):
-            if isinstance(exc.original, exc_utils.ExitFunction):
+            if isinstance(exc.original, (
+                            exc_utils.ExitFunction,
+                            exc_utils.FailedCmd
+                        )
+                    ):
                 return
 
             if hasattr(exc.original, "status"):
@@ -96,12 +100,10 @@ class CogErrorHandler(cog.RegisteredCog):
 
 
             if isinstance(exc.original, asyncio.TimeoutError):
-                await exc_utils.SendFailedCmd(
+                await exc_utils.SendTimeout(
                     error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
-                    suffix = "This command is disabled in DMs!"
                     ).send()
                 exc_utils.reset_cooldown(ctx)
-                await exc_utils.send_error(ctx, "Command timed out. Please run the command again.")
                 return
 
             if isinstance(exc.original, nx.NotFound):
@@ -113,7 +115,10 @@ class CogErrorHandler(cog.RegisteredCog):
                 return
 
 
-        if isinstance(exc, nx_cmds.CommandNotFound):
+        if isinstance(exc, (
+                    nx_cmds.CommandNotFound,
+                )
+            ):
             return
 
 

@@ -72,11 +72,11 @@ class ErrorSenderPredetermined(ErrorSender):
             raise custom_exc.ExitFunction()
 
 
-class SendCancel(ErrorSender):
+class SendCancel(ErrorSenderPredetermined):
     """Cancels the command."""
     suffix = "Command cancelled."
 
-class SendTimeout(ErrorSender):
+class SendTimeout(ErrorSenderPredetermined):
     """Sends a timeout."""
     suffix = "Command cancelled."
 
