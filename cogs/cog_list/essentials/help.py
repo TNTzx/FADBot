@@ -44,6 +44,9 @@ class CogHelp(cog.RegisteredCog):
         try:
             command = disc_utils.DiscordCommand.get_from_name_alias(command_query)
         except ValueError:
+            await exc_utils.SendFailedCmd(
+                error_place = exc_utils.ErrorPlace
+            )
             await exc_utils.send_error(ctx, f"The command name / alias `{command_query}` cannot be found! Make sure you typed it correctly!")
             return
 

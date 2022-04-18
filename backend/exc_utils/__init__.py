@@ -8,7 +8,7 @@ from .custom_exc import \
 from .cooldown_handle import reset_cooldown
 
 from .error_info import \
-    ErrorSendInfo, \
+    ErrorPlace, \
     ErrorSender, \
         SendFailedCmd, SendWarn, \
         ErrorSenderPredetermined, \

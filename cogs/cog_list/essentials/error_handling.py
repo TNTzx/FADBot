@@ -30,7 +30,7 @@ class CogErrorHandler(cog.RegisteredCog):
         if isinstance(exc, nx_cmds.CommandOnCooldown):
             time = ot.format_time(int(str(round(exc.retry_after, 0))[:-2]))
             await exc_utils.SendFailedCmd(
-                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = f"The command is on cooldown for `{time}` more!"
                 ).send()
             return
@@ -38,7 +38,7 @@ class CogErrorHandler(cog.RegisteredCog):
 
         if isinstance(exc, nx_cmds.MissingRole):
             await exc_utils.SendFailedCmd(
-                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = f"You don't have the `{exc.missing_role}` role!"
                 ).send()
             exc_utils.reset_cooldown(ctx)
@@ -47,7 +47,7 @@ class CogErrorHandler(cog.RegisteredCog):
 
         if isinstance(exc, (nx_cmds.MissingRequiredArgument, nx_cmds.BadArgument)):
             await exc_utils.SendFailedCmd(
-                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = f"Make sure you have the correct parameters! Use `{CMD_PREFIX}help` to get help!"
                 ).send()
             exc_utils.reset_cooldown(ctx)
@@ -61,8 +61,8 @@ class CogErrorHandler(cog.RegisteredCog):
                     )
                 ):
             await exc_utils.SendFailedCmd(
-                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
-                suffix = f"Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!"
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
+                suffix = "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!"
                 ).send()
             exc_utils.reset_cooldown(ctx)
             return
@@ -70,7 +70,7 @@ class CogErrorHandler(cog.RegisteredCog):
 
         if isinstance(exc, nx_cmds.MissingRequiredArgument):
             await exc_utils.SendFailedCmd(
-                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = f"Make sure you have the correct parameters! Use `{global_vars.CMD_PREFIX}help` to get help!"
                 ).send()
             return
@@ -78,7 +78,7 @@ class CogErrorHandler(cog.RegisteredCog):
 
         if isinstance(exc, nx_cmds.NoPrivateMessage):
             await exc_utils.SendFailedCmd(
-                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = "This command is disabled in DMs!"
                 ).send()
             exc_utils.reset_cooldown(ctx)
@@ -101,7 +101,7 @@ class CogErrorHandler(cog.RegisteredCog):
 
             if isinstance(exc.original, asyncio.TimeoutError):
                 await exc_utils.SendTimeout(
-                    error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                    error_send_info = exc_utils.ErrorPlace.from_context(ctx),
                     ).send()
                 exc_utils.reset_cooldown(ctx)
                 return

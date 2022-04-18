@@ -41,7 +41,7 @@ class CogModeration(cog.RegisteredCog):
             int(role_id)
         except ValueError:
             await exc_utils.SendFailedCmd(
-                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = "You didn't send a valid role ID!"
             )
             return
@@ -94,7 +94,7 @@ class CogModeration(cog.RegisteredCog):
 
         if ctx.author.id == user.id:
             await exc_utils.SendFailedCmd(
-                error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = "You're banning yourself!! WHY????? **WHYYYYYY????????**"
             )
             return
@@ -114,7 +114,7 @@ class CogModeration(cog.RegisteredCog):
 
                 if output_view.value == disc_utils.ViewOutputValues.CANCEL:
                     await exc_utils.SendCancel(
-                        error_send_info = exc_utils.ErrorSendInfo.from_context(ctx)
+                        error_send_info = exc_utils.ErrorPlace.from_context(ctx)
                     )
 
 
@@ -126,7 +126,7 @@ class CogModeration(cog.RegisteredCog):
             if action == "ban":
                 if user_in_ban_list():
                     await exc_utils.SendFailedCmd(
-                        error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                        error_place = exc_utils.ErrorPlace.from_context(ctx),
                         suffix = "The user is already banned!"
                     )
                     raise exc_utils.ExitFunction()
@@ -143,7 +143,7 @@ class CogModeration(cog.RegisteredCog):
             else:
                 if not user_in_ban_list():
                     await exc_utils.SendFailedCmd(
-                        error_send_info = exc_utils.ErrorSendInfo.from_context(ctx),
+                        error_place = exc_utils.ErrorPlace.from_context(ctx),
                         suffix = "The user hasn't been banned yet!"
                     )
                     raise exc_utils.ExitFunction()
