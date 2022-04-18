@@ -2,7 +2,8 @@
 
 
 from .custom_exc import \
-    ExitFunction
+    CustomExc, \
+        ExitFunction, FailedCmd
 
 from .error_info import \
     send_error_warn, send_error_failed_cmd, send_error_fatal, \

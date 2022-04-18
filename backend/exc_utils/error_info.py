@@ -41,6 +41,7 @@ async def send_error_failed_cmd(
     """Sends an error for a failed command."""
     text = f"{ERROR_PREFIX}{author.mention}, {suffix}"
     await messageable.send(text)
+    raise c_e.FailedCmd(f"Failed command: {suffix}")
 
 
 async def send_error_fatal(
