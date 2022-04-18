@@ -13,7 +13,7 @@ from . import disc_exc
 def get_id_from_mention(mention_str: str):
     """Gets the ID from a mention."""
     try:
-        return mention_str[2:-1]
+        return int(mention_str[2:-1])
     except (ValueError, TypeError) as exc:
         raise disc_exc.NotMention(mention_str) from exc
 
