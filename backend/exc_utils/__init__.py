@@ -12,5 +12,4 @@ from .error_info import \
     ErrorSender, \
         SendFailed, SendFailedCmd, SendWarn, \
         ErrorSenderPredetermined, \
-            SendCancel, SendTimeout, \
-    send_error
+            SendCancel, SendTimeout

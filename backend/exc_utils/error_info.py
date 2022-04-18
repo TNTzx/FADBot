@@ -1,12 +1,8 @@
 """Contains sending errors."""
 
 
-import traceback
-
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
-
-import global_vars
 
 from . import custom_exc
 
@@ -32,7 +28,7 @@ class ErrorSender():
 
     def __init__(self, error_place: ErrorPlace, suffix: str, try_again: bool = False):
         self.error_place = error_place
-        self.suffix = suffix,
+        self.suffix = suffix
         self.try_again = try_again
 
 
@@ -86,51 +82,3 @@ class SendCancel(ErrorSenderPredetermined):
 class SendTimeout(ErrorSenderPredetermined):
     """Sends a timeout."""
     suffix = "Command cancelled."
-
-
-# REFACTOR use channel instead of context
-async def send_error(
-        channel: nx.TextChannel,
-        author: nx.User,
-        message: nx.Message,
-        suffix: str,
-        try_again = False,
-        exc: Exception | nx_cmds.CommandInvokeError = None,
-        send_owner = False,
-        send_console = False,
-        cooldown_reset = False
-        ):
-    """Sends an error to a context."""
-
-
-    text = f"{ERROR_PREFIX}{author.mention}, {suffix}{try_again_str}"
-    tntz: nx.User = global_vars.TNTz
-
-    if send_owner:
-        await tntz.send((
-            "Error!\n"
-            f"Command used: `{message.content}`\n"
-            f"```{exc}```"
-        ))
-
-    if send_console:
-        if hasattr(exc, "original"):
-            error = exc.original
-        else:
-            error = exc
-
-        print(f"Ignoring exception in command {ctx.command}:")
-        traceback.print_exception(type(error), error, error.__traceback__)
-
-    if cooldown_reset:
-        ctx.command.reset_cooldown(ctx)
-
-    if send_author:
-        await ctx.author.send(text)
-    else:
-        if isinstance(ctx.message.channel, nx.DMChannel):
-            channel = ctx.message.channel
-            await channel.send(text)
-        else:
-            await ctx.channel.send(text)
-    return
