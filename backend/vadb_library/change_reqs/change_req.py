@@ -242,7 +242,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                         f"I can't seem to be able to notify the user who sent this request, named `{self.user_sender.name}#{self.user_sender.discriminator}` (ID: `{self.user_sender.id}`).\n"
                         "If you have contacts with this user, please notify them!"
                     )
-                )
+                ).send()
 
 
             # do logging

@@ -63,7 +63,7 @@ class CogLogCmds(cog.RegisteredCog):
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = f"This channel is already being used as another log channel! Unregister existing channels using `{global_vars.CMD_PREFIX}{self.loglocationunset.__name__}`!"
-                )
+                ).send()
 
 
         @disc_utils.choice_param_cmd(ctx, log_type, ["dump", "live"])
@@ -121,7 +121,7 @@ class CogLogCmds(cog.RegisteredCog):
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{global_vars.CMD_PREFIX}{self.loglocationset.__name__}`!"
-                )
+                ).send()
 
             firebase.override_data(path_initial, firebase.PLACEHOLDER_DATA)
 

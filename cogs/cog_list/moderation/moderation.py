@@ -43,8 +43,7 @@ class CogModeration(cog.RegisteredCog):
             await exc_utils.SendFailedCmd(
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = "You didn't send a valid role ID!"
-            )
-            return
+            ).send()
 
         firebase.edit_data(
             firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [ctx.guild.id],
@@ -96,8 +95,7 @@ class CogModeration(cog.RegisteredCog):
             await exc_utils.SendFailedCmd(
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = "You're banning yourself!! WHY????? **WHYYYYYY????????**"
-            )
-            return
+            ).send()
 
         @disc_utils.choice_param_cmd(ctx, action, ["ban", "unban"])
         async def action_choice():
@@ -115,7 +113,7 @@ class CogModeration(cog.RegisteredCog):
                 if output_view.value == disc_utils.ViewOutputValues.CANCEL:
                     await exc_utils.SendCancel(
                         error_send_info = exc_utils.ErrorPlace.from_context(ctx)
-                    )
+                    ).send()
 
 
             user_id_str = str(user_id)
@@ -128,8 +126,7 @@ class CogModeration(cog.RegisteredCog):
                     await exc_utils.SendFailedCmd(
                         error_place = exc_utils.ErrorPlace.from_context(ctx),
                         suffix = "The user is already banned!"
-                    )
-                    raise exc_utils.ExitFunction()
+                    ).send()
 
                 await send_confirm()
                 firebase.append_data(path_initial, [user_id_str])
@@ -145,8 +142,7 @@ class CogModeration(cog.RegisteredCog):
                     await exc_utils.SendFailedCmd(
                         error_place = exc_utils.ErrorPlace.from_context(ctx),
                         suffix = "The user hasn't been banned yet!"
-                    )
-                    raise exc_utils.ExitFunction()
+                    ).send()
 
                 await send_confirm()
                 firebase.deduct_data(path_initial, [user_id_str])

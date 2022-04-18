@@ -22,8 +22,10 @@ def command_wrap(
             requ_check = cmd_info.perms.has_all_perms(ctx)
             if not requ_check[0]:
                 failed_requ_check = requ_check[1]
-                await exc_utils.send_error(ctx, failed_requ_check.get_full_fail_message(), cooldown_reset = True)
-                return
+                await exc_utils.SendFailedCmd(
+                    error_place = exc_utils.ErrorPlace.from_context(ctx),
+                    suffix = failed_requ_check.get_full_fail_message()
+                ).send()
                 # raise cmd_wrap_excs.UsageReqNotMet(failed_requ_check.__class__.__name__)
 
             if not cmd_info.usability_info.usability_condition(ctx):

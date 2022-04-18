@@ -33,7 +33,6 @@ class CogErrorHandler(cog.RegisteredCog):
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = f"The command is on cooldown for `{time}` more!"
                 ).send()
-            return
 
 
         if isinstance(exc, nx_cmds.MissingRole):
@@ -42,7 +41,6 @@ class CogErrorHandler(cog.RegisteredCog):
                 suffix = f"You don't have the `{exc.missing_role}` role!"
                 ).send()
             exc_utils.reset_cooldown(ctx)
-            return
 
 
         if isinstance(exc, (nx_cmds.MissingRequiredArgument, nx_cmds.BadArgument)):
@@ -51,7 +49,6 @@ class CogErrorHandler(cog.RegisteredCog):
                 suffix = f"Make sure you have the correct parameters! Use `{CMD_PREFIX}help` to get help!"
                 ).send()
             exc_utils.reset_cooldown(ctx)
-            return
 
 
         if isinstance(exc, (
@@ -65,7 +62,6 @@ class CogErrorHandler(cog.RegisteredCog):
                 suffix = "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!"
                 ).send()
             exc_utils.reset_cooldown(ctx)
-            return
 
 
         if isinstance(exc, nx_cmds.MissingRequiredArgument):
@@ -73,7 +69,6 @@ class CogErrorHandler(cog.RegisteredCog):
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = f"Make sure you have the correct parameters! Use `{global_vars.CMD_PREFIX}help` to get help!"
                 ).send()
-            return
 
 
         if isinstance(exc, nx_cmds.NoPrivateMessage):
@@ -82,16 +77,16 @@ class CogErrorHandler(cog.RegisteredCog):
                 suffix = "This command is disabled in DMs!"
                 ).send()
             exc_utils.reset_cooldown(ctx)
-            return
 
 
         if isinstance(exc, nx_cmds.CommandInvokeError):
-            if isinstance(exc.original, (
-                            exc_utils.ExitFunction,
-                            exc_utils.FailedCmd
-                        )
-                    ):
+            if isinstance(exc.original, exc_utils.ExitFunction):
                 return
+
+            if isinstance(exc.original, exc_utils.FailedCmd):
+                exc_utils.reset_cooldown(ctx)
+                return
+
 
             if hasattr(exc.original, "status"):
                 if exc.original.status == 403:
@@ -100,11 +95,10 @@ class CogErrorHandler(cog.RegisteredCog):
 
 
             if isinstance(exc.original, asyncio.TimeoutError):
+                exc_utils.reset_cooldown(ctx)
                 await exc_utils.SendTimeout(
                     error_send_info = exc_utils.ErrorPlace.from_context(ctx),
                     ).send()
-                exc_utils.reset_cooldown(ctx)
-                return
 
             if isinstance(exc.original, nx.NotFound):
                 error_message = f"Not found. Code {exc.original.code}: {exc.original.text}"

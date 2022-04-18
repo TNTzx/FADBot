@@ -22,10 +22,14 @@ def choice_param_cmd(ctx: nx_cmds.Context, arg, choices: list):
     def decorator(func):
         async def wrapper(*args, **kwargs):
             if arg not in choices:
-                await exc_utils.send_error(ctx, (
-                    f"Make sure you have the correct parameters! `{arg}` is not a valid parameter.\n"
-                    f"The available parameters are `{'`, `'.join(choices)}`."
-                ))
+                await exc_utils.SendFailedCmd(
+                    error_place = exc_utils.ErrorPlace.from_context(ctx),
+                    suffix = (
+                        f"Make sure you have the correct parameters! `{arg}` is not a valid parameter.\n"
+                        f"The available parameters are `{'`, `'.join(choices)}`."
+                    )
+                ).send()
+
             return await func(*args, **kwargs)
         return wrapper
     return decorator

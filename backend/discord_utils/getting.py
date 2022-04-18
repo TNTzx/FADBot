@@ -34,7 +34,7 @@ async def channel_from_id_warn(ctx: nx_cmds.Context, channel_id: int):
         await exc_utils.SendFailed(
             error_place = exc_utils.ErrorPlace.from_context(ctx),
             suffix = f"Channel ID {channel_id} not found!"
-        )
+        ).send()
 
 
 def user_from_id(user_id: int):
@@ -53,4 +53,4 @@ async def user_from_id_warn(ctx: nx_cmds.Context, user_id: int):
         await exc_utils.SendFailed(
             error_place = exc_utils.ErrorPlace.from_context(ctx),
             suffix = f"User ID {user_id} not found!"
-        )
+        ).send()

@@ -58,7 +58,7 @@ def sustained_command():
                         "Please cancel the command you're currently using, or wait until it times out "
                             f"(which is about `{ot.format_time(ctx.command.get_cooldown_retry_after())}`)!"
                     )
-                )
+                ).send()
 
             add_is_using_command(path, ctx.author.id)
 

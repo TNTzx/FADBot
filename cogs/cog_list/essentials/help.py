@@ -47,7 +47,6 @@ class CogHelp(cog.RegisteredCog):
             await exc_utils.SendFailedCmd(
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = f"The command name / alias `{command_query}` cannot be found! Make sure you typed it correctly!"
-            )
-            return
+            ).send()
 
         await ctx.send(embed = command.generate_embed())
