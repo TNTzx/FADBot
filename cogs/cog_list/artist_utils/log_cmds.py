@@ -51,7 +51,7 @@ class CogLogCmds(cog.RegisteredCog):
     )
     async def loglocationset(self, ctx: nx_cmds.Context, log_type: str, channel_mention: str):
         """Sets the log location."""
-        channel = await disc_utils.channel_from_id_warn(ctx, channel_mention)
+        channel = await disc_utils.channel_from_id_warn(ctx, disc_utils.get_id_from_mention(channel_mention))
 
         await ctx.send("Registering log channel...")
 
