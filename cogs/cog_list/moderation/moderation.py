@@ -40,7 +40,11 @@ class CogModeration(cog.RegisteredCog):
         try:
             int(role_id)
         except ValueError:
-            await exc_utils.send_error(ctx, "You didn't send a valid role ID!")
+            await exc_utils.send_error_failed_cmd(
+                messageable = ctx,
+                author = ctx.author,
+                suffix = "You didn't send a valid role ID!"
+            )
             return
 
         firebase.edit_data(
@@ -90,7 +94,11 @@ class CogModeration(cog.RegisteredCog):
         user = await disc_utils.user_from_id_warn(ctx, user_id)
 
         if ctx.author.id == user.id:
-            await exc_utils.send_error(ctx, "You're banning yourself!! WHY????? **WHYYYYYY????????**")
+            await exc_utils.send_error_failed_cmd(
+                messageable = ctx,
+                author = ctx.author,
+                suffix = "You're banning yourself!! WHY????? **WHYYYYYY????????**"
+            )
             return
 
         @disc_utils.choice_param_cmd(ctx, action, ["ban", "unban"])
@@ -119,7 +127,6 @@ class CogModeration(cog.RegisteredCog):
             if action == "ban":
                 if user_in_ban_list():
                     await exc_utils.send_error(ctx, "The user is already banned!")
-                    raise exc_utils.ExitFunction()
 
                 await send_confirm()
                 firebase.append_data(path_initial, [user_id_str])
