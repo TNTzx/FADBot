@@ -21,12 +21,6 @@ TIMEOUT_MESSAGE = "Command timed out. Please use the command again."
 
 
 # REWRITE change to only use a specific channel
-async def send_error(ctx, suffix, send_author = False):
-    """Sends an error, but with a syntax."""
-    await exc_utils.send_error(ctx, f"{suffix} Try again.", send_author = send_author)
-
-
-# REWRITE change to only use a specific channel
 async def wait_for_message(ctx: nx_cmds.Context, timeout = TIMEOUT):
     """Wait for a message then return the response."""
     try:
