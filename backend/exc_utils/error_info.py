@@ -50,14 +50,14 @@ class SendWarn(ErrorSender):
 class SendFailed(ErrorSender):
     """Sends an error for fails, exiting the function with `ExitFunction`."""
     async def send(self):
-        super().send()
+        await super().send()
         raise custom_exc.ExitFunction()
 
 
 class SendFailedCmd(ErrorSender):
     """Sends an error for a failed command."""
     async def send(self):
-        super().send()
+        await super().send()
         raise custom_exc.FailedCmd(f"Failed command: {self.suffix}")
 
 
