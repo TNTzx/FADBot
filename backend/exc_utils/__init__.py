@@ -8,9 +8,9 @@ from .custom_exc import \
 from .cooldown_handle import reset_cooldown
 
 from .error_info import \
-    ErrorInfo, \
-        SendFailedCmd, SendWarn, \
     ErrorSendInfo, \
-    send_error, \
-    error_handle, \
-        cancel_command, timeout_command
+    ErrorSender, \
+        SendFailedCmd, SendWarn, \
+        ErrorSenderPredetermined, \
+            SendCancel, SendTimeout, \
+    send_error

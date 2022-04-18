@@ -26,33 +26,59 @@ class ErrorSendInfo():
         )
 
 
-class ErrorInfo():
+class ErrorSender():
     """Parent class for sending errors to a user."""
     prefix: str = "**Error!**\n"
 
-    def __init__(self, error_send_info: ErrorSendInfo, suffix: str):
+    def __init__(self, error_send_info: ErrorSendInfo, suffix: str, try_again: bool = False):
         self.error_send_info = error_send_info
-        self.suffix = suffix
+        self.suffix = suffix,
+        self.try_again = try_again
 
 
-    async def send(self, try_again: bool = False):
+    def get_text(self):
+        """Gets the text."""
+        try_again_str = "\nTry again." if self.try_again else ""
+        return f"{self.prefix}{self.error_send_info.author.mention}, {self.suffix}{try_again_str}"
+
+
+    async def send(self):
         """Sends the error."""
+        await self.error_send_info.messageable.send(self.get_text())
 
 
-class SendWarn(ErrorInfo):
+class SendWarn(ErrorSender):
     """Warnings used for bad user input."""
-    async def send(self, try_again: bool = False):
-        try_again_str = "\nTry again." if try_again else ""
-        text = f"{self.prefix}{self.error_send_info.author.mention}, {self.suffix}{try_again_str}"
-        await self.error_send_info.messageable.send(text)
 
 
-class SendFailedCmd(ErrorInfo):
+class SendFailedCmd(ErrorSender):
     """Sends an error for a failed command."""
-    async def send(self, try_again: bool = False):
-        text = f"{self.prefix}{self.error_send_info.author.mention}, {self.suffix}"
-        await self.error_send_info.messageable.send(text)
+    async def send(self):
+        super().send()
         raise custom_exc.FailedCmd(f"Failed command: {self.suffix}")
+
+
+class ErrorSenderPredetermined(ErrorSender):
+    """An extension of `ErrorInfo` that is predetermined and is common."""
+    suffix: str = None
+    exit_func: bool = True
+    def __init__(self, error_send_info: ErrorSendInfo, try_again: bool = False):
+        super().__init__(error_send_info, self.suffix, try_again)
+
+
+    async def send(self):
+        await super().send()
+        if self.exit_func:
+            raise custom_exc.ExitFunction()
+
+
+class SendCancel(ErrorSender):
+    """Cancels the command."""
+    suffix = "Command cancelled."
+
+class SendTimeout(ErrorSender):
+    """Sends a timeout."""
+    suffix = "Command cancelled."
 
 
 # REFACTOR use channel instead of context
@@ -101,18 +127,3 @@ async def send_error(
         else:
             await ctx.channel.send(text)
     return
-
-
-async def error_handle(messageable: nx.abc.Messageable, text: str):
-    """Send an error message for a specific error. Exit everything afterwards."""
-    await messageable.send(text)
-    raise custom_exc.ExitFunction()
-
-
-async def cancel_command(ctx: nx_cmds.Context, send_author = False):
-    """Cancels the current command."""
-    await error_handle("Command cancelled.", ctx, send_author = send_author)
-
-async def timeout_command(ctx: nx_cmds.Context, send_author = False):
-    """Command timed out."""
-    await error_handle("Command timed out. Please use the command again.", ctx, send_author = send_author)
