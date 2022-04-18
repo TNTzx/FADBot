@@ -22,7 +22,7 @@ async def reset_cooldown(ctx: nx_cmds.Context):
 
 
 async def send_error_warn(
-        channel: nx.TextChannel,
+        messageable: nx.abc.Messageable,
         author: nx.User,
         suffix: str,
         try_again = False
@@ -30,17 +30,17 @@ async def send_error_warn(
     """Sends a warning to a channel. Usually used for warning bad user input."""
     try_again_str = "\nTry again." if try_again else ""
     text = f"{ERROR_PREFIX}{author.mention}, {suffix}{try_again_str}"
-    await channel.send(text)
+    await messageable.send(text)
 
 
 async def send_error_failed_cmd(
-        channel: nx.TextChannel,
+        messageable: nx.abc.Messageable,
         author: nx.User,
         suffix: str,
         ):
     """Sends an error for a failed command."""
     text = f"{ERROR_PREFIX}{author.mention}, {suffix}"
-    await channel.send(text)
+    await messageable.send(text)
 
 
 async def send_error_fatal(
@@ -123,15 +123,10 @@ async def send_error(
     return
 
 
-async def error_handle(message: str, ctx: nx_cmds.Context, send_author = False):
+async def error_handle(messageable: nx.abc.Messageable, text: str):
     """Send an error message for a specific error. Exit everything afterwards."""
-    if send_author:
-        await ctx.author.send(message)
-    else:
-        await ctx.send(message)
-
+    await messageable.send(text)
     raise c_e.ExitFunction()
-
 
 
 async def cancel_command(ctx: nx_cmds.Context, send_author = False):
