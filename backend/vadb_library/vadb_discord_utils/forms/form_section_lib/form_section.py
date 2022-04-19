@@ -133,7 +133,6 @@ class FormSection():
         raise f_exc.InvalidSectionResponse()
 
 
-    # TODO work on sending to a user instead of the context
     async def send_section(
             self,
             channel: nx.TextChannel,
