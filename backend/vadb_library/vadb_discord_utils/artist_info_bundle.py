@@ -110,22 +110,23 @@ class InfoBundle():
         temp_states_val = self.artist.states.status.value
         temp_avail_var = self.artist.states.availability.value
 
-        if temp_states_val == 0: # completed
-            if temp_avail_var == 0: # verified
-                selected_color = colour.Color("green")
-            elif temp_avail_var == 1: # disallowed
-                selected_color = colour.Color("red")
-            elif temp_avail_var == 2: # contact required
-                selected_color = colour.Color("yellow")
-            elif temp_avail_var == 3: # varies
-                selected_color = colour.Color("blue")
-        elif temp_states_val == 1: # no contact
+        if temp_states_val == 1: # no contact
             selected_color = colour.Color("red")
+        else:
+            if temp_avail_var == 0: # verified
+                selected_color = colour.Color("#00FF00")
+            elif temp_avail_var == 1: # disallowed
+                selected_color = colour.Color("#FF0000")
+            elif temp_avail_var == 2: # contact required
+                selected_color = colour.Color("#FFFF00")
+            elif temp_avail_var == 3: # varies
+                selected_color = colour.Color("#0000FF")
+
 
         if temp_states_val == 2: # pending
             selected_color.set_luminance(selected_color.get_luminance() / 2)
 
-        embed.colour = int(selected_color.get_hex()[1:], base = 16)
+        embed.colour = int(selected_color.get_hex_l()[1:], base = 16)
 
         return embed
 
