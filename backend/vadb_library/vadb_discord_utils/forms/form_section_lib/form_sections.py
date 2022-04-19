@@ -22,10 +22,10 @@ from . import section_states as states
 
 class Name(f_s.RawTextSection):
     """The artist name."""
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
-        response = await super().reformat_input(ctx, response)
+    async def reformat_input(self, channel: nx.TextChannel, author: nx.User, response: nx.Message | disc_utils.View, section_state: states.SectionState = None) -> str | int | dict | list | disc_utils.View:
+        response = await super().reformat_input(channel, author, response, section_state)
 
-        await ctx.author.send("Checking if there are already possible existing artists and requests with this name. This might take a while...")
+        await channel.send("Checking if there are already possible existing artists and requests with this name. This might take a while...")
 
 
         def is_name_in_search(query: queries.BaseQuery, search_term: str, get_search_result_name: typ.Callable[[typ.Any], str]):
@@ -56,26 +56,29 @@ class Name(f_s.RawTextSection):
 
             view = disc_utils.ViewConfirmBackCancel()
 
-            message = await ctx.author.send(
+            message = await channel.send(
                 f"Possible existing {search_type_plural_str.capitalize()} found!",
                 embed = embed_art,
                 view = view
             )
 
             result_view = await disc_utils.wait_for_view(
-                channel = ctx.channel
+                channel = channel,
+                author = author,
+                original_message = message,
+                view = view
             )
             result = result_view.value
 
             if result == disc_utils.ViewOutputValues.CONFIRM:
-                await ctx.author.send("Proceeding...")
+                await channel.send("Proceeding...")
             if result == disc_utils.ViewOutputValues.BACK:
-                await ctx.author.send("Returning...")
+                await channel.send("Returning...")
                 raise f_exc.InvalidSectionResponse()
             if result == disc_utils.ViewOutputValues.CANCEL:
                 await exc_utils.SendCancel(
-                    error_place = exc_utils.ErrorPlace.from_context(ctx)
-                )
+                    error_place = exc_utils.ErrorPlace(channel, author)
+                ).send()
 
 
         async def execute_is_multiple(
@@ -87,7 +90,10 @@ class Name(f_s.RawTextSection):
                 ):
             """Executes `is_name_in_search` and `send_multiple_confirm`."""
             if is_name_in_search(searched, search_term, get_search_name):
-                await disc_utils.send_error(ctx, f"A {search_type_str} with that name already exists.", send_author = True)
+                await exc_utils.SendWarn(
+                    error_place = exc_utils.ErrorPlace(channel, author),
+                    suffix = f"A {search_type_str} with that name already exists."
+                )
                 raise f_exc.InvalidSectionResponse()
 
             await send_multiple_confirm(searched, search_type_plural_str)
@@ -108,7 +114,7 @@ class Name(f_s.RawTextSection):
                 search_type_plural_str = "requests"
             )
         except change_reqs.ChangeReqNotFound:
-            await ctx.author.send("No existing request found! Attempting to find existing artists...")
+            await channel.send("No existing request found! Attempting to find existing artists...")
 
 
         # TEST test this out, couldn't test earlier because server down
@@ -127,23 +133,25 @@ class Name(f_s.RawTextSection):
                 search_type_plural_str = "artists"
             )
         except excepts.VADBNoSearchResult:
-            await ctx.author.send("No existing artist found! Proceeding...")
+            await channel.send("No existing artist found! Proceeding...")
 
 
         return response
 
 
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.name = await self.send_section(ctx, section_state = section_state)
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+        artist.name = await self.send_section(channel, author, section_state = section_state)
+
 
 class Proof(f_s.ImageSection):
     """Artist proof."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.proof = a_s.Proof(await self.send_section(ctx, section_state = section_state))
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+        artist.proof = a_s.Proof(await self.send_section(channel, author, section_state = section_state))
+
 
 class Availability(f_s.ChoiceSection):
     """Artist availability."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
         class AvailabilityView(disc_utils.View):
             """Extra view."""
             @nx.ui.select(placeholder = "Select availability...", options = a_s.AvailabilityList.get_states_options(), row = 0)
@@ -152,8 +160,9 @@ class Availability(f_s.ChoiceSection):
                 self.value = select.values
                 self.stop()
 
-        response = await self.send_section(ctx, section_state = section_state, extra_view = AvailabilityView)
+        response = await self.send_section(channel, author, section_state = section_state, extra_view = AvailabilityView)
         artist.states.availability.value = int(response)
+
 
 value_state_dict = {
     "Verified": True,
@@ -163,16 +172,19 @@ value_state_dict = {
 class UsageRights(f_s.DictSection):
     """Artist's usage rights."""
     def __init__(self, title: str, description: str, example: str = None, notes: str = None, default_section_state: states.SectionState = states.SectionStates.default):
-        super().__init__(title, description, example, notes, default_section_state = default_section_state, allowed_val_func = lambda value: value in list(value_state_dict))
+        super().__init__(
+            title, description, example, notes, default_section_state = default_section_state,
+            allowed_val_func = lambda value: value in list(value_state_dict)
+        )
 
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
-        diction = await super().reformat_input(ctx, response)
+    async def reformat_input(self, channel: nx.TextChannel, author: nx.User, response: nx.Message | disc_utils.View, section_state: states.SectionState = None) -> str | int | dict | list | disc_utils.View:
+        diction = await super().reformat_input(channel, author, response)
         return {
             key: value_state_dict[value] for key, value in diction.items()
         }
 
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        diction: dict = await self.send_section(ctx, section_state)
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+        diction: dict = await self.send_section(channel, author, section_state)
         artist.states.usage_rights = a_s.UsageRights(
             [
                 a_s.UsageRight(
@@ -184,47 +196,54 @@ class UsageRights(f_s.DictSection):
 
 class Description(f_s.RawTextSection):
     """Artist description."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.details.description = await self.send_section(ctx, section_state = section_state)
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+        artist.details.description = await self.send_section(channel, author, section_state = section_state)
+
 
 class Aliases(f_s.ListSection):
     """Artist's aliases."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
         artist.details.aliases = a_s.Aliases([
-            a_s.Alias(name) for name in await self.send_section(ctx, section_state = section_state)
+            a_s.Alias(name) for name in await self.send_section(channel, author, section_state = section_state)
         ])
+
 
 class Avatar(f_s.ImageSection):
     """Artist's avatar."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.details.image_info.avatar = a_s.Avatar(await self.send_section(ctx, section_state = section_state))
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+        artist.details.image_info.avatar = a_s.Avatar(await self.send_section(channel, author, section_state = section_state))
+
 
 class Banner(f_s.ImageSection):
     """Artist's banner."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.details.image_info.banner = a_s.Banner(await self.send_section(ctx, section_state = section_state))
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+        artist.details.image_info.banner = a_s.Banner(await self.send_section(channel, author, section_state = section_state))
+
 
 class TrackCount(f_s.NumberSection):
     """Artist's track count."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.details.music_info.track_count = await self.send_section(ctx, section_state = section_state)
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+        artist.details.music_info.track_count = await self.send_section(channel, author, section_state = section_state)
+
 
 class Genre(f_s.RawTextSection):
     """Artist's genre."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.details.music_info.genre = await self.send_section(ctx, section_state = section_state)
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+        artist.details.music_info.genre = await self.send_section(channel, author, section_state = section_state)
+
 
 class Socials(f_s.LinksSection):
     """Artist's social links."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
         artist.details.socials = a_s.Socials(
-            [a_s.Social(link) for link in await self.send_section(ctx, section_state = section_state)]
+            [a_s.Social(link) for link in await self.send_section(channel, author, section_state = section_state)]
         )
+
 
 class Notes(f_s.RawTextSection):
     """Artist notes."""
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
-        artist.details.notes = await self.send_section(ctx, section_state = section_state)
+    async def edit_artist_with_section(self, channel: nx.TextChannel, author: nx.User, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+        artist.details.notes = await self.send_section(channel, author, section_state = section_state)
 
 
 class FormSections():

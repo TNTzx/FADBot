@@ -216,7 +216,7 @@ async def check_if_content_empty(
         await exc_utils.SendWarn(
             error_place = exc_utils.ErrorPlace(channel, author),
             suffix = "You didn't send anything!"
-        )
+        ).send()
         raise f_exc.InvalidSectionResponse("No message content found.")
 
 
@@ -234,14 +234,14 @@ class NumberSection(TextInput):
             await exc_utils.SendWarn(
                 error_place = exc_utils.ErrorPlace(channel, author),
                 suffix = "That's not a number!"
-            )
+            ).send()
             raise f_exc.InvalidSectionResponse() from exc
 
         if number > (1 * (10 ** 6)):
             await exc_utils.SendWarn(
                 error_place = exc_utils.ErrorPlace(channel, author),
                 suffix = "That's way too large!"
-            )
+            ).send()
             raise f_exc.InvalidSectionResponse()
 
 
@@ -348,7 +348,7 @@ class ListSection(TextInput):
             await exc_utils.SendWarn(
                 error_place = exc_utils.ErrorPlace(channel, author),
                 suffix = "You didn't send a list!"
-            )
+            ).send()
             raise f_exc.InvalidSectionResponse()
         return response.content.split("\n")
 
@@ -386,7 +386,7 @@ class DictSection(TextInput):
             await exc_utils.SendWarn(
                 error_place = exc_utils.ErrorPlace(channel, author),
                 suffix = "Your formatting is wrong!"
-            )
+            ).send()
             raise f_exc.InvalidSectionResponse() from exc
 
 
@@ -397,7 +397,7 @@ class DictSection(TextInput):
                         await exc_utils.SendWarn(
                             error_place = exc_utils.ErrorPlace(channel, author),
                             suffix = f"`{item}` is not a valid {type_}. Please check if you have capitalized it."
-                        )
+                        ).send()
                         raise f_exc.InvalidSectionResponse()
 
         await check("key", self.allowed_key_func, list(diction.keys()))
@@ -416,7 +416,7 @@ class ChoiceSection(ViewInput):
             await exc_utils.SendWarn(
                 error_place = exc_utils.ErrorPlace(channel, author),
                 suffix = "You didn't send a choice!"
-            )
+            ).send()
             raise f_exc.InvalidSectionResponse()
 
         return response.value[0]
