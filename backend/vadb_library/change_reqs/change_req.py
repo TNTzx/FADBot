@@ -126,16 +126,16 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     async def send_request_pending_intercept(self):
         """An extra method used to intercept the `send_request_pending` method."""
 
-    async def send_request_pending(self, ctx: nx_cmds.Context):
+    async def send_request_pending(self, channel: nx.TextChannel):
         """Sends the request for approval."""
-        await ctx.author.send(f"Sending {self.type_} request...")
+        await channel.send(f"Sending {self.type_} request...")
         self.register_request_id()
         await self.discord_send_request_pending()
         self.firebase_send_request_pending()
 
         await self.send_request_pending_intercept()
 
-        await ctx.author.send(
+        await channel.send(
             (
                 "Sent request. Please wait for a PA moderator to approve your request.\n"
                 f"Request ID: {self.request_id}"
@@ -159,13 +159,13 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         firebase.delete_data(self.firebase_get_path() + [self.request_id])
 
 
-    async def approve_request(self, ctx: nx_cmds.Context):
+    async def approve_request(self, channel: nx.TextChannel, author: nx.User):
         """Approves the request."""
 
-    async def decline_request(self, ctx: nx_cmds.Context):
+    async def decline_request(self, channel: nx.TextChannel, author: nx.User):
         """Denies the request."""
 
-    async def set_approval(self, ctx: nx_cmds.Context, is_approved: bool, reason: str = None):
+    async def set_approval(self, channel: nx.TextChannel, author: nx.User, is_approved: bool, reason: str = None):
         """Sets the approve status of this request."""
         timeout = global_vars.Timeouts.medium
         self.artist.states.status.value = 0
@@ -187,15 +187,15 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                 f"{message_confirm_str}\n"
                 f"This command times out in {ot.format_time(timeout)}."
             )
-            confirm_message = await ctx.send(
+            confirm_message = await channel.send(
                 confirm_str,
                 embed = artist_embed,
                 view = confirm_view
             )
 
             final_view = await disc_utils.wait_for_view(
-                channel = ctx.channel,
-                author = ctx.author,
+                channel = channel,
+                author = author,
                 original_message = confirm_message,
                 view = confirm_view
             )
@@ -205,11 +205,11 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
 
             # processing request
-            await ctx.send(approval_cls.get_message_processing(self.type_))
+            await channel.send(approval_cls.get_message_processing(self.type_))
 
-            await callback_method(ctx)
+            await callback_method(channel)
 
-            await ctx.send(
+            await channel.send(
                 approval_cls.get_message_complete(
                     req_id = self.request_id,
                     req_type = self.type_,
@@ -243,7 +243,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             except nx.errors.Forbidden:
                 # TEST test this error
                 await exc_utils.SendWarn(
-                    error_place = exc_utils.ErrorPlace.from_context(ctx),
+                    error_place = exc_utils.ErrorPlace(channel, author),
                     suffix = (
                         f"I can't seem to be able to notify the user who sent this request, named `{self.user_sender.name}#{self.user_sender.discriminator}` (ID: `{self.user_sender.id}`).\n"
                         "If you have contacts with this user, please notify them!"
@@ -281,7 +281,7 @@ class AddRequest(ChangeRequest):
     type_ = firebase_name = "add"
 
 
-    async def approve_request(self, ctx: nx_cmds.Context):
+    async def approve_request(self, channel: nx.TextChannel, author: nx.User):
         self.artist.vadb_create_edit()
 
 
@@ -296,10 +296,10 @@ class EditRequest(ChangeRequest):
         old_artist.vadb_edit()
 
 
-    async def approve_request(self, ctx: nx_cmds.Context):
+    async def approve_request(self, channel: nx.TextChannel, author: nx.User):
         self.artist.vadb_edit()
 
-    async def decline_request(self, ctx: nx_cmds.Context):
+    async def decline_request(self, channel: nx.TextChannel, author: nx.User):
         old_artist = self.get_original_artist()
         old_artist.states.status.value = 0
         old_artist.vadb_edit()

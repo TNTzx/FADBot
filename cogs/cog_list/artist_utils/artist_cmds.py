@@ -44,13 +44,18 @@ class CogArtistCmds(cog.RegisteredCog):
         await author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
 
 
+        dm_channel = author.dm_channel
+        if dm_channel is None:
+            dm_channel = await author.create_dm()
+
+
         form_artist = vadb.disc.FormArtist()
 
         await author.send("Initiating request editing...")
-        await form_artist.edit_with_all_sections(ctx)
+        await form_artist.edit_with_all_sections(dm_channel, author)
 
         await author.send("Editing current artist...")
-        await form_artist.edit_loop(ctx)
+        await form_artist.edit_loop(dm_channel, author)
 
         add_req = vadb.AddRequest(
             artist = form_artist.artist,

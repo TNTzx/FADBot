@@ -101,7 +101,7 @@ class FormArtist():
                 await channel.send(f"Editing artist's __{title}__...")
                 form_section = f_s.FormSections.get_section_from_title(title)
 
-                await self.edit_with_section(channel, section = form_section, section_state = f_s.SectionStates.editing)
+                await self.edit_with_section(channel, author, section = form_section, section_state = f_s.SectionStates.editing)
 
 
             view = disc_utils.ViewConfirmBackCancel()
