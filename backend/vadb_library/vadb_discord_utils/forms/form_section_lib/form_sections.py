@@ -62,7 +62,9 @@ class Name(f_s.RawTextSection):
                 view = view
             )
 
-            result_view = await disc_utils.wait_for_view(ctx, message, view)
+            result_view = await disc_utils.wait_for_view(
+                channel = ctx.channel
+            )
             result = result_view.value
 
             if result == disc_utils.ViewOutputValues.CONFIRM:

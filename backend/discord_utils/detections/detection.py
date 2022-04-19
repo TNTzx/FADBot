@@ -20,7 +20,6 @@ TIMEOUT = global_vars.Timeouts.long
 TIMEOUT_MESSAGE = "Command timed out. Please use the command again."
 
 
-# REFACTOR change to only use a specific channel
 async def wait_for_message(
         channel: nx.TextChannel,
         author: nx.User,
