@@ -24,21 +24,21 @@ class FormArtist():
         self.artist = artist
 
 
-    async def edit_with_section(self, ctx: nx_cmds.Context, section: f_s.FormSection, section_state: f_s.SectionState = None):
+    async def edit_with_section(self, channel: nx.TextChannel, author: nx.User, section: f_s.FormSection, section_state: f_s.SectionState = None):
         """Edits the artist on Discord with a form section."""
         try:
-            await section.edit_artist_with_section(ctx, self.artist, section_state = section_state)
+            await section.edit_artist_with_section(channel, author, self.artist, section_state = section_state)
         except f_exc.ExitSection:
             return
 
 
-    async def edit_with_all_sections(self, ctx: nx_cmds.Context, section_state: f_s.SectionState = None):
+    async def edit_with_all_sections(self, channel: nx.TextChannel, author: nx.User, section_state: f_s.SectionState = None):
         """Edits the artist with all form sections."""
         for section in f_s.FormSections.get_all_form_sections():
-            await self.edit_with_section(ctx, section, section_state)
+            await self.edit_with_section(channel, author, section, section_state)
 
 
-    async def edit_loop(self, ctx: nx_cmds.Context):
+    async def edit_loop(self, channel: nx.TextChannel, author: nx.User):
         """Edits the artist using dropdowns to select a section."""
         timeout = global_vars.Timeouts.long
 
@@ -65,13 +65,13 @@ class FormArtist():
             return embed
 
 
-        await ctx.author.send("**Editing an artist...**")
+        await channel.send("**Editing an artist...**")
 
         while True:
             while True:
                 new_view = view_cls()
                 message_bundle = await artist_info_bundle.send_message(
-                    ctx,
+                    channel,
                     prefix = (
                         "This is the generated artist profile.\n"
                         "Select from the dropdown menu to edit that property.\n"
@@ -83,7 +83,7 @@ class FormArtist():
                 )
 
                 response = await disc_utils.wait_for_view(
-                    ctx,
+                    channel, author,
                     await message_bundle.message_pointer_proof.get_message(),
                     view = new_view,
                     timeout = timeout
@@ -94,21 +94,21 @@ class FormArtist():
                     break
                 if response.value == disc_utils.ViewOutputValues.CANCEL:
                     await exc_utils.SendCancel(
-                        error_place = exc_utils.ErrorPlace.from_context(ctx)
+                        error_place = exc_utils.ErrorPlace(channel, author)
                     ).send()
 
                 title = response.value[0]
-                await ctx.author.send(f"Editing artist's __{title}__...")
+                await channel.send(f"Editing artist's __{title}__...")
                 form_section = f_s.FormSections.get_section_from_title(title)
 
-                await self.edit_with_section(ctx, section = form_section, section_state = f_s.SectionStates.editing)
+                await self.edit_with_section(channel, section = form_section, section_state = f_s.SectionStates.editing)
 
 
             view = disc_utils.ViewConfirmBackCancel()
 
-            message = await ctx.send(embed = generate_confirm_embed(), view = view)
+            message = await channel.send(embed = generate_confirm_embed(), view = view)
 
-            response = await disc_utils.wait_for_view(ctx, message, view)
+            response = await disc_utils.wait_for_view(channel, author, message, view)
 
             if response.value == disc_utils.ViewOutputValues.CONFIRM:
                 break
@@ -116,8 +116,8 @@ class FormArtist():
                 continue
             if response.value == disc_utils.ViewOutputValues.CANCEL:
                 await exc_utils.SendCancel(
-                    error_place = exc_utils.ErrorPlace.from_context(ctx)
+                    error_place = exc_utils.ErrorPlace(channel, author)
                 ).send()
 
 
-        await ctx.author.send("Artist edited successfully.")
+        await channel.send("Artist edited successfully.")

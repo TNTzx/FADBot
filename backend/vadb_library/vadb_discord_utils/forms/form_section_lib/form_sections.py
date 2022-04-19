@@ -93,7 +93,7 @@ class Name(f_s.RawTextSection):
                 await exc_utils.SendWarn(
                     error_place = exc_utils.ErrorPlace(channel, author),
                     suffix = f"A {search_type_str} with that name already exists."
-                )
+                ).send()
                 raise f_exc.InvalidSectionResponse()
 
             await send_multiple_confirm(searched, search_type_plural_str)
