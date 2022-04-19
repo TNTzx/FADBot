@@ -280,7 +280,7 @@ class LinksSection(TextInput):
                         f"`{url}` is not a valid link! Here's the error:\n"
                         f"```{str(exc)}```"
                     )
-                )
+                ).send()
                 raise f_exc.InvalidSectionResponse() from exc
             return url
 
@@ -311,7 +311,7 @@ class ImageSection(TextInput):
                         f"You didn't send a valid image/link! Here's the error:\n"
                         f"```{str(exc)}```"
                     )
-                )
+                ).send()
                 raise f_exc.InvalidSectionResponse() from exc
 
             if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
@@ -321,7 +321,7 @@ class ImageSection(TextInput):
                         "You sent a link to an unsupported file format! "
                         f"The formats allowed are `{'`, `'.join(supported_formats)}`."
                     )
-                )
+                ).send()
                 raise f_exc.InvalidSectionResponse()
 
             return image_url

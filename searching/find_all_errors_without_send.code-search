@@ -1,4 +1,4 @@
-# Query: await exc_utils\\.Send.*\\(\\n(\\s*.*=.*\\n)*\\s*\\)(?!\\.send)
+# Query: await exc_utils\\.Send.*\\(\\n(\\s*.*=(.*)\\n)*\\s*\\)(?!\\.send)
 # Flags: CaseSensitive RegExp
 # ContextLines: 1
 
