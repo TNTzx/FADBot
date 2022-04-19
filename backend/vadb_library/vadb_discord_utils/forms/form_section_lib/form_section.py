@@ -187,7 +187,6 @@ class FormSection():
             return final_response
 
 
-    # REFACTOR this
     async def edit_artist_with_section(
             self,
             channel: nx.TextChannel,

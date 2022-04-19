@@ -53,7 +53,6 @@ class ExampleView(nx.ui.View):
         self.stop()
 
 
-# REFACTOR change to only use a specific channel
 async def wait_for_view(
         channel: nx.TextChannel,
         author: nx.User,
@@ -80,7 +79,7 @@ class DetectionOutputTypes(enum.Enum):
     MESSAGE = "message"
     VIEW = "view"
 
-# REFACTOR
+
 async def wait_for_message_view(
         channel: nx.TextChannel,
         author: nx.User,
