@@ -35,6 +35,7 @@ class UsabilityInfo():
         self.guild_only = guild_only
 
 
+# TODO add sustained command information
 class CmdInfo():
     """Contains information about the command."""
     def __init__(

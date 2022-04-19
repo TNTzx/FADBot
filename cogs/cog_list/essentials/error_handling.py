@@ -37,19 +37,19 @@ class CogErrorHandler(cog.RegisteredCog):
 
 
             if isinstance(exc, nx_cmds.MissingRole):
+                exc_utils.reset_cooldown(ctx)
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = f"You don't have the `{exc.missing_role}` role!"
                     ).send()
-                exc_utils.reset_cooldown(ctx)
 
 
             if isinstance(exc, (nx_cmds.MissingRequiredArgument, nx_cmds.BadArgument)):
+                exc_utils.reset_cooldown(ctx)
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = f"Make sure you have the correct parameters! Use `{CMD_PREFIX}help` to get help!"
                     ).send()
-                exc_utils.reset_cooldown(ctx)
 
 
             if isinstance(exc, (
@@ -58,11 +58,11 @@ class CogErrorHandler(cog.RegisteredCog):
                         nx_cmds.UnexpectedQuoteError
                         )
                     ):
+                exc_utils.reset_cooldown(ctx)
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!"
                     ).send()
-                exc_utils.reset_cooldown(ctx)
 
 
             if isinstance(exc, nx_cmds.MissingRequiredArgument):
@@ -73,11 +73,11 @@ class CogErrorHandler(cog.RegisteredCog):
 
 
             if isinstance(exc, nx_cmds.NoPrivateMessage):
+                exc_utils.reset_cooldown(ctx)
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = "This command is disabled in DMs!"
-                    ).send()
-                exc_utils.reset_cooldown(ctx)
+                ).send()
 
 
             if isinstance(exc, nx_cmds.CommandInvokeError):
@@ -99,12 +99,14 @@ class CogErrorHandler(cog.RegisteredCog):
                     exc_utils.reset_cooldown(ctx)
                     await exc_utils.SendTimeout(
                         error_place = exc_utils.ErrorPlace.from_context(ctx),
-                        ).send()
+                    ).send()
+
 
                 if isinstance(exc.original, nx.NotFound):
                     error_message = f"Not found. Code {exc.original.code}: {exc.original.text}"
                     lgr.log_discord_forbidden.warning(error_message)
                     return
+
 
                 if isinstance(exc.original, disc_utils.UsageReqNotMet):
                     return
