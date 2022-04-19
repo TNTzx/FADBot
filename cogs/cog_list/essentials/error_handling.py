@@ -98,7 +98,7 @@ class CogErrorHandler(cog.RegisteredCog):
                 if isinstance(exc.original, asyncio.TimeoutError):
                     exc_utils.reset_cooldown(ctx)
                     await exc_utils.SendTimeout(
-                        error_send_info = exc_utils.ErrorPlace.from_context(ctx),
+                        error_place = exc_utils.ErrorPlace.from_context(ctx),
                         ).send()
 
                 if isinstance(exc.original, nx.NotFound):

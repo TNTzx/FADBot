@@ -71,7 +71,9 @@ class Name(f_s.RawTextSection):
                 await ctx.author.send("Returning...")
                 raise f_exc.InvalidSectionResponse()
             if result == disc_utils.ViewOutputValues.CANCEL:
-                await exc_utils.cancel_command(ctx, send_author = True)
+                await exc_utils.SendCancel(
+                    error_place = exc_utils.ErrorPlace.from_context(ctx)
+                )
 
 
         async def execute_is_multiple(

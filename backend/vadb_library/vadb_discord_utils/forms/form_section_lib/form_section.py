@@ -23,7 +23,9 @@ from . import section_states as states
 async def check_response(ctx: nx_cmds.Context, view: disc_utils.View):
     """Checks the response of the user if they went back, cancelled, etc."""
     if view.value == disc_utils.ViewOutputValues.CANCEL:
-        await exc_utils.cancel_command(ctx, send_author = True)
+        await exc_utils.SendCancel(
+            error_place = exc_utils.ErrorPlace.from_context(ctx)
+        ).send()
     elif view.value == disc_utils.ViewOutputValues.SKIP:
         await ctx.author.send("Section skipped.")
         raise f_exc.ExitSection()

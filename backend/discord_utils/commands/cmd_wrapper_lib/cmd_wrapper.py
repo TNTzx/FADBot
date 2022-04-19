@@ -26,7 +26,6 @@ def command_wrap(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = failed_requ_check.get_full_fail_message()
                 ).send()
-                # raise cmd_wrap_excs.UsageReqNotMet(failed_requ_check.__class__.__name__)
 
             if not cmd_info.usability_info.usability_condition(ctx):
                 ctx.command.reset_cooldown(ctx)

@@ -65,8 +65,8 @@ class ErrorSenderPredetermined(ErrorSender):
     """An extension of `ErrorInfo` that is predetermined and is common."""
     suffix: str = None
     exit_func: bool = True
-    def __init__(self, error_send_info: ErrorPlace, try_again: bool = False):
-        super().__init__(error_send_info, self.suffix, try_again)
+    def __init__(self, error_place: ErrorPlace, try_again: bool = False):
+        super().__init__(error_place, self.suffix, try_again)
 
 
     async def send(self):

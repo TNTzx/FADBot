@@ -117,7 +117,7 @@ class CogLogCmds(cog.RegisteredCog):
         async def log_type_choice():
             path_initial = firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [str(ctx.guild.id), "logs", "locations", log_type]
 
-            if firebase.get_data(path_initial) == firebase.PLACEHOLDER_DATA:
+            if firebase.get_data(path_initial) is None:
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = f"There's no registered channel for the `{log_type}` log type for this server! Add one using `{global_vars.CMD_PREFIX}loglocationset`!"

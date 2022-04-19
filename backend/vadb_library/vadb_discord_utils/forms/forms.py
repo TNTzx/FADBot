@@ -93,7 +93,9 @@ class FormArtist():
                 if response.value == disc_utils.ViewOutputValues.CONFIRM:
                     break
                 if response.value == disc_utils.ViewOutputValues.CANCEL:
-                    await exc_utils.cancel_command(ctx, send_author = True)
+                    await exc_utils.SendCancel(
+                        error_place = exc_utils.ErrorPlace.from_context(ctx)
+                    ).send()
 
                 title = response.value[0]
                 await ctx.author.send(f"Editing artist's __{title}__...")
@@ -113,7 +115,9 @@ class FormArtist():
             if response.value == disc_utils.ViewOutputValues.BACK:
                 continue
             if response.value == disc_utils.ViewOutputValues.CANCEL:
-                await exc_utils.cancel_command(ctx, send_author = True)
+                await exc_utils.SendCancel(
+                    error_place = exc_utils.ErrorPlace.from_context(ctx)
+                ).send()
 
 
         await ctx.author.send("Artist edited successfully.")

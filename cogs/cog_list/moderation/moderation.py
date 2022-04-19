@@ -112,7 +112,7 @@ class CogModeration(cog.RegisteredCog):
 
                 if output_view.value == disc_utils.ViewOutputValues.CANCEL:
                     await exc_utils.SendCancel(
-                        error_send_info = exc_utils.ErrorPlace.from_context(ctx)
+                        error_place = exc_utils.ErrorPlace.from_context(ctx)
                     ).send()
 
 
