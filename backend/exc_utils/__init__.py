@@ -2,9 +2,14 @@
 
 
 from .custom_exc import \
-    ExitFunction
+    CustomExc, \
+        ExitFunction, FailedCmd
+
+from .cooldown_handle import reset_cooldown
 
 from .error_info import \
-    send_error, \
-    error_handle, \
-        cancel_command, timeout_command
+    ErrorPlace, \
+    ErrorSender, \
+        SendFailed, SendFailedCmd, SendWarn, \
+        ErrorSenderPredetermined, \
+            SendCancel, SendTimeout

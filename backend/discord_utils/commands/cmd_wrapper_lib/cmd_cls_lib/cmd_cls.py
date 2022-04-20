@@ -12,7 +12,7 @@ import backend.other as ot
 import global_vars
 
 from ....message_utils import embed_utils
-from . import cmd_infos
+from . import cmd_exts
 
 
 class DiscordCommand():
@@ -22,7 +22,7 @@ class DiscordCommand():
     def __init__(
             self,
             command: typ.Callable[[nx_cmds.Context, typ.Any], None],
-            info: cmd_infos.CmdInfo = cmd_infos.CmdInfo()
+            info: cmd_exts.CmdInfo = cmd_exts.CmdInfo()
             ):
         self.command = command
         self.name = command.__name__
@@ -40,6 +40,16 @@ class DiscordCommand():
             return self.name
 
         return f"{self.name} ({', '.join(self.info.aliases)})"
+
+
+    def get_full_name(self):
+        """Gets the full name with the command prefix."""
+        return f"{global_vars.CMD_PREFIX}{self.name}"
+
+
+    def get_full_syntax(self):
+        """Gets the full syntax of the command."""
+        return f"{self.get_full_name()} {self.info.params.get_syntax()}"
 
 
     def generate_embed(self):
@@ -66,21 +76,37 @@ class DiscordCommand():
 
         embed_utils.make_horizontal_rule(embed)
 
-        emb_syntax_list = "> <".join(self.info.parameters.keys())
-        emb_syntax_list = f" `<{emb_syntax_list}>`" if emb_syntax_list != "" else "_ _"
-        embed.add_field(
-            name = "Syntax:",
-            value = f"`{global_vars.CMD_PREFIX}{self.name}`{emb_syntax_list}",
-            inline = False
-        )
-
-        if self.info.parameters is not None:
-            emb_params_list = "\n".join([f"`<{param}>`: {param_desc}" for param, param_desc in self.info.parameters.items()])
+        if self.info.params is None:
             embed.add_field(
-                name = "Parameters:",
-                value = f"{emb_params_list}",
+                name = "Syntax:",
+                value = f"`{self.get_full_name()}`",
                 inline = False
             )
+        else:
+            emb_syntax_help = self.info.params.get_syntax_help()
+            emb_syntax_help = emb_syntax_help.split("\n")
+            emb_syntax_help = "\n".join(emb_syntax_help[1:])
+            embed.add_field(
+                name = "Full Syntax:",
+                value = (
+                    f"`{self.get_full_syntax()}`\n\n"
+                    f"__Parameter descriptions:__\n"
+                    f"`{emb_syntax_help}`"
+                ),
+                inline = False
+            )
+
+            if self.info.params.has_splits():
+                embed.add_field(
+                    name = "All usages:",
+                    value = "\n".join(
+                        [
+                            f"`{self.get_full_name()} {param.get_syntax_arranged()}`"
+                            for param in self.info.params.get_all_arrangements()
+                        ]
+                    ),
+                    inline = False
+                )
 
         embed_utils.make_horizontal_rule(embed)
 

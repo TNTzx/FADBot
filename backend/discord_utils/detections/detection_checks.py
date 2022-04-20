@@ -4,22 +4,23 @@
 import nextcord as nx
 
 
-def check_message(author_id: int, text_channel_id: int):
+def check_message(author: nx.User, text_channel: nx.TextChannel):
     """Check for messages. Call to get wrapper.
     Returns True if:
     - Author is the same for command initiator and message sender.
     - Channel of message sent is the same as text channel."""
 
     def wrap(msg: nx.Message):
-        return author_id == msg.author.id and msg.channel.id == text_channel_id
+        return author.id == msg.author.id and text_channel.id == msg.channel.id
     return wrap
 
-def check_interaction(author_id: int, original_message_id: int):
+
+def check_interaction(author: nx.User, original_message: nx.Message):
     """Checks for interactions. Call to get wrapper.
     Returns True if:
     - Author is the same for command initiator and interaction sender.
     - Interaction happened on the `original_message`."""
 
     def wrap(interact: nx.Interaction):
-        return author_id == interact.user.id and interact.message.id == original_message_id
+        return author.id == interact.user.id and original_message.id == interact.message.id
     return wrap

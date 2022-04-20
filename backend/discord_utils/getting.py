@@ -10,10 +10,10 @@ import backend.exc_utils as exc_utils
 from . import disc_exc
 
 
-async def get_id_from_mention(mention_str: str):
+def get_id_from_mention(mention_str: str):
     """Gets the ID from a mention."""
     try:
-        return mention_str[2:-1]
+        return int(mention_str[2:-1])
     except (ValueError, TypeError) as exc:
         raise disc_exc.NotMention(mention_str) from exc
 
@@ -30,9 +30,11 @@ async def channel_from_id_warn(ctx: nx_cmds.Context, channel_id: int):
     """Like `channel_from_id`, but with warning the user."""
     try:
         return channel_from_id(channel_id)
-    except disc_exc.ChannelNotFound as exc:
-        await exc_utils.send_error(ctx, f"Channel ID {channel_id} not found!")
-        raise exc_utils.ExitFunction() from exc
+    except disc_exc.ChannelNotFound:
+        await exc_utils.SendFailed(
+            error_place = exc_utils.ErrorPlace.from_context(ctx),
+            suffix = f"Channel ID {channel_id} not found!"
+        ).send()
 
 
 def user_from_id(user_id: int):
@@ -47,6 +49,8 @@ async def user_from_id_warn(ctx: nx_cmds.Context, user_id: int):
     """Like `user_from_id`, but with warning the user."""
     try:
         return user_from_id(user_id)
-    except disc_exc.UserNotFound as exc:
-        await exc_utils.send_error(ctx, f"User ID {user_id} not found!")
-        raise exc_utils.ExitFunction() from exc
+    except disc_exc.UserNotFound:
+        await exc_utils.SendFailed(
+            error_place = exc_utils.ErrorPlace.from_context(ctx),
+            suffix = f"User ID {user_id} not found!"
+        ).send()

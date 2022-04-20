@@ -16,6 +16,10 @@ class LogChannelAlreadySet(LogChannelError):
     """The log channel has already been set."""
 
 
+class ChangeReqNotFound(ChangeReqError):
+    """The change request cannot be found."""
+
+
 class ChangeReqNotSubmitted(ChangeReqError):
     """The change request hasn't been submitted to Firebase yet."""
     def __init__(self) -> None:

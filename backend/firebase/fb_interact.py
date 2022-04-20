@@ -3,7 +3,7 @@
 import collections as cl
 import threading as thread
 
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 import backend.other as ot
 
 from . import fb_consts as consts

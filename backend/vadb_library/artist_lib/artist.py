@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import re
+
 import requests as req
 import backend.other as ot
 
@@ -19,7 +21,7 @@ class Artist(artist_struct.ArtistStruct):
     def __init__(
             self,
             name: str | None = None,
-            proof: artist_exts.Proof = artist_exts.DEFAULT_PROOF,
+            proof: artist_exts.Proof = artist_exts.Proof(),
             vadb_info: artist_exts.VADBInfo = artist_exts.VADBInfo(),
             states: artist_exts.States = artist_exts.States(),
             details: artist_exts.Details = artist_exts.Details()
@@ -280,3 +282,17 @@ class Artist(artist_struct.ArtistStruct):
             states = artist_exts.States.firebase_from_json(json.get("states")),
             details = artist_exts.Details.firebase_from_json(json.get("details"))
         )
+
+
+    def check_if_match_query(self, search_term: str):
+        """Returns `True` if this `Artist` matches the search term. Returns `False` otherwise."""
+        pattern = re.compile(".*".join(search_term), flags = re.IGNORECASE)
+
+        aliases = self.details.aliases.aliases if self.details.aliases.aliases is not None else []
+        full_name_list = [self.name] + [alias.name for alias in aliases]
+
+        for item in full_name_list:
+            if bool(pattern.search(item)):
+                return True
+
+        return False

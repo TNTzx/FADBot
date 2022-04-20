@@ -4,7 +4,7 @@
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 
 import backend.discord_utils as disc_utils
 import backend.firebase as firebase
@@ -17,18 +17,21 @@ from ... import utils as cog
 class CogModeration(cog.RegisteredCog):
     """Contains controls for moderating stuff about the bot."""
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryModeration,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryModeration,
+        cmd_info = disc_utils.CmdInfo(
             description = "Sets the admin for the server.",
-            parameters = {
-                "id": (
-                    "The ID of the role you want to add. "
-                    "If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."
+            params = disc_utils.Params(
+                disc_utils.ParamArgument(
+                    "role id",
+                    description = (
+                        "The ID of the role you want to add."
+                        "If you don't know how to get IDs, click [here](https://support.discord.com/hc/en-us/community/posts/360048094171/comments/1500000318142)."
+                    )
                 )
-            },
-            perms = disc_utils.cmd_wrap.Permissions(
-                [disc_utils.cmd_wrap.GuildOwner]
+            ),
+            perms = disc_utils.Permissions(
+                [disc_utils.PermGuildOwner]
             )
         )
     )
@@ -37,8 +40,10 @@ class CogModeration(cog.RegisteredCog):
         try:
             int(role_id)
         except ValueError:
-            await exc_utils.send_error(ctx, "You didn't send a valid role ID!")
-            return
+            await exc_utils.SendFailedCmd(
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
+                suffix = "You didn't send a valid role ID!"
+            ).send()
 
         firebase.edit_data(
             firebase.ENDPOINTS.e_discord.e_guilds.get_path() + [ctx.guild.id],
@@ -47,20 +52,37 @@ class CogModeration(cog.RegisteredCog):
         await ctx.send("The admin role for this server has been set.")
 
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryModeration,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryModeration,
+        cmd_info = disc_utils.CmdInfo(
             description = "Bans or unbans a user from using the bot.",
-            parameters = {
-                "[\"ban\" / \"unban\"]": "`ban`s or `unban`s the user.",
-                "user id": "The ID of the user being `ban`ned or `unban`ned."
-            },
+            params = disc_utils.Params(
+                disc_utils.ParamsSplit(
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
+                            "ban",
+                            description = "Denotes banning the user."
+                        )
+                    ),
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
+                            "unban",
+                            description = "Denotes unbanning the user."
+                        )
+                    ),
+                    description = "Bans or unbans the user."
+                ),
+                disc_utils.ParamArgument(
+                    "user id",
+                    description = "The ID of the user being banned or unbanned."
+                )
+            ),
             aliases = ["bb"],
-            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
+            usability_info = disc_utils.UsabilityInfo(
                 guild_only = False
             ),
-            perms = disc_utils.cmd_wrap.Permissions(
-                [disc_utils.cmd_wrap.PAMod]
+            perms = disc_utils.Permissions(
+                [disc_utils.PermPAMod]
             )
         )
     )
@@ -70,8 +92,10 @@ class CogModeration(cog.RegisteredCog):
         user = await disc_utils.user_from_id_warn(ctx, user_id)
 
         if ctx.author.id == user.id:
-            await exc_utils.send_error(ctx, "You're banning yourself!! WHY????? **WHYYYYYY????????**")
-            return
+            await exc_utils.SendFailedCmd(
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
+                suffix = "You're banning yourself!! WHY????? **WHYYYYYY????????**"
+            ).send()
 
         @disc_utils.choice_param_cmd(ctx, action, ["ban", "unban"])
         async def action_choice():
@@ -87,8 +111,9 @@ class CogModeration(cog.RegisteredCog):
                 output_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)
 
                 if output_view.value == disc_utils.ViewOutputValues.CANCEL:
-                    await ctx.send("Command cancelled.")
-                    raise exc_utils.ExitFunction()
+                    await exc_utils.SendCancel(
+                        error_place = exc_utils.ErrorPlace.from_context(ctx)
+                    ).send()
 
 
             user_id_str = str(user_id)
@@ -98,8 +123,10 @@ class CogModeration(cog.RegisteredCog):
 
             if action == "ban":
                 if user_in_ban_list():
-                    await exc_utils.send_error(ctx, "The user is already banned!")
-                    raise exc_utils.ExitFunction()
+                    await exc_utils.SendFailedCmd(
+                        error_place = exc_utils.ErrorPlace.from_context(ctx),
+                        suffix = "The user is already banned!"
+                    ).send()
 
                 await send_confirm()
                 firebase.append_data(path_initial, [user_id_str])
@@ -112,8 +139,10 @@ class CogModeration(cog.RegisteredCog):
                 log_message = f"[BAN] {user_name} | {user.id}"
             else:
                 if not user_in_ban_list():
-                    await exc_utils.send_error(ctx, "The user hasn't been banned yet!")
-                    raise exc_utils.ExitFunction()
+                    await exc_utils.SendFailedCmd(
+                        error_place = exc_utils.ErrorPlace.from_context(ctx),
+                        suffix = "The user hasn't been banned yet!"
+                    ).send()
 
                 await send_confirm()
                 firebase.deduct_data(path_initial, [user_id_str])

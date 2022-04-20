@@ -8,6 +8,7 @@ import nextcord.ext.commands as nx_cmds
 
 import backend.exc_utils as exc_utils
 
+from .. import sustained_cmd
 from . import cmd_cls_lib as cmd_ext
 
 
@@ -22,15 +23,20 @@ def command_wrap(
             requ_check = cmd_info.perms.has_all_perms(ctx)
             if not requ_check[0]:
                 failed_requ_check = requ_check[1]
-                await exc_utils.send_error(ctx, failed_requ_check.get_full_fail_message(), cooldown_reset = True)
-                return
-                # raise cmd_wrap_excs.UsageReqNotMet(failed_requ_check.__class__.__name__)
+                await exc_utils.SendFailedCmd(
+                    error_place = exc_utils.ErrorPlace.from_context(ctx),
+                    suffix = failed_requ_check.get_full_fail_message()
+                ).send()
 
             if not cmd_info.usability_info.usability_condition(ctx):
                 ctx.command.reset_cooldown(ctx)
                 return
 
             return await cmd_func(cog, ctx, *args, **kwargs)
+
+
+        if cmd_info.sustained:
+            wrapper = sustained_cmd.sustained_command()(wrapper)
 
         cmd_aliases = cmd_info.aliases
         if cmd_aliases is None:

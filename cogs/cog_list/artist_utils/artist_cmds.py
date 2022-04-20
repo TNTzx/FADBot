@@ -23,12 +23,13 @@ async def send_reminder(author: nx.User):
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryArtistManagement,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryArtistManagement,
+        cmd_info = disc_utils.CmdInfo(
             description = "Creates an `add request`.",
             aliases = ["ara"],
-            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
+            sustained = True,
+            usability_info = disc_utils.UsabilityInfo(
                 guild_only = False
             )
         )
@@ -44,13 +45,18 @@ class CogArtistCmds(cog.RegisteredCog):
         await author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
 
 
+        dm_channel = author.dm_channel
+        if dm_channel is None:
+            dm_channel = await author.create_dm()
+
+
         form_artist = vadb.disc.FormArtist()
 
         await author.send("Initiating request editing...")
-        await form_artist.edit_with_all_sections(ctx)
+        await form_artist.edit_with_all_sections(dm_channel, author)
 
         await author.send("Editing current artist...")
-        await form_artist.edit_loop(ctx)
+        await form_artist.edit_loop(dm_channel, author)
 
         add_req = vadb.AddRequest(
             artist = form_artist.artist,
@@ -60,15 +66,26 @@ class CogArtistCmds(cog.RegisteredCog):
         await add_req.send_request_pending(ctx)
 
 
-    # @disc_utils.command(
-    #     category = disc_utils.CmdCategories.artist_management,
-    #     description = "Requests an artist to be edited in the database.",
-    #     parameters = {
-    #         "id": "Artist ID to edit."
-    #     },
-    #     aliases = ["are"],
-    #     guild_only = False
-    # )
+    # REWRITE rewrite ##artistrequestedit
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryArtistManagement,
+        cmd_info = disc_utils.CmdInfo(
+            description = "Requests an artist to be edited in the database.",
+            params = disc_utils.Params(
+                disc_utils.ParamArgument(
+                    "artist id",
+                    description = "The artist's ID to edit."
+                )
+            ),
+            aliases = ["are"],
+            usability_info = disc_utils.UsabilityInfo(
+                guild_only = False
+            )
+        )
+    )
+    async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int):
+        """Requests an artist to be edited in the database."""
+
     # @i_u.sustained_command()
     # async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int, *skips):
     #     if firebase.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
@@ -109,6 +126,7 @@ class CogArtistCmds(cog.RegisteredCog):
     #     await artist.post_log(l_l.LogTypes.EDITING, ctx.author.id)
 
 
+    # REWRITE rewrite ##artistverifyadd and ##artistverifyedit
     # @disc_utils.command(
     #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Accepts / declines the request.",

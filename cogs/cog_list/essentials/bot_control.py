@@ -6,7 +6,7 @@ import sys
 
 import nextcord.ext.commands as nx_cmds
 
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 import backend.discord_utils as disc_utils
 
 from ... import utils as cog
@@ -15,17 +15,17 @@ from ... import utils as cog
 class CogBotControl(cog.RegisteredCog):
     """Contains bot control."""
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryBotControl,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryBotControl,
+        cmd_info = disc_utils.CmdInfo(
             description = "Restarts the bot.",
             aliases = ["sr"],
-            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
+            usability_info = disc_utils.UsabilityInfo(
                 visible_in_help = False,
                 guild_only = False
             ),
-            perms = disc_utils.cmd_wrap.Permissions(
-                [disc_utils.cmd_wrap.Dev]
+            perms = disc_utils.Permissions(
+                [disc_utils.PermDev]
             )
         )
     )
@@ -38,17 +38,17 @@ class CogBotControl(cog.RegisteredCog):
         os.execv(sys.executable, args)
 
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryBotControl,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryBotControl,
+        cmd_info = disc_utils.CmdInfo(
             description = "Shuts down the bot.",
             aliases = ["sk"],
-            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
+            usability_info = disc_utils.UsabilityInfo(
                 visible_in_help = False,
                 guild_only = False
             ),
-            perms = disc_utils.cmd_wrap.Permissions(
-                [disc_utils.cmd_wrap.Dev]
+            perms = disc_utils.Permissions(
+                [disc_utils.PermDev]
             )
         )
     )

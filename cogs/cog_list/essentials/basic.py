@@ -5,7 +5,7 @@ import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import global_vars
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 import backend.discord_utils as disc_utils
 import backend.firebase as firebase
 
@@ -46,15 +46,15 @@ class CogBasic(cog.RegisteredCog):
         await add_new_to_database()
 
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryBasics,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryBasics,
+        cmd_info = disc_utils.CmdInfo(
             description = "Updates the database manually.",
             aliases = ["ud"],
-            perms = disc_utils.cmd_wrap.Permissions(
-                [disc_utils.cmd_wrap.GuildOwner]
+            perms = disc_utils.Permissions(
+                [disc_utils.PermGuildOwner]
             ),
-            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
+            usability_info = disc_utils.UsabilityInfo(
                 visible_in_help = False
             )
         )
@@ -65,9 +65,9 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send("Database updated.")
 
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryBasics,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryBasics,
+        cmd_info = disc_utils.CmdInfo(
             description = "Hello...?"
         )
     )
@@ -76,9 +76,9 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send("...what? I- hmm. Thanks for the... erm... hello... I guess?")
 
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryBasics,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryBasics,
+        cmd_info = disc_utils.CmdInfo(
             description = "PONG"
         )
     )
@@ -87,11 +87,11 @@ class CogBasic(cog.RegisteredCog):
         await ctx.send(f"Pong! <@{ctx.author.id}>")
 
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryBotControl,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryBotControl,
+        cmd_info = disc_utils.CmdInfo(
             description = "Causes an error!",
-            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
+            usability_info = disc_utils.UsabilityInfo(
                 visible_in_help = False,
                 guild_only = False
             )

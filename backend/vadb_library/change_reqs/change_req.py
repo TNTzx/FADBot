@@ -10,10 +10,10 @@ import global_vars
 import backend.firebase as firebase
 import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils
-import backend.logging.loggers as lgr
+import backend.logging as lgr
 import backend.other as ot
 
-from .. import artists as art
+from .. import artist_lib as art
 from .. import vadb_discord_utils
 from . import req_struct
 from . import req_exts
@@ -72,16 +72,42 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
 
     @classmethod
+    def firebase_from_id(cls, request_id: int):
+        """Gets the `ChangeRequest` from id."""
+        all_reqs = firebase.get_data(cls.firebase_get_path(), default = {})
+
+        request_id_str = str(request_id)
+        if request_id_str in all_reqs:
+            return cls.firebase_from_json(all_reqs[request_id_str])
+
+        raise req_exc.ChangeReqNotFound(f"{cls.firebase_name.capitalize()} request ID {request_id} not found.")
+
+
+    @classmethod
     def firebase_get_path(cls):
         """Gets the path to the storage of this `ChangeRequest` in Firebase."""
         return firebase.ShortEndpoint.artist_change_reqs.get_path() + [cls.firebase_name]
 
 
+    @classmethod
+    def firebase_get_all_requests(cls):
+        """Gets all requests under this `ChangeRequest`."""
+        all_reqs_json = firebase.get_data(cls.firebase_get_path(), default = {})
+        all_reqs = [cls.firebase_from_json(req_json) for req_json in all_reqs_json.values()]
+
+        if len(all_reqs) == 0:
+            raise req_exc.ChangeReqNotFound(f"There are no {cls.type_} requests in Firebase.")
+
+        return all_reqs
+
+
     def register_request_id(self):
-        """Registers this request with an ID. Sets the `request_id` attribute."""
+        """Registers this request with an ID. Sets the `request_id` attribute, also returns the request ID.."""
         request_id: int = firebase.get_data(req_fb.CURRENT_ID.get_path())
         firebase_inc_request_id()
         self.request_id = request_id
+
+        return request_id
 
 
     def get_original_artist(self):
@@ -100,16 +126,16 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     async def send_request_pending_intercept(self):
         """An extra method used to intercept the `send_request_pending` method."""
 
-    async def send_request_pending(self, ctx: nx_cmds.Context):
+    async def send_request_pending(self, channel: nx.TextChannel):
         """Sends the request for approval."""
-        await ctx.author.send(f"Sending {self.type_} request...")
+        await channel.send(f"Sending {self.type_} request...")
         self.register_request_id()
         await self.discord_send_request_pending()
         self.firebase_send_request_pending()
 
         await self.send_request_pending_intercept()
 
-        await ctx.author.send(
+        await channel.send(
             (
                 "Sent request. Please wait for a PA moderator to approve your request.\n"
                 f"Request ID: {self.request_id}"
@@ -133,13 +159,13 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         firebase.delete_data(self.firebase_get_path() + [self.request_id])
 
 
-    async def approve_request(self, ctx: nx_cmds.Context):
+    async def approve_request(self, channel: nx.TextChannel, author: nx.User):
         """Approves the request."""
 
-    async def decline_request(self, ctx: nx_cmds.Context):
+    async def decline_request(self, channel: nx.TextChannel, author: nx.User):
         """Denies the request."""
 
-    async def set_approval(self, ctx: nx_cmds.Context, is_approved: bool, reason: str = None):
+    async def set_approval(self, channel: nx.TextChannel, author: nx.User, is_approved: bool, reason: str = None):
         """Sets the approve status of this request."""
         timeout = global_vars.Timeouts.medium
         self.artist.states.status.value = 0
@@ -161,24 +187,29 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                 f"{message_confirm_str}\n"
                 f"This command times out in {ot.format_time(timeout)}."
             )
-            confirm_message = await ctx.send(
+            confirm_message = await channel.send(
                 confirm_str,
                 embed = artist_embed,
                 view = confirm_view
             )
 
-            final_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)
+            final_view = await disc_utils.wait_for_view(
+                channel = channel,
+                author = author,
+                original_message = confirm_message,
+                view = confirm_view
+            )
 
             if final_view.value == disc_utils.ViewOutputValues.CANCEL:
                 raise req_exc.SetApprovalCancelled()
 
 
             # processing request
-            await ctx.send(approval_cls.get_message_processing(self.type_))
+            await channel.send(approval_cls.get_message_processing(self.type_))
 
-            await callback_method(ctx)
+            await callback_method(channel)
 
-            await ctx.send(
+            await channel.send(
                 approval_cls.get_message_complete(
                     req_id = self.request_id,
                     req_type = self.type_,
@@ -210,13 +241,14 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                     embed = artist_embed
                 )
             except nx.errors.Forbidden:
-                await exc_utils.send_error(
-                    ctx,
-                    (
+                # TEST test this error
+                await exc_utils.SendWarn(
+                    error_place = exc_utils.ErrorPlace(channel, author),
+                    suffix = (
                         f"I can't seem to be able to notify the user who sent this request, named `{self.user_sender.name}#{self.user_sender.discriminator}` (ID: `{self.user_sender.id}`).\n"
                         "If you have contacts with this user, please notify them!"
                     )
-                )
+                ).send()
 
 
             # do logging
@@ -238,12 +270,18 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         await self.log_bundle.delete_live_logs()
 
 
+    @classmethod
+    def get_all_req_types(cls):
+        """Gets all `ChangeRequest` subclasses."""
+        return cls.__subclasses__()
+
+
 class AddRequest(ChangeRequest):
     """Request for adding artists into the database."""
     type_ = firebase_name = "add"
 
 
-    async def approve_request(self, ctx: nx_cmds.Context):
+    async def approve_request(self, channel: nx.TextChannel, author: nx.User):
         self.artist.vadb_create_edit()
 
 
@@ -258,10 +296,10 @@ class EditRequest(ChangeRequest):
         old_artist.vadb_edit()
 
 
-    async def approve_request(self, ctx: nx_cmds.Context):
+    async def approve_request(self, channel: nx.TextChannel, author: nx.User):
         self.artist.vadb_edit()
 
-    async def decline_request(self, ctx: nx_cmds.Context):
+    async def decline_request(self, channel: nx.TextChannel, author: nx.User):
         old_artist = self.get_original_artist()
         old_artist.states.status.value = 0
         old_artist.vadb_edit()

@@ -20,22 +20,23 @@ TIMEOUT = global_vars.Timeouts.long
 TIMEOUT_MESSAGE = "Command timed out. Please use the command again."
 
 
-async def send_error(ctx, suffix, send_author = False):
-    """Sends an error, but with a syntax."""
-    await exc_utils.send_error(ctx, f"{suffix} Try again.", send_author = send_author)
-
-
-async def wait_for_message(ctx: nx_cmds.Context, timeout = TIMEOUT):
+async def wait_for_message(
+        channel: nx.TextChannel,
+        author: nx.User,
+        timeout = TIMEOUT
+        ):
     """Wait for a message then return the response."""
     try:
         response: nx.Message = await global_vars.bot.wait_for(
             "message",
-            check = w_f_ch.check_message(ctx.author.id, ctx.channel.id),
+            check = w_f_ch.check_message(author, channel),
             timeout = timeout
         )
-    except asyncio.TimeoutError as exc:
-        await exc_utils.send_error(ctx, TIMEOUT_MESSAGE)
-        raise exc_utils.ExitFunction() from exc
+    except asyncio.TimeoutError:
+        await exc_utils.SendTimeout(
+            error_place = exc_utils.ErrorPlace(channel, author)
+        ).send()
+
     return response
 
 
@@ -52,13 +53,24 @@ class ExampleView(nx.ui.View):
         self.stop()
 
 
-async def wait_for_view(ctx: nx_cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout = TIMEOUT):
+async def wait_for_view(
+        channel: nx.TextChannel,
+        author: nx.User,
+        original_message: nx.Message,
+        view: typ.Type[nx.ui.View] | ExampleView,
+        timeout = TIMEOUT
+        ):
     """Waits for an interaction."""
     try:
-        await global_vars.bot.wait_for("interaction", check = w_f_ch.check_interaction(ctx.author.id, original_message.id), timeout = timeout)
-    except asyncio.TimeoutError as exc:
-        await exc_utils.send_error(ctx, TIMEOUT_MESSAGE)
-        raise exc_utils.ExitFunction() from exc
+        await global_vars.bot.wait_for(
+            "interaction",
+            check = w_f_ch.check_interaction(author, original_message),
+            timeout = timeout
+        )
+    except asyncio.TimeoutError:
+        await exc_utils.SendTimeout(
+            error_place = exc_utils.ErrorPlace(channel, author)
+        ).send()
     return view
 
 
@@ -67,19 +79,33 @@ class DetectionOutputTypes(enum.Enum):
     MESSAGE = "message"
     VIEW = "view"
 
-async def wait_for_message_view(ctx: nx_cmds.Context, original_message: nx.Message, view: typ.Type[nx.ui.View] | ExampleView, timeout = TIMEOUT):
+
+async def wait_for_message_view(
+        channel: nx.TextChannel,
+        author: nx.User,
+        original_message: nx.Message,
+        view: typ.Type[nx.ui.View] | ExampleView,
+        timeout = TIMEOUT
+        ):
     """Waits for a message then returns (MessageViewCheck.message, message). If instead it was a view interaction, return (MessageViewCheck.view, view) of that interaction."""
 
     events = [
-        global_vars.bot.wait_for("message", check = w_f_ch.check_message(ctx.author.id, ctx.channel.id)),
-        global_vars.bot.wait_for("interaction", check = w_f_ch.check_interaction(ctx.author.id, original_message.id))
+        global_vars.bot.wait_for(
+            "message",
+            check = w_f_ch.check_message(author, channel)
+        ),
+        global_vars.bot.wait_for(
+            "interaction",
+            check = w_f_ch.check_interaction(author, original_message)
+        )
     ]
 
     done, pending = await asyncio.wait(events, timeout = timeout, return_when = asyncio.FIRST_COMPLETED)
 
     if len(done) == 0:
-        await exc_utils.send_error(ctx, TIMEOUT_MESSAGE)
-        raise exc_utils.ExitFunction()
+        await exc_utils.SendTimeout(
+            error_place = exc_utils.ErrorPlace(channel, author)
+        ).send()
 
     result: asyncio.Task = done.pop()
     result = result.result()

@@ -15,20 +15,22 @@ import backend.discord_utils as disc_utils
 import backend.exc_utils as exc_utils
 import backend.other as ot
 
-from .... import artists as a_s
+from .... import artist_lib as a_s
 from .. import form_exc as f_exc
 from . import section_states as states
 
 
-async def check_response(ctx: nx_cmds.Context, view: disc_utils.View):
+async def check_response(channel: nx.TextChannel, author: nx.User, view: disc_utils.View):
     """Checks the response of the user if they went back, cancelled, etc."""
     if view.value == disc_utils.ViewOutputValues.CANCEL:
-        await exc_utils.cancel_command(ctx, send_author = True)
+        await exc_utils.SendCancel(
+            error_place = exc_utils.ErrorPlace(channel, author)
+        ).send()
     elif view.value == disc_utils.ViewOutputValues.SKIP:
-        await ctx.author.send("Section skipped.")
+        await channel.send("Section skipped.")
         raise f_exc.ExitSection()
     elif view.value == disc_utils.ViewOutputValues.BACK:
-        await ctx.author.send("Going back to menu...")
+        await channel.send("Going back to menu...")
         raise f_exc.ExitSection()
 
 
@@ -122,7 +124,8 @@ class FormSection():
 
     async def reformat_input(
             self,
-            ctx: nx_cmds.Context,
+            channel: nx.TextChannel,
+            author: nx.User,
             response: nx.Message | disc_utils.View,
             section_state: states.SectionState = None
             ) -> str | int | dict | list | disc_utils.View:
@@ -130,10 +133,10 @@ class FormSection():
         raise f_exc.InvalidSectionResponse()
 
 
-    # TODO work on sending to a user instead of the context
     async def send_section(
             self,
-            ctx: nx_cmds.Context,
+            channel: nx.TextChannel,
+            author: nx.User,
             section_state: states.SectionState = None,
             extra_view: typ.Type[disc_utils.View] = disc_utils.Blank,
             timeout: int = None
@@ -144,14 +147,14 @@ class FormSection():
         if section_state is None:
             section_state = self.default_section_state
 
-        await ctx.author.send(f"Now editing __{self.title}__...")
+        await channel.send(f"Now editing __{self.title}__...")
 
         class ViewMerged(section_state.view_cls, extra_view):
             """Merged views."""
 
         while True:
             current_view = ViewMerged()
-            message = await ctx.author.send(
+            message = await channel.send(
                 embed = self.generate_embed(
                     section_state = section_state,
                     timeout = timeout
@@ -159,24 +162,37 @@ class FormSection():
                 view = current_view
             )
 
-            response_type, response = await disc_utils.wait_for_message_view(ctx, message, current_view, timeout = timeout)
+            response_type, response = await disc_utils.wait_for_message_view(
+                channel = channel,
+                author = author,
+                original_message = message,
+                view = current_view,
+                timeout = timeout
+            )
+
 
             if response_type == disc_utils.DetectionOutputTypes.VIEW:
-                await check_response(ctx, response)
+                await check_response(channel, author, response)
 
             try:
-                final_response = await self.reformat_input(ctx, response, section_state)
-                await ctx.author.send(f"**Artist's __{self.title}__ is now set.**")
+                final_response = await self.reformat_input(channel, author, response, section_state)
+                await channel.send(f"**Artist's __{self.title}__ is now set.**")
             except f_exc.InvalidSectionResponse:
                 continue
             except f_exc.ExitSection:
-                await ctx.author.send(f"**Artist's __{self.title}__ is not changed.**")
+                await channel.send(f"**Artist's __{self.title}__ is not changed.**")
 
 
             return final_response
 
 
-    async def edit_artist_with_section(self, ctx: nx_cmds.Context, artist: a_s.Artist, section_state: states.SectionState = None) -> None:
+    async def edit_artist_with_section(
+            self,
+            channel: nx.TextChannel,
+            author: nx.User,
+            artist: a_s.Artist,
+            section_state: states.SectionState = None
+        ) -> None:
         """Edits the artist with the section."""
 
 
@@ -188,10 +204,17 @@ class TextInput(FormSection):
     """A `FormSection` with a text input."""
 
 
-async def check_if_content_empty(ctx: nx_cmds.Context, response: nx.Message):
-    """Checks if the response is empty, as if sending an attachment with no message. If it is empty, raise InvalidSectionResponse."""
+async def check_if_content_empty(
+        channel: nx.TextChannel,
+        author: nx.User,
+        response: nx.Message
+        ):
+    """Checks if the response is empty, as if sending an attachment with no message. If it is empty, raise `InvalidSectionResponse`."""
     if response.content == "":
-        await disc_utils.send_error(ctx, "You didn't send anything!", send_author = True)
+        await exc_utils.SendWarn(
+            error_place = exc_utils.ErrorPlace(channel, author),
+            suffix = "You didn't send anything!"
+        ).send()
         raise f_exc.InvalidSectionResponse("No message content found.")
 
 
@@ -200,17 +223,23 @@ class NumberSection(TextInput):
     text_ext = "a number"
     instructions = "Send a number!"
 
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
-        await check_if_content_empty(ctx, response)
+    async def reformat_input(self, channel: nx.TextChannel, author: nx.User, response: nx.Message | disc_utils.View, section_state: states.SectionState = None) -> str | int | dict | list | disc_utils.View:
+        await check_if_content_empty(channel, author, response)
 
         try:
             number = int(response.content)
         except ValueError as exc:
-            await disc_utils.send_error(ctx, "That's not a number!", send_author = True)
+            await exc_utils.SendWarn(
+                error_place = exc_utils.ErrorPlace(channel, author),
+                suffix = "That's not a number!"
+            ).send()
             raise f_exc.InvalidSectionResponse() from exc
 
         if number > (1 * (10 ** 6)):
-            await disc_utils.send_error(ctx, "That's way too large!", send_author = True)
+            await exc_utils.SendWarn(
+                error_place = exc_utils.ErrorPlace(channel, author),
+                suffix = "That's way too large!"
+            ).send()
             raise f_exc.InvalidSectionResponse()
 
 
@@ -222,8 +251,8 @@ class RawTextSection(TextInput):
     text_ext = "some text"
     instructions = "Send any plain text!"
 
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
-        await check_if_content_empty(ctx, response)
+    async def reformat_input(self, channel: nx.TextChannel, author: nx.User, response: nx.Message | disc_utils.View, section_state: states.SectionState = None) -> str | int | dict | list | disc_utils.View:
+        await check_if_content_empty(channel, author, response)
 
         return response.content
 
@@ -236,19 +265,20 @@ class LinksSection(TextInput):
         "You can also send more than one link by separating each link with a newline (using `CTRL + Enter` on PC, or just `Enter` on mobile)."
     )
 
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
-        await check_if_content_empty(ctx, response)
+    async def reformat_input(self, channel: nx.TextChannel, author: nx.User, response: nx.Message | disc_utils.View, section_state: states.SectionState = None) -> str | int | dict | list | disc_utils.View:
+        await check_if_content_empty(channel, author, response)
 
         async def check_link(url):
             try:
                 req.head(url)
             except req.exceptions.RequestException as exc:
-                await disc_utils.send_error(ctx, (
-                    f"`{url}` is not a valid link! Here's the error:\n"
-                    f"```{str(exc)}```"
-                    ),
-                    send_author = True
-                )
+                await exc_utils.SendWarn(
+                    error_place = exc_utils.ErrorPlace(channel, author),
+                    suffix = (
+                        f"`{url}` is not a valid link! Here's the error:\n"
+                        f"```{str(exc)}```"
+                    )
+                ).send()
                 raise f_exc.InvalidSectionResponse() from exc
             return url
 
@@ -266,23 +296,30 @@ class ImageSection(TextInput):
         "You can send an image using an attachment (uploading the file directly to Discord) or using a direct URL link of the image!"
     )
 
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
+    async def reformat_input(self, channel: nx.TextChannel, author: nx.User, response: nx.Message | disc_utils.View, section_state: states.SectionState = None) -> str | int | dict | list | disc_utils.View:
         async def check_image(image_url):
             supported_formats = ["png", "jpg", "jpeg"]
 
             try:
                 image_request = req.head(image_url)
             except req.exceptions.RequestException as exc:
-                await disc_utils.send_error(ctx, (
-                    f"You didn't send a valid image/link! Here's the error:\n"
-                    f"```{str(exc)}```"
-                    ),
-                    send_author = True
-                )
+                await exc_utils.SendWarn(
+                    error_place = exc_utils.ErrorPlace(channel, author),
+                    suffix = (
+                        f"You didn't send a valid image/link! Here's the error:\n"
+                        f"```{str(exc)}```"
+                    )
+                ).send()
                 raise f_exc.InvalidSectionResponse() from exc
 
             if not image_request.headers["Content-Type"] in [f"image/{x}" for x in supported_formats]:
-                await disc_utils.send_error(ctx, f"You sent a link to an unsupported file format! The formats allowed are `{'`, `'.join(supported_formats)}`.", send_author = True)
+                await exc_utils.SendWarn(
+                    error_place = exc_utils.ErrorPlace(channel, author),
+                    suffix = (
+                        "You sent a link to an unsupported file format! "
+                        f"The formats allowed are `{'`, `'.join(supported_formats)}`."
+                    )
+                ).send()
                 raise f_exc.InvalidSectionResponse()
 
             return image_url
@@ -302,11 +339,14 @@ class ListSection(TextInput):
         "Separate each item in the list with a newline (using `CTRL + Enter` on PC, or just `Enter` on mobile)."
     )
 
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
-        await check_if_content_empty(ctx, response)
+    async def reformat_input(self, channel: nx.TextChannel, author: nx.User, response: nx.Message | disc_utils.View, section_state: states.SectionState = None) -> str | int | dict | list | disc_utils.View:
+        await check_if_content_empty(channel, author, response)
 
         if response.content == "":
-            await disc_utils.send_error(ctx, "You didn't send a list!", send_author = True)
+            await exc_utils.SendWarn(
+                error_place = exc_utils.ErrorPlace(channel, author),
+                suffix = "You didn't send a list!"
+            ).send()
             raise f_exc.InvalidSectionResponse()
         return response.content.split("\n")
 
@@ -330,8 +370,8 @@ class DictSection(TextInput):
         self.allowed_key_func = allowed_key_func
         self.allowed_val_func = allowed_val_func
 
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
-        await check_if_content_empty(ctx, response)
+    async def reformat_input(self, channel: nx.TextChannel, author: nx.User, response: nx.Message | disc_utils.View, section_state: states.SectionState = None) -> str | int | dict | list | disc_utils.View:
+        await check_if_content_empty(channel, author, response)
 
         diction = {}
         try:
@@ -341,7 +381,10 @@ class DictSection(TextInput):
                 key_value = [x.lstrip(' ') for x in key_value]
                 diction[key_value[0]] = key_value[1]
         except (ValueError, IndexError) as exc:
-            await disc_utils.send_error(ctx, "Your formatting is wrong!", send_author = True)
+            await exc_utils.SendWarn(
+                error_place = exc_utils.ErrorPlace(channel, author),
+                suffix = "Your formatting is wrong!"
+            ).send()
             raise f_exc.InvalidSectionResponse() from exc
 
 
@@ -349,7 +392,10 @@ class DictSection(TextInput):
             if func is not None:
                 for item in dict_view:
                     if not func(item):
-                        await disc_utils.send_error(ctx, f"`{item}` is not a valid {type_}. Please check if you have capitalized it.", send_author = True)
+                        await exc_utils.SendWarn(
+                            error_place = exc_utils.ErrorPlace(channel, author),
+                            suffix = f"`{item}` is not a valid {type_}. Please check if you have capitalized it."
+                        ).send()
                         raise f_exc.InvalidSectionResponse()
 
         await check("key", self.allowed_key_func, list(diction.keys()))
@@ -363,9 +409,12 @@ class ChoiceSection(ViewInput):
     text_ext = "a choice"
     instructions = "Select an item in the choices below!"
 
-    async def reformat_input(self, ctx: nx_cmds.Context, response: nx.Message | disc_utils.View, section_state: states.SectionState = None):
+    async def reformat_input(self, channel: nx.TextChannel, author: nx.User, response: nx.Message | disc_utils.View, section_state: states.SectionState = None) -> str | int | dict | list | disc_utils.View:
         if isinstance(response, nx.Message):
-            await disc_utils.send_error(ctx, "You didn't send a choice!", send_author = True)
+            await exc_utils.SendWarn(
+                error_place = exc_utils.ErrorPlace(channel, author),
+                suffix = "You didn't send a choice!"
+            ).send()
             raise f_exc.InvalidSectionResponse()
 
         return response.value[0]

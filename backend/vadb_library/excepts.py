@@ -24,3 +24,12 @@ class VADBNoSearchResult(VADBError):
     """No search result for query."""
     def __init__(self, search_term: str):
         super().__init__(f"No artist in VADB matching search term \"{search_term}\".")
+
+
+class VADBImageNotFound(VADBError):
+    """The image cannot be found."""
+    def __init__(self, url: str = None):
+        if url is None:
+            super().__init__("Image cannot be found.")
+        else:
+            super().__init__(f"Image cannot be found for URL: {url}")

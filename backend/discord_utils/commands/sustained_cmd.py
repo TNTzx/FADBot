@@ -6,6 +6,7 @@ import nextcord.ext.commands as nx_cmds
 
 import backend.firebase as firebase
 import backend.exc_utils as exc_utils
+import backend.other as ot
 
 
 def check_if_using_command(path: list[str], author_id: int):
@@ -50,8 +51,13 @@ def sustained_command():
         @fc.wraps(func)
         async def wrapper(cog, ctx: nx_cmds.Context, *args, **kwargs):
             if check_if_using_command(path, ctx.author.id):
-                await exc_utils.send_error(ctx, "You're already using this command! Please cancel the command you're currently using, or wait until it times out!")
-                return
+                await exc_utils.SendFailedCmd(
+                    error_place = exc_utils.ErrorPlace.from_context(ctx),
+                    suffix = (
+                        "You're already using this command! "
+                        "Please cancel the command you're currently using, or wait until it times out!"
+                    )
+                ).send()
 
             add_is_using_command(path, ctx.author.id)
 

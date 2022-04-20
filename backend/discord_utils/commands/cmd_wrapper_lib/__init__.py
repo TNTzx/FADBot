@@ -8,3 +8,4 @@ from .cmd_wrap_excs import \
         UsageReqNotMet
 
 from .cmd_cls_lib import *
+from .cmd_params import *

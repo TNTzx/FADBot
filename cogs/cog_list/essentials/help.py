@@ -12,19 +12,24 @@ from ... import utils as cog
 class CogHelp(cog.RegisteredCog):
     """Contains the help command."""
 
-    @disc_utils.cmd_wrap.command_wrap(
-        category = disc_utils.cmd_wrap.CategoryBasics,
-        cmd_info = disc_utils.cmd_wrap.CmdInfo(
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryBasics,
+        cmd_info = disc_utils.CmdInfo(
             description = "WHAT IN THE ACTUAL LIVING ARTIST DID YOU DO",
-            parameters = {
-                "[command]": "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"
-            },
+            params = disc_utils.Params(
+                disc_utils.ParamOptional(
+                    disc_utils.ParamArgument(
+                        "command",
+                        description = "DID YOU SERIOUSLY NEED HELP ON A HELP COMMAND"
+                    )
+                )
+            ),
             aliases = ["h"],
-            cooldown_info = disc_utils.cmd_wrap.CooldownInfo(
+            cooldown_info = disc_utils.CooldownInfo(
                 length = 1,
                 type_ = nx_cmds.BucketType.user
             ),
-            usability_info = disc_utils.cmd_wrap.UsabilityInfo(
+            usability_info = disc_utils.UsabilityInfo(
                 guild_only = False
             )
         )
@@ -32,14 +37,16 @@ class CogHelp(cog.RegisteredCog):
     async def help(self, ctx: nx_cmds.Context, command_query: str = None):
         """Used to display help on a command."""
         if command_query is None:
-            await ctx.send(embed = disc_utils.cmd_wrap.CmdCategory.generate_embed_all_categories())
+            await ctx.send(embed = disc_utils.CmdCategory.generate_embed_all_categories())
             return
 
         await ctx.send("Getting command help info...")
         try:
-            command = disc_utils.cmd_wrap.DiscordCommand.get_from_name_alias(command_query)
+            command = disc_utils.DiscordCommand.get_from_name_alias(command_query)
         except ValueError:
-            await exc_utils.send_error(ctx, f"The command name / alias `{command_query}` cannot be found! Make sure you typed it correctly!")
-            return
+            await exc_utils.SendFailedCmd(
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
+                suffix = f"The command name / alias `{command_query}` cannot be found! Make sure you typed it correctly!"
+            ).send()
 
         await ctx.send(embed = command.generate_embed())
