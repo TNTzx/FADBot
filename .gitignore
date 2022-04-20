@@ -131,6 +131,7 @@ dmypy.json
 
 # Custom shenanigans!
 .vscode
+speedtests.py
 testcode.py
 speedtests.py
 todo.txt

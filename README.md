@@ -1,8 +1,8 @@
-# FADBot
-A repo for a discord bot for FADB.
+# VADBot
+A repo for a discord bot for VADB.
 
 
-## FADB
-FADB can be found here: (hidden)
+## VADB
+VADB can be found here: https://fadb.live/
 
-The API used in this bot is used here: (hidden)
+The API used in this bot is used here: https://api.fadb.live/
