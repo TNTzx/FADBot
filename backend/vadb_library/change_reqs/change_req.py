@@ -241,7 +241,6 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                     embed = artist_embed
                 )
             except nx.errors.Forbidden:
-                # TEST test this error
                 await exc_utils.SendWarn(
                     error_place = exc_utils.ErrorPlace(channel, author),
                     suffix = (
