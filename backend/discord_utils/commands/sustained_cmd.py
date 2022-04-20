@@ -51,7 +51,6 @@ def sustained_command():
         @fc.wraps(func)
         async def wrapper(cog, ctx: nx_cmds.Context, *args, **kwargs):
             if check_if_using_command(path, ctx.author.id):
-                # TEST test this error out
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = (

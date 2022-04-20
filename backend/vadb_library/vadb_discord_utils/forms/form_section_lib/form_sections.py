@@ -57,7 +57,7 @@ class Name(f_s.RawTextSection):
             view = disc_utils.ViewConfirmBackCancel()
 
             message = await channel.send(
-                f"Possible existing {search_type_plural_str.capitalize()} found!",
+                f"Possible existing {search_type_plural_str} found!",
                 embed = embed_art,
                 view = view
             )
@@ -92,7 +92,8 @@ class Name(f_s.RawTextSection):
             if is_name_in_search(searched, search_term, get_search_name):
                 await exc_utils.SendWarn(
                     error_place = exc_utils.ErrorPlace(channel, author),
-                    suffix = f"A {search_type_str} with that name already exists."
+                    suffix = f"There exists one {search_type_str} with that name that already exists.",
+                    try_again = True
                 ).send()
                 raise f_exc.InvalidSectionResponse()
 
