@@ -132,6 +132,7 @@ dmypy.json
 # Custom shenanigans!
 .vscode
 testcode.py
+speedtests.py
 todo.txt
 Database Backups/
 Archive/
