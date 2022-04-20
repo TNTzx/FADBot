@@ -8,6 +8,7 @@ import nextcord.ext.commands as nx_cmds
 
 import backend.exc_utils as exc_utils
 
+from .. import sustained_cmd
 from . import cmd_cls_lib as cmd_ext
 
 
@@ -32,6 +33,10 @@ def command_wrap(
                 return
 
             return await cmd_func(cog, ctx, *args, **kwargs)
+        
+
+        if cmd_info.sustained:
+            wrapper = sustained_cmd.sustained_command()(wrapper)
 
         cmd_aliases = cmd_info.aliases
         if cmd_aliases is None:

@@ -44,6 +44,7 @@ class CmdInfo():
             example: list[str] | None = None,
             params: cmd_params.Params | None = None,
             aliases: list[str] | None = None,
+            sustained: bool = False,
             cooldown_info: CooldownInfo = CooldownInfo(),
             usability_info: UsabilityInfo = UsabilityInfo(),
             perms: cmd_perms.Permissions = cmd_perms.Permissions(),
@@ -52,6 +53,7 @@ class CmdInfo():
         self.example = example
         self.params = params
         self.aliases = aliases
+        self.sustained = sustained
         self.cooldown_info = cooldown_info
         self.usability_info = usability_info
         self.perms = perms
