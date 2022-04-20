@@ -118,7 +118,6 @@ class Name(f_s.RawTextSection):
             await channel.send("No existing request found! Attempting to find existing artists...")
 
 
-        # TEST test this out, couldn't test earlier because server down
         try:
             searched_artists = a_s.ArtistQuery.from_search(response)
 

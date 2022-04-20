@@ -28,6 +28,7 @@ class CogArtistCmds(cog.RegisteredCog):
         cmd_info = disc_utils.CmdInfo(
             description = "Creates an `add request`.",
             aliases = ["ara"],
+            sustained = True,
             usability_info = disc_utils.UsabilityInfo(
                 guild_only = False
             )
