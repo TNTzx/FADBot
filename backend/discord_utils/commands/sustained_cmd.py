@@ -56,8 +56,7 @@ def sustained_command():
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = (
                         "You're already using this command! "
-                        "Please cancel the command you're currently using, or wait until it times out "
-                            f"(which is about `{ot.format_time(ctx.command.get_cooldown_retry_after())}`)!"
+                        "Please cancel the command you're currently using, or wait until it times out!"
                     )
                 ).send()
 

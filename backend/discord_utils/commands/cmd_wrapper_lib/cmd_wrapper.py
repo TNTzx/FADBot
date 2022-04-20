@@ -33,7 +33,7 @@ def command_wrap(
                 return
 
             return await cmd_func(cog, ctx, *args, **kwargs)
-        
+
 
         if cmd_info.sustained:
             wrapper = sustained_cmd.sustained_command()(wrapper)
