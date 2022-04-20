@@ -27,7 +27,7 @@ Deprecated==1.2.13
 dill==0.3.4
 discord-interactions==0.3.0
 discord-py-interactions==4.1.0
-Eel==0.14.0
+Eel>=0.12.4,<0.14.0
 executing==0.8.3
 filelock==3.6.0
 Flask==2.1.1
