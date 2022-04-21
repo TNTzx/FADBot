@@ -102,7 +102,12 @@ class CogArtistCmds(cog.RegisteredCog):
             ).send()
 
         # TEST test this out
-        already_existing_req_ids = [request.artist.vadb_info.artist_id for request in vadb.EditRequest.firebase_get_all_requests()]
+        try:
+            already_existing_reqs = vadb.EditRequest.firebase_get_all_requests()
+        except vadb.ChangeReqNotFound:
+            already_existing_reqs = []
+
+        already_existing_req_ids = [request.artist.vadb_info.artist_id for request in already_existing_reqs]
         if current_artist.vadb_info.artist_id in already_existing_req_ids:
             await exc_utils.SendFailedCmd(
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
