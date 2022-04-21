@@ -128,7 +128,7 @@ class CogArtistCmds(cog.RegisteredCog):
             if current_artist != editing_artist:
                 break
 
-            await exc_utils.SendFailed(
+            await exc_utils.SendWarn(
                 error_place = exc_utils.ErrorPlace(dm_channel, author),
                 suffix = "You didn't edit the artist!",
                 try_again = True
