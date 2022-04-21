@@ -1,11 +1,14 @@
 """Artist control."""
 
 
+import copy
+
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.vadb_library as vadb
 import backend.discord_utils as disc_utils
+import backend.exc_utils as exc_utils
 
 from ... import utils as cog
 
@@ -18,6 +21,22 @@ async def send_reminder(author: nx.User):
             f"Check it out here! {vadb.BASE_LINK}"
         )
     )
+
+
+async def init_req_cmd(ctx: nx_cmds.Context, req_type: str):
+    """Initializes the request command. Returns a tuple. `(Author, DMChannel)`"""
+    if not isinstance(ctx.channel, nx.channel.DMChannel):
+        await ctx.send(f"The artist {req_type} request form is sent to your DMs. Please check it.")
+
+    author = ctx.author
+    dm_channel = author.dm_channel
+    if dm_channel is None:
+        dm_channel = await author.create_dm()
+
+    await send_reminder(author)
+    await dm_channel.send(f"> The artist {req_type} request is now being set up. Please __follow all instructions as necessary.__")
+
+    return author, dm_channel
 
 
 class CogArtistCmds(cog.RegisteredCog):
@@ -36,18 +55,7 @@ class CogArtistCmds(cog.RegisteredCog):
     )
     async def artistrequestadd(self, ctx: nx_cmds.Context):
         """Creates an add request."""
-        if not isinstance(ctx.channel, nx.channel.DMChannel):
-            await ctx.send("The artist add request form is sent to your DMs. Please check it.")
-
-        author = ctx.author
-
-        await send_reminder(author)
-        await author.send("> The artist add request is now being set up. Please __follow all instructions as necessary.__")
-
-
-        dm_channel = author.dm_channel
-        if dm_channel is None:
-            dm_channel = await author.create_dm()
+        author, dm_channel = await init_req_cmd(ctx, "add")
 
 
         form_artist = vadb.disc.FormArtist()
@@ -63,7 +71,7 @@ class CogArtistCmds(cog.RegisteredCog):
             user_sender = author
         )
 
-        await add_req.send_request_pending(ctx)
+        await add_req.send_request_pending(dm_channel)
 
 
     # REWRITE rewrite ##artistrequestedit
@@ -85,6 +93,35 @@ class CogArtistCmds(cog.RegisteredCog):
     )
     async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int):
         """Requests an artist to be edited in the database."""
+        author, dm_channel = await init_req_cmd(ctx, "edit")
+
+        current_artist = vadb.Artist.vadb_from_id(artist_id)
+        editing_artist = copy.deepcopy(current_artist)
+
+        form_artist = vadb.disc.FormArtist(
+            artist = editing_artist
+        )
+
+        while True:
+            await form_artist.edit_loop(dm_channel, author)
+
+            if current_artist != editing_artist:
+                break
+
+            await exc_utils.SendFailed(
+                error_place = exc_utils.ErrorPlace(dm_channel, author),
+                suffix = "You didn't edit the artist!",
+                try_again = True
+            ).send()
+
+
+        edit_req = vadb.EditRequest(
+            artist = form_artist.artist,
+            user_sender = author
+        )
+
+        await edit_req.send_request_pending(dm_channel)
+
 
     # @i_u.sustained_command()
     # async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int, *skips):

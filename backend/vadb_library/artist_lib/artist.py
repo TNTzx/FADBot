@@ -31,6 +31,10 @@ class Artist(artist_struct.ArtistStruct):
         self.vadb_info = vadb_info
         self.states = states
         self.details = details
+    
+
+    def __eq__(self, other: Artist):
+        return self.firebase_to_json() == other.firebase_to_json()
 
 
     def vadb_to_create_json(self) -> dict | list:
