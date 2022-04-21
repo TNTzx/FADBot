@@ -102,7 +102,8 @@ class CogArtistCmds(cog.RegisteredCog):
             ).send()
 
         # TEST test this out
-        if current_artist.name in [request.artist.name for request in vadb.EditRequest.firebase_get_all_requests()]:
+        already_existing_req_ids = [request.artist.vadb_info.artist_id for request in vadb.EditRequest.firebase_get_all_requests()]
+        if current_artist.vadb_info.artist_id in already_existing_req_ids:
             await exc_utils.SendFailedCmd(
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = "The artist already has an existing edit request! Please wait until that edit request has been approved or declined!"
