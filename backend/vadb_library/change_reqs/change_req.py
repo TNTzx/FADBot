@@ -138,7 +138,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         await channel.send(
             (
                 "Sent request. Please wait for a PA moderator to approve your request.\n"
-                f"Request ID: {self.request_id}"
+                f"**Request ID: {self.request_id}**"
             )
         )
 
@@ -296,6 +296,7 @@ class EditRequest(ChangeRequest):
 
 
     async def approve_request(self, channel: nx.TextChannel, author: nx.User):
+        self.artist.states.status.value = 0
         self.artist.vadb_edit()
 
     async def decline_request(self, channel: nx.TextChannel, author: nx.User):
