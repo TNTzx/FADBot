@@ -93,9 +93,16 @@ class CogArtistCmds(cog.RegisteredCog):
     )
     async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int):
         """Requests an artist to be edited in the database."""
+        try:
+            current_artist = vadb.Artist.vadb_from_id(artist_id)
+        except vadb.VADBNoArtistID:
+            await exc_utils.SendFailedCmd(
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
+                suffix = "There's no artist with that ID!"
+            )
+
         author, dm_channel = await init_req_cmd(ctx, "edit")
 
-        current_artist = vadb.Artist.vadb_from_id(artist_id)
         editing_artist = copy.deepcopy(current_artist)
 
         form_artist = vadb.disc.FormArtist(
