@@ -191,6 +191,7 @@ class LogBundle(req_struct.ChangeRequestStructure):
     @classmethod
     async def send_request_pending_logs(cls, artist: art.Artist, req_type: str = "unknown", req_id: int = "?"):
         """Sends the logs to these log types then returns a `LogBundle` of these messages."""
+        # TODO implement reqinfo
         return cls(
             dump_logs = await DumpLogType.send_request_pending_logs(artist, req_type, req_id),
             live_logs = await LiveLogType.send_request_pending_logs(artist, req_type, req_id)
