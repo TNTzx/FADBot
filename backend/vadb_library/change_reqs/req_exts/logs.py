@@ -9,8 +9,9 @@ import nextcord as nx
 
 import global_vars
 import backend.firebase as firebase
+import backend.discord_utils as disc_utils
 
-from ... import vadb_discord_utils as disc_utils
+from ... import vadb_discord_utils as vadb_disc_utils
 from ... import artist_lib as art
 from .. import req_exc
 from .. import req_struct
@@ -29,7 +30,7 @@ class LogType(req_struct.ChangeRequestStructure):
 
     def __init__(
             self,
-            message_bundles: list[disc_utils.MessageBundle] = None
+            message_bundles: list[vadb_disc_utils.MessageBundle] = None
         ):
         self.message_bundles = message_bundles
 
@@ -52,7 +53,7 @@ class LogType(req_struct.ChangeRequestStructure):
 
         return cls(
             message_bundles = [
-                disc_utils.MessageBundle.firebase_from_json(message_bundle_json)
+                vadb_disc_utils.MessageBundle.firebase_from_json(message_bundle_json)
                 for message_bundle_json in json
             ]
         )
@@ -89,15 +90,19 @@ class LogType(req_struct.ChangeRequestStructure):
 
 
     @classmethod
-    async def send_logs(cls, artist: art.Artist, prefix: str):
+    async def send_logs(cls, artist: art.Artist, prefix: str, req_embed: nx.Embed):
         """Sends the logs then returns the LogType with all messages."""
         all_channels = cls.get_all_channels()
-        info_artist = disc_utils.InfoBundle(artist)
 
         message_bundles = []
         for channel in all_channels:
             try:
-                message_bundle = await info_artist.send_message(channel = channel, prefix = prefix)
+                message_bundle = await vadb_disc_utils.MessageBundle(
+                    message_pointer_embed = disc_utils.MessagePointer.from_message(
+                        channel.send(prefix, embed = req_embed)
+                    ),
+                    message_pointer_proof = 
+                )
             except nx.errors.Forbidden:
                 continue
 

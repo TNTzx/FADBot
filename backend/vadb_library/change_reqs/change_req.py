@@ -269,6 +269,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         await self.log_bundle.delete_live_logs()
 
 
+    # REWRITE somehow implement this with the current system?
     def generate_embed(self):
         """Generates the embed of this `ChangeRequest`."""
         embed = vadb_discord_utils.InfoBundle(self.artist).get_embed()
