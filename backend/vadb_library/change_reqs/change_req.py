@@ -269,6 +269,29 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         await self.log_bundle.delete_live_logs()
 
 
+    def generate_embed(self):
+        """Generates the embed of this `ChangeRequest`."""
+        embed = vadb_discord_utils.InfoBundle(self.artist).get_embed()
+
+        embed.insert_field_at(0, name = disc_utils.make_horizontal_rule(left_text = "ARTIST DATA"), value = disc_utils.INVISIBLE_CHAR)
+        disc_utils.make_horizontal_rule_field(embed, left_text = f"{self.type_.upper()} REQUEST DATA")
+
+        emb_req_id = str(self.request_id) if self.request_id is not None else "Request not submitted yet!"
+        embed.add_field(
+            name = "Request ID:",
+            value = emb_req_id
+        )
+
+        emb_user_sender = f"{self.user_sender.name}#{self.user_sender.discriminator}"
+
+        embed.add_field(
+            name = "Request Creator:",
+            value = emb_user_sender
+        )
+
+        return embed
+
+
     @classmethod
     def get_all_req_types(cls):
         """Gets all `ChangeRequest` subclasses."""

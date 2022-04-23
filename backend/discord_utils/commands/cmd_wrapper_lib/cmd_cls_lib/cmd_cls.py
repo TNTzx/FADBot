@@ -74,7 +74,7 @@ class DiscordCommand():
                 inline = False
             )
 
-        embed_utils.make_horizontal_rule(embed)
+        embed_utils.make_horizontal_rule_field(embed)
 
         if self.info.params is None:
             embed.add_field(
@@ -108,7 +108,7 @@ class DiscordCommand():
                     inline = False
                 )
 
-        embed_utils.make_horizontal_rule(embed)
+        embed_utils.make_horizontal_rule_field(embed)
 
         guild_only = "only in servers." if self.info.usability_info.guild_only else "in direct messages and servers."
         embed.add_field(name = f"Can be used {guild_only}", value = "_ _", inline = False)

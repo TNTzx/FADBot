@@ -9,6 +9,7 @@ import nextcord.ext.commands as nx_cmds
 import backend.vadb_library as vadb
 import backend.discord_utils as disc_utils
 import backend.exc_utils as exc_utils
+import global_vars
 
 from ... import utils as cog
 
@@ -48,6 +49,10 @@ class CogArtistCmds(cog.RegisteredCog):
             description = "Creates an `add request`.",
             aliases = ["ara"],
             sustained = True,
+            cooldown_info = disc_utils.CooldownInfo(
+                length = global_vars.Timeouts.long,
+                type_ = nx_cmds.BucketType.user
+            ),
             usability_info = disc_utils.UsabilityInfo(
                 guild_only = False
             )
@@ -74,7 +79,6 @@ class CogArtistCmds(cog.RegisteredCog):
         await add_req.send_request_pending(dm_channel)
 
 
-    # REWRITE rewrite ##artistrequestedit
     @disc_utils.command_wrap(
         category = disc_utils.CategoryArtistManagement,
         cmd_info = disc_utils.CmdInfo(
@@ -86,6 +90,11 @@ class CogArtistCmds(cog.RegisteredCog):
                 )
             ),
             aliases = ["are"],
+            sustained = True,
+            cooldown_info = disc_utils.CooldownInfo(
+                length = global_vars.Timeouts.long,
+                type_ = nx_cmds.BucketType.user
+            ),
             usability_info = disc_utils.UsabilityInfo(
                 guild_only = False
             )
@@ -101,7 +110,7 @@ class CogArtistCmds(cog.RegisteredCog):
                 suffix = "There's no artist with that ID!"
             ).send()
 
-        # TEST test this out
+
         try:
             already_existing_reqs = vadb.EditRequest.firebase_get_all_requests()
         except vadb.ChangeReqNotFound:
@@ -143,47 +152,65 @@ class CogArtistCmds(cog.RegisteredCog):
         await edit_req.send_request_pending(dm_channel)
 
 
-    # @i_u.sustained_command()
-    # async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int, *skips):
-    #     if firebase.is_data_exists(["artistData", "editing", "data", str(artist_id)]):
-    #         await s_e.send_error(ctx, "The artist already has an `edit request`. Please wait for that to be approved first.")
-    #         return
-
-    #     if not isinstance(ctx.channel, nx.channel.DMChannel):
-    #         await ctx.send("The artist `edit request` form is sent to your DMs. Please check it.")
-
-    #     await a_l.send_reminder(ctx)
-
-    #     await ctx.author.send("Getting artist...")
-    #     artist = await a_ch.get_artist_by_id(ctx, artist_id)
-    #     artist.get_logs()
-
-    #     if "no_init" not in skips:
-    #         await artist.set_attribute(ctx, a_l.Default.Attributes.proof)
-
-    #     await artist.edit_loop(ctx)
-
-    #     old_artist = a_l.get_artist_by_id_vadb(artist_id)
-
-    #     if artist == old_artist:
-    #         await s_e.send_error(ctx, "You didn't make any edits!", send_author = True)
-    #         return
-
-    #     await ctx.author.send("Sending `edit request`...")
-    #     a_l.Firebase.Logging(artist).send_data(l_l.LogTypes.EDITING)
-
-    #     old_artist.states.status.value = 2
-    #     a_l.VADB.Send.Edit(old_artist).send_data(old_artist.vadb_info.artist_id)
-
-    #     await ctx.author.send("The `edit request` has been submitted. Please wait for an official moderator to approve your submission.")
-
-    #     log_message = f"[EDIT] {old_artist.name} / {artist.name}: {o_f.pr_print(artist.get_dict())}"
-    #     lgr.log_artist_control.info(log_message)
-
-    #     await artist.post_log(l_l.LogTypes.EDITING, ctx.author.id)
-
-
     # REWRITE rewrite ##artistverifyadd and ##artistverifyedit
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryArtistManagement,
+        cmd_info = disc_utils.CmdInfo(
+            description = "Accepts / declines the add request.",
+            params = disc_utils.Params(
+                disc_utils.ParamArgument(
+                    "add request id",
+                    description = "Add Request ID to verify."
+                ),
+                disc_utils.ParamsSplit(
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
+                            "accept",
+                            description = "Accepts the request, adding the artist to the database."
+                        )
+                    ),
+                    disc_utils.Params(
+                        disc_utils.ParamLiteral(
+                            "decline",
+                            description = "Declines the request, discarding it."
+                        ),
+                        disc_utils.ParamArgument(
+                            "reason",
+                            description = "The reason for declining the request."
+                        )
+                    ),
+                    description = "Describes the verdict."
+                )
+            ),
+            aliases = ["ava"],
+            sustained = True,
+            cooldown_info = disc_utils.CooldownInfo(
+                length = global_vars.Timeouts.long,
+                type_ = nx_cmds.BucketType.user
+            ),
+            usability_info = disc_utils.UsabilityInfo(
+                guild_only = False
+            ),
+            perms = disc_utils.Permissions([disc_utils.PermPAMod])
+        )
+    )
+    async def artistverifyadd(self, ctx: nx_cmds.Context, add_req_id: int, verdict: str, reason: str = None):
+        """Sets the verification status of an `AddRequest`."""
+        await ctx.send("Getting request data...")
+
+        try:
+            request = vadb.AddRequest.firebase_from_id(add_req_id)
+        except vadb.ChangeReqNotFound:
+            await exc_utils.SendFailedCmd(
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
+                suffix = "That `add request` doesn't exist!"
+            )
+
+
+        await ctx.send(f"Are you sure you want to {verdict} this `add request`?")
+
+
+
     # @disc_utils.command(
     #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Accepts / declines the request.",
