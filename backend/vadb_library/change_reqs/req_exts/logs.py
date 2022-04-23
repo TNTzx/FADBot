@@ -90,18 +90,18 @@ class LogType(req_struct.ChangeRequestStructure):
 
 
     @classmethod
-    async def send_logs(cls, artist: art.Artist, prefix: str, req_embed: nx.Embed):
+    async def send_logs(cls, artist: art.Artist, prefix: str):
         """Sends the logs then returns the LogType with all messages."""
         all_channels = cls.get_all_channels()
+        info_artist = vadb_disc_utils.InfoBundle(artist)
 
         message_bundles = []
         for channel in all_channels:
             try:
                 message_bundle = await vadb_disc_utils.MessageBundle(
                     message_pointer_embed = disc_utils.MessagePointer.from_message(
-                        channel.send(prefix, embed = req_embed)
-                    ),
-                    message_pointer_proof = 
+                        channel.send()
+                    )
                 )
             except nx.errors.Forbidden:
                 continue

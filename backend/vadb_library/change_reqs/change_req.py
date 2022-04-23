@@ -36,14 +36,10 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
     def __init__(
             self,
-            artist: art.Artist,
-            user_sender: nx.User,
-            request_id: int = None,
+            req_info: req_exts.ReqInfo,
             log_bundle: req_exts.LogBundle = req_exts.LogBundle()
             ):
-        self.artist = artist
-        self.user_sender = user_sender
-        self.request_id = request_id
+        self.req_info = req_info
         self.log_bundle = log_bundle
 
 
@@ -55,18 +51,14 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
     def firebase_to_json(self):
         return {
-            "artist": self.artist.firebase_to_json(),
-            "user_sender_id": str(self.user_sender.id),
-            "request_id": self.request_id,
+            "req_info": self.req_info.firebase_to_json(),
             "log_bundle": self.log_bundle.firebase_to_json()
         }
 
     @classmethod
     def firebase_from_json(cls, json: dict | list):
         return cls(
-            artist = art.Artist.firebase_from_json(json.get("artist")),
-            user_sender = global_vars.bot.get_user(int(json.get("user_sender_id"))),
-            request_id = json.get("request_id"),
+            req_info = req_exts.ReqInfo.firebase_from_json(json.get("req_info")),
             log_bundle = req_exts.LogBundle.firebase_from_json(json.get("log_bundle"))
         )
 
@@ -105,23 +97,23 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         """Registers this request with an ID. Sets the `request_id` attribute, also returns the request ID.."""
         request_id: int = firebase.get_data(req_fb.CURRENT_ID.get_path())
         firebase_inc_request_id()
-        self.request_id = request_id
+        self.req_info.request_id = request_id
 
         return request_id
 
 
     def get_original_artist(self):
         """Gets the original artist from VADB without modifications."""
-        return art.Artist.vadb_from_id(self.artist.vadb_info.artist_id)
+        return art.Artist.vadb_from_id(self.req_info.artist.vadb_info.artist_id)
 
 
     async def discord_send_request_pending(self):
         """The discord part of sending the request for approval. Sets the `log_bundle` attribute."""
-        self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.artist, self.type_, self.request_id)
+        self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.req_info.artist, self.type_, self.req_info.request_id)
 
     def firebase_send_request_pending(self):
         """The Firebase part of sending the request for approval."""
-        firebase.edit_data(self.firebase_get_path(), {self.request_id: self.firebase_to_json()})
+        firebase.edit_data(self.firebase_get_path(), {self.req_info.request_id: self.firebase_to_json()})
 
     async def send_request_pending_intercept(self):
         """An extra method used to intercept the `send_request_pending` method."""
@@ -138,25 +130,25 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         await channel.send(
             (
                 "Sent request. Please wait for a PA moderator to approve your request.\n"
-                f"**Request ID: {self.request_id}**"
+                f"**Request ID: {self.req_info.request_id}**"
             )
         )
 
         log_message = (
-            f"Request ID [{self.request_id}]: "
+            f"Request ID [{self.req_info.request_id}]: "
             f"{ot.pr_print(self.firebase_to_json())}"
         )
         lgr.log_change_req_data.info(log_message)
 
-        log_message = f"Created request with request ID [{self.request_id}]."
+        log_message = f"Created request with request ID [{self.req_info.request_id}]."
         lgr.log_change_req_changes.info(log_message)
 
 
     def firebase_delete_request(self):
         """Deletes the request off of Firebase."""
-        if self.request_id is None:
+        if self.req_info.request_id is None:
             raise req_exc.ChangeReqNotSubmitted()
-        firebase.delete_data(self.firebase_get_path() + [self.request_id])
+        firebase.delete_data(self.firebase_get_path() + [self.req_info.request_id])
 
 
     async def approve_request(self, channel: nx.TextChannel, author: nx.User):
@@ -168,9 +160,9 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     async def set_approval(self, channel: nx.TextChannel, author: nx.User, is_approved: bool, reason: str = None):
         """Sets the approve status of this request."""
         timeout = global_vars.Timeouts.medium
-        self.artist.states.status.value = 0
+        self.req_info.artist.states.status.value = 0
 
-        artist_embed = vadb_discord_utils.InfoBundle(self.artist).get_embed()
+        artist_embed = vadb_discord_utils.InfoBundle(self.req_info.artist).get_embed()
 
 
         async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[nx_cmds.Context], typ.Coroutine[None, None, None]]):
@@ -179,7 +171,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             confirm_view = disc_utils.ViewConfirmCancel()
 
             message_confirm_str = approval_cls.get_message_confirm(
-                req_id = self.request_id,
+                req_id = self.req_info.request_id,
                 req_type = self.type_,
                 reason = reason
             )
@@ -211,7 +203,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
             await channel.send(
                 approval_cls.get_message_complete(
-                    req_id = self.request_id,
+                    req_id = self.req_info.request_id,
                     req_type = self.type_,
                     reason = reason
                 ),
@@ -222,19 +214,19 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             # send logs then append
             new_dump_logs = await req_exts.DumpLogType.send_request_approval_logs(
                 approval_cls = approval_cls,
-                artist = self.artist,
+                artist = self.req_info.artist,
                 req_type = self.type_,
                 reason = reason,
-                req_id = self.request_id
+                req_id = self.req_info.request_id
             )
 
             self.log_bundle.dump_logs = self.log_bundle.dump_logs + new_dump_logs
 
 
             try:
-                await self.user_sender.send(
+                await self.req_info.user_sender.send(
                     approval_cls.get_message_complete_dm(
-                        req_id = self.request_id,
+                        req_id = self.req_info.request_id,
                         req_type = self.type_,
                         reason = reason
                     ),
@@ -244,14 +236,14 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                 await exc_utils.SendWarn(
                     error_place = exc_utils.ErrorPlace(channel, author),
                     suffix = (
-                        f"I can't seem to be able to notify the user who sent this request, named `{self.user_sender.name}#{self.user_sender.discriminator}` (ID: `{self.user_sender.id}`).\n"
+                        f"I can't seem to be able to notify the user who sent this request, named `{self.req_info.user_sender.name}#{self.req_info.user_sender.discriminator}` (ID: `{self.req_info.user_sender.id}`).\n"
                         "If you have contacts with this user, please notify them!"
                     )
                 ).send()
 
 
             # do logging
-            log_message = f"Set approval for request ID [{self.request_id}] with approval_cls {approval_cls.__name__}."
+            log_message = f"Set approval for request ID [{self.req_info.request_id}] with approval_cls {approval_cls.__name__}."
             lgr.log_change_req_changes.info(log_message)
 
 
@@ -269,30 +261,6 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         await self.log_bundle.delete_live_logs()
 
 
-    # REWRITE somehow implement this with the current system?
-    def generate_embed(self):
-        """Generates the embed of this `ChangeRequest`."""
-        embed = vadb_discord_utils.InfoBundle(self.artist).get_embed()
-
-        embed.insert_field_at(0, name = disc_utils.make_horizontal_rule(left_text = "ARTIST DATA"), value = disc_utils.INVISIBLE_CHAR)
-        disc_utils.make_horizontal_rule_field(embed, left_text = f"{self.type_.upper()} REQUEST DATA")
-
-        emb_req_id = str(self.request_id) if self.request_id is not None else "Request not submitted yet!"
-        embed.add_field(
-            name = "Request ID:",
-            value = emb_req_id
-        )
-
-        emb_user_sender = f"{self.user_sender.name}#{self.user_sender.discriminator}"
-
-        embed.add_field(
-            name = "Request Creator:",
-            value = emb_user_sender
-        )
-
-        return embed
-
-
     @classmethod
     def get_all_req_types(cls):
         """Gets all `ChangeRequest` subclasses."""
@@ -305,7 +273,7 @@ class AddRequest(ChangeRequest):
 
 
     async def approve_request(self, channel: nx.TextChannel, author: nx.User):
-        self.artist.vadb_create_edit()
+        self.req_info.artist.vadb_create_edit()
 
 
 class EditRequest(ChangeRequest):
@@ -320,8 +288,8 @@ class EditRequest(ChangeRequest):
 
 
     async def approve_request(self, channel: nx.TextChannel, author: nx.User):
-        self.artist.states.status.value = 0
-        self.artist.vadb_edit()
+        self.req_info.artist.states.status.value = 0
+        self.req_info.artist.vadb_edit()
 
     async def decline_request(self, channel: nx.TextChannel, author: nx.User):
         old_artist = self.get_original_artist()
