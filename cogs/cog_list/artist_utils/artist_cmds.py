@@ -226,7 +226,7 @@ class CogArtistCmds(cog.RegisteredCog):
             await exc_utils.SendFailedCmd(
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = "You didn't provide a reason! Reasons must be provided when you are denying a request!"
-            )
+            ).send()
 
 
         await ctx.send("Getting request data...")
@@ -237,7 +237,7 @@ class CogArtistCmds(cog.RegisteredCog):
             await exc_utils.SendFailedCmd(
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
                 suffix = "That `add request` doesn't exist!"
-            )
+            ).send()
 
 
         await request.set_approval(
