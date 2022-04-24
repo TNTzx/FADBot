@@ -120,6 +120,8 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
     async def send_request_pending(self, channel: nx.TextChannel):
         """Sends the request for approval."""
+        self.req_info.artist.states.status.value = 2
+
         await channel.send(f"Sending {self.req_type} request...")
         self.register_request_id()
         await self.discord_send_request_pending()
