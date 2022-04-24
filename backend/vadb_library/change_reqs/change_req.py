@@ -128,10 +128,8 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         await self.send_request_pending_intercept()
 
         await channel.send(
-            (
-                "Sent request. Please wait for a PA moderator to approve your request.\n"
-                f"**Request ID: {self.req_info.request_id}**"
-            )
+            "Sent request. Please wait for a PA moderator to approve your request.\n",
+            embed = self.req_info.get_embed()
         )
 
         log_message = (
@@ -162,7 +160,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         timeout = global_vars.Timeouts.medium
         self.req_info.artist.states.status.value = 0
 
-        artist_embed = vadb_discord_utils.InfoBundle(self.req_info.artist).get_embed()
+        req_embed = self.req_info.get_embed()
 
 
         async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[nx_cmds.Context], typ.Coroutine[None, None, None]]):
@@ -181,7 +179,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             )
             confirm_message = await channel.send(
                 confirm_str,
-                embed = artist_embed,
+                embed = req_embed,
                 view = confirm_view
             )
 
@@ -207,7 +205,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                     req_type = self.req_type,
                     reason = reason
                 ),
-                embed = artist_embed
+                embed = req_embed
             )
 
 
@@ -229,7 +227,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                         req_type = self.req_type,
                         reason = reason
                     ),
-                    embed = artist_embed
+                    embed = req_embed
                 )
             except nx.errors.Forbidden:
                 await exc_utils.SendWarn(
