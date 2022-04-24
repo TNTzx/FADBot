@@ -113,7 +113,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
     def firebase_send_request_pending(self):
         """The Firebase part of sending the request for approval."""
-        firebase.edit_data(self.firebase_get_path(), {self.req_info.request_id: self.firebase_to_json()})
+        firebase.edit_data(self.firebase_get_path(), {str(self.req_info.request_id): self.firebase_to_json()})
 
     async def send_request_pending_intercept(self):
         """An extra method used to intercept the `send_request_pending` method."""

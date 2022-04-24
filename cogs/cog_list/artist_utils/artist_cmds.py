@@ -219,7 +219,7 @@ class CogArtistCmds(cog.RegisteredCog):
         def get_verdict_bool():
             return verdict == "accept"
 
-        verdict_bool = get_verdict_bool()
+        verdict_bool = await get_verdict_bool()
 
 
         if (not verdict_bool) and (reason is None):
