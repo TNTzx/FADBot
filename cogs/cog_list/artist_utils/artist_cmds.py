@@ -43,6 +43,7 @@ async def init_req_cmd(ctx: nx_cmds.Context, req_type: str):
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
 
+    # REFACTOR refactor to new req_info system
     @disc_utils.command_wrap(
         category = disc_utils.CategoryArtistManagement,
         cmd_info = disc_utils.CmdInfo(

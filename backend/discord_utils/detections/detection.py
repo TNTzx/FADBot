@@ -6,7 +6,6 @@ import asyncio
 import enum
 
 import nextcord as nx
-import nextcord.ext.commands as nx_cmds
 
 import global_vars
 import backend.exc_utils as exc_utils

@@ -9,10 +9,8 @@ import nextcord as nx
 
 import global_vars
 import backend.firebase as firebase
-import backend.discord_utils as disc_utils
 
 from ... import vadb_discord_utils as vadb_disc_utils
-from ... import artist_lib as art
 from .. import req_exc
 from .. import req_struct
 from . import approve_status

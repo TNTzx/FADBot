@@ -2,7 +2,6 @@
 
 
 import nextcord as nx
-import nextcord.ext.commands as nx_cmds
 
 import backend.exc_utils as exc_utils
 import backend.discord_utils as disc_utils

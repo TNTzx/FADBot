@@ -6,7 +6,6 @@ import colour
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
-import backend.firebase as firebase
 import backend.discord_utils as disc_utils
 import backend.logging as lgr
 import backend.other as ot

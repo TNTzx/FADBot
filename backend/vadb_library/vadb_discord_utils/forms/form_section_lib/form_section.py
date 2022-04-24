@@ -8,7 +8,6 @@ import typing as typ
 import requests as req
 
 import nextcord as nx
-import nextcord.ext.commands as nx_cmds
 
 import global_vars
 import backend.discord_utils as disc_utils
