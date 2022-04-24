@@ -145,6 +145,8 @@ class CogArtistCmds(cog.RegisteredCog):
             await form_artist.edit_loop(dm_channel, author)
 
 
+            await ctx.send("Checking if the artist was edited...")
+
             duplicate_check_artist = copy.deepcopy(current_artist)
             duplicate_check_artist.proof = editing_artist.proof
 
