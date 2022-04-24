@@ -45,7 +45,7 @@ class ChangeReqInfo(req_struct.ChangeRequestStructure):
         """Generates the embed of this `ReqInfo`."""
         embed = vadb_discord_utils.InfoBundle(self.artist).get_embed()
 
-        emb_rule_length = 20
+        emb_rule_length = 40
 
         embed.insert_field_at(
             0,
