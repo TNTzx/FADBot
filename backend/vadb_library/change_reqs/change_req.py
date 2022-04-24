@@ -31,12 +31,12 @@ def firebase_inc_request_id():
 
 class ChangeRequest(req_struct.ChangeRequestStructure):
     """Parent class for all requests."""
-    type_: str = None
+    req_type: str = None
     firebase_name: str = None
 
     def __init__(
             self,
-            req_info: req_exts.ReqInfo,
+            req_info: req_exts.ChangeReqInfo,
             log_bundle: req_exts.LogBundle = req_exts.LogBundle()
             ):
         self.req_info = req_info
@@ -58,7 +58,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     @classmethod
     def firebase_from_json(cls, json: dict | list):
         return cls(
-            req_info = req_exts.ReqInfo.firebase_from_json(json.get("req_info")),
+            req_info = req_exts.ChangeReqInfo.firebase_from_json(json.get("req_info")),
             log_bundle = req_exts.LogBundle.firebase_from_json(json.get("log_bundle"))
         )
 
@@ -88,7 +88,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         all_reqs = [cls.firebase_from_json(req_json) for req_json in all_reqs_json.values()]
 
         if len(all_reqs) == 0:
-            raise req_exc.ChangeReqNotFound(f"There are no {cls.type_} requests in Firebase.")
+            raise req_exc.ChangeReqNotFound(f"There are no {cls.req_type} requests in Firebase.")
 
         return all_reqs
 
@@ -109,7 +109,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
     async def discord_send_request_pending(self):
         """The discord part of sending the request for approval. Sets the `log_bundle` attribute."""
-        self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.req_info.artist, self.type_, self.req_info.request_id)
+        self.log_bundle = await req_exts.LogBundle.send_request_pending_logs(self.req_info, self.req_type)
 
     def firebase_send_request_pending(self):
         """The Firebase part of sending the request for approval."""
@@ -120,7 +120,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
     async def send_request_pending(self, channel: nx.TextChannel):
         """Sends the request for approval."""
-        await channel.send(f"Sending {self.type_} request...")
+        await channel.send(f"Sending {self.req_type} request...")
         self.register_request_id()
         await self.discord_send_request_pending()
         self.firebase_send_request_pending()
@@ -172,7 +172,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
             message_confirm_str = approval_cls.get_message_confirm(
                 req_id = self.req_info.request_id,
-                req_type = self.type_,
+                req_type = self.req_type,
                 reason = reason
             )
             confirm_str = (
@@ -197,14 +197,14 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
 
             # processing request
-            await channel.send(approval_cls.get_message_processing(self.type_))
+            await channel.send(approval_cls.get_message_processing(self.req_type))
 
             await callback_method(channel)
 
             await channel.send(
                 approval_cls.get_message_complete(
                     req_id = self.req_info.request_id,
-                    req_type = self.type_,
+                    req_type = self.req_type,
                     reason = reason
                 ),
                 embed = artist_embed
@@ -214,10 +214,9 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             # send logs then append
             new_dump_logs = await req_exts.DumpLogType.send_request_approval_logs(
                 approval_cls = approval_cls,
-                artist = self.req_info.artist,
-                req_type = self.type_,
                 reason = reason,
-                req_id = self.req_info.request_id
+                req_info = self.req_info,
+                req_type = self.req_type
             )
 
             self.log_bundle.dump_logs = self.log_bundle.dump_logs + new_dump_logs
@@ -227,7 +226,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                 await self.req_info.user_sender.send(
                     approval_cls.get_message_complete_dm(
                         req_id = self.req_info.request_id,
-                        req_type = self.type_,
+                        req_type = self.req_type,
                         reason = reason
                     ),
                     embed = artist_embed
@@ -269,7 +268,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
 class AddRequest(ChangeRequest):
     """Request for adding artists into the database."""
-    type_ = firebase_name = "add"
+    req_type = firebase_name = "add"
 
 
     async def approve_request(self, channel: nx.TextChannel, author: nx.User):
@@ -278,7 +277,7 @@ class AddRequest(ChangeRequest):
 
 class EditRequest(ChangeRequest):
     """Request for editing an artist in the database."""
-    type_ = firebase_name = "edit"
+    req_type = firebase_name = "edit"
 
 
     async def send_request_pending_intercept(self):

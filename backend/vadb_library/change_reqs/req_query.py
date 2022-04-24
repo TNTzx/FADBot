@@ -38,7 +38,7 @@ class RequestQuery(queries.BaseQuery):
                 continue
 
             for req in all_reqs_in_change_req:
-                if req.artist.check_if_match_query(search_term):
+                if req.req_info.artist.check_if_match_query(search_term):
                     all_requests.append(req)
 
         if len(all_requests) == 0:
@@ -65,13 +65,13 @@ class RequestQuery(queries.BaseQuery):
 
         for change_req_split in change_req_splits:
             emb_req_split = [
-                f"\t**{change_req.request_id}**: {change_req.artist.name}"
+                f"\t**{change_req.req_info.request_id}**: {change_req.req_info.artist.name}"
                 for change_req in change_req_split.query_items
             ]
             emb_req_split = '\n'.join(emb_req_split)
 
             emb_reqs.append((
-                f"__{change_req_split.query_items[0].type_.capitalize()} requests__:\n"
+                f"__{change_req_split.query_items[0].req_type.capitalize()} requests__:\n"
                 f"{emb_req_split}"
             ))
 

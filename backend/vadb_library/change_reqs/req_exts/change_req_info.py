@@ -12,12 +12,13 @@ from ... import vadb_discord_utils
 from .. import req_struct
 
 
-class ReqInfo(req_struct.ChangeRequestStructure):
+class ChangeReqInfo(req_struct.ChangeRequestStructure):
     """Represents information on a change request."""
-    def __init__(self,
+    def __init__(
+            self,
             artist: artist_lib.Artist,
             user_sender: nx.User,
-            request_id: int = None
+            request_id: int = None,
         ):
         self.artist = artist
         self.user_sender = user_sender
