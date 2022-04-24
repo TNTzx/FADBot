@@ -184,7 +184,6 @@ class LogBundle(req_struct.ChangeRequestStructure):
     @classmethod
     async def send_request_pending_logs(cls, req_info: change_req_info.ChangeReqInfo, req_type: str):
         """Sends the logs to these log types then returns a `LogBundle` of these messages."""
-        # TODO implement reqinfo
         async def call_send(log_type: typ.Type[LogType]):
             """Calls `send_request_pending_logs` for the `LogType` and returns its result."""
             return await log_type.send_request_pending_logs(req_info, req_type)
