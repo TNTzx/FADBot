@@ -240,12 +240,6 @@ class CogArtistCmds(cog.RegisteredCog):
             )
 
 
-        await ctx.send(
-            f"Are you sure you want to {verdict} this `add request`?",
-            embed = request.req_info.get_embed()
-        )
-
-
         await request.set_approval(
             channel = ctx.channel,
             author = ctx.author,
