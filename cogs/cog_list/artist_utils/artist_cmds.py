@@ -43,7 +43,7 @@ async def init_req_cmd(ctx: nx_cmds.Context, req_type: str):
 class CogArtistCmds(cog.RegisteredCog):
     """Contains artist commands."""
 
-    # REFACTOR refactor to new req_info system
+
     @disc_utils.command_wrap(
         category = disc_utils.CategoryArtistManagement,
         cmd_info = disc_utils.CmdInfo(
@@ -73,8 +73,10 @@ class CogArtistCmds(cog.RegisteredCog):
         await form_artist.edit_loop(dm_channel, author)
 
         add_req = vadb.AddRequest(
-            artist = form_artist.artist,
-            user_sender = author
+            req_info = vadb.ChangeReqInfo(
+                user_sender = author,
+                artist = form_artist.artist
+            )
         )
 
         await add_req.send_request_pending(dm_channel)
@@ -117,7 +119,7 @@ class CogArtistCmds(cog.RegisteredCog):
         except vadb.ChangeReqNotFound:
             already_existing_reqs = []
 
-        already_existing_req_ids = [request.artist.vadb_info.artist_id for request in already_existing_reqs]
+        already_existing_req_ids = [request.req_info.artist.vadb_info.artist_id for request in already_existing_reqs]
         if current_artist.vadb_info.artist_id in already_existing_req_ids:
             await exc_utils.SendFailedCmd(
                 error_place = exc_utils.ErrorPlace.from_context(ctx),
@@ -130,6 +132,12 @@ class CogArtistCmds(cog.RegisteredCog):
 
         form_artist = vadb.disc.FormArtist(
             artist = editing_artist
+        )
+
+        form_artist.edit_with_section(
+            channel = ctx.channel,
+            author = ctx.author,
+            section = vadb.disc.FormSections.proof
         )
 
         while True:
@@ -146,8 +154,10 @@ class CogArtistCmds(cog.RegisteredCog):
 
 
         edit_req = vadb.EditRequest(
-            artist = form_artist.artist,
-            user_sender = author
+            req_info = vadb.ChangeReqInfo(
+                user_sender = author,
+                artist = form_artist.artist
+            )
         )
 
         await edit_req.send_request_pending(dm_channel)
