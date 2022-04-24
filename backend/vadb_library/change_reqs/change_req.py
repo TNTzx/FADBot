@@ -169,7 +169,6 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             confirm_view = disc_utils.ViewConfirmCancel()
 
             message_confirm_str = approval_cls.get_message_confirm(
-                req_id = self.req_info.request_id,
                 req_type = self.req_type,
                 reason = reason
             )
@@ -201,7 +200,6 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
             await channel.send(
                 approval_cls.get_message_complete(
-                    req_id = self.req_info.request_id,
                     req_type = self.req_type,
                     reason = reason
                 ),
@@ -213,7 +211,6 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             new_dump_logs = await req_exts.DumpLogType.send_request_approval_logs(
                 approval_cls = approval_cls,
                 reason = reason,
-                req_info = self.req_info,
                 req_type = self.req_type
             )
 
@@ -223,7 +220,6 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             try:
                 await self.req_info.user_sender.send(
                     approval_cls.get_message_complete_dm(
-                        req_id = self.req_info.request_id,
                         req_type = self.req_type,
                         reason = reason
                     ),
