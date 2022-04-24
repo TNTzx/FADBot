@@ -126,6 +126,7 @@ class CogArtistCmds(cog.RegisteredCog):
                 suffix = "The artist already has an existing edit request! Please wait until that edit request has been approved or declined!"
             ).send()
 
+
         author, dm_channel = await init_req_cmd(ctx, "edit")
 
         editing_artist = copy.deepcopy(current_artist)
@@ -134,7 +135,7 @@ class CogArtistCmds(cog.RegisteredCog):
             artist = editing_artist
         )
 
-        form_artist.edit_with_section(
+        await form_artist.edit_with_section(
             channel = ctx.channel,
             author = ctx.author,
             section = vadb.disc.FormSections.proof
@@ -143,7 +144,11 @@ class CogArtistCmds(cog.RegisteredCog):
         while True:
             await form_artist.edit_loop(dm_channel, author)
 
-            if current_artist != editing_artist:
+
+            duplicate_check_artist = copy.deepcopy(current_artist)
+            duplicate_check_artist.proof = editing_artist.proof
+
+            if duplicate_check_artist != editing_artist:
                 break
 
             await exc_utils.SendWarn(
