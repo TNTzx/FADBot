@@ -162,7 +162,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         req_embed = self.req_info.get_embed()
 
 
-        async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[nx_cmds.Context], typ.Coroutine[None, None, None]]):
+        async def to_approval(approval_cls: req_exts.ApprovalStatus, callback_method: typ.Callable[[nx.TextChannel, nx.User], typ.Coroutine[None, None, None]]):
             """Approves / declines the request from an `approval_cls`."""
             # confirmation
             confirm_view = disc_utils.ViewConfirmCancel()
@@ -194,10 +194,10 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
             # processing request
             self.req_info.artist.states.status.value = 0
-            
+
             await channel.send(approval_cls.get_message_processing(self.req_type))
 
-            await callback_method(channel)
+            await callback_method(channel, author)
 
             await channel.send(
                 approval_cls.get_message_complete(
