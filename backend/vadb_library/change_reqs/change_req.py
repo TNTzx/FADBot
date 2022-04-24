@@ -211,6 +211,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             new_dump_logs = await req_exts.DumpLogType.send_request_approval_logs(
                 approval_cls = approval_cls,
                 reason = reason,
+                req_info = self.req_info,
                 req_type = self.req_type
             )
 
