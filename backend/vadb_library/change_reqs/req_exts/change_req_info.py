@@ -62,7 +62,7 @@ class ChangeReqInfo(req_struct.ChangeRequestStructure):
             inline = False
         )
 
-        emb_user_sender = f"{self.user_sender.name}#{self.user_sender.discriminator}"
+        emb_user_sender = f"{self.user_sender.name}#{self.user_sender.discriminator} | ID: {self.user_sender.id}"
 
         embed.add_field(
             name = "Request Creator:",

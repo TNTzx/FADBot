@@ -11,7 +11,7 @@ def make_horizontal_rule(rule_length: int = 14, left_text: str = ""):
     if len(left_text) > rule_length:
         raise ValueError(f"Left-aligned text has greater length than rule length (expected <{rule_length}, text length is {len(left_text)}).")
 
-    rule = "=" * (rule_length - len(left_text))
+    rule = "-" * (rule_length - len(left_text))
     return f"{left_text}{rule}"
 
 
