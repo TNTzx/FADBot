@@ -142,7 +142,6 @@ class DumpLogType(LogType):
         """Sends the approved / declined logs to this `DumpLogType`."""
         return await cls.send_logs(
             prefix = approval_cls.get_message_complete_dump_logs(
-                req_id = req_info.request_id,
                 req_type = req_type,
                 reason = reason
             ),
