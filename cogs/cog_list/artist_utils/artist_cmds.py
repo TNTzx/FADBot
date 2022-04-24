@@ -105,6 +105,7 @@ class CogArtistCmds(cog.RegisteredCog):
     )
     async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int):
         """Requests an artist to be edited in the database."""
+        # TEST test this out
         try:
             current_artist = vadb.Artist.vadb_from_id(artist_id)
         except vadb.VADBNoArtistID:
@@ -214,6 +215,20 @@ class CogArtistCmds(cog.RegisteredCog):
     )
     async def artistverifyadd(self, ctx: nx_cmds.Context, add_req_id: int, verdict: str, reason: str = None):
         """Sets the verification status of an `AddRequest`."""
+        @disc_utils.choice_param_cmd(ctx, verdict, ["accept", "decline"])
+        def get_verdict_bool():
+            return verdict == "accept"
+
+        verdict_bool = get_verdict_bool()
+
+
+        if (not verdict_bool) and (reason is None):
+            await exc_utils.SendFailedCmd(
+                error_place = exc_utils.ErrorPlace.from_context(ctx),
+                suffix = "You didn't provide a reason! Reasons must be provided when you are denying a request!"
+            )
+
+
         await ctx.send("Getting request data...")
 
         try:
@@ -225,7 +240,18 @@ class CogArtistCmds(cog.RegisteredCog):
             )
 
 
-        await ctx.send(f"Are you sure you want to {verdict} this `add request`?")
+        await ctx.send(
+            f"Are you sure you want to {verdict} this `add request`?",
+            embed = request.req_info.get_embed()
+        )
+
+
+        await request.set_approval(
+            channel = ctx.channel,
+            author = ctx.author,
+            is_approved = verdict_bool,
+            reason = reason
+        )
 
 
 

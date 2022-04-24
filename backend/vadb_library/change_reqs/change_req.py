@@ -248,7 +248,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             await to_approval(req_exts.Approve, self.approve_request)
         else:
             if reason is None:
-                raise TypeError("Reason not provided.")
+                raise req_exc.SetApprovalNoReason()
 
             await to_approval(req_exts.Decline, self.decline_request)
 
