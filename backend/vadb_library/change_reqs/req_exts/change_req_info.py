@@ -16,12 +16,12 @@ class ChangeReqInfo(req_struct.ChangeRequestStructure):
     """Represents information on a change request."""
     def __init__(
             self,
-            artist: artist_lib.Artist,
             user_sender: nx.User,
+            artist: artist_lib.Artist = artist_lib.Artist(),
             request_id: int = None,
         ):
-        self.artist = artist
         self.user_sender = user_sender
+        self.artist = artist
         self.request_id = request_id
 
 
@@ -45,13 +45,21 @@ class ChangeReqInfo(req_struct.ChangeRequestStructure):
         """Generates the embed of this `ReqInfo`."""
         embed = vadb_discord_utils.InfoBundle(self.artist).get_embed()
 
-        embed.insert_field_at(0, name = disc_utils.make_horizontal_rule(left_text = "ARTIST DATA"), value = disc_utils.INVISIBLE_CHAR)
-        disc_utils.make_horizontal_rule_field(embed, left_text = "REQUEST DATA")
+        emb_rule_length = 20
+
+        embed.insert_field_at(
+            0,
+            name = disc_utils.make_horizontal_rule(rule_length = emb_rule_length, left_text = "ARTIST DATA"),
+            value = disc_utils.INVISIBLE_CHAR,
+            inline = False
+        )
+        disc_utils.make_horizontal_rule_field(embed, rule_length = emb_rule_length, left_text = "REQUEST DATA")
 
         emb_req_id = str(self.request_id) if self.request_id is not None else "Request not submitted yet!"
         embed.add_field(
             name = "Request ID:",
-            value = emb_req_id
+            value = emb_req_id,
+            inline = False
         )
 
         emb_user_sender = f"{self.user_sender.name}#{self.user_sender.discriminator}"
