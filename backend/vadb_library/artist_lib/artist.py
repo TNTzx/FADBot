@@ -66,6 +66,9 @@ class Artist(artist_struct.ArtistStruct):
         }
         ```
         """
+        if self.name is None:
+            raise excepts.VADBCreateNoName()
+
         payload = self.vadb_to_create_json()
 
         try:

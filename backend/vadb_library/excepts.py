@@ -14,6 +14,11 @@ class VADBNoArtistID(VADBError):
     def __init__(self, artist_id: int):
         super().__init__(f"No VADB entry with artist id {artist_id}.")
 
+class VADBCreateNoName(VADBError):
+    """The artist has no name, therefore the creation of the artist is impossible."""
+    def __init__(self):
+        super().__init__("The artist has no name, therefore the creation of the artist is impossible.")
+
 
 class VADBAlreadyExistingArtist(VADBError):
     """An artist already exists with that name."""
