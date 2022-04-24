@@ -66,11 +66,12 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     @classmethod
     def firebase_from_id(cls, request_id: int):
         """Gets the `ChangeRequest` from id."""
-        all_reqs = firebase.get_data(cls.firebase_get_path(), default = {})
+        all_reqs_json = firebase.get_data(cls.firebase_get_path(), default = {})
 
-        request_id_str = str(request_id)
-        if request_id_str in all_reqs:
-            return cls.firebase_from_json(all_reqs[request_id_str])
+        all_reqs = [cls.firebase_from_json(req_json) for req_json in all_reqs_json]
+        for req in all_reqs:
+            if req.req_info.request_id == request_id:
+                return req
 
         raise req_exc.ChangeReqNotFound(f"{cls.firebase_name.capitalize()} request ID {request_id} not found.")
 
@@ -113,7 +114,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
     def firebase_send_request_pending(self):
         """The Firebase part of sending the request for approval."""
-        firebase.edit_data(self.firebase_get_path(), {str(self.req_info.request_id): self.firebase_to_json()})
+        firebase.append_data(self.firebase_get_path(), [self.firebase_to_json()])
 
     async def send_request_pending_intercept(self):
         """An extra method used to intercept the `send_request_pending` method."""

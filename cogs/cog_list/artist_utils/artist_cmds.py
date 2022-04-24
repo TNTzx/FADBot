@@ -216,7 +216,7 @@ class CogArtistCmds(cog.RegisteredCog):
     async def artistverifyadd(self, ctx: nx_cmds.Context, add_req_id: int, verdict: str, reason: str = None):
         """Sets the verification status of an `AddRequest`."""
         @disc_utils.choice_param_cmd(ctx, verdict, ["accept", "decline"])
-        def get_verdict_bool():
+        async def get_verdict_bool():
             return verdict == "accept"
 
         verdict_bool = await get_verdict_bool()
@@ -240,6 +240,7 @@ class CogArtistCmds(cog.RegisteredCog):
             ).send()
 
 
+        # TODO add check for SetApprovalCancelled
         await request.set_approval(
             channel = ctx.channel,
             author = ctx.author,
