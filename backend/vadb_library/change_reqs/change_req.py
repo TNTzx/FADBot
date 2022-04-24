@@ -158,7 +158,6 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
     async def set_approval(self, channel: nx.TextChannel, author: nx.User, is_approved: bool, reason: str = None):
         """Sets the approve status of this request."""
         timeout = global_vars.Timeouts.medium
-        self.req_info.artist.states.status.value = 0
 
         req_embed = self.req_info.get_embed()
 
@@ -194,6 +193,8 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
 
 
             # processing request
+            self.req_info.artist.states.status.value = 0
+            
             await channel.send(approval_cls.get_message_processing(self.req_type))
 
             await callback_method(channel)
