@@ -95,7 +95,7 @@ class CogSendeReq(cog.RegisteredCog):
         category = disc_utils.CategoryArtistManagement,
         cmd_info = get_cmd_info(
             vadb.EditRequest,
-            aliases = ["ara"]
+            aliases = ["are"]
         )
     )
     async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int):
