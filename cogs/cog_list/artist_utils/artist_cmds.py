@@ -240,13 +240,15 @@ class CogArtistCmds(cog.RegisteredCog):
             ).send()
 
 
-        # TODO add check for SetApprovalCancelled
-        await request.set_approval(
-            channel = ctx.channel,
-            author = ctx.author,
-            is_approved = verdict_bool,
-            reason = reason
-        )
+        try:
+            await request.set_approval(
+                channel = ctx.channel,
+                author = ctx.author,
+                is_approved = verdict_bool,
+                reason = reason
+            )
+        except vadb.SetApprovalCancelled:
+            await exc_utils.SendCancel(error_place = exc_utils.ErrorPlace.from_context(ctx))
 
 
 
