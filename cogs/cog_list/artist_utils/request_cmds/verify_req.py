@@ -102,7 +102,7 @@ def get_cmd_info(req_cls: typ.Type[vadb.ChangeRequest], aliases: list[str] = Non
 class CogVerifyReq(cog.RegisteredCog):
     """Contains commands for verifying artist requests."""
 
-    # REWRITE rewrite ##artistverifyadd and ##artistverifyedit
+    # TEST test this out
     @disc_utils.command_wrap(
         category = disc_utils.CategoryArtistManagement,
         cmd_info = get_cmd_info(
@@ -121,7 +121,7 @@ class CogVerifyReq(cog.RegisteredCog):
         )
 
 
-
+    # REWRITE artistverifyedit
     # @disc_utils.command(
     #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Accepts / declines the request.",
