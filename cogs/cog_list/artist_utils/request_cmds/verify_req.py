@@ -1,7 +1,7 @@
 """Artist control."""
 
 
-import copy
+import typing as typ
 
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
@@ -11,244 +11,114 @@ import backend.discord_utils as disc_utils
 import backend.exc_utils as exc_utils
 import global_vars
 
-from ... import utils as cog
+from .... import utils as cog
 
 
-async def send_reminder(author: nx.User):
-    """Sends the reminder that the VADB site exists."""
-    await author.send(
-        (
-            ">>> Reminder that there is a site for VADB! This bot is built for this site.\n"
-            f"Check it out here! {vadb.BASE_LINK}"
-        )
-    )
+async def artist_verify(ctx: nx_cmds.Context, req_cls: typ.Type[vadb.ChangeRequest], req_id: int, verdict: str, reason: str = None):
+    """Verifies the artist."""
+    @disc_utils.choice_param_cmd(ctx, verdict, ["accept", "decline"])
+    async def get_verdict_bool():
+        return verdict == "accept"
+
+    verdict_bool = await get_verdict_bool()
 
 
-async def init_req_cmd(ctx: nx_cmds.Context, req_type: str):
-    """Initializes the request command. Returns a tuple. `(Author, DMChannel)`"""
-    if not isinstance(ctx.channel, nx.channel.DMChannel):
-        await ctx.send(f"The artist {req_type} request form is sent to your DMs. Please check it.")
-
-    author = ctx.author
-    dm_channel = author.dm_channel
-    if dm_channel is None:
-        dm_channel = await author.create_dm()
-
-    await send_reminder(author)
-    await dm_channel.send(f"> The artist {req_type} request is now being set up. Please __follow all instructions as necessary.__")
-
-    return author, dm_channel
+    if (not verdict_bool) and (reason is None):
+        await exc_utils.SendFailedCmd(
+            error_place = exc_utils.ErrorPlace.from_context(ctx),
+            suffix = "You didn't provide a reason! Reasons must be provided when you are denying a request!"
+        ).send()
 
 
-class CogArtistCmds(cog.RegisteredCog):
-    """Contains artist commands."""
+    await ctx.send(f"Getting `{req_cls.req_type}` request data...")
+
+    try:
+        request = req_cls.firebase_from_id(req_id)
+    except vadb.ChangeReqNotFound:
+        await exc_utils.SendFailedCmd(
+            error_place = exc_utils.ErrorPlace.from_context(ctx),
+            suffix = f"That `{req_cls.req_type}` request doesn't exist!"
+        ).send()
 
 
-    @disc_utils.command_wrap(
-        category = disc_utils.CategoryArtistManagement,
-        cmd_info = disc_utils.CmdInfo(
-            description = "Creates an `add request`.",
-            aliases = ["ara"],
-            sustained = True,
-            cooldown_info = disc_utils.CooldownInfo(
-                length = global_vars.Timeouts.long,
-                type_ = nx_cmds.BucketType.user
-            ),
-            usability_info = disc_utils.UsabilityInfo(
-                guild_only = False
-            )
-        )
-    )
-    async def artistrequestadd(self, ctx: nx_cmds.Context):
-        """Creates an add request."""
-        author, dm_channel = await init_req_cmd(ctx, "add")
-
-
-        form_artist = vadb.disc.FormArtist()
-
-        await author.send("Initiating request editing...")
-        await form_artist.edit_with_all_sections(dm_channel, author)
-
-        await author.send("Editing current artist...")
-        await form_artist.edit_loop(dm_channel, author)
-
-        add_req = vadb.AddRequest(
-            req_info = vadb.ChangeReqInfo(
-                user_sender = author,
-                artist = form_artist.artist
-            )
-        )
-
-        await add_req.send_request_pending(dm_channel)
-
-
-    @disc_utils.command_wrap(
-        category = disc_utils.CategoryArtistManagement,
-        cmd_info = disc_utils.CmdInfo(
-            description = "Requests an artist to be edited in the database.",
-            params = disc_utils.Params(
-                disc_utils.ParamArgument(
-                    "artist id",
-                    description = "The artist's ID to edit."
-                )
-            ),
-            aliases = ["are"],
-            sustained = True,
-            cooldown_info = disc_utils.CooldownInfo(
-                length = global_vars.Timeouts.long,
-                type_ = nx_cmds.BucketType.user
-            ),
-            usability_info = disc_utils.UsabilityInfo(
-                guild_only = False
-            )
-        )
-    )
-    async def artistrequestedit(self, ctx: nx_cmds.Context, artist_id: int):
-        """Requests an artist to be edited in the database."""
-        # TEST test this out
-        try:
-            current_artist = vadb.Artist.vadb_from_id(artist_id)
-        except vadb.VADBNoArtistID:
-            await exc_utils.SendFailedCmd(
-                error_place = exc_utils.ErrorPlace.from_context(ctx),
-                suffix = "There's no artist with that ID!"
-            ).send()
-
-
-        try:
-            already_existing_reqs = vadb.EditRequest.firebase_get_all_requests()
-        except vadb.ChangeReqNotFound:
-            already_existing_reqs = []
-
-        already_existing_req_ids = [request.req_info.artist.vadb_info.artist_id for request in already_existing_reqs]
-        if current_artist.vadb_info.artist_id in already_existing_req_ids:
-            await exc_utils.SendFailedCmd(
-                error_place = exc_utils.ErrorPlace.from_context(ctx),
-                suffix = "The artist already has an existing edit request! Please wait until that edit request has been approved or declined!"
-            ).send()
-
-
-        author, dm_channel = await init_req_cmd(ctx, "edit")
-
-        editing_artist = copy.deepcopy(current_artist)
-
-        form_artist = vadb.disc.FormArtist(
-            artist = editing_artist
-        )
-
-        await form_artist.edit_with_section(
+    try:
+        await request.set_approval(
             channel = ctx.channel,
             author = ctx.author,
-            section = vadb.disc.FormSections.proof
+            is_approved = verdict_bool,
+            reason = reason
         )
-
-        while True:
-            await form_artist.edit_loop(dm_channel, author)
-
-
-            await ctx.send("Checking if the artist was edited...")
-
-            duplicate_check_artist = copy.deepcopy(current_artist)
-            duplicate_check_artist.proof = editing_artist.proof
-
-            if duplicate_check_artist != editing_artist:
-                break
-
-            await exc_utils.SendWarn(
-                error_place = exc_utils.ErrorPlace(dm_channel, author),
-                suffix = "You didn't edit the artist!",
-                try_again = True
-            ).send()
+    except vadb.SetApprovalCancelled:
+        await exc_utils.SendCancel(error_place = exc_utils.ErrorPlace.from_context(ctx))
 
 
-        edit_req = vadb.EditRequest(
-            req_info = vadb.ChangeReqInfo(
-                user_sender = author,
-                artist = form_artist.artist
-            )
+def get_params(req_cls: typ.Type[vadb.ChangeRequest]):
+    """Gets the parameters for the verify command."""
+    return disc_utils.Params(
+        disc_utils.ParamArgument(
+            f"{req_cls.req_type} request id",
+            description = f"{req_cls.req_type.capitalize()} Request ID to verify."
+        ),
+        disc_utils.ParamsSplit(
+            disc_utils.Params(
+                disc_utils.ParamLiteral(
+                    "accept",
+                    description = f"Accepts the {req_cls.req_type} request."
+                )
+            ),
+            disc_utils.Params(
+                disc_utils.ParamLiteral(
+                    "decline",
+                    description = f"Declines the {req_cls.req_type} request, discarding it."
+                ),
+                disc_utils.ParamArgument(
+                    "reason",
+                    description = f"The reason for declining the {req_cls.req_type} request."
+                )
+            ),
+            description = "Describes the verdict."
         )
+    )
 
-        await edit_req.send_request_pending(dm_channel)
 
+def get_cmd_info(req_cls: typ.Type[vadb.ChangeRequest], aliases: list[str] = None):
+    """Gets the `CmdInfo` from the `ChangeRequest`."""
+    return disc_utils.CmdInfo(
+        description = f"Accepts / declines the {req_cls} request.",
+        params = get_params(req_cls),
+        aliases = aliases,
+        sustained = True,
+        cooldown_info = disc_utils.CooldownInfo(
+            length = global_vars.Timeouts.long,
+            type_ = nx_cmds.BucketType.user
+        ),
+        usability_info = disc_utils.UsabilityInfo(
+            guild_only = False
+        ),
+        perms = disc_utils.Permissions([disc_utils.PermPAMod])
+    )
+
+
+class CogVerifyReq(cog.RegisteredCog):
+    """Contains commands for verifying artist requests."""
 
     # REWRITE rewrite ##artistverifyadd and ##artistverifyedit
     @disc_utils.command_wrap(
         category = disc_utils.CategoryArtistManagement,
-        cmd_info = disc_utils.CmdInfo(
-            description = "Accepts / declines the add request.",
-            params = disc_utils.Params(
-                disc_utils.ParamArgument(
-                    "add request id",
-                    description = "Add Request ID to verify."
-                ),
-                disc_utils.ParamsSplit(
-                    disc_utils.Params(
-                        disc_utils.ParamLiteral(
-                            "accept",
-                            description = "Accepts the request, adding the artist to the database."
-                        )
-                    ),
-                    disc_utils.Params(
-                        disc_utils.ParamLiteral(
-                            "decline",
-                            description = "Declines the request, discarding it."
-                        ),
-                        disc_utils.ParamArgument(
-                            "reason",
-                            description = "The reason for declining the request."
-                        )
-                    ),
-                    description = "Describes the verdict."
-                )
-            ),
-            aliases = ["ava"],
-            sustained = True,
-            cooldown_info = disc_utils.CooldownInfo(
-                length = global_vars.Timeouts.long,
-                type_ = nx_cmds.BucketType.user
-            ),
-            usability_info = disc_utils.UsabilityInfo(
-                guild_only = False
-            ),
-            perms = disc_utils.Permissions([disc_utils.PermPAMod])
+        cmd_info = get_cmd_info(
+            vadb.AddRequest,
+            aliases = ["ava"]
         )
     )
-    async def artistverifyadd(self, ctx: nx_cmds.Context, add_req_id: int, verdict: str, reason: str = None):
+    async def artistverifyadd(self, ctx: nx_cmds.Context, req_id: int, verdict: str, reason: str = None):
         """Sets the verification status of an `AddRequest`."""
-        @disc_utils.choice_param_cmd(ctx, verdict, ["accept", "decline"])
-        async def get_verdict_bool():
-            return verdict == "accept"
-
-        verdict_bool = await get_verdict_bool()
-
-
-        if (not verdict_bool) and (reason is None):
-            await exc_utils.SendFailedCmd(
-                error_place = exc_utils.ErrorPlace.from_context(ctx),
-                suffix = "You didn't provide a reason! Reasons must be provided when you are denying a request!"
-            ).send()
-
-
-        await ctx.send("Getting request data...")
-
-        try:
-            request = vadb.AddRequest.firebase_from_id(add_req_id)
-        except vadb.ChangeReqNotFound:
-            await exc_utils.SendFailedCmd(
-                error_place = exc_utils.ErrorPlace.from_context(ctx),
-                suffix = "That `add request` doesn't exist!"
-            ).send()
-
-
-        try:
-            await request.set_approval(
-                channel = ctx.channel,
-                author = ctx.author,
-                is_approved = verdict_bool,
-                reason = reason
-            )
-        except vadb.SetApprovalCancelled:
-            await exc_utils.SendCancel(error_place = exc_utils.ErrorPlace.from_context(ctx))
+        await artist_verify(
+            ctx = ctx,
+            req_cls = vadb.AddRequest,
+            req_id = req_id,
+            verdict = verdict,
+            reason = reason
+        )
 
 
 
