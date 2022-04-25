@@ -299,6 +299,9 @@ class Artist(artist_struct.ArtistStruct):
         full_name_list = [self.name] + [alias.name for alias in aliases]
 
         for item in full_name_list:
+            if item is None:
+                continue
+
             if bool(pattern.search(item)):
                 return True
 
