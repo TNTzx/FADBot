@@ -49,7 +49,7 @@ async def artist_verify(ctx: nx_cmds.Context, req_cls: typ.Type[vadb.ChangeReque
             reason = reason
         )
     except vadb.SetApprovalCancelled:
-        await exc_utils.SendCancel(error_place = exc_utils.ErrorPlace.from_context(ctx))
+        await exc_utils.SendCancel(error_place = exc_utils.ErrorPlace.from_context(ctx)).send()
 
 
 def get_params(req_cls: typ.Type[vadb.ChangeRequest]):

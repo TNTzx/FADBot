@@ -198,16 +198,16 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
             # processing request
             self.req_info.artist.states.status.value = 0
 
+            new_req_embed = self.req_info.get_embed()
+
             await channel.send(approval_cls.get_message_processing(self.req_type))
-
             await callback_method(channel, author)
-
             await channel.send(
                 approval_cls.get_message_complete(
                     req_type = self.req_type,
                     reason = reason
                 ),
-                embed = req_embed
+                embed = new_req_embed
             )
 
 
@@ -228,7 +228,7 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
                         req_type = self.req_type,
                         reason = reason
                     ),
-                    embed = req_embed
+                    embed = new_req_embed
                 )
             except nx.errors.Forbidden:
                 await exc_utils.SendWarn(
