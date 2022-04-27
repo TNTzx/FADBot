@@ -58,7 +58,7 @@ def get_cmd_info(req_cls: typ.Type[vadb.ChangeRequest], aliases: list[str] = Non
     )
 
 
-class CogSendeReq(cog.RegisteredCog):
+class CogSendReq(cog.RegisteredCog):
     """Contains commands for making artist requests."""
 
     @disc_utils.command_wrap(
