@@ -1,5 +1,6 @@
 """Artist utilities."""
 
 
-from .artist_cmds import CogArtistCmds
+from .request_cmds import *
 from .log_cmds import CogLogCmds
+from .vadb_search import CogVADBSearch

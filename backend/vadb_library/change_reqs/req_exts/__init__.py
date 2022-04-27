@@ -8,3 +8,4 @@ from .logs import \
 from .approve_status import \
     ApprovalStatus, \
     Approve, Decline
+from .change_req_info import ChangeReqInfo

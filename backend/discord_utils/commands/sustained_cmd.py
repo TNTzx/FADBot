@@ -6,7 +6,6 @@ import nextcord.ext.commands as nx_cmds
 
 import backend.firebase as firebase
 import backend.exc_utils as exc_utils
-import backend.other as ot
 
 
 def check_if_using_command(path: list[str], author_id: int):

@@ -8,7 +8,6 @@ import typing as typ
 import requests as req
 
 import nextcord as nx
-import nextcord.ext.commands as nx_cmds
 
 import global_vars
 import backend.discord_utils as disc_utils
@@ -78,7 +77,7 @@ class FormSection():
         embed.add_field(name = "**Description:**", value = self.description, inline = False)
 
 
-        disc_utils.make_horizontal_rule(embed)
+        disc_utils.make_horizontal_rule_field(embed)
 
 
         embed.add_field(
@@ -88,7 +87,7 @@ class FormSection():
         )
 
         if (self.example is not None) or (self.notes is not None):
-            disc_utils.make_horizontal_rule(embed)
+            disc_utils.make_horizontal_rule_field(embed)
 
             if self.example is not None:
                 embed.add_field(
@@ -104,7 +103,7 @@ class FormSection():
                 )
 
 
-        disc_utils.make_horizontal_rule(embed)
+        disc_utils.make_horizontal_rule_field(embed)
 
 
         emb_footer_extra = f"This command times out in {ot.format_time(timeout)}."

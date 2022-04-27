@@ -10,11 +10,11 @@ import nextcord as nx
 import global_vars
 import backend.firebase as firebase
 
-from ... import vadb_discord_utils as disc_utils
-from ... import artist_lib as art
+from ... import vadb_discord_utils as vadb_disc_utils
 from .. import req_exc
 from .. import req_struct
 from . import approve_status
+from . import change_req_info
 
 
 def get_log_path(guild: nx.Guild):
@@ -29,7 +29,7 @@ class LogType(req_struct.ChangeRequestStructure):
 
     def __init__(
             self,
-            message_bundles: list[disc_utils.MessageBundle] = None
+            message_bundles: list[vadb_disc_utils.MessageBundle] = None
         ):
         self.message_bundles = message_bundles
 
@@ -52,7 +52,7 @@ class LogType(req_struct.ChangeRequestStructure):
 
         return cls(
             message_bundles = [
-                disc_utils.MessageBundle.firebase_from_json(message_bundle_json)
+                vadb_disc_utils.MessageBundle.firebase_from_json(message_bundle_json)
                 for message_bundle_json in json
             ]
         )
@@ -89,15 +89,17 @@ class LogType(req_struct.ChangeRequestStructure):
 
 
     @classmethod
-    async def send_logs(cls, artist: art.Artist, prefix: str):
+    async def send_logs(cls, prefix: str, req_info: change_req_info.ChangeReqInfo, req_type: str):
         """Sends the logs then returns the LogType with all messages."""
         all_channels = cls.get_all_channels()
-        info_artist = disc_utils.InfoBundle(artist)
 
         message_bundles = []
         for channel in all_channels:
             try:
-                message_bundle = await info_artist.send_message(channel = channel, prefix = prefix)
+                message_bundle = await req_info.discord_send_message(
+                    channel = channel,
+                    prefix = prefix
+                )
             except nx.errors.Forbidden:
                 continue
 
@@ -107,14 +109,11 @@ class LogType(req_struct.ChangeRequestStructure):
 
 
     @classmethod
-    async def send_request_pending_logs(cls, artist: art.Artist, req_type: str = "unknown", req_id: int = "?"):
+    async def send_request_pending_logs(cls, req_info: change_req_info.ChangeReqInfo, req_type: str):
         """Sends the logs to the channels in this `LogType` then returns this `LogType`."""
         return await cls.send_logs(
-            artist,
-            (
-                f"This {req_type} request is being processed. Please wait for this request to be approved.\n"
-                f"**Request ID: __{req_id}__**"
-            )
+            f"This {req_type} request is being processed. Please wait for this request to be approved.\n",
+            req_info = req_info, req_type = req_type
         )
 
 
@@ -136,19 +135,18 @@ class DumpLogType(LogType):
     async def send_request_approval_logs(
             cls,
             approval_cls: typ.Type[approve_status.ApprovalStatus],
-            artist: art.Artist,
-            req_type: str = "unknown",
-            reason: str = "unknown",
-            req_id: int = "?"
+            reason: str,
+            req_info: change_req_info.ChangeReqInfo,
+            req_type: str
             ):
         """Sends the approved / declined logs to this `DumpLogType`."""
         return await cls.send_logs(
-            artist = artist,
             prefix = approval_cls.get_message_complete_dump_logs(
-                req_id = req_id,
                 req_type = req_type,
                 reason = reason
-            )
+            ),
+            req_info = req_info,
+            req_type = req_type
         )
 
 
@@ -184,11 +182,15 @@ class LogBundle(req_struct.ChangeRequestStructure):
 
 
     @classmethod
-    async def send_request_pending_logs(cls, artist: art.Artist, req_type: str = "unknown", req_id: int = "?"):
+    async def send_request_pending_logs(cls, req_info: change_req_info.ChangeReqInfo, req_type: str):
         """Sends the logs to these log types then returns a `LogBundle` of these messages."""
+        async def call_send(log_type: typ.Type[LogType]):
+            """Calls `send_request_pending_logs` for the `LogType` and returns its result."""
+            return await log_type.send_request_pending_logs(req_info, req_type)
+
         return cls(
-            dump_logs = await DumpLogType.send_request_pending_logs(artist, req_type, req_id),
-            live_logs = await LiveLogType.send_request_pending_logs(artist, req_type, req_id)
+            dump_logs = await call_send(DumpLogType),
+            live_logs = await call_send(LiveLogType)
         )
 
 

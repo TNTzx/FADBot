@@ -35,8 +35,8 @@ class ArtistQuery(queries.BaseQuery):
 
     def generate_embed(
             self,
-            title: str = None,
-            description: str = None,
+            title: str = "Multiple Artists Found!",
+            description: str = "Multiple artists found for your search term!",
             footer: str = None
             ):
         """Generates an embed for multiple artists."""

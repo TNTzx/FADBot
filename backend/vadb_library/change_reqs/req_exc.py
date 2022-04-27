@@ -26,7 +26,15 @@ class ChangeReqNotSubmitted(ChangeReqError):
         super().__init__("Artist not submitted in Firebase yet.")
 
 
-class SetApprovalCancelled(ChangeReqError):
+class SetApprovalError(ChangeReqError):
+    """Parent class for set approval errors."""
+
+class SetApprovalCancelled(SetApprovalError):
     """Setting an approval has been cancelled."""
     def __init__(self) -> None:
+        super().__init__(self.__class__.__doc__)
+
+class SetApprovalNoReason(SetApprovalError):
+    """The reason wasn't provided."""
+    def __init__(self):
         super().__init__(self.__class__.__doc__)

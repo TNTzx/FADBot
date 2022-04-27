@@ -33,6 +33,10 @@ class Artist(artist_struct.ArtistStruct):
         self.details = details
 
 
+    def __eq__(self, other: Artist):
+        return self.firebase_to_json() == other.firebase_to_json()
+
+
     def vadb_to_create_json(self) -> dict | list:
         return {
             "name": self.name,
@@ -62,6 +66,9 @@ class Artist(artist_struct.ArtistStruct):
         }
         ```
         """
+        if self.name is None:
+            raise excepts.VADBCreateNoName()
+
         payload = self.vadb_to_create_json()
 
         try:
@@ -292,6 +299,9 @@ class Artist(artist_struct.ArtistStruct):
         full_name_list = [self.name] + [alias.name for alias in aliases]
 
         for item in full_name_list:
+            if item is None:
+                continue
+
             if bool(pattern.search(item)):
                 return True
 

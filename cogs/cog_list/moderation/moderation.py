@@ -108,7 +108,12 @@ class CogModeration(cog.RegisteredCog):
                         f"This command will time out in `{ot.format_time(global_vars.Timeouts.long)}`."
                     ), view = confirm_view)
 
-                output_view = await disc_utils.wait_for_view(ctx, confirm_message, confirm_view)
+                output_view = await disc_utils.wait_for_view(
+                    channel = ctx.channel,
+                    author = ctx.author,
+                    original_message = confirm_message,
+                    view = confirm_view
+                )
 
                 if output_view.value == disc_utils.ViewOutputValues.CANCEL:
                     await exc_utils.SendCancel(
