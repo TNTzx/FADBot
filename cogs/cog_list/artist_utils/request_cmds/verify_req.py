@@ -125,7 +125,7 @@ class CogVerifyReq(cog.RegisteredCog):
         category = disc_utils.CategoryArtistManagement,
         cmd_info = get_cmd_info(
             vadb.EditRequest,
-            aliases = ["ava"]
+            aliases = ["ave"]
         )
     )
     async def artistverifyedit(self, ctx: nx_cmds.Context, req_id: int, verdict: str, reason: str = None):
