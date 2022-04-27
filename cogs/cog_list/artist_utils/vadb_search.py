@@ -12,7 +12,7 @@ from ... import utils as cog
 
 
 class CogVADBSearch(cog.RegisteredCog):
-    """Contains commands for verifying artist requests."""
+    """Contains commands for searching for artists and artist requests."""
     @disc_utils.command_wrap(
         category = disc_utils.CategoryArtistManagement,
         cmd_info = disc_utils.CmdInfo(
@@ -39,6 +39,9 @@ class CogVADBSearch(cog.RegisteredCog):
             cooldown_info = disc_utils.CooldownInfo(
                 length = 5,
                 type_ = nx_cmds.BucketType.user
+            ),
+            usability_info = disc_utils.UsabilityInfo(
+                guild_only = False
             )
         )
     )
