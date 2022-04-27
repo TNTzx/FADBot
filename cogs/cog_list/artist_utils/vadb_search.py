@@ -83,44 +83,4 @@ class CogVADBSearch(cog.RegisteredCog):
         await ctx.send(embed = vadb.disc.InfoBundle(selected_artist).get_embed())
 
 
-    # @disc_utils.command(
-    #     category = disc_utils.CmdCategories.artist_management,
-    #     description = "Gets a specified artist by search term or VADB ID.",
-    #     parameters = {
-    #         "[<search term> | <ID>]": (
-    #             "If <search term> is used, then the command will return a list of artists for that search term.\n"
-    #             "If <ID> is used, then the bot will return the artist with that ID."
-    #         )
-    #     },
-    #     aliases = ["as"],
-    #     guild_only = False,
-    #     cooldown = 5, cooldown_type = nx_cmds.BucketType.user,
-    #     example_usage = [
-    #         "##artistsearch \"Some Random Artist Name\"",
-    #         "##artistsearch 5"
-    #     ]
-    # )
-    # async def artistsearch(self, ctx: nx_cmds.Context, term: str | int):
-    #     try:
-    #         term = int(term)
-    #     except (ValueError, TypeError):
-    #         pass
-
-    #     await ctx.send("Searching for artist...")
-
-    #     if isinstance(term, int):
-    #         artist = await a_ch.get_artist_by_id(ctx, term)
-    #         await ctx.send(embed = await artist.generate_embed())
-    #         return
-
-    #     search_result = a_l.search_for_artist(term)
-    #     if search_result is None:
-    #         await s_e.send_error(ctx, "Your search term has no results. The artist might also be pending, in which case you can try `##artistsearch <id>` instead. Try again?")
-    #         return
-
-    #     if len(search_result) == 1:
-    #         await ctx.send(embed = await search_result[0].generate_embed())
-    #     elif len(search_result) > 1:
-    #         await ctx.send("Multiple artists found! Use `##artistsearch <id>` to search for a specific artist.", embed = a_l.generate_search_embed(search_result))
-
-
+    
