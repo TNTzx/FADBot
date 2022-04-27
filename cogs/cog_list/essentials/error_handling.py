@@ -48,7 +48,7 @@ class CogErrorHandler(cog.RegisteredCog):
                 exc_utils.reset_cooldown(ctx)
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
-                    suffix = f"Make sure you have the correct parameters! Use `{CMD_PREFIX}help` to get help!"
+                    suffix = f"Make sure you have the correct parameters! Use `{CMD_PREFIX}help {ctx.command.name}` to get help!"
                     ).send()
 
 
@@ -62,13 +62,6 @@ class CogErrorHandler(cog.RegisteredCog):
                 await exc_utils.SendFailedCmd(
                     error_place = exc_utils.ErrorPlace.from_context(ctx),
                     suffix = "Your quotation marks (`\"`) are wrong! Double-check the command if you have missing quotation marks!"
-                    ).send()
-
-
-            if isinstance(exc, nx_cmds.MissingRequiredArgument):
-                await exc_utils.SendFailedCmd(
-                    error_place = exc_utils.ErrorPlace.from_context(ctx),
-                    suffix = f"Make sure you have the correct parameters! Use `{global_vars.CMD_PREFIX}help` to get help!"
                     ).send()
 
 
