@@ -11,7 +11,7 @@ import backend.exc_utils as exc_utils
 from ... import utils as cog
 
 
-class CogVerifyReq(cog.RegisteredCog):
+class CogVADBSearch(cog.RegisteredCog):
     """Contains commands for verifying artist requests."""
     @disc_utils.command_wrap(
         category = disc_utils.CategoryArtistManagement,
@@ -43,6 +43,7 @@ class CogVerifyReq(cog.RegisteredCog):
         )
     )
     async def artistsearch(self, ctx: nx_cmds.Context, term_or_id: str | int):
+        """Searches for an artist."""
         try:
             term_or_id = int(term_or_id)
         except (ValueError, TypeError):
