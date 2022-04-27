@@ -1,7 +1,6 @@
 """Contains commands for searching for artists."""
 
 
-import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.discord_utils as disc_utils

@@ -4,7 +4,6 @@
 import typing as typ
 
 import nextcord as nx
-import nextcord.ext.commands as nx_cmds
 
 import global_vars
 import backend.firebase as firebase
@@ -14,7 +13,6 @@ import backend.logging as lgr
 import backend.other as ot
 
 from .. import artist_lib as art
-from .. import vadb_discord_utils
 from . import req_struct
 from . import req_exts
 from . import req_fb_endpoints as req_fb

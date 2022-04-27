@@ -3,7 +3,6 @@
 
 import typing as typ
 
-import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
 import backend.vadb_library as vadb
