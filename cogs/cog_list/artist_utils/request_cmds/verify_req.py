@@ -102,7 +102,6 @@ def get_cmd_info(req_cls: typ.Type[vadb.ChangeRequest], aliases: list[str] = Non
 class CogVerifyReq(cog.RegisteredCog):
     """Contains commands for verifying artist requests."""
 
-    # TEST test this out
     @disc_utils.command_wrap(
         category = disc_utils.CategoryArtistManagement,
         cmd_info = get_cmd_info(
@@ -122,6 +121,22 @@ class CogVerifyReq(cog.RegisteredCog):
 
 
     # REWRITE artistverifyedit
+    @disc_utils.command_wrap(
+        category = disc_utils.CategoryArtistManagement,
+        cmd_info = get_cmd_info(
+            vadb.EditRequest,
+            aliases = ["ava"]
+        )
+    )
+    async def artistverifyedit(self, ctx: nx_cmds.Context, req_id: int, verdict: str, reason: str = None):
+        """Sets the verification status of an `EditRequest`."""
+        await artist_verify(
+            ctx = ctx,
+            req_cls = vadb.EditRequest,
+            req_id = req_id,
+            verdict = verdict,
+            reason = reason
+        )
     # @disc_utils.command(
     #     category = disc_utils.CmdCategories.artist_management,
     #     description = "Accepts / declines the request.",
