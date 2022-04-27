@@ -149,7 +149,11 @@ class ChangeRequest(req_struct.ChangeRequestStructure):
         """Deletes the request off of Firebase."""
         if self.req_info.request_id is None:
             raise req_exc.ChangeReqNotSubmitted()
-        firebase.deduct_data(self.firebase_get_path(), [self.firebase_to_json()])
+
+        for idx, change_req in enumerate(self.firebase_get_all_requests()):
+            if change_req.req_info.request_id == self.req_info.request_id:
+                firebase.delete_data(self.firebase_get_path() + [str(idx)])
+                break
 
 
     async def approve_request(self, channel: nx.TextChannel, author: nx.User):
