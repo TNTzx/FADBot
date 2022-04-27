@@ -83,4 +83,5 @@ class CogVADBSearch(cog.RegisteredCog):
         await ctx.send(embed = vadb.disc.InfoBundle(selected_artist).get_embed())
 
 
-    
+    # TODO add ##artistrequestsearch
+    # must include: searching for all artist requests, searching for all requests in a specific type, searching for a request with id or search term
