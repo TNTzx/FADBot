@@ -81,4 +81,4 @@ class SendCancel(ErrorSenderPredetermined):
 
 class SendTimeout(ErrorSenderPredetermined):
     """Sends a timeout."""
-    suffix = "Command cancelled."
+    suffix = "Command timed out."
