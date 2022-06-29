@@ -18,6 +18,17 @@ def get_id_from_mention(mention_str: str):
         raise disc_exc.NotMention(mention_str) from exc
 
 
+async def get_id_from_mention_warn(ctx, mention_str: str):
+    """Like `get_id_from_mention`, but with warning the user."""
+    try:
+        return get_id_from_mention(mention_str)
+    except disc_exc.NotMention:
+        await exc_utils.SendFailed(
+            error_place = exc_utils.ErrorPlace.from_context(ctx),
+            suffix = f"{mention_str} is not a mention! Make sure that this text turns blue when you send the message!"
+        ).send()
+
+
 def channel_from_id(channel_id: int):
     """Takes in a channel mention then returns the channel."""
     channel = global_vars.bot.get_channel(channel_id)
