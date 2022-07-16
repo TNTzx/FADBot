@@ -24,11 +24,21 @@ class UserNotFound(GetNotFound):
     def __init__(self, user_id: int):
         super().__init__(f"User ID \"{user_id}\" not found.")
 
+class EmojiNotFound(GetNotFound):
+    """Emoji not found."""
+    def __init__(self, emoji_id: int):
+        super().__init__(f"Emoji ID \"{emoji_id}\" not found.")
+
 
 class NotMention(CustomDiscordException):
     """Not a mention string."""
     def __init__(self, not_mention_str: str):
         super().__init__(f"\"{not_mention_str}\" is not a mention string.")
+
+class NotEmojiStr(CustomDiscordException):
+    """Not an emoji string."""
+    def __init__(self, not_emoji_str: str):
+        super().__init__(f"\"{not_emoji_str}\" is not an emoji string.")
 
 
 class InvalidResponse(CustomDiscordException):

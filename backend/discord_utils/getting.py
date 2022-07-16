@@ -1,6 +1,8 @@
 """Contains logic for getting channels from ids, user from id, etc."""
 
 
+import re
+
 import nextcord as nx
 import nextcord.ext.commands as nx_cmds
 
@@ -28,6 +30,46 @@ async def get_id_from_mention_warn(ctx, mention_str: str):
         await exc_utils.SendFailed(
             error_place = exc_utils.ErrorPlace.from_context(ctx),
             suffix = f"{mention_str} is not a mention! Make sure that this text turns blue when you send the message!"
+        ).send()
+
+
+def emoji_id_from_str(emoji_str: str):
+    """Returns the emoji's ID from the emoji string."""
+    regex = "^<a?:.*:(.+)>$"
+    group = 1
+    search = re.search(regex, emoji_str)
+    if search is None:
+        raise disc_exc.NotEmojiStr(emoji_str)
+
+    return int(search.group(group))
+
+async def emoji_id_from_str_warn(ctx: nx_cmds.Context, emoji_str: str):
+    """Like `emoji_id_from_str`, but with warning the user."""
+    try:
+        return emoji_id_from_str(emoji_str)
+    except disc_exc.NotEmojiStr:
+        await exc_utils.SendFailed(
+            error_place = exc_utils.ErrorPlace.from_context(ctx),
+            suffix = f"{emoji_str} is not an emoji!"
+        ).send()
+
+
+def emoji_from_id(emoji_id: int):
+    """Returns the `Emoji` from the emoji ID."""
+    emoji = global_vars.bot.get_emoji(emoji_id)
+    if emoji is None:
+        raise disc_exc.EmojiNotFound(emoji_id)
+
+    return emoji
+
+async def emoji_from_id_warn(ctx: nx_cmds.Context, emoji_id: int):
+    """Like `emoji_from_id`, but with warning the user."""
+    try:
+        return emoji_from_id(emoji_id)
+    except disc_exc.EmojiNotFound:
+        await exc_utils.SendFailed(
+            error_place = exc_utils.ErrorPlace.from_context(ctx),
+            suffix = f"Emoji ID {emoji_id} not found! Maybe this emoji is in a server where this bot isn't in?"
         ).send()
 
 

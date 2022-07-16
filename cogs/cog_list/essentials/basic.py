@@ -23,13 +23,16 @@ async def add_new_to_database():
             firebase.edit_data(endpoint_path, {str(guild_client.id): endpoint.get_default_data()})
 
 
-    bot_guild_ids = [guild.id for guild in global_vars.global_bot.guilds]
-    for guild_id in firebase.get_data(endpoint_path):
-        guild_id = int(guild_id)
-        if guild_id not in bot_guild_ids:
-            firebase.delete_data(
-                firebase.ShortEndpoint.discord_guilds.get_path() + [guild_id]
-            )
+    if not global_vars.dev_environment:
+        bot_guild_ids = [guild.id for guild in global_vars.global_bot.guilds]
+        for guild_id in firebase.get_data(endpoint_path):
+            guild_id = int(guild_id)
+            if guild_id not in bot_guild_ids:
+                firebase.delete_data(
+                    firebase.ShortEndpoint.discord_guilds.get_path() + [guild_id]
+                )
+    else:
+        pass
 
 
 class CogBasic(cog.RegisteredCog):
