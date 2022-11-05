@@ -73,12 +73,12 @@ packaging==21.3
 parso==0.8.3
 pefile==2021.9.3
 pickleshare==0.7.5
-Pillow==9.1.0
+Pillow==9.1.1
 platformdirs==2.5.1
 plotly==5.7.0
 proglog==0.1.9
 prompt-toolkit==3.0.29
-protobuf==3.20.0
+protobuf==3.20.2
 pure-eval==0.2.2
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
